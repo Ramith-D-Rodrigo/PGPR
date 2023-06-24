@@ -28,9 +28,7 @@ npm install
 cd server
 php artisan serve
 ```
-2. Go to server folder
-3. run "php artisan serve" command
-4. Open another CLI inside the root directory and run the following commands
+2. Open another CLI inside the root directory and run the following commands
 ```
 cd client
 npm run dev
