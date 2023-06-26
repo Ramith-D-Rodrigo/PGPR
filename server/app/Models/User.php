@@ -42,4 +42,14 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    //there are many university sides that are users
+    public function universitySides(){
+        return $this -> hasMany(UniversitySide::class);
+    }
+
+    //there are many quality assurance council officers that are users
+    public function qualityAssuranceCouncilOfficers(){
+        return $this -> hasMany(QualityAssuranceCouncilOfficer::class);
+    }
 }
