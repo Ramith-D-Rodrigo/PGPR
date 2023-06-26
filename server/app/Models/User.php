@@ -43,13 +43,13 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    //there are many university sides that are users
-    public function universitySides(){
-        return $this -> hasMany(UniversitySide::class);
+    //there is one user that is a university side
+    public function universitySide(){
+        return $this -> hasOne(UniversitySide::class, 'id', 'id');
     }
 
-    //there are many quality assurance council officers that are users
-    public function qualityAssuranceCouncilOfficers(){
-        return $this -> hasMany(QualityAssuranceCouncilOfficer::class);
+    //there is one user that is a quality assurance council officer
+    public function qualityAssuranceCouncilOfficer(){
+        return $this -> hasOne(QualityAssuranceCouncilOfficer::class, 'id', 'id');
     }
 }
