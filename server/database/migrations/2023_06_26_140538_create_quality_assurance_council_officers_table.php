@@ -14,6 +14,9 @@ return new class extends Migration
         Schema::create('quality_assurance_council_officers', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
+
+            //foreign key
+            $table -> foreign('id') -> references('id') -> on('users');
         });
     }
 

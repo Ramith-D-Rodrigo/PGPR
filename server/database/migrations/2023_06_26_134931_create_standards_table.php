@@ -13,7 +13,11 @@ return new class extends Migration
     {
         Schema::create('standards', function (Blueprint $table) {
             $table->id();
+            $table -> unsignedBigInteger('criteria_id');
             $table->timestamps();
+
+            //foreign key
+            $table -> foreign('criteria_id') -> references('id') -> on('criterias');
         });
     }
 
