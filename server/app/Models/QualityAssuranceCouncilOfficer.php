@@ -3,9 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 
-class QualityAssuranceCouncilOfficer extends User
+class QualityAssuranceCouncilOfficer extends Model
 {
     use HasFactory;
 

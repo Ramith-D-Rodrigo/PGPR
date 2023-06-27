@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\UniversitySide;
 
-class QualityAssuranceStaff extends UniversitySide
+class QualityAssuranceStaff extends Model
 {
     use HasFactory;
 

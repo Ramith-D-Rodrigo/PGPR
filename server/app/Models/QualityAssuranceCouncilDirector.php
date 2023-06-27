@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\QualityAssuranceCouncilOfficer;
 
-class QualityAssuranceCouncilDirector extends QualityAssuranceCouncilOfficer
+class QualityAssuranceCouncilDirector extends Model
 {
     use HasFactory;
 
