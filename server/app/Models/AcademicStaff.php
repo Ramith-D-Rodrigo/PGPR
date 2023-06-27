@@ -15,4 +15,17 @@ class AcademicStaff extends Model
         return $this->belongsTo(UniversitySide::class, 'id', 'id');
     }
 
+    //academic staff can be a reviewer or a programme coordinator or a dean (or multiple of these)
+    public function reviewer(){
+        return $this->hasOne(Reviewer::class);
+    }
+
+    public function programmeCoordinator(){
+        return $this->hasOne(ProgrammeCoordinator::class);
+    }
+
+    public function dean(){
+        return $this->hasOne(Dean::class);
+    }
+
 }
