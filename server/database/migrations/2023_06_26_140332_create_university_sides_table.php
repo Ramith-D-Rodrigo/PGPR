@@ -14,8 +14,10 @@ return new class extends Migration
         Schema::create('university_sides', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
+            $table->unsignedBigInteger('university_id') -> nullable();
 
-            //foreign key
+            //foreign keys
+            //user foreign key
             $table -> foreign('id') -> references('id') -> on('users');
         });
     }

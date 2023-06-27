@@ -14,6 +14,9 @@ return new class extends Migration
         Schema::create('programme_coordinators', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
+
+            //foreign keys
+            $table -> foreign('id') -> references('id') -> on('academic_staff');
         });
     }
 

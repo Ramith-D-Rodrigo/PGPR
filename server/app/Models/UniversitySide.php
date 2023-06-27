@@ -28,4 +28,9 @@ class UniversitySide extends Model
     public function viceChancellor(){
         return $this -> hasOne(ViceChancellor::class);
     }
+
+    //this belongs to a university
+    public function university(){
+        return $this -> belongsTo(University::class);
+    }
 }

@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('center_for_quality_assurance_directors', function (Blueprint $table) {
+        Schema::create('faculties', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
 
-            //foreign keys
-            $table -> foreign('id') -> references('id') -> on('quality_assurance_staff');
+            //foreign key
+            $table -> foreign('id') -> references('id') -> on('universities');
         });
     }
 
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('center_for_quality_assurance_directors');
+        Schema::dropIfExists('faculties');
     }
 };

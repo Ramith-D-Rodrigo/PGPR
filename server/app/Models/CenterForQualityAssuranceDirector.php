@@ -13,4 +13,9 @@ class CenterForQualityAssuranceDirector extends Model
     public function qualityAssuranceStaff(){
         return $this -> belongsTo(QualityAssuranceStaff::class);
     }
+
+    //center for quality assurance director belongs to a center for quality assurance
+    public function centerForQualityAssurance(){
+        return $this -> belongsTo(CenterForQualityAssurance::class);
+    }
 }

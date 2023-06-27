@@ -14,6 +14,9 @@ return new class extends Migration
         Schema::create('deans', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
+
+            //foreign key
+            $table -> foreign('id') -> references('id') -> on('academic_staff');
         });
     }
 

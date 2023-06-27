@@ -14,6 +14,9 @@ return new class extends Migration
         Schema::create('internal_quality_assurance_unit_directors', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
+
+            //foreign keys
+            $table -> foreign('id') -> references('id') -> on('quality_assurance_staff');
         });
     }
 
