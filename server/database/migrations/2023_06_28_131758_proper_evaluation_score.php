@@ -11,6 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // pivot table for the many-to-many relationship between the reviewers, proper evaluations, and standards
         Schema::create('proper_evaluation_score', function(Blueprint $table) {
             $table->id();
             $table->foreignId('proper_evaluation_id');

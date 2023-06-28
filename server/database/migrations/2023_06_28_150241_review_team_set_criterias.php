@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //
+        // pivot table for the many-to-many set relationship between reviewers and assigning criteria
         Schema::create('review_team_set_criterias', function(Blueprint $table) {
             $table->id();
             $table->foreignId('post_graduate_program_review_id');

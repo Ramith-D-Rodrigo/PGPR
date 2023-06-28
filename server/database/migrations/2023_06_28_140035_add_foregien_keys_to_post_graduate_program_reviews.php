@@ -11,6 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // adding foreign keys to the post graduate program reviews table
         Schema::table('post_graduate_program_reviews', function (Blueprint $table) {
             // foreign keys
             $table->foreign('review_team_id')->references('id')->on('review_teams')->onUpdate('cascade');

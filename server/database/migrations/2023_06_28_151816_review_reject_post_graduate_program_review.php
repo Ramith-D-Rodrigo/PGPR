@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //
+        // pivot table for many-to-many reject relationship between the reviewers and pgprs
         Schema::create('reviewer_reject_post_graduate_program_review', function (Blueprint $table) {
             $table->id();
             $table->foreignId('post_graduate_program_review_id');
             $table->foreignId('reviewer_id');
-            $table->string('remark')->default("");
+            $table->string('comment')->default("");
             $table->timestamps();
 
             // indices
