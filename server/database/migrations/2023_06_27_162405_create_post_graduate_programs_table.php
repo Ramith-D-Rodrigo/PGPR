@@ -14,13 +14,19 @@ return new class extends Migration
         Schema::create('post_graduate_programs', function (Blueprint $table) {
           $table->id();
           $table->foreignId('faculty_id');
+            $table->foreignId('added_by_qac_dir_id');
+          $table->foreignId('edited_by_qac_dir_id');
           $table->timestamps();
 
           // indices
           $table->index('faculty_id');
+          $table->index('edited_by_qac_dir_id');
+          $table->index('added_by_qac_dir_id');
 
           // foreign keys
           $table->foreign('faculty_id')->references('id')->on('faculties')->onUpdate('cascade')->onDelete('restrict');
+          $table->foreign('added_by_qac_dir_id')->references('id')->on('quality_assurance_council_directors')->onUpdate('cascade')->onDelete('restrict');
+          $table->foreign('edited_by_qac_dir_id')->references('id')->on('quality_assurance_council_directors')->onUpdate('cascade')->onDelete('restrict');
         });
     }
 
