@@ -14,4 +14,8 @@ class Reviewer extends Model
     public function academicStaff(){
         return $this->belongsTo(AcademicStaff::class);
     }
+
+    public function reviewTeams(){
+        return $this -> belongsToMany(ReviewTeam::class, 'reviewer_review_team');
+    }
 }
