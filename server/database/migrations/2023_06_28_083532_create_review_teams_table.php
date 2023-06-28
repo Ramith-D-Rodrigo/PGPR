@@ -13,7 +13,15 @@ return new class extends Migration
     {
         Schema::create('review_teams', function (Blueprint $table) {
             $table->id();
+            $table -> unsignedBigInteger('quality_assurance_council_officer_id'); //qac officer who created the review team
+            $table -> unsignedBigInteger('dean_id'); //dean who gives the consent
+            $table -> string('dean_decision');
+            $table -> string('remarks');
             $table->timestamps();
+
+            //foreign key
+            $table -> foreign('quality_assurance_council_officer_id') -> references('id') -> on('quality_assurance_council_officers');
+            $table -> foreign('dean_id') -> references('id') -> on('deans');
         });
 
         //create reviewer_review_team pivot table
@@ -21,6 +29,7 @@ return new class extends Migration
             $table->id();
             $table -> unsignedBigInteger('reviewer_id');
             $table -> unsignedBigInteger('review_team_id');
+            $table -> string('role');
             $table->timestamps();
 
             //foreign key

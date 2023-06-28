@@ -18,4 +18,9 @@ class QualityAssuranceCouncilOfficer extends Model
     public function qualityAssuranceCouncilDirector(){
         return $this -> hasOne(QualityAssuranceCouncilDirector::class);
     }
+
+    //quality assurance council officer creates many review teams and review teams belong to a quality assurance council officer (one-to-many relationship)
+    public function reviewTeams(){
+        return $this -> hasMany(ReviewTeam::class);
+    }
 }

@@ -18,4 +18,9 @@ class Dean extends Model
     public function faculty(){
         return $this->belongsTo(Faculty::class);
     }
+
+    //dean give consent to many review teams and review teams can only be given consent by one dean
+    public function reviewTeams(){
+        return $this -> hasMany(ReviewTeam::class);
+    }
 }

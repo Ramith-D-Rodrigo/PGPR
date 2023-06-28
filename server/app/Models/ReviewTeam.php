@@ -14,4 +14,14 @@ class ReviewTeam extends Model
     public function reviewers(){
         return $this -> belongsToMany(Reviewer::class, 'reviewer_review_team');
     }
+
+    //review team is created by a quality assurance council officer (one-to-many relationship)
+    public function qualityAssuranceCouncilOfficer(){
+        return $this -> belongsTo(QualityAssuranceCouncilOfficer::class);
+    }
+
+    //review team is given consent by a dean (one-to-many relationship)
+    public function dean(){
+        return $this -> belongsTo(Dean::class);
+    }
 }
