@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('review_team_set_criterias', function(Blueprint $table) {
             $table->id();
             $table->foreignId('post_graduate_program_review_id');
-            $table->foreignId('assign_by_chair_id');
+            $table->foreignId('assigned_by_chair_id');
             $table->foreignId('criteria_id');
             $table->timestamps();
 
