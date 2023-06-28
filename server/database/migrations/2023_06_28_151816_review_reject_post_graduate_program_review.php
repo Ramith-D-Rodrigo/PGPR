@@ -14,17 +14,17 @@ return new class extends Migration
         // pivot table for many-to-many reject relationship between the reviewers and pgprs
         Schema::create('reviewer_reject_post_graduate_program_review', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('post_graduate_program_review_id');
+            $table->foreignId('pgpr_id');
             $table->foreignId('reviewer_id');
             $table->string('comment')->default("");
             $table->timestamps();
 
             // indices
-            $table->index('post_graduate_review_id');
+            $table->index('pgpr_id');
             $table->index('reviewer_id');
 
             // foreign keys
-            $table->foreign('post_graduate_review_id')->references('id')->on('post_graduate_review_programs')->onUpdate('cascade');
+            $table->foreign('pgpr_id')->references('id')->on('post_graduate_program_reviews')->onUpdate('cascade');
             $table->foreign('reviewer_id')->references('id')->on('reviewers')->onUpdate('cascade');
         });
     }
