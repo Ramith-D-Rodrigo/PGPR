@@ -13,4 +13,11 @@ class ProgrammeCoordinator extends Model
     public function academicStaff(){
         return $this->belongsTo(AcademicStaff::class);
     }
+
+    // program coordinator belongs to a post graduate program
+    public function postGraduatePrograms()
+    {
+        return $this->belongsTo(PostGraduateProgram::class, 'post_grad_program_id', 'id');
+    }
+
 }

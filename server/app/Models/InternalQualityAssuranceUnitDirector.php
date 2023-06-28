@@ -13,4 +13,10 @@ class InternalQualityAssuranceUnitDirector extends Model
     public function qualityAssuranceStaff(){
         return $this -> belongsTo(QualityAssuranceStaff::class);
     }
+
+    // An IQAUDirector belongs to an IQAU
+    public function internalQualityAssuranceUnit()
+    {
+      return $this->belongsTo(InternalQualityAssuranceUnit::class, 'iqau_id', 'id');
+    }
 }

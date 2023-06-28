@@ -29,7 +29,7 @@ return new class extends Migration
             $table->id();
             $table -> unsignedBigInteger('reviewer_id');
             $table -> unsignedBigInteger('review_team_id');
-            $table -> string('role');
+            $table -> enum('role', ['CHAIR', 'MEMBER']);
             $table->timestamps();
 
             //foreign key

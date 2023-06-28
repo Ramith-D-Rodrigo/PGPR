@@ -13,7 +13,11 @@ return new class extends Migration
     {
         Schema::create('programme_coordinators', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('post_grad_program_id');
             $table->timestamps();
+
+            // indices
+            $table->index('post_grad_program_id');
 
             //foreign keys
             $table -> foreign('id') -> references('id') -> on('academic_staff');

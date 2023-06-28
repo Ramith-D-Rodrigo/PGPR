@@ -18,4 +18,22 @@ class Faculty extends Model
     public function deans(){
         return $this->hasMany(Dean::class);
     }
+
+    // Faculty has an Internal Quality Assurance Unit
+    public function internalQualityAssuranceUnit()
+    {
+      return $this->hasOne(InternalQualityAssuranceUnit::class);
+    }
+
+    // Faculty has many postgraduate degree programs
+    public function postGraduatePrograms()
+    {
+        return $this->hasMany(PostGraduateProgram::class);
+    }
+
+    // Program can have many ProgramCoordinators
+    public function programCoordinators()
+    {
+        return $this->hasMany(ProgrammeCoordinator::class);
+    }
 }
