@@ -23,4 +23,9 @@ class QualityAssuranceCouncilOfficer extends Model
     public function reviewTeams(){
         return $this -> hasMany(ReviewTeam::class);
     }
+
+    //quality assurance council officer can give consent to many post graduate program review applications and post graduate program review applications can only be given consent by one quality assurance council officer (one-to-many relationship)
+    public function postGraduateProgramReviewApplications(){
+        return $this -> hasMany(PostGraduateProgramReviewApplication::class);
+    }
 }

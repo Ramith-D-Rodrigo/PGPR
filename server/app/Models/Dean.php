@@ -25,8 +25,8 @@ class Dean extends Model
     }
 
     // dean can send many intent letters
-    public function postGraduateProgramReview()
+    public function postGraduateProgramReviewApplications()
     {
-        return $this->hasMany(PostGraduateProgramReview::class, 'dean_id');
+        return $this->hasMany(postGraduateProgramReviewApplication::class, 'dean_id');
     }
 }

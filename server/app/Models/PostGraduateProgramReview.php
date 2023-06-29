@@ -22,12 +22,6 @@ class PostGraduateProgramReview extends Model
     return $this->hasOne(ProperEvaluation::class, 'pe_id', 'id');
   }
 
-  // a pgrp can be created by a single program coordinators
-  public function programCoordinators()
-  {
-      return $this->belongsTo(ProgrammeCoordinator::class, 'coordinator_id', 'id');
-  }
-
   // pgpr sentIntentLetter relation
   public function deans()
   {
@@ -45,6 +39,12 @@ class PostGraduateProgramReview extends Model
       return $this->belongsTo(PostGraduateProgram::class, 'post_graduate_program_id', 'id');
   }
 
+  //pgpr has a self evaluation report
+    public function selfEvaluationReport()
+    {
+        return $this->hasOne(SelfEvaluationReport::class);
+    }
+
   // every pgpr has a final report
   public function finalReports()
   {
@@ -56,22 +56,4 @@ class PostGraduateProgramReview extends Model
   {
       return $this->belongsTo(QualityAssuranceCouncilDirector::class, 'qac_dir_id', 'id');
   }
-
-  // pgprs can be recommended by vice chancellor
-  public function viceChancellors()
-  {
-      return $this->belongsTo(ViceChancellor::class, 'vice_chancellor_id', 'id');
-  }
-
-    // pgprs can be recommended by iqau director
-    public function internalQualityAssuranceDirectors()
-    {
-        return $this->belongsTo(InternalQualityAssuranceUnitDirector::class, 'iqau_dir_id', 'id');
-    }
-
-    // pgprs can be recommended by cqu director
-    public function centerForQualityAssuranceDirector()
-    {
-        return $this->belongsTo(CenterForQualityAssuranceDirector::class, 'cqa_dir_id', 'id');
-    }
 }

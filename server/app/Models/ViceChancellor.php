@@ -15,9 +15,9 @@ class ViceChancellor extends Model
         return $this->belongsTo(UniversitySide::class);
     }
 
-    // post graduate program can be recommended by the vice chancellor
-    public function postGraduateProgramReviews()
+    //vice chancellor approves many self evaluation reports
+    public function selfEvaluationReports()
     {
-        return $this->hasMany(PostGraduateProgramReview::class, 'vice_chancellor_id');
+        return $this->hasMany(SelfEvaluationReport::class, 'vice_chancellor_id');
     }
 }

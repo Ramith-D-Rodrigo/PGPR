@@ -20,4 +20,10 @@ class PostGraduateProgram extends Model
     {
         return $this->hasMany(PostGraduateProgramReview::class);
     }
+
+    // post graduate programs have many post graduate program review applications
+    public function postGraduateProgramReviewApplications()
+    {
+        return $this->belongsToMany(PostGraduateProgramReviewApplication::class, 'post_graduate_program_review_application_post_graduate_program');
+    }
 }

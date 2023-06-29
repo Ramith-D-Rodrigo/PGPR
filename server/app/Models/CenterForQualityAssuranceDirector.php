@@ -19,9 +19,8 @@ class CenterForQualityAssuranceDirector extends Model
         return $this -> belongsTo(CenterForQualityAssurance::class);
     }
 
-    // post graduate program can be recommended by the center for quality assurance director
-    public function postGraduateProgramReviews()
-    {
-        return $this->hasMany(PostGraduateProgramReview::class, 'cqa_dir_id');
+    //cqa director can approve many self evaluation reports
+    public function selfEvaluationReports(){
+        return $this->hasMany(SelfEvaluationReport::class);
     }
 }
