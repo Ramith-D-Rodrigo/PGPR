@@ -13,4 +13,16 @@ class Standard extends Model
     public function criteria(){
         return $this -> belongsTo(Criteria::class);
     }
+
+    // standard belongs to many proper evaluations
+    public function properEvaluations()
+    {
+        return $this->belongsToMany(ProperEvaluation::class, 'proper_evaluation_score')->withPivot('pe_score');
+    }
+
+    // standard belongs to many desk evaluations
+    public function deskEvaluations()
+    {
+        return $this->belongsToMany(DeskEvaluation::class, 'desk_evaluation_score')->withPivot('de_score');
+    }
 }

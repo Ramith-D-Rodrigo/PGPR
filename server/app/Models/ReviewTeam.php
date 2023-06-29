@@ -24,4 +24,16 @@ class ReviewTeam extends Model
     public function dean(){
         return $this -> belongsTo(Dean::class);
     }
+
+    // review team belongs to a pgpr
+    public function postGraduateReviewProgram()
+    {
+        return $this->belongsTo(PostGraduateProgramReview::class);
+    }
+
+    // review team has a final report
+    public function finalReports()
+    {
+        return $this->hasMany(FinalReport::class);
+    }
 }

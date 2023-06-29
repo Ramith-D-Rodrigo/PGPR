@@ -19,4 +19,10 @@ class InternalQualityAssuranceUnitDirector extends Model
     {
       return $this->belongsTo(InternalQualityAssuranceUnit::class, 'iqau_id', 'id');
     }
+
+    // post graduate program can be recommended by the internal quality assurance unit director
+    public function postGraduateProgramReviews()
+    {
+        return $this->hasMany(PostGraduateProgramReview::class);
+    }
 }

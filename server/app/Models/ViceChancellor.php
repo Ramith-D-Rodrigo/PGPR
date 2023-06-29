@@ -14,4 +14,10 @@ class ViceChancellor extends Model
     public function universitySide(){
         return $this->belongsTo(UniversitySide::class);
     }
+
+    // post graduate program can be recommended by the vice chancellor
+    public function postGraduateProgramReviews()
+    {
+        return $this->hasMany(PostGraduateProgramReview::class);
+    }
 }

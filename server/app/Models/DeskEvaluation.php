@@ -14,4 +14,11 @@ class DeskEvaluation extends Model
   {
     return $this->belongsTo(PostGraduateProgramReview::class, 'pgpr_id', 'id');
   }
+
+  // desk evaluation has 7(many) standards and associated scores
+  public function standards()
+  {
+      return $this->belongsToMany('desk_evaluation_score')->withPivot('de_score');
+  }
+
 }

@@ -14,4 +14,10 @@ class ProperEvaluation extends Model
   {
     return $this->belongsTo(PostGraduateProgramReview::class, 'pgpr_id', 'id');
   }
+
+  // proper evaluation has 7(many) standards and associated scores
+  public function standards()
+  {
+      return $this->belongsToMany('proper_evaluation_score')->withPivot('pe_score');
+  }
 }

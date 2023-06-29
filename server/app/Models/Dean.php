@@ -23,4 +23,10 @@ class Dean extends Model
     public function reviewTeams(){
         return $this -> hasMany(ReviewTeam::class);
     }
+
+    // dean can send many intent letters
+    public function postGraduateProgramReview()
+    {
+        return $this->hasMany(PostGraduateProgramReview::class);
+    }
 }

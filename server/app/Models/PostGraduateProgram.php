@@ -14,4 +14,10 @@ class PostGraduateProgram extends Model
     {
         return $this->belongsTo(Faculty::class, 'faculty_id', 'id');
     }
+
+    // post graduate programs have many pgprs
+    public function postGraduateProgramReviews()
+    {
+        return $this->hasMany(PostGraduateProgramReview::class);
+    }
 }
