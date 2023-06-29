@@ -28,4 +28,9 @@ class Reviewer extends Model
     {
         return $this->belongsToMany(Standard::class, 'proper_evaluation_score')->withPivot('pe_score');
     }
+
+    //reviewer working faculty
+    public function workingFaculty(){
+        return $this -> belongsTo(Faculty::class, 'working_faculty');
+    }
 }
