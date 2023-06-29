@@ -52,4 +52,17 @@ class User extends Authenticatable
     public function qualityAssuranceCouncilOfficer(){
         return $this -> hasOne(QualityAssuranceCouncilOfficer::class, 'id', 'id');
     }
+
+/*   user account is created by some other user
+    following are the scenarios of the different types of users.
+        qac officer create accounts for cqa director,vice chancellor and reviewer )
+        (cqa director create accounts for dean, programme coordinator, iqau director ) */
+
+    public function createdAccounts(){
+        return $this -> hasMany(User::class, 'created_by', 'id');
+    }
+
+    public function accountCreatedBy(){
+        return $this -> belongsTo(User::class, 'created_by', 'id');
+    }
 }
