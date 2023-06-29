@@ -17,7 +17,6 @@ return new class extends Migration
             $table->timestamps();
 
             //foreign key
-            $table -> foreign('working_faculty') -> references('id') -> on('faculties');
             $table -> foreign('id') -> references('id') -> on('academic_staff');
         });
     }
