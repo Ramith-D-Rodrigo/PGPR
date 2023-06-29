@@ -19,11 +19,11 @@ return new class extends Migration
 
             // indices
             $table->index('pgpr_id');
-            $table->index('compiled_by_review_team_id');
+            $table->index('review_team_id');
 
             // foreign keys
             $table->foreign('pgpr_id')->references('id')->on('post_graduate_program_reviews')->onUpdate('cascade')->onDelete('restrict');
-            $table->foreign('compiled_by_review_team_id')->references('id')->on('review_teams')->onUpdate('cascade')->onDelete('restrict');
+            $table->foreign('review_team_id')->references('id')->on('review_teams')->onUpdate('cascade')->onDelete('restrict');
         });
     }
 

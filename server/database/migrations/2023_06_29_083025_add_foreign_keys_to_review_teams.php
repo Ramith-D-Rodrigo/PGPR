@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('review_teams', function (Blueprint $table) {
             // foreign keys
-            $table->foreign('pgpr_id')->references('id')->on('post_graduate_program_reviews');
+            $table->foreign('pgpr_id')->references('id')->on('post_graduate_program_reviews')->onUpdate('cascade');
         });
     }
 

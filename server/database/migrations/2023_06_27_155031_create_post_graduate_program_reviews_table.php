@@ -28,7 +28,7 @@ return new class extends Migration
             $table->timestamps();
 
             // indices +> more indices are required
-            $table->index('approved_by_qac_dir_id');
+            $table->index('qac_dir_id');
             $table->index('de_id');
             $table->index('pe_id');
         });

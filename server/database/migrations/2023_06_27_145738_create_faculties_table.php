@@ -17,7 +17,7 @@ return new class extends Migration
             $table->timestamps();
 
             // indices
-            $table->index('iqua_id');
+            $table->index('iqau_id');
 
             //foreign key
             $table -> foreign('id') -> references('id') -> on('universities');
