@@ -13,7 +13,11 @@ return new class extends Migration
     {
         Schema::create('faculties', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('iqau_id')->nullable()->default(NULL);
             $table->timestamps();
+
+            // indices
+            $table->index('iqua_id');
 
             //foreign key
             $table -> foreign('id') -> references('id') -> on('universities');

@@ -22,19 +22,19 @@ class Faculty extends Model
     // Faculty has an Internal Quality Assurance Unit
     public function internalQualityAssuranceUnit()
     {
-      return $this->hasOne(InternalQualityAssuranceUnit::class);
+      return $this->hasOne(InternalQualityAssuranceUnit::class, 'iqau_id');
     }
 
     // Faculty has many postgraduate degree programs
     public function postGraduatePrograms()
     {
-        return $this->hasMany(PostGraduateProgram::class);
+        return $this->hasMany(PostGraduateProgram::class, 'faculty_id');
     }
 
     // Program can have many ProgramCoordinators
     public function programCoordinators()
     {
-        return $this->hasMany(ProgrammeCoordinator::class);
+        return $this->hasMany(ProgrammeCoordinator::class, 'faculty_id');
     }
 
     public function workingReviewers(){

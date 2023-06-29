@@ -12,12 +12,12 @@ class FinalReport extends Model
     // final report is compiled by a review team
     public function reviewTeams()
     {
-        return $this->belongsTo(ReviewTeam::class);
+        return $this->belongsTo(ReviewTeam::class, 'review_team_id', 'id');
     }
 
     // final reports belongs to a post graduate review program
     public function postGraduateProgramReview()
     {
-        return $this->belongsTo(PostGraduateProgramReview::class);
+        return $this->belongsTo(PostGraduateProgramReview::class, 'pgpr_id', 'id');
     }
 }

@@ -18,6 +18,6 @@ class ViceChancellor extends Model
     // post graduate program can be recommended by the vice chancellor
     public function postGraduateProgramReviews()
     {
-        return $this->hasMany(PostGraduateProgramReview::class);
+        return $this->hasMany(PostGraduateProgramReview::class, 'vice_chancellor_id');
     }
 }

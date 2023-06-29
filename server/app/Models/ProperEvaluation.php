@@ -18,6 +18,11 @@ class ProperEvaluation extends Model
   // proper evaluation has 7(many) standards and associated scores
   public function standards()
   {
-      return $this->belongsToMany('proper_evaluation_score')->withPivot('pe_score');
+      return $this->belongsToMany(
+          Standard::class,
+          'proper_evaluation_score',
+          'proper_evaluation_id',
+          'standard_id' // the column in the relating model
+      )->withPivot('pe_score');
   }
 }

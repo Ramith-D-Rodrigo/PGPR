@@ -22,6 +22,6 @@ class CenterForQualityAssuranceDirector extends Model
     // post graduate program can be recommended by the center for quality assurance director
     public function postGraduateProgramReviews()
     {
-        return $this->hasMany(PostGraduateProgramReview::class);
+        return $this->hasMany(PostGraduateProgramReview::class, 'cqa_dir_id');
     }
 }

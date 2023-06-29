@@ -28,12 +28,16 @@ class ReviewTeam extends Model
     // review team belongs to a pgpr
     public function postGraduateReviewProgram()
     {
-        return $this->belongsTo(PostGraduateProgramReview::class);
+        return $this->belongsTo(
+            PostGraduateProgramReview::class,
+            'pgpr_id',
+            'id'
+        );
     }
 
     // review team has a final report
     public function finalReports()
     {
-        return $this->hasMany(FinalReport::class);
+        return $this->hasMany(FinalReport::class, 'review_team_id');
     }
 }
