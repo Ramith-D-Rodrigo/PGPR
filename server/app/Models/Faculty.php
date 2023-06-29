@@ -36,4 +36,8 @@ class Faculty extends Model
     {
         return $this->hasMany(ProgrammeCoordinator::class, 'faculty_id');
     }
+
+    public function workingReviewers(){
+        return $this -> hasMany(Reviewer::class, 'working_faculty');
+    }
 }

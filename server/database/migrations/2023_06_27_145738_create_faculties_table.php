@@ -22,6 +22,11 @@ return new class extends Migration
             //foreign key
             $table -> foreign('id') -> references('id') -> on('universities');
         });
+
+        //alter table reviewer for foreign key
+        Schema::table('reviewers', function (Blueprint $table) {
+            $table->foreign('working_faculty')->references('id')->on('faculties');
+        });
     }
 
     /**

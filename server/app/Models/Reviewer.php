@@ -37,4 +37,9 @@ class Reviewer extends Model
             )->withPivot('pe_score');
         }
     }
+
+    //reviewer working faculty
+    public function workingFaculty(){
+        return $this -> belongsTo(Faculty::class, 'working_faculty');
+    }
 }
