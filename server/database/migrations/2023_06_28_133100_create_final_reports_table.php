@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('final_reports', function (Blueprint $table) {
             $table->id();
             $table->foreignId('pgpr_id');
-            $table->foreignId('compiled_by_review_team_id');
+            $table->foreignId('review_team_id');
             $table->timestamps();
 
             // indices

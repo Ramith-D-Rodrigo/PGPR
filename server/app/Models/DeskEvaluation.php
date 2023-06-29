@@ -18,7 +18,12 @@ class DeskEvaluation extends Model
   // desk evaluation has 7(many) standards and associated scores
   public function standards()
   {
-      return $this->belongsToMany('desk_evaluation_score')->withPivot('de_score');
+      return $this->belongsToMany(
+          Standard::class,
+          'desk_evaluation_score',
+          'desk_evaluation_id',
+          'standard_id' // the column in the relating model
+      )->withPivot('de_score');
   }
 
 }

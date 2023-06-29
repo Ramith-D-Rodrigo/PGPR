@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('post_graduate_programs', function (Blueprint $table) {
           $table->id();
           $table->foreignId('faculty_id');
-            $table->foreignId('added_by_qac_dir_id');
+          $table->foreignId('added_by_qac_dir_id');
           $table->foreignId('edited_by_qac_dir_id');
           $table->timestamps();
 

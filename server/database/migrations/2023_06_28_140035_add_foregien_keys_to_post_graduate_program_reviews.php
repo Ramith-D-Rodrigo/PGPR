@@ -16,6 +16,8 @@ return new class extends Migration
             // foreign keys
             $table->foreign('review_team_id')->references('id')->on('review_teams')->onUpdate('cascade');
             $table->foreign('post_graduate_program_id')->references('id')->on('post_graduate_programs')->onUpdate('cascade');
+            $table->foreign('dean_id')->references('id')->on('deans')->onUpdate('cascade');
+            $table->foreign('coordinator_id')->references('id')->on('programme_coordinators')->onUpdate('cascade');
             $table->foreign('approved_by_qac_dir_id')->references('id')->on('quality_assurance_council_directors')->onUpdate('cascade');
             $table->foreign('rec_vice_chancellor_id')->references('id')->on('vice_chancellors')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign('rec_iqau_director_id')->references('id')->on('internal_quality_assurance_unit_directors')->onUpdate('cascade');

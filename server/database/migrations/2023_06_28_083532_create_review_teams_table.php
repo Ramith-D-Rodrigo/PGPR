@@ -14,10 +14,14 @@ return new class extends Migration
         Schema::create('review_teams', function (Blueprint $table) {
             $table->id();
             $table -> unsignedBigInteger('quality_assurance_council_officer_id'); //qac officer who created the review team
+            $table -> foreignId('pgpr_id');
             $table -> unsignedBigInteger('dean_id'); //dean who gives the consent
             $table -> string('dean_decision');
             $table -> string('remarks');
             $table->timestamps();
+
+            // indices
+            $table->index('pgpr_id');
 
             //foreign key
             $table -> foreign('quality_assurance_council_officer_id') -> references('id') -> on('quality_assurance_council_officers');

@@ -18,6 +18,6 @@ class QualityAssuranceCouncilDirector extends Model
     // QACDirectors can reject pgprs
     public function postGraduateProgramReviews()
     {
-        return $this->hasMany(PostGraduateProgramReview::class);
+        return $this->hasMany(PostGraduateProgramReview::class, 'qac_dir_id');
     }
 }

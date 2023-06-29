@@ -14,11 +14,13 @@ return new class extends Migration
         Schema::create('post_graduate_program_reviews', function (Blueprint $table) {
             $table->id();
             $table->foreignId('post_graduate_program_id');
+            $table->foreignId('coordinator_id');
+            $table->foreignId('dean_id');
             $table->foreignId('review_team_id')->nullable()->default(NULL);
-            $table->foreignId('approved_by_qac_dir_id')->nullable()->default(NULL);
-            $table->foreignId('rec_vice_chancellor_id')->nullable()->default(NULL);
-            $table->foreignId('rec_iqau_director_id')->nullable()->default(NULL);
-            $table->foreignId('rec_cqa_director_id')->nullable()->default(NULL);
+            $table->foreignId('qac_dir_id')->nullable()->default(NULL);
+            $table->foreignId('vice_chancellor_id')->nullable()->default(NULL);
+            $table->foreignId('iqau_dir_id')->nullable()->default(NULL);
+            $table->foreignId('cqa_dir_id')->nullable()->default(NULL);
             $table->enum('status_of_pgpr', ['APPROVED', 'REJECTED', 'PENDING'])->default('PENDING');
             $table->foreignId('final_report_id')->nullable()->default(NULL);
             $table->foreignId('de_id')->nullable()->default(NULL);

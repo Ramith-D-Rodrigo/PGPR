@@ -23,7 +23,7 @@ class ProgrammeCoordinator extends Model
     // program coordinator can create many pgprs
     public function postGraduateProgramReviews()
     {
-        return $this->hasMany(PostGraduateProgramReview::class);
+        return $this->hasMany(PostGraduateProgramReview::class, 'post_grad_program_id');
     }
 
 

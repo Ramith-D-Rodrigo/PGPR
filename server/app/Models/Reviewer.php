@@ -19,13 +19,22 @@ class Reviewer extends Model
     }
 
     // reviewers can score for many standards
-    public function deskEvaluationScores()
+    public function standards(string $type) // $type should be either one of them => ['DESK', 'PROPER']
     {
-        return $this->belongsToMany(Standard::class, 'desk_evaluation_score')->withPivot('de_score');
-    }
-
-    public function properEvaluationScores()
-    {
-        return $this->belongsToMany(Standard::class, 'proper_evaluation_score')->withPivot('pe_score');
+        if ($type === "DESK") {
+            return $this->belongsToMany(
+                Standard::class,
+                'desk_evaluation_score',
+                'reviewer_id',
+                'standard_id'
+            )->withPivot('de_score');
+        } else {
+            return $this->belongsToMany(
+                Standard::class,
+                'proper_evaluation_score',
+                'reviewer_id',
+                'standard_id'
+            )->withPivot('pe_score');
+        }
     }
 }
