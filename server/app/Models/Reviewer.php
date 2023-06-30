@@ -15,7 +15,7 @@ class Reviewer extends Model
     }
 
     public function reviewTeams(){
-        return $this -> belongsToMany(ReviewTeam::class, 'reviewer_review_team');
+        return $this -> belongsToMany(ReviewTeam::class, 'reviewer_review_teams');
     }
 
     // reviewers can score for many standards

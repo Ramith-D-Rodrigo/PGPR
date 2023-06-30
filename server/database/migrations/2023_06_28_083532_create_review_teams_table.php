@@ -28,8 +28,8 @@ return new class extends Migration
             $table -> foreign('dean_id') -> references('id') -> on('deans');
         });
 
-        //create reviewer_review_team pivot table
-        Schema::create('reviewer_review_team', function (Blueprint $table) {
+        //create reviewer_review_teams pivot table
+        Schema::create('reviewer_review_teams', function (Blueprint $table) {
             $table->id();
             $table -> unsignedBigInteger('reviewer_id');
             $table -> unsignedBigInteger('review_team_id');

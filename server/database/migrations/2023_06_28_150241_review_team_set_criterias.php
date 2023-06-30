@@ -17,6 +17,8 @@ return new class extends Migration
             $table->foreignId('pgpr_id');
             $table->foreignId('assigned_by_chair_id');
             $table->foreignId('criteria_id');
+            $table->foreignID('assigned_to_reviewer_id');
+            $table->foreignID('review_team_id');
             $table->timestamps();
 
             // indices
@@ -26,8 +28,10 @@ return new class extends Migration
 
             // foreign keys
             $table->foreign('pgpr_id')->references('id')->on('post_graduate_program_reviews')->onUpdate('cascade');
-            $table->foreign('assigned_by_chair_id')->references('id')->on('reviewers')->onUpdate('cascade');
+            $table->foreign('assigned_by_chair_id')->references('reviewer_id')->on('reviewer_review_teams')->onUpdate('cascade');
             $table->foreign('criteria_id')->references('id')->on('criterias')->onUpdate('cascade');
+            $table->foreign('assigned_to_reviewer_id')->references('reviewer_id')->on('reviewer_review_teams')->onUpdate('cascade');
+            $table->foreign('review_team_id')->references('review_team_id')->on('reviewer_review_teams')->onUpdate('cascade');
         });
     }
 
