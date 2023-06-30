@@ -23,4 +23,9 @@ class PostGraduateProgramReviewApplication extends Model
         return $this->belongsToMany(PostGraduateProgram::class, 'post_graduate_program_review_application_post_graduate_program');
     }
 
+    //review application has many post graduate program reviews
+    public function postGraduateProgramReviews(){
+        return $this->hasMany(PostGraduateProgramReview::class, 'pgpr_application_id', 'id');
+    }
+
 }

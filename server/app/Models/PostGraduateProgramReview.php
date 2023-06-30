@@ -56,4 +56,9 @@ class PostGraduateProgramReview extends Model
   {
       return $this->belongsTo(QualityAssuranceCouncilDirector::class, 'qac_dir_id', 'id');
   }
+
+  //post graduate program review has many post graduate program review applications
+    public function postGraduateProgramReviewApplications(){
+        return $this->belongsTo(PostGraduateProgramReviewApplication::class, 'pgpr_application_id', 'id');
+    }
 }

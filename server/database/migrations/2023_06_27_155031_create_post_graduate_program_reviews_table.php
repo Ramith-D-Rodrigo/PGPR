@@ -23,6 +23,8 @@ return new class extends Migration
             $table->foreignId('pe_id')->nullable()->default(NULL);
             $table->timestamps();
 
+            $table -> unsignedBigInteger('pgpr_application_id') -> nullable(); //appplication of the review
+
             // indices +> more indices are required
             $table->index('qac_dir_id');
             $table->index('de_id');

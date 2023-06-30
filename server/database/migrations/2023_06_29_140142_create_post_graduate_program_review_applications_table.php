@@ -33,6 +33,11 @@ return new class extends Migration
             $table -> foreign('post_graduate_program_review_application_id', 'pgpra_foreign') -> references('id') -> on('post_graduate_program_review_applications');
             $table -> foreign('post_graduate_program_id', 'pgp_foreign') -> references('id') -> on('post_graduate_programs');
         });
+
+        //alter post graduate program review table to ad foreign key of application
+        Schema::table('post_graduate_program_reviews', function (Blueprint $table) {
+            $table -> foreign('pgpr_application_id', 'pgpr_foreign') -> references('id') -> on('post_graduate_program_review_applications');
+        });
     }
 
     /**
