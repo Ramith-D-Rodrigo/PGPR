@@ -26,4 +26,14 @@ class PostGraduateProgram extends Model
     {
         return $this->belongsToMany(PostGraduateProgramReviewApplication::class, 'post_graduate_program_review_application_post_graduate_program');
     }
+
+    //edited by cqa director
+    public function editedCQADirector(){
+        return $this -> belongsTo(CenterForQualityAssuranceDirector::class, 'edited_by_cqa_director_id', 'id');
+    }
+
+    //added by cqa director
+    public function addedCQADirector(){
+        return $this -> belongsTo(CenterForQualityAssuranceDirector::class, 'added_by_cqa_director_id', 'id');
+    }
 }

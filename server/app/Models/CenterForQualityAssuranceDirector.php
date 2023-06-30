@@ -23,4 +23,9 @@ class CenterForQualityAssuranceDirector extends Model
     public function selfEvaluationReports(){
         return $this->hasMany(SelfEvaluationReport::class);
     }
+
+    //cqa director can add a postgraduate program
+    public function addedPostGraduatePrograms(){
+        return $this -> hasMany(PostGraduateProgram::class, 'added_by_cqa_director_id', 'id');
+    }
 }
