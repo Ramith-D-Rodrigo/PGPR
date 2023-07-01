@@ -13,9 +13,14 @@ return new class extends Migration
     {
         Schema::create('post_graduate_programs', function (Blueprint $table) {
           $table->id();
+          $table->string('title');
+          $table->integer('slqf_level');
+          $table->year('commencement_year');
+
           $table->foreignId('faculty_id');
           $table->foreignId('added_by_cqa_director_id');
           $table->foreignId('edited_by_cqa_director_id');
+          $table->foreignId('programme_coordinator_id');
           $table->timestamps();
 
           // indices
@@ -25,6 +30,7 @@ return new class extends Migration
 
           // foreign keys
           $table->foreign('faculty_id')->references('id')->on('faculties')->onUpdate('cascade')->onDelete('restrict');
+            $table->foreign('programme_coordinator_id')->references('id')->on('programme_coordinators')->onUpdate('cascade')->onDelete('restrict');
           $table->foreign('added_by_cqa_director_id')->references('id')->on('center_for_quality_assurance_directors')->onUpdate('cascade')->onDelete('restrict');
           $table->foreign('edited_by_cqa_director_id')->references('id')->on('center_for_quality_assurance_directors')->onUpdate('cascade')->onDelete('restrict');
         });

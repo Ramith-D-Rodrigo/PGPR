@@ -23,4 +23,9 @@ class University extends Model
     public function centerForQualityAssurance(){
         return $this->hasOne(CenterForQualityAssurance::class);
     }
+
+    //a university is created by a quality assurance council director
+    public function createdQACDirector(){
+        return $this->belongsTo(QualityAssuranceCouncilDirector::class);
+    }
 }

@@ -20,4 +20,9 @@ class QualityAssuranceCouncilDirector extends Model
     {
         return $this->hasMany(PostGraduateProgramReview::class, 'qac_dir_id');
     }
+
+    //qac director creates many universities
+    public function createdUniversities(){
+        return $this->hasMany(University::class);
+    }
 }

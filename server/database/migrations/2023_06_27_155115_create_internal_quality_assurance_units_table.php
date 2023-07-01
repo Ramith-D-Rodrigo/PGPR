@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('internal_quality_assurance_units', function (Blueprint $table) {
           $table->id();
+          $table->string('address');
+          $table->json('contact_no');
+          $table->json('fax_no');
           $table->foreignId('faculty_id');
           $table->timestamps();
 

@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('quality_assurance_staff', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
+            $table->date('assigned_date');
 
             //foreign key
             $table -> foreign('id') -> references('id') -> on('university_sides');

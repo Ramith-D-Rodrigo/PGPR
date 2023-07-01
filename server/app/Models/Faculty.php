@@ -19,6 +19,11 @@ class Faculty extends Model
         return $this->hasMany(Dean::class);
     }
 
+    //but only one dean at a time
+    public function currentDean(){
+        return $this->hasOne(Dean::class, 'id', 'dean_id');
+    }
+
     // Faculty has an Internal Quality Assurance Unit
     public function internalQualityAssuranceUnit()
     {

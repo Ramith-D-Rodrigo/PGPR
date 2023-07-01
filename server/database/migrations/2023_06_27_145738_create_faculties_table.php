@@ -13,19 +13,30 @@ return new class extends Migration
     {
         Schema::create('faculties', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->foreignId('dean_id');
+            $table->string('website');
+            $table->string('address');
             $table->foreignId('iqau_id')->nullable()->default(NULL);
+            $table->foreignId('university_id');
             $table->timestamps();
 
             // indices
             $table->index('iqau_id');
 
             //foreign key
-            $table -> foreign('id') -> references('id') -> on('universities');
+            $table -> foreign('university_id') -> references('id') -> on('universities');
+            $table -> foreign('dean_id') -> references('id') -> on('deans');
         });
 
         //alter table reviewer for foreign key
         Schema::table('reviewers', function (Blueprint $table) {
             $table->foreign('working_faculty')->references('id')->on('faculties');
+        });
+
+        //alter table for faculty foreign key on deans table
+        Schema::table('deans', function (Blueprint $table) {
+            $table -> foreign('faculty_id') -> references('id') -> on('faculties');
         });
     }
 

@@ -14,6 +14,9 @@ return new class extends Migration
         Schema::create('deans', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
+            $table->date('assigned_date');
+            $table->string('current_status'); //active or inactive for being a dean
+            $table->unsignedBigInteger('faculty_id');
 
             //foreign key
             $table -> foreign('id') -> references('id') -> on('academic_staff');

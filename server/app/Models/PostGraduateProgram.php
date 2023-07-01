@@ -15,6 +15,18 @@ class PostGraduateProgram extends Model
         return $this->belongsTo(Faculty::class, 'faculty_id', 'id');
     }
 
+    //has programme coordinator (many)
+    public function programmeCoordinators()
+    {
+        return $this->hasMany(ProgrammeCoordinator::class, 'post_grad_program_id', 'id');
+    }
+
+    //current programme coordinator
+    public function currentProgrammeCoordinator()
+    {
+        return $this->hasOne(ProgrammeCoordinator::class, 'id', 'programme_coordinator_id');
+    }
+
     // post graduate programs have many pgprs
     public function postGraduateProgramReviews()
     {

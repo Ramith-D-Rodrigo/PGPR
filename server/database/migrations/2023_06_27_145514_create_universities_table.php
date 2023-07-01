@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('universities', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->string('address');
+            $table->string('website');
             $table -> unsignedBigInteger('center_for_quality_assurance_id');
             $table -> unsignedBigInteger('quality_assurance_council_director_id'); //the director who added the university
             $table->timestamps();

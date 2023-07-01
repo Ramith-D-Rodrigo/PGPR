@@ -16,6 +16,8 @@ return new class extends Migration
             $table->foreignId('faculty_id');
             $table->foreignId('post_grad_program_id');
             $table->timestamps();
+            $table->date('assigned_date');
+            $table->string('current_status'); //active or inactive for being a coordinator
 
             // indices
             $table->index('faculty_id');
