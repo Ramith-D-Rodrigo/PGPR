@@ -13,25 +13,18 @@ return new class extends Migration
     {
         Schema::create('post_graduate_program_review_applications', function (Blueprint $table) {
             $table->id();
+            $table->string('intent_letter') -> nullable(); //path to the intent letter
+            $table->date('request_date') -> nullable(); //date of the request to submitted to CQADirector
+            $table->date('application_date') -> nullable(); //date of the application approved by CQADirector
             $table->unsignedBigInteger('dean_id');
-            $table->unsignedBigInteger('quality_assurance_council_officer_id');
+            $table -> unsignedBigInteger('post_graduate_program_id'); //id of the post graduate program that is being reviewed
+            $table->unsignedBigInteger('quality_assurance_council_officer_id') -> nullable(); //id of the quality assurance council officer who approved the application
             $table->timestamps();
 
             //foreign keys
             $table -> foreign('dean_id') -> references('id') -> on('deans');
             $table -> foreign('quality_assurance_council_officer_id', 'pgpra_qac_approval') -> references('id') -> on('quality_assurance_council_officers');
-        });
-
-        //create pivot table for review application and post graduate programs
-        Schema::create('post_graduate_program_review_application_post_graduate_program', function (Blueprint $table) {
-            $table->id();
-            $table -> unsignedBigInteger('post_graduate_program_review_application_id');
-            $table -> unsignedBigInteger('post_graduate_program_id');
-            $table->timestamps();
-
-            //foreign key
-            $table -> foreign('post_graduate_program_review_application_id', 'pgpra_foreign') -> references('id') -> on('post_graduate_program_review_applications');
-            $table -> foreign('post_graduate_program_id', 'pgp_foreign') -> references('id') -> on('post_graduate_programs');
+            $table -> foreign('post_graduate_program_id', 'pgpra_pgp_foreign') -> references('id') -> on('post_graduate_programs');
         });
 
         //alter post graduate program review table to ad foreign key of application

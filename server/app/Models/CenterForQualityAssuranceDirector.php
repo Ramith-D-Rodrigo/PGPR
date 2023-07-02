@@ -28,4 +28,9 @@ class CenterForQualityAssuranceDirector extends Model
     public function addedPostGraduatePrograms(){
         return $this -> hasMany(PostGraduateProgram::class, 'added_by_cqa_director_id', 'id');
     }
+
+    //cqa director can edit a postgraduate program
+    public function editedPostGraduatePrograms(){
+        return $this -> hasMany(PostGraduateProgram::class, 'edited_by_cqa_director_id', 'id');
+    }
 }
