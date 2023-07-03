@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('standards', function (Blueprint $table) {
             $table->id();
             $table -> unsignedBigInteger('criteria_id');
+            $table->integer("standard_no"); // since there are only 7 criteria and each standard is associated with a criteria
+            $table->string("description");
             $table->timestamps();
 
             //foreign key
