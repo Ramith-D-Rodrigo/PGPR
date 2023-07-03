@@ -10,7 +10,7 @@ class PostGraduateProgramReview extends Model
 {
   use HasFactory;
 
-  // a post graduate review program has one desk evaluation
+/*  // a post graduate review program has one desk evaluation
   public function deskEvaluations()
   {
     return $this->hasOne(DeskEvaluation::class, 'de_id', 'id');
@@ -20,7 +20,7 @@ class PostGraduateProgramReview extends Model
   public function poperEvaluations()
   {
     return $this->hasOne(ProperEvaluation::class, 'pe_id', 'id');
-  }
+  }*/
 
   // pgpr sentIntentLetter relation
   public function deans()
@@ -28,11 +28,11 @@ class PostGraduateProgramReview extends Model
       return $this->belongsTo(Dean::class, 'dean_id', 'id');
   }
 
-  // pgpr has a review team associated with itself
+/*  // pgpr has a review team associated with itself
   public function reviewTeams()
   {
       return $this->hasOne(PostGraduateProgramReview::class, 'review_team_id');
-  }
+  }*/
 
   public function postGraduatePrograms()
   {

@@ -10,9 +10,11 @@ class InternalQualityAssuranceUnit extends Model
   use HasFactory;
 
   // Internal Quality Assurance Unit has a director
+  // since both sides are total in participation
+  // belongs to is used
   public function internalQualityAssuranceUnitDirector()
   {
-    return $this->hasOne(InternalQualityAssuranceUnitDirector::class, 'iqau_id');
+    return $this->belongsTo(InternalQualityAssuranceUnitDirector::class, 'iqau_dir_id', 'id');
   }
 
   // Internal Quality Assurance Unit has a faculty
