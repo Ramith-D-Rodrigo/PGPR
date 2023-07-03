@@ -15,20 +15,34 @@ return new class extends Migration
             $table->id();
             $table->foreignId('post_graduate_program_id');
             $table->foreignId('coordinator_id');
-            $table->foreignId('review_team_id')->nullable()->default(NULL);
             $table->foreignId('qac_dir_id')->nullable()->default(NULL);
             $table->enum('status_of_pgpr', ['APPROVED', 'REJECTED', 'PENDING'])->default('PENDING');
-            $table->foreignId('final_report_id')->nullable()->default(NULL);
-            $table->foreignId('de_id')->nullable()->default(NULL);
-            $table->foreignId('pe_id')->nullable()->default(NULL);
+            $table->string("payment_voucher"); // link of the voucher
+
+            // $table->foreignId('final_report_id')->nullable()->default(NULL);
+            // $table->foreignId('review_team_id')->nullable()->default(NULL);
+
+            $table->foreignId('grouped_with')->nullable()->default(NULL);
+
+            // added the string type for storing links
+            $table->string("action_plan");
+            $table->string("year_1");
+            $table->string("year_2");
+            $table->string("year_3");
+            $table->string("year_4");
+            $table->string("y_end_date");
+            $table->string("preliminary_report");
+
+            // $table->foreignId('de_id')->nullable()->default(NULL);
+            // $table->foreignId('pe_id')->nullable()->default(NULL);
             $table->timestamps();
 
             $table -> unsignedBigInteger('pgpr_application_id') -> nullable(); //appplication of the review
 
             // indices +> more indices are required
             $table->index('qac_dir_id');
-            $table->index('de_id');
-            $table->index('pe_id');
+            // $table->index('de_id');
+            // $table->index('pe_id');
         });
     }
 
