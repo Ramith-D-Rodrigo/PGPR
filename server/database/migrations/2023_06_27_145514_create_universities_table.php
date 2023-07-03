@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('name');
             $table->string('address');
             $table->string('website');
+            $table->json('contact_no');
+            $table->json('fax_no');
             $table -> unsignedBigInteger('center_for_quality_assurance_id');
             $table -> unsignedBigInteger('quality_assurance_council_director_id'); //the director who added the university
             $table->timestamps();

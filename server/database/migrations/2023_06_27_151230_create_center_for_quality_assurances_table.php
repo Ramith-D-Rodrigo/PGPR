@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('center_for_quality_assurances', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
+            $table->json("contact_no");
+            $table->json("fax_no");
             $table->foreignId('center_for_quality_assurance_director_id');
 
             //foreign keys

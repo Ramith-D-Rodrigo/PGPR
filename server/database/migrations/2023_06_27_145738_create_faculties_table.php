@@ -17,12 +17,11 @@ return new class extends Migration
             $table->foreignId('dean_id');
             $table->string('website');
             $table->string('address');
-            $table->foreignId('iqau_id')->nullable()->default(NULL);
+            $table->json('contact_no');
+            $table->json('fax_no');
             $table->foreignId('university_id');
             $table->timestamps();
 
-            // indices
-            $table->index('iqau_id');
 
             //foreign key
             $table -> foreign('university_id') -> references('id') -> on('universities');

@@ -17,6 +17,7 @@ return new class extends Migration
           $table->json('contact_no');
           $table->json('fax_no');
           $table->foreignId('faculty_id');
+          $table->foreignId('iqau_dir_id')->nullable()->default(NULL);
           $table->timestamps();
 
           // indices
