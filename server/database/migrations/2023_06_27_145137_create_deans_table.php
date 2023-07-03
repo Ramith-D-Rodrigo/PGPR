@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->timestamps();
             $table->date('assigned_date');
-            $table->string('current_status'); //active or inactive for being a dean
+            $table->enum('current_status', ['ACTIVE', 'INACTIVE']); //active or inactive for being a dean
             $table->unsignedBigInteger('faculty_id');
 
             //foreign key
