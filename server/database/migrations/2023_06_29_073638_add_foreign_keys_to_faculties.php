@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('faculties', function (Blueprint $table) {
             // foreign keys
-            $table->foreign('iqau_id')->references('id')->on('internal_quality_assurance_units')->onUpdate('cascade');
+            // $table->foreign('iqau_id')->references('id')->on('internal_quality_assurance_units')->onUpdate('cascade');
         });
     }
 
