@@ -14,6 +14,9 @@ return new class extends Migration
         Schema::create('proper_evaluations', function (Blueprint $table) {
           $table->id();
           $table->foreignId('pgpr_id');
+          $table->date('start_date');
+          $table->date('end_date');
+          $table->enum("stage", ['1', '2', 'COMPLETED']);
           $table->timestamps();
 
           // indices
