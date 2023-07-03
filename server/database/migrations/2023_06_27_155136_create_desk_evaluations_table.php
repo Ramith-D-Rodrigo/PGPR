@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('desk_evaluations', function (Blueprint $table) {
           $table->id();
           $table->foreignId('pgpr_id');
+          $table->date('start_date');
+          $table->date('end_date');
           $table->timestamps();
 
 
