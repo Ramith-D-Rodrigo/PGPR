@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1;
 
-use App\Models\SelfEvaluationReport;
-use App\Http\Requests\StoreSelfEvaluationReportRequest;
-use App\Http\Requests\UpdateSelfEvaluationReportRequest;
+use App\Models\Dean;
+use App\Http\Requests\StoreDeanRequest;
+use App\Http\Requests\UpdateDeanRequest;
+use App\Http\Controllers\Controller;
 
-class SelfEvaluationReportController extends Controller
+class DeanController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -27,7 +28,7 @@ class SelfEvaluationReportController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreSelfEvaluationReportRequest $request)
+    public function store(StoreDeanRequest $request)
     {
         //
     }
@@ -35,7 +36,7 @@ class SelfEvaluationReportController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(SelfEvaluationReport $selfEvaluationReport)
+    public function show(Dean $dean)
     {
         //
     }
@@ -43,7 +44,7 @@ class SelfEvaluationReportController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(SelfEvaluationReport $selfEvaluationReport)
+    public function edit(Dean $dean)
     {
         //
     }
@@ -51,7 +52,7 @@ class SelfEvaluationReportController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateSelfEvaluationReportRequest $request, SelfEvaluationReport $selfEvaluationReport)
+    public function update(UpdateDeanRequest $request, Dean $dean)
     {
         //
     }
@@ -59,7 +60,7 @@ class SelfEvaluationReportController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(SelfEvaluationReport $selfEvaluationReport)
+    public function destroy(Dean $dean)
     {
         //
     }

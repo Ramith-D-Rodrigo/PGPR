@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1;
 
-use App\Models\ProgrammeCoordinator;
-use App\Http\Requests\StoreProgrammeCoordinatorRequest;
-use App\Http\Requests\UpdateProgrammeCoordinatorRequest;
+use App\Models\Reviewer;
+use App\Http\Requests\StoreReviewerRequest;
+use App\Http\Requests\UpdateReviewerRequest;
+use App\Http\Controllers\Controller;
 
-class ProgrammeCoordinatorController extends Controller
+class ReviewerController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -27,7 +28,7 @@ class ProgrammeCoordinatorController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreProgrammeCoordinatorRequest $request)
+    public function store(StoreReviewerRequest $request)
     {
         //
     }
@@ -35,7 +36,7 @@ class ProgrammeCoordinatorController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ProgrammeCoordinator $programmeCoordinator)
+    public function show(Reviewer $reviewer)
     {
         //
     }
@@ -43,7 +44,7 @@ class ProgrammeCoordinatorController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(ProgrammeCoordinator $programmeCoordinator)
+    public function edit(Reviewer $reviewer)
     {
         //
     }
@@ -51,7 +52,7 @@ class ProgrammeCoordinatorController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateProgrammeCoordinatorRequest $request, ProgrammeCoordinator $programmeCoordinator)
+    public function update(UpdateReviewerRequest $request, Reviewer $reviewer)
     {
         //
     }
@@ -59,7 +60,7 @@ class ProgrammeCoordinatorController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ProgrammeCoordinator $programmeCoordinator)
+    public function destroy(Reviewer $reviewer)
     {
         //
     }

@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1;
 
-use App\Http\Requests\StoreProperEvaluationRequest;
-use App\Http\Requests\UpdateProperEvaluationRequest;
-use App\Models\ProperEvaluation;
+use App\Models\Faculty;
+use App\Http\Requests\StoreFacultyRequest;
+use App\Http\Requests\UpdateFacultyRequest;
+use App\Http\Controllers\Controller;
 
-class ProperEvaluationController extends Controller
+class FacultyController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -27,7 +28,7 @@ class ProperEvaluationController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreProperEvaluationRequest $request)
+    public function store(StoreFacultyRequest $request)
     {
         //
     }
@@ -35,7 +36,7 @@ class ProperEvaluationController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ProperEvaluation $properEvaluation)
+    public function show(Faculty $faculty)
     {
         //
     }
@@ -43,7 +44,7 @@ class ProperEvaluationController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(ProperEvaluation $properEvaluation)
+    public function edit(Faculty $faculty)
     {
         //
     }
@@ -51,7 +52,7 @@ class ProperEvaluationController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateProperEvaluationRequest $request, ProperEvaluation $properEvaluation)
+    public function update(UpdateFacultyRequest $request, Faculty $faculty)
     {
         //
     }
@@ -59,7 +60,7 @@ class ProperEvaluationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ProperEvaluation $properEvaluation)
+    public function destroy(Faculty $faculty)
     {
         //
     }

@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1;
 
-use App\Models\University;
-use App\Http\Requests\StoreUniversityRequest;
-use App\Http\Requests\UpdateUniversityRequest;
+use App\Models\Criteria;
+use App\Http\Requests\StoreCriteriaRequest;
+use App\Http\Requests\UpdateCriteriaRequest;
+use App\Http\Controllers\Controller;
 
-class UniversityController extends Controller
+class CriteriaController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -27,7 +28,7 @@ class UniversityController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreUniversityRequest $request)
+    public function store(StoreCriteriaRequest $request)
     {
         //
     }
@@ -35,7 +36,7 @@ class UniversityController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(University $university)
+    public function show(Criteria $criteria)
     {
         //
     }
@@ -43,7 +44,7 @@ class UniversityController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(University $university)
+    public function edit(Criteria $criteria)
     {
         //
     }
@@ -51,7 +52,7 @@ class UniversityController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateUniversityRequest $request, University $university)
+    public function update(UpdateCriteriaRequest $request, Criteria $criteria)
     {
         //
     }
@@ -59,7 +60,7 @@ class UniversityController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(University $university)
+    public function destroy(Criteria $criteria)
     {
         //
     }

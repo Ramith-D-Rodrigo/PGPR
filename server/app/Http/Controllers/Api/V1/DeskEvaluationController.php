@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1;
 
-use App\Models\Dean;
-use App\Http\Requests\StoreDeanRequest;
-use App\Http\Requests\UpdateDeanRequest;
+use App\Http\Requests\StoreDeskEvaluationRequest;
+use App\Http\Requests\UpdateDeskEvaluationRequest;
+use App\Models\DeskEvaluation;
+use App\Http\Controllers\Controller;
 
-class DeanController extends Controller
+class DeskEvaluationController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -27,7 +28,7 @@ class DeanController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreDeanRequest $request)
+    public function store(StoreDeskEvaluationRequest $request)
     {
         //
     }
@@ -35,7 +36,7 @@ class DeanController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Dean $dean)
+    public function show(DeskEvaluation $deskEvaluation)
     {
         //
     }
@@ -43,7 +44,7 @@ class DeanController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Dean $dean)
+    public function edit(DeskEvaluation $deskEvaluation)
     {
         //
     }
@@ -51,7 +52,7 @@ class DeanController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateDeanRequest $request, Dean $dean)
+    public function update(UpdateDeskEvaluationRequest $request, DeskEvaluation $deskEvaluation)
     {
         //
     }
@@ -59,7 +60,7 @@ class DeanController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Dean $dean)
+    public function destroy(DeskEvaluation $deskEvaluation)
     {
         //
     }

@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1;
 
 use App\Models\CenterForQualityAssuranceDirector;
 use App\Http\Requests\StoreCenterForQualityAssuranceDirectorRequest;
 use App\Http\Requests\UpdateCenterForQualityAssuranceDirectorRequest;
+use App\Http\Controllers\Controller;
 
 class CenterForQualityAssuranceDirectorController extends Controller
 {

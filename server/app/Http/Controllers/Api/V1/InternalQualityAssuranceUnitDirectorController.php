@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1;
 
 use App\Models\InternalQualityAssuranceUnitDirector;
 use App\Http\Requests\StoreInternalQualityAssuranceUnitDirectorRequest;
 use App\Http\Requests\UpdateInternalQualityAssuranceUnitDirectorRequest;
+use App\Http\Controllers\Controller;
 
 class InternalQualityAssuranceUnitDirectorController extends Controller
 {

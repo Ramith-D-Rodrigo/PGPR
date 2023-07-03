@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1;
 
-use App\Models\AcademicStaff;
-use App\Http\Requests\StoreAcademicStaffRequest;
-use App\Http\Requests\UpdateAcademicStaffRequest;
+use App\Models\ViceChancellor;
+use App\Http\Requests\StoreViceChancellorRequest;
+use App\Http\Requests\UpdateViceChancellorRequest;
+use App\Http\Controllers\Controller;
 
-class AcademicStaffController extends Controller
+class ViceChancellorController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -27,7 +28,7 @@ class AcademicStaffController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreAcademicStaffRequest $request)
+    public function store(StoreViceChancellorRequest $request)
     {
         //
     }
@@ -35,7 +36,7 @@ class AcademicStaffController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(AcademicStaff $academicStaff)
+    public function show(ViceChancellor $viceChancellor)
     {
         //
     }
@@ -43,7 +44,7 @@ class AcademicStaffController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(AcademicStaff $academicStaff)
+    public function edit(ViceChancellor $viceChancellor)
     {
         //
     }
@@ -51,7 +52,7 @@ class AcademicStaffController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateAcademicStaffRequest $request, AcademicStaff $academicStaff)
+    public function update(UpdateViceChancellorRequest $request, ViceChancellor $viceChancellor)
     {
         //
     }
@@ -59,7 +60,7 @@ class AcademicStaffController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(AcademicStaff $academicStaff)
+    public function destroy(ViceChancellor $viceChancellor)
     {
         //
     }

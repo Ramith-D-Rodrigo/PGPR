@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1;
 
-use App\Models\Reviewer;
-use App\Http\Requests\StoreReviewerRequest;
-use App\Http\Requests\UpdateReviewerRequest;
+use App\Models\AcademicStaff;
+use App\Http\Requests\StoreAcademicStaffRequest;
+use App\Http\Requests\UpdateAcademicStaffRequest;
+use App\Http\Controllers\Controller;
 
-class ReviewerController extends Controller
+class AcademicStaffController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -27,7 +28,7 @@ class ReviewerController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreReviewerRequest $request)
+    public function store(StoreAcademicStaffRequest $request)
     {
         //
     }
@@ -35,7 +36,7 @@ class ReviewerController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Reviewer $reviewer)
+    public function show(AcademicStaff $academicStaff)
     {
         //
     }
@@ -43,7 +44,7 @@ class ReviewerController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Reviewer $reviewer)
+    public function edit(AcademicStaff $academicStaff)
     {
         //
     }
@@ -51,7 +52,7 @@ class ReviewerController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateReviewerRequest $request, Reviewer $reviewer)
+    public function update(UpdateAcademicStaffRequest $request, AcademicStaff $academicStaff)
     {
         //
     }
@@ -59,7 +60,7 @@ class ReviewerController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Reviewer $reviewer)
+    public function destroy(AcademicStaff $academicStaff)
     {
         //
     }

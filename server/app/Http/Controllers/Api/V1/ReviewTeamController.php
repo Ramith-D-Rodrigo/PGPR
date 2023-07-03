@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1;
 
-use App\Models\ViceChancellor;
-use App\Http\Requests\StoreViceChancellorRequest;
-use App\Http\Requests\UpdateViceChancellorRequest;
+use App\Models\ReviewTeam;
+use App\Http\Requests\StoreReviewTeamRequest;
+use App\Http\Requests\UpdateReviewTeamRequest;
+use App\Http\Controllers\Controller;
 
-class ViceChancellorController extends Controller
+class ReviewTeamController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -27,7 +28,7 @@ class ViceChancellorController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreViceChancellorRequest $request)
+    public function store(StoreReviewTeamRequest $request)
     {
         //
     }
@@ -35,7 +36,7 @@ class ViceChancellorController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ViceChancellor $viceChancellor)
+    public function show(ReviewTeam $reviewTeam)
     {
         //
     }
@@ -43,7 +44,7 @@ class ViceChancellorController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(ViceChancellor $viceChancellor)
+    public function edit(ReviewTeam $reviewTeam)
     {
         //
     }
@@ -51,7 +52,7 @@ class ViceChancellorController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateViceChancellorRequest $request, ViceChancellor $viceChancellor)
+    public function update(UpdateReviewTeamRequest $request, ReviewTeam $reviewTeam)
     {
         //
     }
@@ -59,7 +60,7 @@ class ViceChancellorController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ViceChancellor $viceChancellor)
+    public function destroy(ReviewTeam $reviewTeam)
     {
         //
     }

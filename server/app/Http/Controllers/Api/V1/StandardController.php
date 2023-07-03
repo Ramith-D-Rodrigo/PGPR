@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1;
 
 use App\Models\Standard;
 use App\Http\Requests\StoreStandardRequest;
 use App\Http\Requests\UpdateStandardRequest;
+use App\Http\Controllers\Controller;
 
 class StandardController extends Controller
 {

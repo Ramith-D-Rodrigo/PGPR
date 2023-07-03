@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Requests\StorePostGraduateProgramReviewRequest;
 use App\Http\Requests\UpdatePostGraduateProgramReviewRequest;
 use App\Models\PostGraduateProgramReview;
+use App\Http\Controllers\Controller;
 
 class PostGraduateProgramReviewController extends Controller
 {

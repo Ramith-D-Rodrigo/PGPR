@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1;
 
-use App\Models\Criteria;
-use App\Http\Requests\StoreCriteriaRequest;
-use App\Http\Requests\UpdateCriteriaRequest;
+use App\Http\Requests\StoreProperEvaluationRequest;
+use App\Http\Requests\UpdateProperEvaluationRequest;
+use App\Models\ProperEvaluation;
+use App\Http\Controllers\Controller;
 
-class CriteriaController extends Controller
+class ProperEvaluationController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -27,7 +28,7 @@ class CriteriaController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreCriteriaRequest $request)
+    public function store(StoreProperEvaluationRequest $request)
     {
         //
     }
@@ -35,7 +36,7 @@ class CriteriaController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Criteria $criteria)
+    public function show(ProperEvaluation $properEvaluation)
     {
         //
     }
@@ -43,7 +44,7 @@ class CriteriaController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Criteria $criteria)
+    public function edit(ProperEvaluation $properEvaluation)
     {
         //
     }
@@ -51,7 +52,7 @@ class CriteriaController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateCriteriaRequest $request, Criteria $criteria)
+    public function update(UpdateProperEvaluationRequest $request, ProperEvaluation $properEvaluation)
     {
         //
     }
@@ -59,7 +60,7 @@ class CriteriaController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Criteria $criteria)
+    public function destroy(ProperEvaluation $properEvaluation)
     {
         //
     }

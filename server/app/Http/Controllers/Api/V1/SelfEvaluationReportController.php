@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1;
 
-use App\Http\Requests\StoreDeskEvaluationRequest;
-use App\Http\Requests\UpdateDeskEvaluationRequest;
-use App\Models\DeskEvaluation;
+use App\Models\SelfEvaluationReport;
+use App\Http\Requests\StoreSelfEvaluationReportRequest;
+use App\Http\Requests\UpdateSelfEvaluationReportRequest;
+use App\Http\Controllers\Controller;
 
-class DeskEvaluationController extends Controller
+class SelfEvaluationReportController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -27,7 +28,7 @@ class DeskEvaluationController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreDeskEvaluationRequest $request)
+    public function store(StoreSelfEvaluationReportRequest $request)
     {
         //
     }
@@ -35,7 +36,7 @@ class DeskEvaluationController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(DeskEvaluation $deskEvaluation)
+    public function show(SelfEvaluationReport $selfEvaluationReport)
     {
         //
     }
@@ -43,7 +44,7 @@ class DeskEvaluationController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(DeskEvaluation $deskEvaluation)
+    public function edit(SelfEvaluationReport $selfEvaluationReport)
     {
         //
     }
@@ -51,7 +52,7 @@ class DeskEvaluationController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateDeskEvaluationRequest $request, DeskEvaluation $deskEvaluation)
+    public function update(UpdateSelfEvaluationReportRequest $request, SelfEvaluationReport $selfEvaluationReport)
     {
         //
     }
@@ -59,7 +60,7 @@ class DeskEvaluationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(DeskEvaluation $deskEvaluation)
+    public function destroy(SelfEvaluationReport $selfEvaluationReport)
     {
         //
     }

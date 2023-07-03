@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1;
 
 use App\Models\QualityAssuranceCouncilOfficer;
 use App\Http\Requests\StoreQualityAssuranceCouncilOfficerRequest;
 use App\Http\Requests\UpdateQualityAssuranceCouncilOfficerRequest;
+use App\Http\Controllers\Controller;
 
 class QualityAssuranceCouncilOfficerController extends Controller
 {

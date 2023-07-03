@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1;
 
-use App\Models\UniversitySide;
-use App\Http\Requests\StoreUniversitySideRequest;
-use App\Http\Requests\UpdateUniversitySideRequest;
+use App\Models\University;
+use App\Http\Requests\StoreUniversityRequest;
+use App\Http\Requests\UpdateUniversityRequest;
+use App\Http\Controllers\Controller;
 
-class UniversitySideController extends Controller
+class UniversityController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -27,7 +28,7 @@ class UniversitySideController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreUniversitySideRequest $request)
+    public function store(StoreUniversityRequest $request)
     {
         //
     }
@@ -35,7 +36,7 @@ class UniversitySideController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(UniversitySide $universitySide)
+    public function show(University $university)
     {
         //
     }
@@ -43,7 +44,7 @@ class UniversitySideController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(UniversitySide $universitySide)
+    public function edit(University $university)
     {
         //
     }
@@ -51,7 +52,7 @@ class UniversitySideController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateUniversitySideRequest $request, UniversitySide $universitySide)
+    public function update(UpdateUniversityRequest $request, University $university)
     {
         //
     }
@@ -59,7 +60,7 @@ class UniversitySideController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(UniversitySide $universitySide)
+    public function destroy(University $university)
     {
         //
     }

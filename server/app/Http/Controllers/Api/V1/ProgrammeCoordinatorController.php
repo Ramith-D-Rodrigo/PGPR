@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1;
 
-use App\Models\ReviewTeam;
-use App\Http\Requests\StoreReviewTeamRequest;
-use App\Http\Requests\UpdateReviewTeamRequest;
+use App\Models\ProgrammeCoordinator;
+use App\Http\Requests\StoreProgrammeCoordinatorRequest;
+use App\Http\Requests\UpdateProgrammeCoordinatorRequest;
+use App\Http\Controllers\Controller;
 
-class ReviewTeamController extends Controller
+class ProgrammeCoordinatorController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -27,7 +28,7 @@ class ReviewTeamController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreReviewTeamRequest $request)
+    public function store(StoreProgrammeCoordinatorRequest $request)
     {
         //
     }
@@ -35,7 +36,7 @@ class ReviewTeamController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ReviewTeam $reviewTeam)
+    public function show(ProgrammeCoordinator $programmeCoordinator)
     {
         //
     }
@@ -43,7 +44,7 @@ class ReviewTeamController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(ReviewTeam $reviewTeam)
+    public function edit(ProgrammeCoordinator $programmeCoordinator)
     {
         //
     }
@@ -51,7 +52,7 @@ class ReviewTeamController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateReviewTeamRequest $request, ReviewTeam $reviewTeam)
+    public function update(UpdateProgrammeCoordinatorRequest $request, ProgrammeCoordinator $programmeCoordinator)
     {
         //
     }
@@ -59,7 +60,7 @@ class ReviewTeamController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ReviewTeam $reviewTeam)
+    public function destroy(ProgrammeCoordinator $programmeCoordinator)
     {
         //
     }
