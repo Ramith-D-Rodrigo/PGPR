@@ -1,11 +1,12 @@
 import './App.css'
+import {Route, Routes} from 'react-router-dom';
+import Dashboard from './components/Dashboard';
 
 function App() {
 
   return (
-    <>
-      Hello PGPR
-    </>
+    <Routes>
+    </Routes>
   )
 }
 
