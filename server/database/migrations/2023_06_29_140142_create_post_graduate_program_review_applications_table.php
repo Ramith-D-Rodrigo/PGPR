@@ -17,6 +17,11 @@ return new class extends Migration
             $table->date('request_date') -> nullable(); //date of the request to submitted to CQADirector
             $table->date('application_date') -> nullable(); //date of the application approved by CQADirector
             $table->unsignedBigInteger('dean_id');
+            $table->string("year_1");
+            $table->string("year_2");
+            $table->string("year_3");
+            $table->string("year_4");
+            $table->string("y_end_date");
             $table -> unsignedBigInteger('post_graduate_program_id'); //id of the post graduate program that is being reviewed
             $table->unsignedBigInteger('quality_assurance_council_officer_id') -> nullable(); //id of the quality assurance council officer who approved the application
             $table->timestamps();

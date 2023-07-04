@@ -25,4 +25,14 @@ class Standard extends Model
     {
         return $this->belongsToMany(DeskEvaluation::class, 'desk_evaluation_score', 'standard_id', 'de_id')->withPivot('de_score');
     }
+
+    public function evidences()
+    {
+        return $this->belongsToMany(Evidence::class, 'ser_evidence_standard', 'standard_id', 'evidence_id')->withPivot('adherence');
+    }
+
+    public function selfEvaluationReport()
+    {
+        return $this->belongsToMany(Evidence::class, 'ser_evidence_standard', 'standard_id', 'ser_id')->withPivot('adherence');
+    }
 }

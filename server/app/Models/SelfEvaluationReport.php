@@ -31,4 +31,14 @@ class SelfEvaluationReport extends Model
     {
         return $this->belongsTo(InternalQualityAssuranceUnitDirector::class);
     }
+
+    public function evidences()
+    {
+        return $this->belongsToMany(Evidence::class, 'ser_evidence_standard', 'ser_id', 'evidence_id')->withPivot('adherence');
+    }
+
+    public function standards()
+    {
+        return $this->belongsToMany(Standard::class, 'ser_evidence_standard', 'ser_id', 'standard_id')->withPivot('adherence');
+    }
 }

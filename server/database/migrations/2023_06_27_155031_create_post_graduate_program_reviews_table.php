@@ -26,11 +26,7 @@ return new class extends Migration
 
             // added the string type for storing links
             $table->string("action_plan");
-            $table->string("year_1");
-            $table->string("year_2");
-            $table->string("year_3");
-            $table->string("year_4");
-            $table->string("y_end_date");
+
             $table->string("preliminary_report");
 
             // $table->foreignId('de_id')->nullable()->default(NULL);
