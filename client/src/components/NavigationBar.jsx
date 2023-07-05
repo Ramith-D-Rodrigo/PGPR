@@ -2,8 +2,6 @@ import {AppBar, Toolbar, Typography} from '@mui/material';
 import {Stack, Avatar} from '@mui/material';
 import BreadCrumbs from './BreadCrumbs';
 import {Divider} from '@mui/material';
-import shadows from '@mui/material/styles/shadows';
-import CircleNotificationsIcon from '@mui/icons-material/CircleNotifications';
 
 const NavigationBar = () => {
   return (
