@@ -1,8 +1,12 @@
 import NavigationBar from './NavigationBar';
+import SideDrawer from './SideDrawer';
 
 const Dashboard = () => {
   return (
-    <NavigationBar/>
+    <>
+        <SideDrawer/>
+        <NavigationBar/>
+    </>
   )
 }
 
