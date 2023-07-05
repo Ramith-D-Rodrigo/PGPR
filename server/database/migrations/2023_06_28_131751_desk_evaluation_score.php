@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId('reviewer_id');
             $table->foreignId('standard_id');
             $table->double('de_score')->default(0.00);
+            $table->string('comment');
             $table->timestamps();
 
             // indices
