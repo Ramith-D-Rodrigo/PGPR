@@ -15,6 +15,7 @@ class UniversitySideController extends Controller
     public function index()
     {
         //
+        return UniversitySide::all();
     }
 
     /**
