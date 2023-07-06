@@ -6,6 +6,8 @@ use App\Models\University;
 use App\Http\Requests\StoreUniversityRequest;
 use App\Http\Requests\UpdateUniversityRequest;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\V1\UniversityResource;
+use App\Http\Resources\V1\UniversityCollection;
 
 class UniversityController extends Controller
 {
@@ -14,7 +16,7 @@ class UniversityController extends Controller
      */
     public function index()
     {
-        //
+        return new UniversityCollection(University::paginate());
     }
 
     /**
@@ -38,7 +40,7 @@ class UniversityController extends Controller
      */
     public function show(University $university)
     {
-        //
+        return new UniversityResource($university);
     }
 
     /**
