@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Models\University;
-use App\Http\Requests\StoreUniversityRequest;
-use App\Http\Requests\UpdateUniversityRequest;
+use App\Http\Requests\V1\StoreUniversityRequest;
+use App\Http\Requests\V1\UpdateUniversityRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\V1\UniversityResource;
 use App\Http\Resources\V1\UniversityCollection;
@@ -20,19 +20,11 @@ class UniversityController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(StoreUniversityRequest $request)
     {
-        //
+        return new UniversityResource(University::create($request->validated()));
     }
 
     /**
@@ -43,13 +35,6 @@ class UniversityController extends Controller
         return new UniversityResource($university);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(University $university)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
