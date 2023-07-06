@@ -6,6 +6,8 @@ use App\Models\Criteria;
 use App\Http\Requests\StoreCriteriaRequest;
 use App\Http\Requests\UpdateCriteriaRequest;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\V1\CriteriaCollection;
+use App\Http\Resources\V1\CriteriaResource;
 
 class CriteriaController extends Controller
 {
@@ -14,7 +16,7 @@ class CriteriaController extends Controller
      */
     public function index()
     {
-        //
+        return new CriteriaCollection(Criteria::all());
     }
 
     /**
@@ -38,7 +40,7 @@ class CriteriaController extends Controller
      */
     public function show(Criteria $criteria)
     {
-        //
+        return new CriteriaResource($criteria);
     }
 
     /**
