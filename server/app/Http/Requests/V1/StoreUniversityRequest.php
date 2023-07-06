@@ -11,7 +11,7 @@ class StoreUniversityRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true; //anyone can create a university (for now, we will add authorization later)
     }
 
     /**
@@ -23,6 +23,18 @@ class StoreUniversityRequest extends FormRequest
     {
         return [
             //
+            "name" => ["required", "string", "max:255", "unique:universities"],
+            "address" => ["required", "string", "max:255", "unique:universities"],
+            "website" => ["required", "string", "max:255", "unique:universities"],
+            "contact_no" => ["required", "json"], //snake_case is because of the database column name (camelCase is because of the json request field name)
+            "fax_no" => ["required", "json"],
         ];
+    }
+
+    protected function prepareForValidation(){
+        $this->merge([
+            'contact_no' => json_encode($this -> contactNo),
+            'fax_no' => json_encode($this -> faxNo),
+        ]);
     }
 }
