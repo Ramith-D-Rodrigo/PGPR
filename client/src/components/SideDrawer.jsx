@@ -1,34 +1,38 @@
-import { Avatar, Box, Divider, Drawer, IconButton, Typography } from "@mui/material";
-import { useState } from "react";
+import Drawer from '@mui/material/Drawer';
+import Divider from '@mui/material/Divider';
+import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
+import { Avatar } from '@mui/material';
+import DrawerHeader from './DrawerHeader';
 
-const SideDrawer = () => {
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+let drawerWidth = 240; //default
 
-  return (
-    <>
-      <IconButton 
-        onClick={() => setIsDrawerOpen(true)}
-        edge='start'
-        color='inherit'
-        aria-lang="logo">
-          <MenuIcon/>
-      </IconButton>
-      <Drawer 
-        anchor='left'
-        open={isDrawerOpen}
-        onClose={() => setIsDrawerOpen(false)}>
-          <Box p={2} textAlign={'center'} role='presentation' width={'250px'}>
-              <Avatar/>
-              <Divider/>
 
-              <Typography variant='h6' color='black'>
-                  Dashboard
-              </Typography>
-          </Box>
-      </Drawer>
-    </>
-  )
+const SideDrawer = ({drawerOpen, drawerCloseHandler, drawerWidthInput}) => {
+    drawerWidth = drawerWidthInput;
+    return (
+        <Drawer
+          sx={{
+            width: drawerWidth,
+            flexShrink: 0,
+            '& .MuiDrawer-paper': {
+              width: drawerWidth,
+              boxSizing: 'border-box',
+            },
+          }}
+          variant="persistent"
+          anchor="left"
+          open={drawerOpen}
+        >
+          <DrawerHeader>
+            <Avatar/>
+            <IconButton onClick={drawerCloseHandler}>
+              <MenuIcon />
+            </IconButton>
+          </DrawerHeader>
+          <Divider />
+        </Drawer>
+    );
 }
 
-export default SideDrawer
+export default SideDrawer;
