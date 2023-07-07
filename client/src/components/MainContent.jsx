@@ -3,6 +3,7 @@ import DrawerHeader from './DrawerHeader';
 import { Typography } from '@mui/material';
 import Footer from './Footer';
 import Box from '@mui/material/Box';
+import Card from './DashboardCard';
 
 let drawerWidth = 240;
 
@@ -31,9 +32,16 @@ const MainContent = ({open, drawerWidthInput, content}) => {
         <Box sx={{display: 'flex', flexDirection: 'column', width: '100%', position: 'relative', minHeight:'100vh',}}>  
             <Main open={open}>
                 <DrawerHeader/>
-                <Typography>
-                    ashjdga jhahjs dgajhs gdjha ghjd
-                </Typography>
+                <Card 
+                  title={'Requested Applications'}
+                  content={'2023 Mar 30 - 2023 Jult 30'}
+                  message={'Ends in 4 Days'}
+                />
+                <Card 
+                  title={'Requested Applications'}
+                  content={'2023 Mar 30 - 2023 Jult 30'}
+                  message={'Ends in 4 Days'}
+                />
             </Main>         
             <Footer drawerOpen={open} drawerWidthInput={drawerWidthInput}/>
         </Box>
