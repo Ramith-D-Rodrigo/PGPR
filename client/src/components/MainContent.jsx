@@ -8,7 +8,7 @@ let drawerWidth = 240;
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
     ({ theme, open }) => ({
-      flexGrow: 1,
+      height: '90%',
       padding: theme.spacing(3),
       transition: theme.transitions.create('margin', {
         easing: theme.transitions.easing.sharp,
@@ -28,7 +28,7 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
 const MainContent = ({open, drawerWidthInput, content}) => {
     drawerWidth = drawerWidthInput;
     return (
-        <Box sx={{display: 'flex', flexDirection: 'column', width: '100%', position: 'relative'}}>  
+        <Box sx={{display: 'flex', flexDirection: 'column', width: '100%', position: 'relative', minHeight:'100vh',}}>  
             <Main open={open}>
                 <DrawerHeader/>
                 <Typography>
