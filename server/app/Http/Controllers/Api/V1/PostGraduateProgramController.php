@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Http\Requests\StorePostGraduateProgramRequest;
-use App\Http\Requests\UpdatePostGraduateProgramRequest;
+use App\Http\Requests\V1\StorePostGraduateProgramRequest;
+use App\Http\Requests\V1\UpdatePostGraduateProgramRequest;
+use App\Http\Resources\V1\PostGraduateProgramResource;
 use App\Models\PostGraduateProgram;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\V1\PostGraduateProgramCollection;
 
 class PostGraduateProgramController extends Controller
 {
@@ -14,7 +16,7 @@ class PostGraduateProgramController extends Controller
      */
     public function index()
     {
-        //
+        return new PostGraduateProgramCollection(PostGraduateProgram::paginate());
     }
 
     /**
@@ -30,7 +32,7 @@ class PostGraduateProgramController extends Controller
      */
     public function store(StorePostGraduateProgramRequest $request)
     {
-        //
+        return new PostGraduateProgramResource(PostGraduateProgram::create($request->validated()));
     }
 
     /**
@@ -38,7 +40,7 @@ class PostGraduateProgramController extends Controller
      */
     public function show(PostGraduateProgram $postGraduateProgram)
     {
-        //
+        return new PostGraduateProgramResource($postGraduateProgram);
     }
 
     /**
