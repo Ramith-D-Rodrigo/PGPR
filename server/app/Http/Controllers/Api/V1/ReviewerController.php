@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Models\Reviewer;
-use App\Http\Requests\StoreReviewerRequest;
-use App\Http\Requests\UpdateReviewerRequest;
+use App\Http\Requests\V1\StoreReviewerRequest;
+use App\Http\Requests\V1\UpdateReviewerRequest;
 use App\Http\Controllers\Controller;
 
 class ReviewerController extends Controller
