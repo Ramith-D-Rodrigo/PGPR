@@ -9,6 +9,12 @@ class CenterForQualityAssurance extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'contact_no',
+        'fax_no',
+        'center_for_quality_assurance_director_id'
+    ];
+
     //center for quality assurance belongs to a university
     public function university(){
         return $this->belongsTo(University::class);
