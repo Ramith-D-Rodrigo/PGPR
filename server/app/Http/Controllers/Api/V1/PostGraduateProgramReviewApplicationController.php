@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Resources\V1\PostGraduateProgramReviewApplicationCollection;
 use App\Models\PostGraduateProgramReviewApplication;
-use App\Http\Requests\StorePostGraduateProgramReviewApplicationRequest;
-use App\Http\Requests\UpdatePostGraduateProgramReviewApplicationRequest;
+use App\Http\Requests\V1\StorePostGraduateProgramReviewApplicationRequest;
+use App\Http\Requests\V1\UpdatePostGraduateProgramReviewApplicationRequest;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\V1\PostGraduateProgramReviewApplicationResource;
 class PostGraduateProgramReviewApplicationController extends Controller
 {
     /**
@@ -13,7 +15,7 @@ class PostGraduateProgramReviewApplicationController extends Controller
      */
     public function index()
     {
-        //
+       return new PostGraduateProgramReviewApplicationCollection(PostGraduateProgramReviewApplication::paginate());
     }
 
     /**
@@ -37,7 +39,7 @@ class PostGraduateProgramReviewApplicationController extends Controller
      */
     public function show(PostGraduateProgramReviewApplication $postGraduateProgramReviewApplication)
     {
-        //
+        return new PostGraduateProgramReviewApplicationResource($postGraduateProgramReviewApplication);
     }
 
     /**
