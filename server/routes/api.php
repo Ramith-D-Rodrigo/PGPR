@@ -47,4 +47,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::apiResource('cqaDirectors', 'CenterForQualityAssuranceDirectorController');
     Route::apiResource('centerForQualityAssurances', 'CenterForQualityAssurancesController');
     Route::apiResource('academicStaffs', 'AcademicStaffController');
+
+    //route for reviewer import from excel
+    Route::post('reviewers/import', 'ReviewerController@importReviewers');
 });
