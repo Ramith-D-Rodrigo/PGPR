@@ -33,7 +33,7 @@ const MainContent = ({open, drawerWidthInput, content}) => {
             <Main open={open}>
                 <DrawerHeader/>
                 {content} {/* content according to the page */}
-                <Card 
+{  /*              <Card 
                   title={'Requested Applications'}
                   content={'2023 Mar 30 - 2023 Jult 30'}
                   message={'Ends in 4 Days'}
@@ -42,7 +42,7 @@ const MainContent = ({open, drawerWidthInput, content}) => {
                   title={'Requested Applications'}
                   content={'2023 Mar 30 - 2023 Jult 30'}
                   message={'Ends in 4 Days'}
-                />
+    />*/}
             </Main>         
             <Footer drawerOpen={open} drawerWidthInput={drawerWidthInput}/>
         </Box>
