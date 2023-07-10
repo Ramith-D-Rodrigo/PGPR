@@ -32,6 +32,7 @@ const MainContent = ({open, drawerWidthInput, content}) => {
         <Box sx={{display: 'flex', flexDirection: 'column', width: '100%', position: 'relative', minHeight:'100vh',}}>  
             <Main open={open}>
                 <DrawerHeader/>
+                {content} {/* content according to the page */}
                 <Card 
                   title={'Requested Applications'}
                   content={'2023 Mar 30 - 2023 Jult 30'}

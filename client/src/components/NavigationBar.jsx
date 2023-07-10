@@ -27,7 +27,7 @@ const AppBar = styled(MuiAppBar, {
 }));
 
 //open and openDrawer are for sidebar (navigation bar is a child of sidebar)
-const NavigationBar = ({open , openDrawer, drawerWidthInput}) => {
+const NavigationBar = ({open , openDrawer, drawerWidthInput, breadCrumbs}) => {
   drawerWidth = drawerWidthInput;
   return (
       <AppBar color='transparent' style={{boxShadow: 'none'}} open={open} position='absolute'>
@@ -41,6 +41,7 @@ const NavigationBar = ({open , openDrawer, drawerWidthInput}) => {
               >
                 <MenuIcon />
               </IconButton>
+              {breadCrumbs} {/* breadcrumbs according to the page */}
               <BreadCrumbs/>
               <Stack direction='row' spacing={2}>
                   

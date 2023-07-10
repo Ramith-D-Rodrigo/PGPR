@@ -8,7 +8,7 @@ import DrawerHeader from './DrawerHeader';
 let drawerWidth = 240; //default
 
 
-const SideDrawer = ({drawerOpen, drawerCloseHandler, drawerWidthInput}) => {
+const SideDrawer = ({drawerOpen, drawerCloseHandler, drawerWidthInput, routes}) => {
     drawerWidth = drawerWidthInput;
     return (
         <Drawer
@@ -31,6 +31,7 @@ const SideDrawer = ({drawerOpen, drawerCloseHandler, drawerWidthInput}) => {
             </IconButton>
           </DrawerHeader>
           <Divider />
+          {routes} {/* routes according to the user role */}
         </Drawer>
     );
 }
