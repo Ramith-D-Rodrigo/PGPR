@@ -8,6 +8,7 @@ use App\Http\Requests\V1\UpdateReviewerRequest;
 use App\Http\Controllers\Controller;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\V1\ReviewerImport;
+use Maatwebsite\Excel\Validators\ValidationException;
 
 class ReviewerController extends Controller
 {
@@ -30,11 +31,18 @@ class ReviewerController extends Controller
     //import reviewers using excel file
     public function importReviewers()
     {
-        Excel::import(new ReviewerImport, request()->file('file'));
-
-        return response()->json([
-            'message' => 'Reviewers imported successfully'
-        ], 200);
+        try{
+            Excel::import(new ReviewerImport, request()->file('file'));
+            return response()->json([
+                'message' => 'Reviewers imported successfully'
+            ], 200);
+        }
+        catch(ValidationException $e){
+            $failures = $e -> errors();
+            return response()->json([
+                'errors' => $failures
+            ], 422);
+        }
     }
 
     /**
