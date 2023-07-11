@@ -33,28 +33,20 @@ const MainContent = ({open, drawerWidthInput, content}) => {
         <Box sx={{display: 'flex', flexDirection: 'column', width: '100%', position: 'relative', minHeight:'100vh',}}>  
             <Main open={open}>
                 <DrawerHeader/>
+                {content} {/* content according to the page */}
+{  /*            
                 <Grid container spacing={3}>
-                  <Card 
-                    title={'Requested Applications'}
-                    content={'2023 Mar 30 - 2023 Jult 30'}
-                    message={'Ends in 4 Days'}
-                  />
-                  <Card 
-                    title={'Requested Applications'}
-                    content={'2023 Mar 30 - 2023 Jult 30'}
-                    message={'Ends in 4 Days'}
-                  />
-                  <Card 
-                    title={'Requested Applications'}
-                    content={'2023 Mar 30 - 2023 Jult 30'}
-                    message={'Ends in 4 Days'}
-                  />
-                  <Card 
-                    title={'Requested Applications'}
-                    content={'2023 Mar 30 - 2023 Jult 30'}
-                    message={'Ends in 4 Days'}
-                  />
-                </Grid>
+                <Card 
+                  title={'Requested Applications'}
+                  content={'2023 Mar 30 - 2023 Jult 30'}
+                  message={'Ends in 4 Days'}
+                />
+                <Card 
+                  title={'Requested Applications'}
+                  content={'2023 Mar 30 - 2023 Jult 30'}
+                  message={'Ends in 4 Days'}/>
+                  </Grid>
+*/}
             </Main>         
             <Footer drawerOpen={open} drawerWidthInput={drawerWidthInput}/>
         </Box>

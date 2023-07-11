@@ -4,7 +4,7 @@ import SideDrawer from './SideDrawer'
 import MainContent from './MainContent';
 import Box from '@mui/material/Box';
 
-const MainLayout = () => {
+const MainLayout = ({navigationBreadCrumbs, sideDrawerRoutes, mainContent}) => {
     const [drawerOpen, setDrawerOpen] = React.useState(true);
 
     let drawerWidth = 240; //drawer width in pixel
@@ -20,9 +20,9 @@ const MainLayout = () => {
     return (
       <>
         <Box sx={{display: 'flex'}}>
-            <NavigationBar open={drawerOpen} openDrawer={handleDrawerOpen} drawerWidthInput={drawerWidth} />
-            <SideDrawer drawerOpen={drawerOpen} drawerCloseHandler={handleDrawerClose} drawerWidthInput={drawerWidth}/>
-            <MainContent open={drawerOpen} drawerWidthInput={drawerWidth}/>
+            <NavigationBar open={drawerOpen} openDrawer={handleDrawerOpen} drawerWidthInput={drawerWidth} breadCrumbs={navigationBreadCrumbs} />
+            <SideDrawer drawerOpen={drawerOpen} drawerCloseHandler={handleDrawerClose} drawerWidthInput={drawerWidth} routes={sideDrawerRoutes}/>
+            <MainContent open={drawerOpen} drawerWidthInput={drawerWidth} content={mainContent}/>
         </Box>
       </>
 
