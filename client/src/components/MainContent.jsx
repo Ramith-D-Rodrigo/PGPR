@@ -1,6 +1,7 @@
 import { styled, useTheme } from '@mui/material/styles';
 import DrawerHeader from './DrawerHeader';
-import { Typography } from '@mui/material';
+import { Typography, Stack } from '@mui/material';
+import { Grid } from '@mui/material';
 import Footer from './Footer';
 import Box from '@mui/material/Box';
 import Card from './DashboardCard';
@@ -32,16 +33,28 @@ const MainContent = ({open, drawerWidthInput, content}) => {
         <Box sx={{display: 'flex', flexDirection: 'column', width: '100%', position: 'relative', minHeight:'100vh',}}>  
             <Main open={open}>
                 <DrawerHeader/>
-                <Card 
-                  title={'Requested Applications'}
-                  content={'2023 Mar 30 - 2023 Jult 30'}
-                  message={'Ends in 4 Days'}
-                />
-                <Card 
-                  title={'Requested Applications'}
-                  content={'2023 Mar 30 - 2023 Jult 30'}
-                  message={'Ends in 4 Days'}
-                />
+                <Grid container spacing={3}>
+                  <Card 
+                    title={'Requested Applications'}
+                    content={'2023 Mar 30 - 2023 Jult 30'}
+                    message={'Ends in 4 Days'}
+                  />
+                  <Card 
+                    title={'Requested Applications'}
+                    content={'2023 Mar 30 - 2023 Jult 30'}
+                    message={'Ends in 4 Days'}
+                  />
+                  <Card 
+                    title={'Requested Applications'}
+                    content={'2023 Mar 30 - 2023 Jult 30'}
+                    message={'Ends in 4 Days'}
+                  />
+                  <Card 
+                    title={'Requested Applications'}
+                    content={'2023 Mar 30 - 2023 Jult 30'}
+                    message={'Ends in 4 Days'}
+                  />
+                </Grid>
             </Main>         
             <Footer drawerOpen={open} drawerWidthInput={drawerWidthInput}/>
         </Box>
