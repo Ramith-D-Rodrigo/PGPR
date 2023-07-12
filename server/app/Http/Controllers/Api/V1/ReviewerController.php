@@ -38,14 +38,6 @@ class ReviewerController extends Controller
             //$arr = Excel::toArray(new ReviewerImport, request()->file('file'));
 
             //0th index has the all the rows
-/*             foreach($arr[0] as $row){
-                $reviewerReq = new StoreAcademicStaffRequest();
-                $row['staff_position'] = 'academic';
-                $reviewerReq -> replace($row);
-                $reviewerReq -> prepareForValidation();
-
-                print_r($reviewerReq -> validate($reviewerReq -> rules()));
-            } */
             return response()->json([
                 'message' => 'Reviewers imported successfully'
             ], 200);
