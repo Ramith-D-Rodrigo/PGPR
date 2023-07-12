@@ -89,7 +89,7 @@ class StoreAcademicStaffRequest extends StoreUniversitySideRequest
         //convert json arrays to json strings
         foreach($jsonProperties as $field){
             if(isset($this -> $field) and $this -> $field != null){
-                $this -> $field = json_encode($this -> $field);
+                $this -> merge([$field => json_encode($this -> $field)]);
             }
         }
 
