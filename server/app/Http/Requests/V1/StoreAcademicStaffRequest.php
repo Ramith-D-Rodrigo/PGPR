@@ -98,4 +98,48 @@ class StoreAcademicStaffRequest extends StoreUniversitySideRequest
             $this -> merge(['official_telephone_no' => (string)$this -> official_telephone_no]);
         }
     }
+
+    //custom validation messages
+    public function messages() : array{
+        $parentMsgs = parent::messages(); //get the messages from the parent class (StoreUniversitySideRequest)
+
+        $messageArr = [
+            'university_id.required' => 'University ID is required',
+            'department_name.required' => 'Department name is required',
+            'department_head_name.required' => 'Department head name is required',
+            'department_head_email.required' => "Department head's email address is required",
+            'department_head_email.email' => "Department head's email address should be a valid email",
+            'department_postal_address.required' => 'Department postal address is required',
+            'designation.required' => 'Designation is required',
+            'experience_in_industry.required' => 'Experience in industry is required',
+            'google_scholar_link.required' => 'Google scholar link is required',
+            'nominees.required' => 'Nominees is required',
+            'experience_with_research_funds.required' => 'Experience with research funds is required',
+            'supervised_postgraduate_student_count.required' => 'Supervised postgraduate student count is required',
+            'publications_in_referred_journals_count.required' => 'Publications in referred journals count is required',
+            'abstract_count.required' => 'Abstract count is required',
+            'conference_preceedings_count.required' => 'Conference preceedings count is required',
+            'book_chapters.required' => 'Book chapters count is required',
+            'involvement_in_internal_quality_assurance.required' => 'Involvement in internal quality assurance is required',
+            'involment_in_study_programme_development.required' => 'Involvement in study programme development is required',
+            'postgraduate_teaching_experience.required' => 'Postgraduate teaching experience is required',
+            'qualification_1.required' => 'Qualification 1 is required',
+            'qualification_1_slqf_level.required' => 'Qualification 1 SLQF level is required',
+            'qualification_1_slqf_level.integer' => 'Qualification 1 SLQF level should be an integer',
+            'qualification_2.required' => 'Qualification 2 is required',
+            'qualification_2_slqf_level.required' => 'Qualification 2 SLQF level is required',
+            'qualification_2_slqf_level.integer' => 'Qualification 2 SLQF level should be an integer',
+            'qualification_3.required' => 'Qualification 3 is required',
+            'qualification_3_slqf_level.required' => 'Qualification 3 SLQF level is required',
+            'qualification_3_slqf_level.integer' => 'Qualification 3 SLQF level should be an integer',
+            'qualification_4.required' => 'Qualification 4 is required',
+            'qualification_4_slqf_level.required' => 'Qualification 4 SLQF level is required',
+            'qualification_4_slqf_level.integer' => 'Qualification 4 SLQF level should be an integer',
+            'prior_training_in_programme_review.required' => 'Prior training in programme review is required',
+            'cv.required' => 'CV is required',
+            'cv.string' => 'CV should be a string', //cv file path (for now it is just a link to the file, later we have to store the file in the server)
+        ];
+
+        return array_merge($parentMsgs, $messageArr);
+    }
 }
