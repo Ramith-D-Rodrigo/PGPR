@@ -67,4 +67,26 @@ class StoreUserRequest extends FormRequest
         }
     }
 
+    public function messages() : array{
+        return [
+            'initials.required' => 'Initials is required',
+            'surname.required' => 'Surname is required',
+            'contact_no.required' => 'Contact number is required',
+            'contact_no.json' => 'Contact number should be a json string',
+            'profile_pic.required' => 'Profile picture is required',
+            'full_name.required' => 'Full name is required',
+            'official_telephone_no.required' => 'Official telephone number is required',
+            'nic.required' => 'NIC is required',
+            'nic.unique' => 'NIC is already used in this system',
+            'gender.required' => 'Gender is required',
+            'gender.in' => 'Gender should be either m or f',
+            'official_email.required' => 'Official email is required',
+            'official_email.email' => 'Official email should be a valid email',
+            'official_email.not_in' => 'Official email is already used in this system',
+            'official_email.string' => 'Official email should be a string',
+            'personal_email.required' => 'Personal email is required',
+            'personal_email.email' => 'Personal email should be a valid email',
+            'personal_email.not_in' => 'Personal email is already used in this system',
+        ];
+    }
 }
