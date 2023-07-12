@@ -26,7 +26,7 @@ class StoreUniversitySideRequest extends StoreUserRequest //because university s
 
         //add the rules for university side
         $rulesArr['university_id'] = ['required', 'exists:universities,id'];
-        $rulesArr['staff_position'] = ['required', Rule::in('qa', 'academic', 'vc')];
+        $rulesArr['staff_position'] = ['required', Rule::in('qa', 'academic', 'vc'), 'string'];
 
         return $rulesArr;
     }
@@ -35,5 +35,19 @@ class StoreUniversitySideRequest extends StoreUserRequest //because university s
 
         //all parent class fields are converted to snake case
         parent::prepareForValidation();
+    }
+
+    public function messages() : array {
+        $parentMsgs = parent::messages(); //get the messages from the parent class (StoreUserRequest)
+
+        $currMessages = [
+            'university_id.required' => 'University ID is required',
+            'university_id.exists' => 'University ID does not exist',
+            'staff_position.required' => 'Staff position is required',
+            'staff_position.in' => 'Staff position should be one of the following: qa, academic, vc',
+            'staff_position.string' => 'Staff position should be a string'
+        ];
+
+        return array_merge($parentMsgs, $currMessages);
     }
 }
