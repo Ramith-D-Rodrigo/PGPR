@@ -34,9 +34,9 @@ class StoreReviewerRequest extends StoreAcademicStaffRequest
         $parentMsgs = parent::messages(); //get the messages from the parent class (StoreAcademicStaffRequest)
 
         $currMessages = [
-            'working_faculty.required' => 'Working faculity is required',
-            'working_faculty.exists' => 'Working faculity does not exist',
-            'working_faculty.integer' => 'Working faculity should be an integer'
+            'working_faculty.required' => 'Working faculty is required',
+            'working_faculty.exists' => 'Working faculty does not exist',
+            'working_faculty.integer' => 'Working faculty should be an integer'
         ];
 
         return array_merge($parentMsgs, $currMessages);
