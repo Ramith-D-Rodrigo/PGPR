@@ -18,25 +18,25 @@ const Login = () => {
   // navigation
   const navigate = useNavigate();
 
-  function handleLogin(event) {
+  async function handleLogin(event) {
     event.preventDefault();
     try {
       // get the CSRF-cookie
-      axios.get("/sanctum/csrf-cookie");
-      const response = axios.post(
+      await axios.get("/sanctum/csrf-cookie");
+      let response = await axios.post(
         "/login",
         // payload
         {
-          email,
+          official_email: email,
           password,
         }
       );
       // don't wrap the return value in the backend with the Response()
       // the returned data won't be in this format
-      console.log(response?.data);
       setAuth(response?.data);
       setEmail("");
       setPassword("");
+
       // add the user navigation
       // might have to get the user profile from the backend as well
       navigate("/profile");
@@ -65,7 +65,7 @@ const Login = () => {
 
   return (
     <section>
-      <p ref={errorRef}>{errorMsg}</p>
+      <p ref={errorRef}>{JSON.stringify(errorMsg)}</p>
       <h1>Sign In</h1>
       <form onSubmit={handleLogin}>
         <label htmlFor="emailAddress">Email: </label>

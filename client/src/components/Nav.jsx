@@ -28,7 +28,7 @@ function Nav() {
         </li>
         {user && (
           <li>
-            <Link onClick={logout}>Logout</Link>
+            <Link onClick={handleLogout}>Logout</Link>
           </li>
         )}
         {!user && (

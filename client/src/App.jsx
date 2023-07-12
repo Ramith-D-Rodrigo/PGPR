@@ -30,8 +30,8 @@ function App() {
               element={<Authenticate allowedRoles={["QACOfficer"]} />}
             ></Route>
             {/* and so on */}
+            <Route path="unauthorized" element={<Unauthorized />}></Route>
           </Route>
-          <Route path="unauthorized" element={<Unauthorized />}></Route>
         </Route>
       </Route>
     </Routes>
