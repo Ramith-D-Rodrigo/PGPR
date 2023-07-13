@@ -18,7 +18,7 @@ function App() {
           <Route path="login" element={<Login />} />
           <Route path="landing" element={<Landing />} />
           {/* protected routes */}
-          <Route element={<Authenticate allowedRoles={["user"]} />}>
+          <Route element={<Authenticate allowedRoles={["reviewer", 'cqa', 'qac']} />}>
             {/* general user routes */}
             <Route path="profile" element={<Profile />} />
             {/* reviewer routes */}
