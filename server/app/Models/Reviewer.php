@@ -11,7 +11,8 @@ class Reviewer extends Model
 
     protected $fillable = [
         'id',
-        'working_faculty'
+        'working_faculty',
+        'reviewer_status' //pending, accepted, rejected, suspended
     ];
 
     //reviewer is an academic staff

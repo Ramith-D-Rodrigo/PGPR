@@ -123,7 +123,8 @@ class ReviewerImport implements ToModel, WithHeadingRow, WithValidation, WithEve
         //reviewer
         return new Reviewer([
             'working_faculty' => $row['working_faculty'],
-            'id' => $academicStaff->id
+            'id' => $academicStaff->id,
+            'reviewer_status' => 'pending'
         ]);
     }
 
