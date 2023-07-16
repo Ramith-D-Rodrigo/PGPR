@@ -3,10 +3,12 @@
 namespace App\Imports\V1;
 
 use App\Http\Requests\V1\StoreReviewerRequest;
+use App\Mail\sendPassword;
 use App\Models\Reviewer;
 use App\Models\AcademicStaff;
 use App\Models\UniversitySide;
 use App\Models\User;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\RegistersEventListeners;
 use Maatwebsite\Excel\Concerns\ToModel;
@@ -161,6 +163,11 @@ class ReviewerImport implements ToModel, WithHeadingRow, WithValidation, WithEve
 
         //print protected array
         $obj = $event->getConcernable();
+
+        foreach($obj -> registeredReviewers as $registeredReviewer){
+            //send email to the registered reviewer
+            Mail::to($registeredReviewer['official_email'])->send(new sendPassword($registeredReviewer));
+        }
 
         //now we can access protected properties using the obj
     }
