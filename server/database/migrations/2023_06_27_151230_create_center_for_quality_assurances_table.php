@@ -16,6 +16,7 @@ return new class extends Migration
             $table->timestamps();
             $table->json("contact_no") -> nullable();
             $table->json("fax_no") -> nullable();
+            $table->string("email") -> unique()-> nullable();
             $table->foreignId('center_for_quality_assurance_director_id') -> nullable();
 
             //foreign keys
