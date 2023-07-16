@@ -1,5 +1,6 @@
 import { styled, useTheme } from '@mui/material/styles';
 import DrawerHeader from './DrawerHeader';
+import ScrollableDiv from './ScrollableDiv';
 import { Typography, Stack } from '@mui/material';
 import { Grid } from '@mui/material';
 import Footer from './Footer';
@@ -38,6 +39,8 @@ const MainContent = ({open, drawerWidthInput, content}) => {
                 {!open && <DrawerHeader/>}
                 {content} {/* content according to the page */}
 {              
+
+                <ScrollableDiv width="100%" height="500px">
                 <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
                   
                   <Grid item>
@@ -55,8 +58,97 @@ const MainContent = ({open, drawerWidthInput, content}) => {
                     message={'Ends in 4 Days'}
                   />
                   </Grid>
+
+                  <Grid item>
+                    <Card 
+                    title={'Requested Applications'}
+                    content={'2023 Mar 30 - 2023 Jult 30'}
+                    message={'Ends in 4 Days'}
+                  />
+                  </Grid>
+
+                  <Grid item>
+                    <Card 
+                    title={'Requested Applications'}
+                    content={'2023 Mar 30 - 2023 Jult 30'}
+                    message={'Ends in 4 Days'}
+                  />
+                  </Grid>
+
+                  <Grid item>
+                    <Card 
+                    title={'Requested Applications'}
+                    content={'2023 Mar 30 - 2023 Jult 30'}
+                    message={'Ends in 4 Days'}
+                  />
+                  </Grid>
+
+                  <Grid item>
+                    <Card 
+                    title={'Requested Applications'}
+                    content={'2023 Mar 30 - 2023 Jult 30'}
+                    message={'Ends in 4 Days'}
+                  />
+                  </Grid>
+
+                  <Grid item>
+                    <Card 
+                    title={'Requested Applications'}
+                    content={'2023 Mar 30 - 2023 Jult 30'}
+                    message={'Ends in 4 Days'}
+                  />
+                  </Grid>
+
+                  <Grid item>
+                    <Card 
+                    title={'Requested Applications'}
+                    content={'2023 Mar 30 - 2023 Jult 30'}
+                    message={'Ends in 4 Days'}
+                  />
+                  </Grid>
+
+                  <Grid item>
+                    <Card 
+                    title={'Requested Applications'}
+                    content={'2023 Mar 30 - 2023 Jult 30'}
+                    message={'Ends in 4 Days'}
+                  />
+                  </Grid>
+
+                  <Grid item>
+                    <Card 
+                    title={'Requested Applications'}
+                    content={'2023 Mar 30 - 2023 Jult 30'}
+                    message={'Ends in 4 Days'}
+                  />
+                  </Grid>
+
+                  <Grid item>
+                    <Card 
+                    title={'Requested Applications'}
+                    content={'2023 Mar 30 - 2023 Jult 30'}
+                    message={'Ends in 4 Days'}
+                  />
+                  </Grid>
+
+                  <Grid item>
+                    <Card 
+                    title={'Requested Applications'}
+                    content={'2023 Mar 30 - 2023 Jult 30'}
+                    message={'Ends in 4 Days'}
+                  />
+                  </Grid>
+
+                  <Grid item>
+                    <Card 
+                    title={'Requested Applications'}
+                    content={'2023 Mar 30 - 2023 Jult 30'}
+                    message={'Ends in 4 Days'}
+                  />
+                  </Grid>
                 
                 </Grid>
+                </ScrollableDiv>
 }
             </Main>         
             <Footer drawerOpen={open} drawerWidthInput={drawerWidthInput}/>
