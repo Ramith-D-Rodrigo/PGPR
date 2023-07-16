@@ -7,6 +7,8 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
+use function PHPUnit\Framework\isEmpty;
+
 class StoreUserRequest extends FormRequest
 {
     /**
@@ -29,6 +31,10 @@ class StoreUserRequest extends FormRequest
         $personalEmails = User::select('personal_email') -> get() -> pluck('personal_email') -> toArray();
 
         $allEmails = array_merge($officialEmails, $personalEmails);
+
+        if(empty($allEmails)){  //if there are no emails in the system
+            $allEmails = ['null'];
+        }
 
         return [
             //
