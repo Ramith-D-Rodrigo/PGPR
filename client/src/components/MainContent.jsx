@@ -41,7 +41,7 @@ const MainContent = ({open, drawerWidthInput, content}) => {
 {              
 
                 <ScrollableDiv width="100%" height="500px">
-                <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
+                <Grid container rowSpacing={1}  justifyContent="center" columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
                   
                   <Grid item>
                     <Card 
