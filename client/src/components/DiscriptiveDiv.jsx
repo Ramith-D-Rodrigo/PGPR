@@ -45,7 +45,7 @@ const DiscriptiveDiv = ({children, ...otherProps}) => {
         </div>
         <div onClick={onClick} className='DiscriptiveDiv' style={componentStyles} >
             {expand==1 && 'Click here to view PGPR details'}
-            {children}
+            {expand!=2 && children}
         </div>
         </>
     )
