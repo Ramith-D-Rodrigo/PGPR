@@ -32,7 +32,9 @@ return new class extends Migration
         DB::unprepared('
             CREATE TRIGGER `internal_quality_assurance_units_after_insert` AFTER INSERT ON `internal_quality_assurance_units` FOR EACH ROW
             BEGIN
-                INSERT INTO registered_emails (email) VALUES (NEW.email);
+                IF NEW.email IS NOT NULL THEN
+                    INSERT INTO registered_emails (email) VALUES (NEW.email);
+                END IF;
             END'
         );
 
@@ -40,7 +42,9 @@ return new class extends Migration
         DB::unprepared('
             CREATE TRIGGER `center_for_quality_assurances_after_insert` AFTER INSERT ON `center_for_quality_assurances` FOR EACH ROW
             BEGIN
-                INSERT INTO registered_emails (email) VALUES (NEW.email);
+                IF NEW.email IS NOT NULL THEN
+                    INSERT INTO registered_emails (email) VALUES (NEW.email);
+                END IF;
             END'
         );
     }

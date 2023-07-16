@@ -12,7 +12,8 @@ class CenterForQualityAssurance extends Model
     protected $fillable = [
         'contact_no',
         'fax_no',
-        'center_for_quality_assurance_director_id'
+        'center_for_quality_assurance_director_id',
+        'email'
     ];
 
     //center for quality assurance belongs to a university
