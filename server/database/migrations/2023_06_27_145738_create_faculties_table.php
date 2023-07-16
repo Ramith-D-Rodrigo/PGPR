@@ -14,12 +14,13 @@ return new class extends Migration
         Schema::create('faculties', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->foreignId('dean_id');
+            $table->foreignId('dean_id') -> nullable(); //for now nullable due to testing
             $table->string('website');
             $table->string('address');
             $table->json('contact_no');
             $table->json('fax_no');
             $table->foreignId('university_id');
+            //need to specify who added the faculty (qac director or cqa director??)
             $table->timestamps();
 
 

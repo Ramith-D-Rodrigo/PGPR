@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('full_name');
             $table->string('initials');
             $table->string('surname');
-            $table->json('roles');
+            $table->json('roles')->nullable();
             $table->json('contact_no');
             $table->string('profile_pic');
             $table->string('official_telephone_no');

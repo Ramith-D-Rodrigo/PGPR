@@ -9,12 +9,12 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 |
 | Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
+| routes are loaded by the RouteServiceProvider within a group which
+| is assigned the "api" middleware group. Enjoy building your API!
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
 
@@ -31,20 +31,23 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::apiResource('reviewTeams', 'ReviewTeamController');
     Route::apiResource('reviewers', 'ReviewerController');
     Route::apiResource('qualityAssuranceStaffs', 'QualityAssuranceStaffController');
-    Route::apiResource('qualityAssuranceCouncilOfficers', 'QualityAssuranceCouncilOfficerController');
-    Route::apiResource('qualityAssuranceCouncilDirectors', 'QualityAssuranceCouncilDirectorController');
+    Route::apiResource('qacOfficers', 'QualityAssuranceCouncilOfficerController');
+    Route::apiResource('qacDirectors', 'QualityAssuranceCouncilDirectorController');
     Route::apiResource('properEvaluations', 'ProperEvaluationController');
     Route::apiResource('programmeCoordinators', 'ProgrammeCoordinatorController');
     Route::apiResource('postGraduateProgramReviews', 'PostGraduateProgramReviewController');
-    Route::apiResource('postGraduateProgamReviewApplications', 'PostGraduateProgamReviewApplicationController');
+    Route::apiResource('pgprApplications', 'PostGraduateProgamReviewApplicationController');
     Route::apiResource('postGraduatePrograms', 'PostGraduateProgramController');
-    Route::apiResource('internalQualityAssuranceUnitDirectors', 'InternalQualityAssuranceUnitDirectorController');
-    Route::apiResource('internalQualityAssuranceUnits', 'InternalQualityAssuranceUnitsController');
+    Route::apiResource('iqauDirectors', 'InternalQualityAssuranceUnitDirectorController');
+    Route::apiResource('iqaUnits', 'InternalQualityAssuranceUnitsController');
     Route::apiResource('faculties', 'FacultyController');
     Route::apiResource('deskEvaluations', 'DeskEvaluationController');
     Route::apiResource('deans', 'DeanController');
     Route::apiResource('criterias', 'CriteriaController');
-    Route::apiResource('centerForQualityAssuranceDirectors', 'CenterForQualityAssuranceDirectorController');
+    Route::apiResource('cqaDirectors', 'CenterForQualityAssuranceDirectorController');
     Route::apiResource('centerForQualityAssurances', 'CenterForQualityAssurancesController');
     Route::apiResource('academicStaffs', 'AcademicStaffController');
+
+    //route for reviewer import from excel
+    Route::post('reviewers/import', 'ReviewerController@importReviewers');
 });

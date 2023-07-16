@@ -9,6 +9,12 @@ class UniversitySide extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'id',
+        'university_id',
+        'staff_position'
+    ];
+
     //university side is a user
     public function user(){
         return $this -> belongsTo(User::class);

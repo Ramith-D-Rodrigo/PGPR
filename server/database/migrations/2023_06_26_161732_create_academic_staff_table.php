@@ -15,21 +15,21 @@ return new class extends Migration
             $table->id();
             $table->timestamps();
             $table -> string('designation');
-            $table -> json('experience_in_industry');
+            $table -> json('experience_in_industry') -> nullable();
             $table -> string('google_scholar_link');
-            $table -> json('nominees'); //nominees from professional bodies (array of objects)
+            $table -> json('nominees') -> nullable(); //nominees from professional bodies (array of objects)
             $table -> json('department'); //department details of the academic staff (department name, department head name, head email, department postal address)
-            $table -> json('experience_with_research_funds');
-            $table -> integer('supervised_postgraduate_student_count');
-            $table -> integer('publications_in_referred_journals_count');
-            $table -> integer('abstract_count');
-            $table -> integer('conference_preceedings_count');
-            $table -> integer('book_chapters'); //book chapters count
-            $table -> json('involvement_in_internal_quality_assurance');
-            $table -> json('involment_in_study_programme_development');
-            $table -> json('postgraduate_teaching_experience');
+            $table -> json('experience_with_research_funds') -> nullable();
+            $table -> integer('supervised_postgraduate_student_count') -> nullable();
+            $table -> integer('publications_in_referred_journals_count') -> nullable();
+            $table -> integer('abstract_count') -> nullable();
+            $table -> integer('conference_preceedings_count') -> nullable();
+            $table -> integer('book_chapters') -> nullable(); //book chapters count
+            $table -> json('involvement_in_internal_quality_assurance') -> nullable();
+            $table -> json('involment_in_study_programme_development') -> nullable();
+            $table -> json('postgraduate_teaching_experience') -> nullable();
             $table -> json('postgraduate_qualifications'); //postgraduate qualifications (qualiifcation , slqf level of the qualification) [up to 4]
-            $table -> json('prior_training_in_programme_review');
+            $table -> json('prior_training_in_programme_review') -> nullable();
 
             $table -> string('cv'); //cv file path
 
