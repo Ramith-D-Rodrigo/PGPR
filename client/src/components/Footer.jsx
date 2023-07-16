@@ -24,12 +24,13 @@ const FooterContainer = styled('div', { shouldForwardProp: (prop) => prop !== 'o
             marginLeft: 0,
             width: `100%`
         }),
+        backgroundColor:'black',
     }),
   );
 
 function Copyright() {
   return (
-    <Typography variant="body2" color="text.secondary">
+    <Typography variant="body2" color="white">
       {'Copyright © '}
       <Link color="inherit" href="https://mui.com/">
         Postgraduate Programme Review
@@ -50,18 +51,15 @@ const Footer = ({drawerWidthInput, drawerOpen}) => {
                 <Box
                 component="footer"
                 sx={{
-                    py: 3,
+                    py: 1,
                     mt: 'auto',
-                    backgroundColor: (theme) =>
+                    color: (theme) =>
                     theme.palette.mode === 'light'
-                        ? theme.palette.grey[200]
+                        ? theme.palette.grey[800]
                         : theme.palette.grey[800],
                 }}
                 >
-                <Container maxWidth="sm">
-                    <Typography variant="body1">
-                    Footer 
-                    </Typography>
+                <Container sx={{display:"flex",justifyContent:"center",alignItems:"center",}} maxWidth="sm">
                     <Copyright />
                 </Container>
                 </Box>
