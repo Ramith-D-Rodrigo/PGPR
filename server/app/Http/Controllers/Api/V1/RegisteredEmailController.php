@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Models\RegisteredEmail;
-use App\Http\Requests\StoreRegisteredEmailRequest;
-use App\Http\Requests\UpdateRegisteredEmailRequest;
+use App\Http\Requests\V1\StoreRegisteredEmailRequest;
+use App\Http\Requests\V1\UpdateRegisteredEmailRequest;
 use App\Http\Controllers\Controller;
 
 class RegisteredEmailController extends Controller
