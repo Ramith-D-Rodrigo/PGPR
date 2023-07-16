@@ -4,7 +4,7 @@ import Button from '@mui/material/Button';
 const DiscriptiveDiv = ({children, ...otherProps}) => {
     //expand === 1 -> truncated | 2 -> expanded 
     let {onClick,expand,description,width,height,borderRadius,backgroundColor,color,sx} = otherProps;
-
+    
     const componentStyles = {
         userSelect:expand==1? 'none' : 'inherit',
         overflowX:'hidden',

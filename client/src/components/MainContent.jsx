@@ -30,15 +30,16 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
         borderRadius:5,
       }),
       backgroundColor:'white',
-  boxShadow: !open? "none" : "0px 2px 4px -1px rgba(0,0,0,0.2), 0px 4px 5px 0px rgba(0,0,0,0.14), 0px 1px 10px 0px rgba(0,0,0,0.12)",
+      height: open? '90%' : '100%',
+      boxShadow: !open? "none" : "0px 2px 4px -1px rgba(0,0,0,0.2), 0px 4px 5px 0px rgba(0,0,0,0.14), 0px 1px 10px 0px rgba(0,0,0,0.12)",
     }),
   );
 
 const MainContent = ({open, drawerWidthInput, content}) => {
 
-
   const [expand, setexpand] = useState(8);
 
+  let newHeight = open ==true? `${90-expand}%` : `calc( ${90-expand}% - 40px )`;
   const handleClick = ()=>{
     if(expand==8)
     {
@@ -57,7 +58,8 @@ const MainContent = ({open, drawerWidthInput, content}) => {
                 <DiscriptiveDiv onClick={handleClick} expand={expand==8? 1:2} description="Reviewer" width='100%' height={`${expand}%`} backgroundColor="#D9D9D9" >
                   
                 </DiscriptiveDiv>
-                <DiscriptiveDiv description="Desk Evaluation" width='100%' height={`${90-expand}%`} backgroundColor="#D9D9D9" >
+                
+                <DiscriptiveDiv description="Desk Evaluation" width='100%' height={newHeight} backgroundColor="#D9D9D9" >
                 <ScrollableDiv width="100%" height="500px">
                 <Grid container rowSpacing={1}  justifyContent="center" columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
                   
