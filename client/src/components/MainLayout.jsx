@@ -3,8 +3,16 @@ import NavigationBar from './NavigationBar'
 import SideDrawer from './SideDrawer'
 import MainContent from './MainContent';
 import Box from '@mui/material/Box';
+import { PropTypes } from 'prop-types';
 
 const MainLayout = ({navigationBreadCrumbs, sideDrawerRoutes, mainContent}) => {
+
+    MainLayout.propTypes = {
+        navigationBreadCrumbs: PropTypes.array.isRequired,
+        sideDrawerRoutes: PropTypes.array.isRequired,
+        mainContent: PropTypes.element.isRequired,
+    };
+    
     const [drawerOpen, setDrawerOpen] = React.useState(true);
 
     let drawerWidth = 240; //drawer width in pixel

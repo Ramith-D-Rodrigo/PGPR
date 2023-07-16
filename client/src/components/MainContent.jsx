@@ -1,20 +1,19 @@
-import { styled, useTheme } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 import DrawerHeader from './DrawerHeader';
 import ScrollableDiv from './ScrollableDiv';
 import DiscriptiveDiv from './DiscriptiveDiv';
-import { Typography, Stack } from '@mui/material';
 import { Grid } from '@mui/material';
 import Footer from './Footer';
 import Box from '@mui/material/Box';
 import Card from './DashboardCard';
 import { useState } from 'react';
+import { PropTypes } from 'prop-types';
 
 let drawerWidth = 240;
 let descriptionWidth = 30;
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
     ({ theme, open }) => ({
-      height: '90%',
       padding: theme.spacing(2),
       transition: theme.transitions.create('margin', {
         easing: theme.transitions.easing.sharp,
@@ -36,6 +35,12 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
   );
 
 const MainContent = ({open, drawerWidthInput, content}) => {
+
+  MainContent.propTypes = {
+    open: PropTypes.bool.isRequired,
+    drawerWidthInput: PropTypes.number.isRequired,
+    content: PropTypes.element.isRequired,
+  };
 
   const [expand, setexpand] = useState(8);
 
