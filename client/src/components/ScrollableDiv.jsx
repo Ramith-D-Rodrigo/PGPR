@@ -14,7 +14,7 @@ const ScrollableDiv = ({children, ...otherprops}) => {
           const hasOverflow = contentElement.scrollHeight > contentElement.clientHeight;
           setShouldShowArrow(hasOverflow);
         }
-      }, []);
+      }, [children]);
 
       const handleScroll = () => {
         const contentElement = contentRef.current;
