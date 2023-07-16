@@ -20,7 +20,7 @@ a{
 .ScrollableDiv{
     user-select: none;
 }
-.ScrollableDiv::-webkit-scrollbar{
+::-webkit-scrollbar{
     display: none;
 }
 .ScrollableDiv .scroll-indicator {
@@ -41,4 +41,9 @@ a{
     100% {
       transform: translateX(15px);
     }
+  }
+
+  .DiscriptiveDiv{
+    /* margin-top: 10px; */
+    /* border:1px solid; */
   }

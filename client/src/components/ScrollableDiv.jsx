@@ -22,7 +22,7 @@ const ScrollableDiv = ({children, ...otherprops}) => {
         
         if (
           contentElement &&
-          contentElement.scrollTop + contentElement.clientHeight >= contentElement.scrollHeight
+          contentElement.scrollTop + contentElement.clientHeight +contentElement.scrollHeight*10/100 >= contentElement.scrollHeight
         ) {
           setShouldShowArrow(false);
           console.log("scrolling symbol false");
@@ -35,7 +35,7 @@ const ScrollableDiv = ({children, ...otherprops}) => {
         if (contentElement && arrowElement) {
           const scrollTop = contentElement.scrollTop;
           const maxScrollTop = contentElement.scrollHeight - contentElement.clientHeight;
-          const scrollPercentage = (scrollTop / (maxScrollTop+100)) * 100;
+          const scrollPercentage = (scrollTop / (maxScrollTop)) * 100;  //check whether add 100 or not
           arrowElement.style.top = `${10+scrollPercentage}%`;
         }
       };
