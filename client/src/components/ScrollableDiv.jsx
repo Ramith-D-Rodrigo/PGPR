@@ -68,7 +68,7 @@ const ScrollableDiv = ({children, ...otherprops}) => {
           style={{ textAlign: 'center',position:'absolute',top:'10%',left:'97%',animationPlayState: 'running' }}
           className="scroll-indicator"
         >
-          <span style={{fontSize:'40px',color:'#349FED'}}>&#x27A7;</span>
+          <span style={{fontSize:'40px',color:'gray'}}>&#x27A7;</span>
         </div>
       )}
 
