@@ -50,4 +50,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
 
     //route for reviewer import from excel
     Route::post('reviewers/import', 'ReviewerController@importReviewers');
+
+    //route for google drive file info (for now, only the metadata is returned (testing))
+    Route::post('driveFileInfo', 'GoogleDriveController@getFileInfo');
 });
