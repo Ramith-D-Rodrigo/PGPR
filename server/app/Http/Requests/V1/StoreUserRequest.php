@@ -26,16 +26,6 @@ class StoreUserRequest extends FormRequest
      */
     public function rules(): array
     {
-        //all emails in the system
-        $officialEmails = User::select('official_email') -> get() -> pluck('official_email') -> toArray();
-        $personalEmails = User::select('personal_email') -> get() -> pluck('personal_email') -> toArray();
-
-        $allEmails = array_merge($officialEmails, $personalEmails);
-
-        if(empty($allEmails)){  //if there are no emails in the system
-            $allEmails = ['null'];
-        }
-
         return [
             //
             'initials' => ['required', 'string', 'max:255'],
@@ -46,12 +36,8 @@ class StoreUserRequest extends FormRequest
             'official_telephone_no' => ['required', 'string', 'max:255'],
             'nic' => ['required', 'unique:users,nic'],
             'gender' => ['required', Rule::in('m', 'f')],
-            'official_email' => ['required', 'string', 'email',
-                //email should be unique in users table (both official_email and personal_email)
-                Rule::notIn(...$allEmails)],
-            'personal_email' => ['required', 'string', 'email',
-                //email should be unique in users table (both official_email and personal_email)
-                Rule::notIn(...$allEmails)],
+            'official_email' => ['required', 'string', 'email','unique:registered_emails,email'],
+            'personal_email' => ['required', 'string', 'email','unique:registered_emails,email'],
         ];
     }
 
