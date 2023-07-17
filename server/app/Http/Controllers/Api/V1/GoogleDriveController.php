@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\V1\DriveFileChecker;
+use App\Http\Resources\V1\DriveFileInfoResource;
 
 class GoogleDriveController extends Controller
 {
@@ -13,6 +14,6 @@ class GoogleDriveController extends Controller
         $neededFields = $request -> fields;
         $driveFileChecker = new DriveFileChecker();
         $fileInfo = $driveFileChecker -> getFileInfo($url, $neededFields);
-        return response() -> json($fileInfo);
+        return new DriveFileInfoResource(json_encode($fileInfo));
     }
 }
