@@ -1,6 +1,7 @@
 import React from 'react';
 import Form from '../../components/Form';
 import MainContent from '../../components/MainContent';
+import ScrollableDiv from '../../components/ScrollableDiv';
 
 
 const AddPGProgramPage = () => {
@@ -18,7 +19,7 @@ const AddPGProgramPage = () => {
 
   return (
    
-    <div>
+    <ScrollableDiv height="600px">
       <Form
         topic="Add PG Program"
         fields={[
@@ -38,7 +39,7 @@ const AddPGProgramPage = () => {
         onCancel={handleCancel}
         onSubmit={handleSubmit}
       />
-    </div>
+    </ScrollableDiv>
     
   );
 };
