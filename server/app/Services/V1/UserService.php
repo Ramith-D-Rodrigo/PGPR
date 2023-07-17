@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Hash;
 
 class UserService {
     public static function create(array $validatedData) : Model {    //data should be validated in the controller before calling the function
-        //make sure validatedData includes the status field
+        //make sure validatedData includes the status field and the roles field
         $user = new User();
 
         $password = $validatedData['password'];

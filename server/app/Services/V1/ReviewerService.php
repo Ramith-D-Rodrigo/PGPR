@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ReviewerService extends AcademicStaffService {
     public static function create(array $validatedData): Model{
-        //make sure the validatedData includes the status field and the reviewer_status field and staff_position field
+        //make sure the validatedData includes the status field and the reviewer_status field and staff_position field, roles fields
         $academicStaff = parent::create($validatedData); //call the parent create function to create the academic staff model
         $reviewer = new Reviewer();
         $reviewer -> fill($validatedData);

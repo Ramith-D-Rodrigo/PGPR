@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 class UniversitySideService extends UserService{
 
     public static function create(array $validatedData) : Model {
-        //make sure validatedData includes the status field, staff_position field
+        //make sure validatedData includes the status field, staff_position field, roles field
         $user = parent::create($validatedData); //call the parent create function to create the user
 
         $universitySide = new UniversitySide();

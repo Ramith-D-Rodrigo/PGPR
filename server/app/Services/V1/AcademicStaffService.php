@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class AcademicStaffService extends UniversitySideService {
     public static function create(array $validatedData) : Model {
+        //make sure validated data has status, staff_position fields
         $universitySide = parent::create($validatedData); //call the parent create function to create the and get the university side model
 
         $academicStaff = new AcademicStaff();
