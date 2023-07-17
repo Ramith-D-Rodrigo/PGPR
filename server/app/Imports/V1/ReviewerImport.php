@@ -99,7 +99,7 @@ class ReviewerImport implements ToModel, WithHeadingRow, WithValidation, WithEve
 
         foreach($obj -> registeredReviewers as $registeredReviewer){
             //send email to the registered reviewer
-            Mail::to($registeredReviewer['official_email'])->send(new sendPassword($registeredReviewer));
+            Mail::to($registeredReviewer['official_email'])->send(new sendPassword($registeredReviewer, "Appointment of Reviewer for Postgraduate Programme Review", "mail.reviewerPassword"));
         }
 
         //now we can access protected properties using the obj
