@@ -18,9 +18,11 @@ class sendPassword extends Mailable
      */
     public $reviewer;
     public $subject;
-    public function __construct($reviewer){
-        $this->subject = "Appointment of Reviewer for Postgraduate Programme Review";
-        $this->reviewer = $reviewer;
+
+    public function __construct($user, $subject, $relatedView){
+        $this->subject = $subject;
+        $this->reviewer = $user;
+        $this -> view($relatedView);
     }
 
     /**
@@ -39,7 +41,7 @@ class sendPassword extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'mail.reviewerPassword',
+            view: $this -> view,
         );
     }
 
