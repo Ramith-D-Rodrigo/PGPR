@@ -1,7 +1,7 @@
 import React from 'react';
 import Form from '../../components/Form';
 import MainContent from '../../components/MainContent';
-
+import ScrollableDiv from '../../components/ScrollableDiv';
 
 const AddAccounts = () => {
   // Define your form submission logic here
@@ -18,12 +18,12 @@ const AddAccounts = () => {
 
   return (
    
-    
-    <div>
-      <Form
-        topic="Create Account for Program Coordinator/Director/Dean"
-        fields={[
+      <ScrollableDiv height="600px">
+        <Form
+          topic="Create Account for Program Coordinator/Director/Dean"
+          fields={[
             { name: 'name', label: 'Name', type: 'text' },
+            { name: 'title', label: 'Title', type: 'select', options: ['Mr', 'Dr', 'Prof', 'Mrs', 'Ms'] },
             { name: 'cId', label: 'C-ID', type: 'text' },
             { name: 'position', label: 'Position', type: 'text' },
             { name: 'faculty', label: 'Faculty/Institute Name', type: 'text' },
@@ -31,15 +31,15 @@ const AddAccounts = () => {
             { name: 'qualification', label: 'Qualification', type: 'text' },
             { name: 'date', label: 'Date', type: 'date' },
             { name: 'email', label: 'Email Address', type: 'email' },
-            { name: 'status', label: 'Status', type: 'text' },
+            { name: 'status', label: 'Status', type: 'select', options: ['Confirmed', 'Active', 'Accepted', 'Cancelled'] },
           ]}
           cancelButtonText="Cancel"
-        submitButtonText="Create Account"
-        onCancel={handleCancel}
-        onSubmit={handleSubmit}
-      />
-    </div>
-    
+          submitButtonText="Create Account"
+          onCancel={handleCancel}
+          onSubmit={handleSubmit}
+        />
+      </ScrollableDiv>
+ 
   );
 };
 
