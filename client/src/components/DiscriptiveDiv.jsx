@@ -25,8 +25,8 @@ const DiscriptiveDiv = ({children, ...otherProps}) => {
         <div style={{position:'relative',display:'flex',flexDirection:'row',justifyContent:'space-between',width:'100%',top:'0.75rem',zIndex:1000,padding:'0px 15px'}}>
             <div className="description" 
                     style={{
-                        padding:'3px',border:'1px solid',width:'fit-content',textAlign:'center',
-                        height:'1.5rem',borderRadius:'5px',backgroundColor:'white',
+                        padding:'3px',border:'1px solid',width:'fit-content',textAlign:'center',userSelect:'none',
+                        height:'1.5rem',borderRadius:'5px',backgroundColor:'white',display:'flex',alignItems:'center',justifyContent:'center',
                     }}
                 >
                     {description}

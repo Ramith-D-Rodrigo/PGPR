@@ -16,6 +16,15 @@ let drawerWidth = 240; //default
 
 const SideDrawer = ({drawerOpen, drawerCloseHandler, drawerWidthInput, userRoutes}) => {
     drawerWidth = drawerWidthInput;
+
+    const handleClickLink = (Selectedid)=>{
+      let selected = document.getElementById("listitem"+Selectedid);
+      // console.log(selected);
+      selected.style.backgroundColor = "#D8E6FC";
+    }
+
+    // const selectedStyle = {backgroundColor:'#D8E6FC'};
+
     return (
         <Drawer
           sx={{
@@ -52,11 +61,11 @@ const SideDrawer = ({drawerOpen, drawerCloseHandler, drawerWidthInput, userRoute
 
             {userRoutes && Object.keys(userRoutes).map((key,index)=>{
               return(
-              <ListItem button divider key={index}>
-                <Link to={userRoutes[key]}>
-                  <ListItemText primary={key} />
+                <Link to={userRoutes[key]} onClick={() => {handleClickLink(index)}} key={index}>
+                  <ListItem id={"listitem"+index} className='Listitem' button divider>
+                      <ListItemText primary={key} />
+                  </ListItem>
                 </Link>
-              </ListItem>
               )
 
             })}

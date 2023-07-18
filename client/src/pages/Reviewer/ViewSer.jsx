@@ -30,7 +30,7 @@ const ViewSer = () => {
                     
                     <DiscriptiveDiv description="Desk Evaluation" width='100%' height={newHeight} backgroundColor="#D9D9D9" >
                     <ScrollableDiv width="100%" height="500px">
-                    <Grid container rowSpacing={1}  justifyContent="center" columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
+                    <Grid container rowSpacing={1}  justifyContent="start" columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
                     
                     <Grid item>
                         <Card 
@@ -64,7 +64,7 @@ const ViewSer = () => {
                     />
                     </Grid>
 
-                    <Grid item>
+                    {/* <Grid item>
                         <Card 
                         title={'Requested Applications'}
                         content={'2023 Mar 30 - 2023 Jult 30'}
@@ -134,7 +134,7 @@ const ViewSer = () => {
                         content={'2023 Mar 30 - 2023 Jult 30'}
                         message={'Ends in 4 Days'}
                     />
-                    </Grid>
+                    </Grid> */}
                     
                     </Grid>
                     </ScrollableDiv>
