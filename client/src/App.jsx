@@ -3,7 +3,6 @@ import {Route, Routes} from 'react-router-dom';
 import Dashboard from './components/Dashboard';
 import Login from './components/Login';
 import Universities from './pages/QACOfficer/Universities';
-import ImportReviewers from './pages/QACOfficer/ImportReviewers';
 import ViewSer from './pages/Reviewer/ViewSer';
 import MainLayout from './components/MainLayout';
 import NotFound from './pages/NotFound';
@@ -48,7 +47,6 @@ function App() {
 
       <Route path="/qacofficer" >
         <Route path="universities" element={<Universities/>} />
-        <Route path="importreviewers" element={<MainLayout sideDrawerRoutes={qacOfficerRoutes} mainContent={<ImportReviewers/>}/>} />
       </Route>
 
       <Route path="/qacdirector" >

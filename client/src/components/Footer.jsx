@@ -1,4 +1,6 @@
 import "../styles/footer.css";
+import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
+import { Box, Typography, Link, Container } from '@mui/material';
 
 let drawerWidth = 240; //default value
 
