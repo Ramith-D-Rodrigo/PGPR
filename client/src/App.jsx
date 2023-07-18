@@ -8,6 +8,7 @@ import ViewSer from './pages/Reviewer/ViewSer';
 import MainLayout from './components/MainLayout';
 import NotFound from './pages/NotFound';
 import AddPGProgramPage from './pages/QACdirector/AddPGProgramPage';
+import AddUniversities from './pages/QACOfficer/AddUniversities';
 import AddAccounts from './pages/QACdirector/AddAccounts';
 
 function App() {
@@ -46,8 +47,11 @@ function App() {
       <Route path="/" element={<MainLayout sideDrawerRoutes={userRouts} mainContent={<Dashboard/>}/>}/>
       <Route path="/login" element={<Login/>}/>
 
-      <Route path="/qacofficer" >
-        <Route path="universities" element={<Universities/>} />
+      <Route path="/qacofficer/" >
+        <Route path="universities/" >
+          <Route path="" element={<MainLayout sideDrawerRoutes={qacOfficerRoutes} mainContent={<Universities/>}/>} />
+          <Route path="add" element={<MainLayout sideDrawerRoutes={qacOfficerRoutes} mainContent={<AddUniversities/>}/>} />
+        </Route>
         <Route path="importreviewers" element={<MainLayout sideDrawerRoutes={qacOfficerRoutes} mainContent={<ImportReviewers/>}/>} />
       </Route>
 
