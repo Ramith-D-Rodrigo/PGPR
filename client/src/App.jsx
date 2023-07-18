@@ -62,7 +62,7 @@ function App() {
 
       <Route path="*" element={<NotFound/>}/>
     </Routes>
-  )
+  );
 }
 
-export default App
+export default App;
