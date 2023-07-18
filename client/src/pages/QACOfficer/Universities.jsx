@@ -44,25 +44,39 @@ const Universities = () => {
     //     },
     //   }));
 
-    function createData(University_Name, No_of_Faculties, District, Type, Actions) {
+    function createData(id,University_Name, No_of_Faculties, District, Type, Actions) {
         Actions = Actions.map((action,index) => {
-            return <Button style={{margin:"0 8px"}} key={index} variant="contained" color="primary" size="small">{action}</Button>
+            
+            let allow = action.allow? {disabled:false} : {disabled:true};
+            if(action.action === 'View')
+            {
+                return <Link key={index} to={action.allow? 'view/'+id:''}><Button {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button></Link>
+            }
+            else if(action.action === 'Edit')
+            {
+                return <Link key={index} to={action.allow? 'edit/'+id : ''}><Button {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button></Link>
+            }
+            else if(action.action === 'Delete')
+            {
+                return <Link key={index} to={action.allow? 'delete/'+id : ''}><Button {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button></Link>
+            }
+            
         });
-        return { University_Name, No_of_Faculties, District, Type, Actions };
+        return {id, University_Name, No_of_Faculties, District, Type, Actions };
     }
 
     const rows = [
-        createData('University of Colombo', 9, 'In-review', 'Yes', ['View', 'Edit', 'Delete']),
-        createData('University of Peradeniya', 12, 'In-review', 'No', ['View', 'Edit', 'Delete']),
-        createData('University of Ruhuna', 9, 'In-review', 'Yes', ['View', 'Edit', 'Delete']),
-        createData('University of Moratuwa', 5, 'In-review', 'No', ['View', 'Edit', 'Delete']),
-        createData('NSBM', 5, 'In-review', 'Yes', ['View', 'Edit', 'Delete']),
+        createData(1,'University of Colombo', 9, 'In-review', 'Yes', [{action:'View',allow:true}, {action:'Edit',allow:false}, {action:'Delete',allow:false}]),
+        createData(2,'University of Peradeniya', 12, 'In-review', 'No', [{action:'View',allow:true}, {action:'Edit',allow:true}, {action:'Delete',allow:false}]),
+        createData(3,'University of Ruhuna', 9, 'In-review', 'Yes', [{action:'View',allow:true}, {action:'Edit',allow:false}, {action:'Delete',allow:true}]),
+        createData(4,'University of Moratuwa', 5, 'In-review', 'No', [{action:'View',allow:true}, {action:'Edit',allow:false}, {action:'Delete',allow:false}]),
+        createData(5,'NSBM', 5, 'In-review', 'Yes', [{action:'View',allow:true}, {action:'Edit',allow:true}, {action:'Delete',allow:true}]),
       ];
 
-    const tableData = [
-        { id: 1, column1Data: 'Data 1', column2Data: 'Data 2' },
-        { id: 2, column1Data: 'Data 3', column2Data: 'Data 4' },
-    ];
+    // const tableData = [
+    //     { id: 1, column1Data: 'Data 1', column2Data: 'Data 2' },
+    //     { id: 2, column1Data: 'Data 3', column2Data: 'Data 4' },
+    // ];
     // console.log(rows);
 
     return (
@@ -79,13 +93,13 @@ const Universities = () => {
         <ScrollableDiv height="600px">
             <TableContainer component={Paper} >
             <Table sx={{ minWidth: 650 }} aria-label="simple table">
-            <TableHead style={{backgroundColor:"#D8E6FC"}}>
+            <TableHead style={{backgroundColor:"#D8E6FC",}}>
                 <TableRow>
-                <TableCell>University Name</TableCell>
-                <TableCell align="center">No of Faculties/Institutions</TableCell>
-                <TableCell align="center">District</TableCell>
-                <TableCell align="center">Type</TableCell>
-                <TableCell align="center">Actions</TableCell>
+                <TableCell><b>University Name</b></TableCell>
+                <TableCell align="center"><b>No of Faculties/Institutions</b></TableCell>
+                <TableCell align="center"><b>District</b></TableCell>
+                <TableCell align="center"><b>Type</b></TableCell>
+                <TableCell align="center"><b>Actions</b></TableCell>
                 </TableRow>
             </TableHead>
                 <TableBody>

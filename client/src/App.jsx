@@ -10,6 +10,7 @@ import NotFound from './pages/NotFound';
 import AddPGProgramPage from './pages/QACdirector/AddPGProgramPage';
 import AddUniversities from './pages/QACOfficer/AddUniversities';
 import AddAccounts from './pages/QACdirector/AddAccounts';
+import University from './pages/QACOfficer/University';
 
 function App() {
 
@@ -51,6 +52,9 @@ function App() {
         <Route path="universities/" >
           <Route path="" element={<MainLayout sideDrawerRoutes={qacOfficerRoutes} mainContent={<Universities/>}/>} />
           <Route path="add" element={<MainLayout sideDrawerRoutes={qacOfficerRoutes} mainContent={<AddUniversities/>}/>} />
+          <Route path="view/:id" element={<MainLayout sideDrawerRoutes={qacOfficerRoutes} mainContent={<University/>}/>} />
+          <Route path="edit/:id" element={<MainLayout sideDrawerRoutes={qacOfficerRoutes} mainContent={<University/>}/>} />
+          <Route path="delete/:id" element={<MainLayout sideDrawerRoutes={qacOfficerRoutes} mainContent={<University/>}/>} />
         </Route>
         <Route path="importreviewers" element={<MainLayout sideDrawerRoutes={qacOfficerRoutes} mainContent={<ImportReviewers/>}/>} />
       </Route>
