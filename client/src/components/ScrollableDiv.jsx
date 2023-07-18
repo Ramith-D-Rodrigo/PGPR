@@ -52,7 +52,7 @@ const ScrollableDiv = ({children, ...otherprops}) => {
         overflowX:'hidden',
         overflowY:'auto',
         position:'relative',
-        paddingBottom:'5%',
+        paddingBottom:'10px',
      };
 
     return (
