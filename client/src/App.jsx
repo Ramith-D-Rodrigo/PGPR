@@ -5,7 +5,7 @@ import Universities from './pages/QACOfficer/Universities';
 import ImportReviewers from './pages/QACOfficer/ImportReviewers';
 import MainLayout from './components/MainLayout';
 import AddPGProgramPage from './pages/QACdirector/AddPGProgramPage';
-
+import AddAccounts from './pages/QACdirector/AddAccounts';
 
 
 
@@ -18,6 +18,7 @@ function App() {
       <Route path="/qacofficer/universities" element={<Universities/>} />
       <Route path="/qacofficer/importreviewers" element={<MainLayout mainContent={<ImportReviewers/>}/>} />
       <Route path="/QACdirector/AddPGProgramPage" element={<MainLayout mainContent={<AddPGProgramPage/>}/>} />
+      <Route path="/QACdirector/AddAccounts" element={<MainLayout mainContent={<AddAccounts/>}/>} />
       
      
 
