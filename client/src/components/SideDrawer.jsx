@@ -45,28 +45,19 @@ const SideDrawer = ({drawerOpen, drawerCloseHandler, drawerWidthInput, userRoute
           </DrawerHeader>
 
           <Divider variant="middle" color='black'/>
-          
-          {userRoutes} {/* routes according to the user role */}
+          {/* {console.log("userRoutes",userRoutes)} */}
+          {/*userRoutes*/} {/* routes according to the user role */}
           <List component="nav" aria-label="mailbox folders">
 
-            {userRoutes && userRoutes.map((userRoute)=>{
-              <ListItem button divider>
+            {userRoutes && userRoutes.map((userRoute,index)=>{
+              return(
+              <ListItem button divider key={index}>
                 <ListItemText primary={userRoute} />
               </ListItem>
+              )
+              // {console.log("userRoutes",userRoute)}
             })}
-            <ListItem button divider>
-              <ListItemText primary="PG Assignments" />
-            </ListItem>
-            <ListItem button divider>
-              <ListItemText primary="Drafts" />
-            </ListItem>
-            <ListItem button divider>
-              <ListItemText primary="Trash" />
-            </ListItem>
-            <ListItem button divider>
-              <ListItemText primary="Spam" />
-            </ListItem>
-
+            
           </List>
 
           <IconButton onClick={()=>{alert("Log Out")}}sx={{
@@ -77,9 +68,9 @@ const SideDrawer = ({drawerOpen, drawerCloseHandler, drawerWidthInput, userRoute
               titleAccess='Log Out'
               sx={{width:35,height:35,}}
               />
-              {/* <Typography gutterBottom variant='body1' component='div'>
+              <Typography gutterBottom variant='body1' component='div'>
                 Log Out
-              </Typography> */}
+              </Typography>
           </IconButton>
         </Drawer>
     );

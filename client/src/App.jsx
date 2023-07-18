@@ -4,6 +4,7 @@ import Dashboard from './components/Dashboard';
 import Login from './components/Login';
 import Universities from './pages/QACOfficer/Universities';
 import ImportReviewers from './pages/QACOfficer/ImportReviewers';
+import ViewSer from './pages/Reviewer/ViewSer';
 import MainLayout from './components/MainLayout';
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
       <Route path="/login" element={<Login/>}/>
       <Route path="/qacofficer/universities" element={<Universities/>} />
       <Route path="/qacofficer/importreviewers" element={<MainLayout mainContent={<ImportReviewers/>}/>} />
+      <Route path="/reviewer/viewser" element={<MainLayout mainContent={<ViewSer/>}/>} />
     </Routes>
   )
 }
