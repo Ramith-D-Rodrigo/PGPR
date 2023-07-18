@@ -9,6 +9,7 @@ import DrawerHeader from './DrawerHeader';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
+import {Link} from 'react-router-dom';
 
 let drawerWidth = 240; //default
 
@@ -49,29 +50,33 @@ const SideDrawer = ({drawerOpen, drawerCloseHandler, drawerWidthInput, userRoute
           {/*userRoutes*/} {/* routes according to the user role */}
           <List component="nav" aria-label="mailbox folders">
 
-            {userRoutes && userRoutes.map((userRoute,index)=>{
+            {userRoutes && Object.keys(userRoutes).map((key,index)=>{
               return(
               <ListItem button divider key={index}>
-                <ListItemText primary={userRoute} />
+                <Link to={userRoutes[key]}>
+                  <ListItemText primary={key} />
+                </Link>
               </ListItem>
               )
-              // {console.log("userRoutes",userRoute)}
+
             })}
             
           </List>
 
-          <IconButton onClick={()=>{alert("Log Out")}}sx={{
-          position:"fixed",width:"fit-content",left:"0px",bottom:"10px",
-          }}
-          >
-              <LogoutIcon
-              titleAccess='Log Out'
-              sx={{width:35,height:35,}}
-              />
-              <Typography gutterBottom variant='body1' component='div'>
-                Log Out
-              </Typography>
-          </IconButton>
+          <Link to="/logout">
+            <IconButton sx={{
+            position:"fixed",width:"fit-content",left:"0px",bottom:"10px",
+            }}
+            >
+                <LogoutIcon
+                titleAccess='Log Out'
+                sx={{width:35,height:35,}}
+                />
+                <Typography gutterBottom variant='body1' component='div'>
+                  Log Out
+                </Typography>
+            </IconButton>
+          </Link>
         </Drawer>
     );
 }
