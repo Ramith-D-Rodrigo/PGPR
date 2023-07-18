@@ -25,7 +25,37 @@ const Form = ({ topic, fields, cancelButtonText, submitButtonText, onCancel, onS
             <label htmlFor={field.name} className="block w-48 font-medium text-gray-700">
               {field.label}
             </label>
-            {field.type === 'textarea' ? (
+            {field.name === 'title' ? (
+              <div className="relative flex-grow">
+                <select
+                  id={field.name}
+                  name={field.name}
+                  className="form-select block w-full h-10 bg-white border border-black rounded-lg hover:border-black focus:outline-none px-2 py-1 pr-8"
+                >
+                  <option value="">Select {field.label}</option>
+                  {field.options.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ) : field.name === 'status' ? (
+              <div className="relative flex-grow">
+                <select
+                  id={field.name}
+                  name={field.name}
+                  className="form-select block w-full h-10 bg-white border border-black rounded-lg hover:border-black focus:outline-none px-2 py-1 pr-8"
+                >
+                  <option value="">Select {field.label}</option>
+                  {field.options.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ) : field.type === 'textarea' ? (
               <textarea
                 id={field.name}
                 name={field.name}
