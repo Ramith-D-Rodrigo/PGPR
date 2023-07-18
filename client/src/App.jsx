@@ -7,6 +7,8 @@ import ImportReviewers from './pages/QACOfficer/ImportReviewers';
 import ViewSer from './pages/Reviewer/ViewSer';
 import MainLayout from './components/MainLayout';
 import NotFound from './pages/NotFound';
+import AddPGProgramPage from './pages/QACdirector/AddPGProgramPage';
+import AddAccounts from './pages/QACdirector/AddAccounts';
 
 function App() {
 
@@ -20,6 +22,12 @@ function App() {
     "DashBoard": "/",
     "Universities" : "/qacofficer/universities",
     "Import Reviewers" : "/qacofficer/importreviewers",
+  }
+
+  const qacDirectorRoutes = {
+    "DashBoard": "/",
+    "Add PG Program" : "/qacdirector/AddPGProgramPage",
+    "Add Accounts" : "/qacdirector/AddAccounts",
   }
 
   //temporary
@@ -38,12 +46,14 @@ function App() {
       <Route path="/" element={<MainLayout sideDrawerRoutes={userRouts} mainContent={<Dashboard/>}/>}/>
       <Route path="/login" element={<Login/>}/>
 
-      <Route path="/qacofficer" element={<Universities/>} >
+      <Route path="/qacofficer" >
         <Route path="universities" element={<Universities/>} />
         <Route path="importreviewers" element={<MainLayout sideDrawerRoutes={qacOfficerRoutes} mainContent={<ImportReviewers/>}/>} />
       </Route>
 
-      <Route path="/qacdirector" element={<Universities/>} >
+      <Route path="/qacdirector" >
+        <Route path="AddPGProgramPage" element={<MainLayout sideDrawerRoutes={qacDirectorRoutes} mainContent={<AddPGProgramPage/>}/>} />
+        <Route path="AddAccounts" element={<MainLayout sideDrawerRoutes={qacDirectorRoutes} mainContent={<AddAccounts/>}/>} />
       </Route>
       
       <Route path="/reviewer" >

@@ -2,6 +2,7 @@ import { styled } from '@mui/material/styles';
 import DrawerHeader from './DrawerHeader';
 import Footer from './Footer';
 import Box from '@mui/material/Box';
+
 import { PropTypes } from 'prop-types';
 
 let drawerWidth = 240;
@@ -41,7 +42,9 @@ const MainContent = ({open, drawerWidthInput, content}) => {
         <Box sx={{display: 'flex', flexDirection: 'column', width: '100%', position: 'relative', minHeight:'100vh',}}>  
             <Main open={open}>
                 {!open && <DrawerHeader/>}
+
                 {content} {/* content according to the page */}
+
             </Main>         
             <Footer drawerOpen={open} drawerWidthInput={drawerWidthInput}/>
         </Box>
@@ -49,4 +52,4 @@ const MainContent = ({open, drawerWidthInput, content}) => {
     )
 }
 
-export default MainContent
+export default MainContent;

@@ -12,7 +12,7 @@ const NotFound = () => {
     {/* <Divider variant='middle' color='black' /> */}
     <Typography variant="body1" component="div" gutterBottom>
         <p>The page you are looking for does not exist...</p>
-        <strong>check the routes first</strong>
+        <strong>check whether the routes defined correctly</strong>
     </Typography>
     {/* <Divider variant='middle' color='black' /> */}
     <Link style={{fontSize:"2rem", color:"red"}} to='/'>Go Back</Link>

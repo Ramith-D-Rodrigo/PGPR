@@ -1,21 +1,21 @@
+import React from 'react';
 import Drawer from '@mui/material/Drawer';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import HelpIcon from '@mui/icons-material/Help';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { Avatar,Typography } from '@mui/material';
+import { Avatar, Typography } from '@mui/material';
 import DrawerHeader from './DrawerHeader';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import {Link} from 'react-router-dom';
 
-let drawerWidth = 240; //default
+let drawerWidth = 240;
 
-
-const SideDrawer = ({drawerOpen, drawerCloseHandler, drawerWidthInput, userRoutes}) => {
-    drawerWidth = drawerWidthInput;
+const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput, userRoutes }) => {
+  drawerWidth = drawerWidthInput;
 
     const handleClickLink = (Selectedid)=>{
       let selected = document.getElementById("listitem"+Selectedid);
