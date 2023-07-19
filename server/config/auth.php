@@ -40,6 +40,34 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'reviewer' => [
+            'driver' => 'session',
+            'provider' => 'reviewers',
+        ],
+        'vice_chancellor' => [
+            'driver' => 'session',
+            'provider' => 'vice_chancellors',
+        ],
+        'dean' => [
+            'driver' => 'session',
+            'provider' => 'deans',
+        ],
+        'internal_quality_assurance_unit_director' => [
+            'driver' => 'session',
+            'provider' => 'internal_quality_assurance_unit_director',
+        ],
+        'programme_coordinators' => [
+            'driver' => 'session',
+            'provider' => 'programme_coordinators',
+        ],
+        'quality_assurance_council_director' => [
+            'driver' => 'session',
+            'provider' => 'quality_assurance_council_directors',
+        ],
+        'quality_assurance_council_officer' => [
+            'driver' => 'session',
+            'provider' => 'quality_assurance_council_officers',
+        ],
     ],
 
     /*
@@ -69,6 +97,35 @@ return [
         //     'driver' => 'database',
         //     'table' => 'users',
         // ],
+
+        'reviewer' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Reviewer::class,
+        ],
+        'vice_chancellor' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\ViceChancellor::class,
+        ],
+        'dean' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Dean::class,
+        ],
+        'internal_quality_assurance_unit_director' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\InternalQualityAssuranceUnitDirector::class,
+        ],
+        'programme_coordinators' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\ProgrammeCoordinator::class,
+        ],
+        'quality_assurance_council_director' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\QualityAssuranceCouncilDirector::class,
+        ],
+        'quality_assurance_council_officer' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\QualityAssuranceCouncilOfficer::class,
+        ],
     ],
 
     /*
