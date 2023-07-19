@@ -3,11 +3,11 @@
 import { useRef, useState, useEffect, useContext } from "react";
 import axios from "../api/api.js";
 import AuthContext from "../contexts/AuthProvider.jsx";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Login = () => {
   const userInputRef = useRef(); // used to set the focus on inputs
-  const errorRef = useRef(); // incase of input error set the focus on them
+  const errorRef = useRef(); // in case of input error set the focus on them
   const { setAuth } = useContext(AuthContext);
 
   // this should go to the LoginContext.js
@@ -15,8 +15,10 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
-  // navigation
+  // navigations
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/"; // where the use got here
 
   async function handleLogin(event) {
     event.preventDefault();
@@ -29,17 +31,16 @@ const Login = () => {
         {
           official_email: email,
           password,
-        }
+        },
       );
       // don't wrap the return value in the backend with the Response()
       // the returned data won't be in this format
-      setAuth(response?.data);
+      setAuth(response?.data || null);
       setEmail("");
       setPassword("");
 
       // add the user navigation
-      // might have to get the user profile from the backend as well
-      navigate("/profile");
+      navigate(from, { replace: true }); // this login will be pushed to the history
     } catch (error) {
       console.error(error?.response);
       if (!error?.response) {
@@ -48,7 +49,9 @@ const Login = () => {
       } else {
         // read the errors
         console.log(error.response);
-        setErrorMsg(error.response);
+        let { message, errors } =  error.response?.data || "An unknown error occurred";
+        console.log(errors);
+        setErrorMsg(message);
       }
       errorRef.current.focus();
     }
@@ -65,7 +68,7 @@ const Login = () => {
 
   return (
     <section>
-      <p ref={errorRef}>{JSON.stringify(errorMsg)}</p>
+      <p ref={errorRef}>{errorMsg}</p>
       <h1>Sign In</h1>
       <form onSubmit={handleLogin}>
         <label htmlFor="emailAddress">Email: </label>
