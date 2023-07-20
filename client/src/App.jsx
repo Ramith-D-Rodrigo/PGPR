@@ -11,6 +11,7 @@ import AddPGProgramPage from './pages/QACdirector/AddPGProgramPage';
 import AddAccounts from './pages/QACdirector/AddAccounts';
 import EditPGProgram from './pages/QACdirector/EditPGProgram';
 import SubmitIntent from './pages/DeanDirector/SubmitIntent';
+import SubmitConsent from './pages/DeanDirector/SubmitConsent';
 
 function App() {
 
@@ -36,6 +37,7 @@ function App() {
   const deanDirectorRoutes = {
     "DashBoard": "/",
     "Submit Intent Letter" : "/deandirector/SubmitIntent",
+    "Submit Consent" : "/deandirector/SubmitConsent",
   }
   //temporary
   const userRouts = reviewerRoutes;
@@ -70,6 +72,7 @@ function App() {
 
       <Route path="/deandirector" >
         <Route path="SubmitIntent" element={<MainLayout sideDrawerRoutes={deanDirectorRoutes} mainContent={<SubmitIntent/>}/>} />
+        <Route path="SubmitConsent" element={<MainLayout sideDrawerRoutes={deanDirectorRoutes} mainContent={<SubmitConsent/>}/>} />
       </Route>
 
       <Route path="*" element={<NotFound/>}/>
