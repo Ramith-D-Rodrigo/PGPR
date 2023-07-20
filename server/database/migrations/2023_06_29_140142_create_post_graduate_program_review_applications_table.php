@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string("year_2");
             $table->string("year_3");
             $table->string("year_4");
+            $table->string("year_5");
             $table->date("y_end");
             $table -> unsignedBigInteger('post_graduate_program_id'); //id of the post graduate program that is being reviewed
             $table->unsignedBigInteger('quality_assurance_council_officer_id') -> nullable(); //id of the quality assurance council officer who approved the application
