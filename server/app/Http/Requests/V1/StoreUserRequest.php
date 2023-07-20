@@ -4,6 +4,8 @@ namespace App\Http\Requests\V1;
 
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
@@ -44,6 +46,7 @@ class StoreUserRequest extends FormRequest
     public function prepareForValidation(){
         //convert all fields to snake case
         $fieldsWithVals = $this -> all();
+
         $newFieldsWithVals = [];
         foreach($fieldsWithVals as $key => $val){
             $newFieldsWithVals[Str::snake($key)] = $val;
@@ -68,6 +71,7 @@ class StoreUserRequest extends FormRequest
             'profile_pic.file' => 'Profile picture should be a file',
             'profile_pic.mimes' => 'Profile picture should be a jpeg, jpg or png',
             'profile_pic.max' => 'Profile picture should be less than 1MB',
+            'profile_pic.present' => 'Profile picture should be present',
             'full_name.required' => 'Full name is required',
             'official_telephone_no.required' => 'Official telephone number is required',
             'nic.required' => 'NIC is required',
@@ -82,5 +86,27 @@ class StoreUserRequest extends FormRequest
             'personal_email.email' => 'Personal email should be a valid email',
             'personal_email.not_in' => 'Personal email is already used in this system',
         ];
+    }
+
+    public function passedValidation(){
+        //store the profile picture
+        $profilePic = $this -> profile_pic;
+        if($profilePic){
+            $ext = $profilePic -> getClientOriginalExtension();
+            $profilePictureName = $this -> official_email . '.' . $ext;
+
+            //create the profile picture directory if it does not exist
+            if(!File::exists(public_path('storage/profile_pics'))){
+                File::makeDirectory(public_path('storage/profile_pics'));
+            }
+
+            Storage::put('public/profile_pics/' . $profilePictureName, $profilePic -> getContent());
+
+            //get the profile picture url
+            $profilePictureUrl = Storage::url('public/profile_pics/' . $profilePictureName);
+            $this -> merge([
+                'profile_pic' => $profilePictureUrl
+            ]);
+        }
     }
 }
