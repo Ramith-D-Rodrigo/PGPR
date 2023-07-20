@@ -13,6 +13,8 @@ import EditPGProgram from './pages/QACdirector/EditPGProgram';
 import SubmitIntent from './pages/DeanDirector/SubmitIntent';
 import SubmitConsent from './pages/DeanDirector/SubmitConsent';
 import SetDate from './pages/ReviewerChair/SetDate';
+import SetCriteria from './pages/ReviewerChair/SetCriteria';
+
 
 function App() {
 
@@ -44,6 +46,7 @@ function App() {
   const reviewerChairRoutes = {
     "DashBoard": "/",
     "Set Date" : "/reviewerchair/SetDate",
+    "Set Criteria" : "/reviewerchair/SetCriteria",
   }
 
 
@@ -85,6 +88,7 @@ function App() {
 
       <Route path="/reviewerchair" >
         <Route path="SetDate" element={<MainLayout sideDrawerRoutes={reviewerChairRoutes} mainContent={<SetDate/>}/>} />
+        <Route path="SetCriteria" element={<MainLayout sideDrawerRoutes={reviewerChairRoutes} mainContent={<SetCriteria/>}/>} />
       </Route>
 
       <Route path="*" element={<NotFound/>}/>
