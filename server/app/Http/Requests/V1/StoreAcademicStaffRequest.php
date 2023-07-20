@@ -47,12 +47,12 @@ class StoreAcademicStaffRequest extends StoreUniversitySideRequest
         $rulesArr['qualification_1_slqf_level'] = ['required', 'integer'];
         $rulesArr['qualification_2'] = ['required', 'string', 'max:255'];
         $rulesArr['qualification_2_slqf_level'] = ['required', 'integer'];
-        $rulesArr['qualification_3'] = ['string', 'max:255'];
-        $rulesArr['qualification_3_slqf_level'] = ['integer'];
-        $rulesArr['qualification_4'] = ['string', 'max:255'];
-        $rulesArr['qualification_4_slqf_level'] = ['integer'];
+        $rulesArr['qualification_3'] = ['string', 'max:255', 'present', 'nullable'];
+        $rulesArr['qualification_3_slqf_level'] = ['integer', 'present', 'nullable'];
+        $rulesArr['qualification_4'] = ['string', 'max:255', 'present', 'nullable'];
+        $rulesArr['qualification_4_slqf_level'] = ['integer', 'present', 'nullable'];
         $rulesArr['prior_training_in_programme_review'] = ['json']; //json array
-        $rulesArr['cv'] = ['required', 'string']; //cv file path (for now it is just a link to the file, later we have to store the file in the server)
+        $rulesArr['cv'] = ['file', 'mimes:pdf', 'max:2048', 'present', 'nullable']; //2MB max
 
         return $rulesArr;
     }
@@ -122,8 +122,9 @@ class StoreAcademicStaffRequest extends StoreUniversitySideRequest
             'qualification_3_slqf_level.integer' => 'Qualification 3 SLQF level should be an integer',
             'qualification_4_slqf_level.integer' => 'Qualification 4 SLQF level should be an integer',
             'prior_training_in_programme_review.required' => 'Prior training in programme review is required',
-            'cv.required' => 'CV is required',
-            'cv.string' => 'CV should be a string', //cv file path (for now it is just a link to the file, later we have to store the file in the server)
+            'cv.file' => 'CV should be a file',
+            'cv.mimes' => 'CV should be a PDF file',
+            'cv.max' => 'CV should be less than 2MB'
         ];
 
         return array_merge($parentMsgs, $messageArr);
