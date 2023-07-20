@@ -32,6 +32,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = React.useState(false);
   const [email,setEmail] = React.useState('');
   const [password,setPassword] = React.useState('');
+  const [errorMsg, setErrorMsg] = useState("");
   
   // navigations
   const navigate = useNavigate();

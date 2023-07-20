@@ -10,11 +10,35 @@ import DrawerHeader from './DrawerHeader';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
-import {Link} from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
+import useAuth from "../hooks/useAuth.js";
+import axios from "../api/api.js";
 
 let drawerWidth = 240;
 
+
 const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput, userRoutes }) => {
+  const { auth, setAuth } = useAuth();
+  const navigate = useNavigate();
+
+  async function handleLogout() {
+
+    // get the csrf-cookie
+    try {
+      axios.get("/sanctum/csrf-cookie");
+      let response = await axios.post("/logout");
+      console.log(response?.status);
+      setAuth(null);
+      navigate("/login");
+    } catch (error) {
+      if (!error?.response) {
+        console.log("No Server Response");
+      } else {
+        console.log(error?.response);
+      }
+    }
+  }
+
   drawerWidth = drawerWidthInput;
 
     const handleClickLink = (Selectedid)=>{
@@ -72,7 +96,7 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput, userRout
             
           </List>
 
-          <Link to="/logout">
+          <Link onClick={handleLogout}>
             <IconButton sx={{
             position:"fixed",width:"fit-content",left:"0px",bottom:"10px",
             }}

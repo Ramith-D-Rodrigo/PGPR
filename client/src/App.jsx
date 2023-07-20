@@ -24,7 +24,7 @@ function App() {
   const qacOfficerRoutes = {
     "DashBoard": "/qacofficer/dashboard",
     "Universities" : "/qacofficer/universities",
-    "Import Reviewers" : "/qacofficer/importreviewers",
+    //"Import Reviewers" : "/qacofficer/importreviewers",
   }
 
   const qacDirectorRoutes = {
@@ -43,7 +43,7 @@ function App() {
         <Route path="/">
 
             {/* guest routes */}
-            <Route path="/login" element={<Login/>}/>
+            <Route path="login" element={<Login/>}/>
             <Route path="unauthorized" element={<Unauthorized/>}></Route>
 
             <Route element={<LoginPersist/>}>
@@ -51,28 +51,34 @@ function App() {
               <Route element={<MainLayout sideDrawerRoutes={userRoutes}/>}>
                 
                 {/* protected routes */}
-                <Route element={<Authenticate allowedRoles={["user", "reviewer", "qac"]}/>}>
-                  <Route path="/qacofficer" >
+                <Route element={<Authenticate allowedRoles={["qac"]}/>}>
+                  <Route path="qacofficer/" >
                       <Route path="dashboard" element={<Dashboard/>}/>
                       <Route path="universities" element={<Universities/>} />
-                      <Route path="importreviewers" element={<ImportReviewers/>} />
                   </Route>
                 </Route>
 
-                <Route element={<Authenticate allowedRoles={["user", "reviewer", "qac"]}/>}>
-                  <Route path="/qacdirector" >
+                <Route element={<Authenticate allowedRoles={["qac"]}/>}>
+                  <Route path="qacdirector/" >
                       <Route path="dashboard" element={<Dashboard/>}/>
                       <Route path="AddPGProgramPage" element={<AddPGProgramPage/>} />
                       <Route path="AddAccounts" element={<AddAccounts/>} />
                   </Route>
                 </Route>
                 
-                 <Route element={<Authenticate allowedRoles={["user", "reviewer", "qac"]}/>}>
-                  <Route path="/reviewer" >
+                <Route element={<Authenticate allowedRoles={["user", "qac"]}/>}>
+                  <Route path="reviewer/" >
                       <Route path="dashboard" element={<Dashboard/>}/>
                       <Route path="viewser" element={<ViewSer/>} />
                   </Route>
-                 </Route>
+                </Route>
+
+                {/* dean routes */}
+                <Route element={<Authenticate allowedRoles={["dean"]}/>}>
+                  <Route path="dean/">
+                    <Route path="dashboard" element={<Dashboard/>}/>
+                  </Route>
+                </Route>
               </Route>
 
             </Route>
