@@ -10,7 +10,9 @@ use App\Http\Controllers\Controller;
 use App\Mail\sendPassword;
 use App\Services\V1\DeanService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class DeanController extends Controller
 {
@@ -35,26 +37,37 @@ class DeanController extends Controller
      */
     public function store(StoreDeanRequest $request)
     {
+        //set needed additional fields
+
+        $validatedData = $request -> validated(); //get the validated data
+
+        $validatedData['staff_role'] = 'dean'; //set the staff role
+        $validatedData['status'] = 'Pending'; //set the status (user account status)
+        $validatedData['current_status'] = 'Active';   //set the current status (dean status)
+        $validatedData['staff_position'] = 'academic'; //set the staff position
+        $validatedData['roles'] = ['dean']; //set the roles (dean role)
+
+
+        $password = Str::random(8);  //generate a random password
+        //hash the password using Hash facade
+
+        $validatedData['password'] = Hash::make($password); //set the password
+
         try{
             DB::beginTransaction();
-            //set needed additional fields
-            $request -> setAttribute('status', 'Pending'); //set the status (user account status)
-            $request -> setAttribute('current_status', 'Active'); //set the current status (dean status)
-            $request -> setAttribute('staff_position', 'Dean'); //set the staff position
-            $request -> setAttribute('roles', ['dean']); //set the roles (dean role)
 
-            $dean = DeanService::create($request -> validated());
+            $dean = DeanService::create($validatedData);
 
             //send email to the dean
             $user = [
-                'surname' => $request -> getAttribute('surname'),
-                'initials' => $request -> getAttribute('initials'),
-                'password' => $request -> getAttribute('password'),
-                'roles' => $request -> getAttribute('roles'),
-                'official_email' => $request -> getAttribute('official_email'),
+                'surname' => $validatedData['surname'],
+                'initials' => $validatedData['initials'],
+                'password' => $password,
+                'roles' => $validatedData['roles'],
+                'official_email' => $validatedData['official_email'],
             ];
 
-            Mail::to($request -> getAttribute('official_email')) -> send(new sendPassword($user, 'Created Account for Postgraduate Programme Review System', 'mail.userAccountPassword'));
+            Mail::to($validatedData['official_email']) -> send(new sendPassword($user, 'Created Account for Postgraduate Programme Review System', 'mail.userAccountPassword'));
             DB::commit();   //commit the changes if all of them were successful
             return new DeanResource($dean);
         }
