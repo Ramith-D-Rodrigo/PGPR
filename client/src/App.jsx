@@ -55,7 +55,7 @@ function App() {
                   <Route path="/qacofficer" >
                       <Route path="dashboard" element={<Dashboard/>}/>
                       <Route path="universities" element={<Universities/>} />
-                      <Route path="importreviewers" element={<ImportReviewers/>} />
+                      {/* <Route path="importreviewers" element={<ImportReviewers/>} /> */}
                   </Route>
                 </Route>
 

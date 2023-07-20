@@ -32,11 +32,22 @@ const Login = () => {
   const [showPassword, setShowPassword] = React.useState(false);
   const [email,setEmail] = React.useState('');
   const [password,setPassword] = React.useState('');
+  const [errorMsg, setErrorMsg] = useState("");
   
   // navigations
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || "/"; // where the use got here
+
+  // useEffect(() => {
+  //   userInputRef.current.focus();
+  // }, []);
+  /* doesn't work because MUI <Input> != html <input> in rendered page*/
+
+  // when loading set the messages to empty strings
+  useEffect(() => {
+    setErrorMsg("");
+  }, [email, password]);
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -69,7 +80,7 @@ const Login = () => {
       console.error(error?.response);
       if (!error?.response) {
         // check if the request went through to the server
-        setErrorMsg("No Server Response");
+        setErrorMsg("Server Not Responded. Check your Connection");
       } else {
         // read the errors
         console.log(error.response);
@@ -115,14 +126,13 @@ const Login = () => {
                         {/* <Avatar style={avatarStyles}><LockIcon fontSize={"large"}/></Avatar> */}
                         <Typography style={{margin:"20px 0"}} variant="h3">Sign In</Typography>
                         
-                        {/* show errors */}
-                        <p ref={errorRef}>{errorMsg}</p>
+                        
                           
                         <form onSubmit={handleLogin}>
                           <FormControl style={{margin:"15px 0"}} variant="standard" fullWidth
                               required>
                             {/* <InputLabel htmlFor="input-with-icon-adornment">Email</InputLabel> */}
-                            <Input style={{margin:"15px 0"}}
+                            <Input ref={userInputRef} className='INP' style={{margin:"15px 0"}}
                               id="input-email"
                               startAdornment={
                                 <InputAdornment style={{margin:"15px 10px 20px 0px"}} position="start">
@@ -130,7 +140,7 @@ const Login = () => {
                                 </InputAdornment>
                               }
                               autoComplete="off"
-                              ref={userInputRef}
+                              
                               type='email'
                               placeholder='Email'
                               value={email}
@@ -169,6 +179,8 @@ const Login = () => {
                           <FormGroup style={{margin:"20px 0 0"}}>
                             <FormControlLabel control={<Checkbox defaultChecked />} label="Remember me" />
                           </FormGroup>
+                          {/* show errors */}
+                        <p style={{color:'red'}} ref={errorRef}>{errorMsg}</p>
                           <Button style={{margin:"0 0 15px"}} type='submit' color='primary' variant="contained" fullWidth
                           >
                             Sign in
