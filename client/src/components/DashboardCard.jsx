@@ -6,7 +6,8 @@ import {
     CardActions,
     Button,
     CardMedia
-} from '@mui/material'
+} from '@mui/material';
+
 let title = null,content=null,message=null
 const DashboardCard = ({title,content,message}) => {
   return (

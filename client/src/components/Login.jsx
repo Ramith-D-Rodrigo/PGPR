@@ -15,43 +15,81 @@ import IconButton from '@mui/material/IconButton';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import React from 'react'
+//
+import { useRef, useState, useEffect, useContext } from "react";
+import axios from "../api/api.js";
+import AuthContext from "../contexts/AuthProvider.jsx";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Login = () => {
+  
+  //refs & auth
+  const userInputRef = useRef(); // used to set the focus on inputs
+  const errorRef = useRef(); // in case of input error set the focus on them
+  const { setAuth } = useContext(AuthContext);
 
+  //user data states
   const [showPassword, setShowPassword] = React.useState(false);
   const [email,setEmail] = React.useState('');
   const [password,setPassword] = React.useState('');
+  const [errorMsg, setErrorMsg] = useState("");
+  
+  // navigations
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/"; // where the use got here
+
+  // useEffect(() => {
+  //   userInputRef.current.focus();
+  // }, []);
+  /* doesn't work because MUI <Input> != html <input> in rendered page*/
+
+  // when loading set the messages to empty strings
+  useEffect(() => {
+    setErrorMsg("");
+  }, [email, password]);
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
   const handleMouseDownPassword = (event) => {
     event.preventDefault();
-  };
+  }
+  
+  async function handleLogin(event) {
+    event.preventDefault();
+    try {
+      // get the CSRF-cookie
+      await axios.get("/sanctum/csrf-cookie");
+      let response = await axios.post(
+        "/login",
+        // payload
+        {
+          official_email: email,
+          password,
+        },
+      );
+      // don't wrap the return value in the backend with the Response()
+      // the returned data won't be in this format
+      setAuth(response?.data || null);
+      setEmail("");
+      setPassword("");
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    //send data to backend using fetch api
-    const data = {email,password};
-    console.log(data);
-
-    //use fetch API
-    fetch('http://localhost:8000/login',{
-      method:'POST',
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify(data)
-    }).then((res)=>{
-      if(res.status === 200){
-        console.log("Login Successful");
-        window.location.href = "/dashboard";
-      }
-      else{
-        console.log("Login Failed");
-      }
+      // add the user navigation
+      navigate(from, { replace: true }); // this login will be pushed to the history
+    } catch (error) {
+      console.error(error?.response);
+      if (!error?.response) {
+        // check if the request went through to the server
+        setErrorMsg("Server Not Responded. Check your Connection");
+      } else {
+        // read the errors
+        console.log(error.response);
+        let { message, errors } =  error.response?.data || "An unknown error occurred";
+        console.log(errors);
+        setErrorMsg(message);
+        }
+      errorRef.current.focus();
     }
-    ).catch((err)=>{
-      console.log(err);
-    }
-    )
   }
 
   const Item = styled(Paper)(({ theme }) => ({
@@ -87,18 +125,22 @@ const Login = () => {
                     <Grid align="center">
                         {/* <Avatar style={avatarStyles}><LockIcon fontSize={"large"}/></Avatar> */}
                         <Typography style={{margin:"20px 0"}} variant="h3">Sign In</Typography>
-
-                        <form onSubmit={handleSubmit}>
+                        
+                        
+                          
+                        <form onSubmit={handleLogin}>
                           <FormControl style={{margin:"15px 0"}} variant="standard" fullWidth
                               required>
                             {/* <InputLabel htmlFor="input-with-icon-adornment">Email</InputLabel> */}
-                            <Input style={{margin:"15px 0"}}
+                            <Input ref={userInputRef} className='INP' style={{margin:"15px 0"}}
                               id="input-email"
                               startAdornment={
                                 <InputAdornment style={{margin:"15px 10px 20px 0px"}} position="start">
                                   <EmailIcon fontSize='large' />
                                 </InputAdornment>
                               }
+                              autoComplete="off"
+                              
                               type='email'
                               placeholder='Email'
                               value={email}
@@ -137,6 +179,8 @@ const Login = () => {
                           <FormGroup style={{margin:"20px 0 0"}}>
                             <FormControlLabel control={<Checkbox defaultChecked />} label="Remember me" />
                           </FormGroup>
+                          {/* show errors */}
+                        <p style={{color:'red'}} ref={errorRef}>{errorMsg}</p>
                           <Button style={{margin:"0 0 15px"}} type='submit' color='primary' variant="contained" fullWidth
                           >
                             Sign in

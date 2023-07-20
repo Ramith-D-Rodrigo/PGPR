@@ -18,9 +18,22 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
-        'email',
+        'id',
+        'full_name',
+        'initials',
+        'surname',
+        'roles',
+        'contact_no',
+        'profile_pic',
+        'official_telephone_no',
+        'nic',
+        'gender',
+        'official_email',
+        'personal_email',
         'password',
+        'email_verified_at',
+        'created_by',
+        'status',
     ];
 
     /**
@@ -42,4 +55,27 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    //there is one user that is a university side
+    public function universitySide(){
+        return $this -> hasOne(UniversitySide::class, 'id', 'id');
+    }
+
+    //there is one user that is a quality assurance council officer
+    public function qualityAssuranceCouncilOfficer(){
+        return $this -> hasOne(QualityAssuranceCouncilOfficer::class, 'id', 'id');
+    }
+
+/*   user account is created by some other user
+    following are the scenarios of the different types of users.
+        qac officer create accounts for cqa director,vice chancellor and reviewer )
+        (cqa director create accounts for dean, programme coordinator, iqau director ) */
+
+    public function createdAccounts(){
+        return $this -> hasMany(User::class, 'created_by', 'id');
+    }
+
+    public function accountCreatedBy(){
+        return $this -> belongsTo(User::class, 'created_by', 'id');
+    }
 }
