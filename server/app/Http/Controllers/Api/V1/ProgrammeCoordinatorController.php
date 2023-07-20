@@ -53,18 +53,13 @@ class ProgrammeCoordinatorController extends Controller
         try{
             DB::beginTransaction();
 
-            $programmeCoordinator = ProgrammeCoordinatorService::create($validatedData);
+            //store the files
+            $validatedDataWithStoredFiles = ProgrammeCoordinatorService::storeFiles($validatedData);
+
+            $programmeCoordinator = ProgrammeCoordinatorService::create($validatedDataWithStoredFiles);
 
             //send email to the dean
-            $user = [
-                'surname' => $validatedData['surname'],
-                'initials' => $validatedData['initials'],
-                'password' => $password,
-                'roles' => $validatedData['roles'],
-                'official_email' => $validatedData['official_email'],
-            ];
-
-            Mail::to($validatedData['official_email']) -> send(new sendPassword($user, 'Created Account for Postgraduate Programme Review System', 'mail.userAccountPassword'));
+            ProgrammeCoordinatorService::sendAccountCreateMail($validatedDataWithStoredFiles, $password);
             DB::commit();   //commit the changes if all of them were successful
             return new ProgrammeCoordinatorResource($programmeCoordinator);
         }

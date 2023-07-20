@@ -51,4 +51,8 @@ class StoreProgrammeCoordinatorRequest extends StoreAcademicStaffRequest
 
         return array_merge($msgs, $thisMsgs);
     }
+
+    public function prepareForValidation() {
+        parent::prepareForValidation();
+    }
 }

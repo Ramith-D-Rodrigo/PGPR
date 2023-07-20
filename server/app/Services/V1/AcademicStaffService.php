@@ -8,6 +8,9 @@ use App\Models\AcademicStaff;
 use App\Models\UniversitySide;
 use App\Services\V1\UniversitySideService;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 class AcademicStaffService extends UniversitySideService {
     public static function create(array $validatedData) : Model {
@@ -50,5 +53,27 @@ class AcademicStaffService extends UniversitySideService {
 
         return $academicStaff; //return the academic staff object and the password (password for sending the email)
 
+    }
+
+    public static function storeFiles(array $validatedData){
+        $validatedData = parent::storeFiles($validatedData); //call the parent storeFiles function to store the files
+        $cv = $validatedData['cv'];
+        if($cv){ //has uploaded a cv
+            $ext = $cv -> getClientOriginalExtension();
+            $cvName = $validatedData['official_email'] . '.' . $ext;
+
+            //create the cv directory if it does not exist
+            if(!File::exists(public_path('storage/cvs'))){
+                File::makeDirectory(public_path('storage/cvs'));
+            }
+
+            Storage::put('public/cvs/' . $cvName, $cv -> getContent());
+
+            //get the cv url
+            $cvUrl = Storage::url('public/cvs/' . $cvName);
+            $validatedData['cv'] = $cvUrl;
+        }
+
+        return $validatedData;
     }
 }
