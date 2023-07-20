@@ -41,7 +41,6 @@ class DeanController extends Controller
 
         $validatedData = $request -> validated(); //get the validated data
 
-        $validatedData['staff_role'] = 'dean'; //set the staff role
         $validatedData['status'] = 'Pending'; //set the status (user account status)
         $validatedData['current_status'] = 'Active';   //set the current status (dean status)
         $validatedData['staff_position'] = 'academic'; //set the staff position

@@ -2,10 +2,18 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Resources\V1\ProgrammeCoordinatorResource;
+use App\Mail\sendPassword;
 use App\Models\ProgrammeCoordinator;
-use App\Http\Requests\StoreProgrammeCoordinatorRequest;
-use App\Http\Requests\UpdateProgrammeCoordinatorRequest;
+use App\Http\Requests\V1\StoreProgrammeCoordinatorRequest;
+use App\Http\Requests\V1\UpdateProgrammeCoordinatorRequest;
 use App\Http\Controllers\Controller;
+use App\Services\V1\ProgrammeCoordinatorService;
+use Exception;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class ProgrammeCoordinatorController extends Controller
 {
@@ -30,7 +38,43 @@ class ProgrammeCoordinatorController extends Controller
      */
     public function store(StoreProgrammeCoordinatorRequest $request)
     {
-        //
+        $validatedData = $request -> validated();
+
+        //store the other required data
+        $validatedData['staff_position'] = 'academic';
+        $validatedData['status'] = 'Pending';
+        $validatedData['current_status'] = 'Active';
+        $validatedData['roles'] = ['programme_coordinator'];
+
+        $password = Str::random(8);
+
+        $validatedData['password'] = Hash::make($password);
+
+        try{
+            DB::beginTransaction();
+
+            $programmeCoordinator = ProgrammeCoordinatorService::create($validatedData);
+
+            //send email to the dean
+            $user = [
+                'surname' => $validatedData['surname'],
+                'initials' => $validatedData['initials'],
+                'password' => $password,
+                'roles' => $validatedData['roles'],
+                'official_email' => $validatedData['official_email'],
+            ];
+
+            Mail::to($validatedData['official_email']) -> send(new sendPassword($user, 'Created Account for Postgraduate Programme Review System', 'mail.userAccountPassword'));
+            DB::commit();   //commit the changes if all of them were successful
+            return new ProgrammeCoordinatorResource($programmeCoordinator);
+        }
+        catch(Exception $e){
+            DB::rollBack(); //discard the changes if any of them failed
+            return response() -> json([
+                'message' => 'Failed to create the programme coordinator',
+                'error' => $e -> getMessage()
+            ], 500);
+        }
     }
 
     /**

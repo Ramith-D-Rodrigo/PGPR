@@ -26,7 +26,7 @@ class StoreUniversitySideRequest extends StoreUserRequest //because university s
 
         //add the rules for university side
         $rulesArr['university_id'] = ['required', 'exists:universities,id'];
-        //staff_role is added via the system
+        //staff_position is added via the system
 
         return $rulesArr;
     }
