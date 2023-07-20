@@ -8,6 +8,10 @@ import MainLayout from './components/MainLayout';
 import NotFound from './pages/NotFound';
 import AddPGProgramPage from './pages/QACdirector/AddPGProgramPage';
 import AddAccounts from './pages/QACdirector/AddAccounts';
+//
+import Authenticate from "./components/Authenticate";
+import Unauthorized from "./components/Unauthorized";
+import LoginPersist from "./components/LoginPersist.jsx";
 
 function App() {
 
@@ -40,26 +44,37 @@ function App() {
 
             {/* guest routes */}
             <Route path="/login" element={<Login/>}/>
+            <Route path="unauthorized" element={<Unauthorized/>}></Route>
 
-
-            <Route element={<MainLayout sideDrawerRoutes={userRoutes}/>}>
+            <Route element={<LoginPersist/>}>
+              
+              <Route element={<MainLayout sideDrawerRoutes={userRoutes}/>}>
                 
-                <Route path="/qacofficer" >
-                    <Route path="dashboard" element={<Dashboard/>}/>
-                    <Route path="universities" element={<Universities/>} />
-                    <Route path="importreviewers" element={<ImportReviewers/>} />
+                {/* protected routes */}
+                <Route element={<Authenticate allowedRoles={["user", "reviewer", "qac"]}/>}>
+                  <Route path="/qacofficer" >
+                      <Route path="dashboard" element={<Dashboard/>}/>
+                      <Route path="universities" element={<Universities/>} />
+                      <Route path="importreviewers" element={<ImportReviewers/>} />
+                  </Route>
                 </Route>
 
-                <Route path="/qacdirector" >
-                    <Route path="dashboard" element={<Dashboard/>}/>
-                    <Route path="AddPGProgramPage" element={<AddPGProgramPage/>} />
-                    <Route path="AddAccounts" element={<AddAccounts/>} />
+                <Route element={<Authenticate allowedRoles={["user", "reviewer", "qac"]}/>}>
+                  <Route path="/qacdirector" >
+                      <Route path="dashboard" element={<Dashboard/>}/>
+                      <Route path="AddPGProgramPage" element={<AddPGProgramPage/>} />
+                      <Route path="AddAccounts" element={<AddAccounts/>} />
+                  </Route>
                 </Route>
                 
-                <Route path="/reviewer" >
-                    <Route path="dashboard" element={<Dashboard/>}/>
-                    <Route path="viewser" element={<ViewSer/>} />
-                </Route>
+                 <Route element={<Authenticate allowedRoles={["user", "reviewer", "qac"]}/>}>
+                  <Route path="/reviewer" >
+                      <Route path="dashboard" element={<Dashboard/>}/>
+                      <Route path="viewser" element={<ViewSer/>} />
+                  </Route>
+                 </Route>
+              </Route>
+
             </Route>
 
             {/* 404 page & UnAuth ... */}
