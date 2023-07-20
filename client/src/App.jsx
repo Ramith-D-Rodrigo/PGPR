@@ -14,51 +14,57 @@ function App() {
   //Demo routes for side drawer
   //fetch from backend using loged in user type
   const reviewerRoutes = {
-    "DashBoard": "/",
+    "DashBoard": "/reviewer/dashboard",
     "PG Assignment" : "/reviewer/viewser",
   }
   const qacOfficerRoutes = {
-    "DashBoard": "/",
+    "DashBoard": "/qacofficer/dashboard",
     "Universities" : "/qacofficer/universities",
     "Import Reviewers" : "/qacofficer/importreviewers",
   }
 
   const qacDirectorRoutes = {
-    "DashBoard": "/",
+    "DashBoard": "/qacdirector/dashboard",
     "Add PG Program" : "/qacdirector/AddPGProgramPage",
     "Add Accounts" : "/qacdirector/AddAccounts",
   }
 
   //temporary
-  const userRouts = reviewerRoutes;
+  const userRoutes = qacDirectorRoutes;//reviewerRoutes;
+  const userBreadCrumbs = ["Home", "DashBoard"];//["Home", "DashBoard", "PG Assignment"];
 
   return (
-    // <Routes>
-    //   <Route path="/" element={<Dashboard/>}/>
-    //   <Route path="/login" element={<Login/>}/>
-    //   <Route path="/qacofficer/universities" element={<Universities/>} />
-    //   <Route path="/qacofficer/importreviewers" element={<MainLayout sideDrawerRoutes={qacOfficerRoutes} mainContent={<ImportReviewers/>}/>} />
-    //   <Route path="/reviewer/viewser" element={<MainLayout sideDrawerRoutes={reviewerRoutes} mainContent={<ViewSer/>}/>} />
-    // </Routes>
 
     <Routes>
-      <Route path="/" element={<MainLayout sideDrawerRoutes={userRouts} mainContent={<Dashboard/>}/>}/>
-      <Route path="/login" element={<Login/>}/>
+        <Route path="/">
 
-      <Route path="/qacofficer" >
-        <Route path="universities" element={<Universities/>} />
-      </Route>
+            {/* guest routes */}
+            <Route path="/login" element={<Login/>}/>
 
-      <Route path="/qacdirector" >
-        <Route path="AddPGProgramPage" element={<MainLayout sideDrawerRoutes={qacDirectorRoutes} mainContent={<AddPGProgramPage/>}/>} />
-        <Route path="AddAccounts" element={<MainLayout sideDrawerRoutes={qacDirectorRoutes} mainContent={<AddAccounts/>}/>} />
-      </Route>
-      
-      <Route path="/reviewer" >
-        <Route path="viewser" element={<MainLayout sideDrawerRoutes={reviewerRoutes} mainContent={<ViewSer/>}/>} />
-      </Route>
 
-      <Route path="*" element={<NotFound/>}/>
+            <Route element={<MainLayout sideDrawerRoutes={userRoutes}/>}>
+                
+                <Route path="/qacofficer" >
+                    <Route path="dashboard" element={<Dashboard/>}/>
+                    <Route path="universities" element={<Universities/>} />
+                    <Route path="importreviewers" element={<ImportReviewers/>} />
+                </Route>
+
+                <Route path="/qacdirector" >
+                    <Route path="dashboard" element={<Dashboard/>}/>
+                    <Route path="AddPGProgramPage" element={<AddPGProgramPage/>} />
+                    <Route path="AddAccounts" element={<AddAccounts/>} />
+                </Route>
+                
+                <Route path="/reviewer" >
+                    <Route path="dashboard" element={<Dashboard/>}/>
+                    <Route path="viewser" element={<ViewSer/>} />
+                </Route>
+            </Route>
+
+            {/* 404 page & UnAuth ... */}
+            <Route path="*" element={<NotFound/>}/>
+        </Route>
     </Routes>
   );
 }
