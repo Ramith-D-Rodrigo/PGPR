@@ -3,7 +3,6 @@ import {Route, Routes} from 'react-router-dom';
 import Dashboard from './components/Dashboard';
 import Login from './components/Login';
 import Universities from './pages/QACOfficer/Universities';
-import ImportReviewers from './pages/QACOfficer/ImportReviewers';
 import ViewSer from './pages/Reviewer/ViewSer';
 import MainLayout from './components/MainLayout';
 import NotFound from './pages/NotFound';
@@ -67,7 +66,7 @@ function App() {
             <Route path="*" element={<NotFound/>}/>
         </Route>
     </Routes>
-  )
+  );
 }
 
-export default App
+export default App;
