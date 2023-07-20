@@ -9,6 +9,8 @@ import MainLayout from './components/MainLayout';
 import NotFound from './pages/NotFound';
 import AddPGProgramPage from './pages/QACdirector/AddPGProgramPage';
 import AddAccounts from './pages/QACdirector/AddAccounts';
+import EditPGProgram from './pages/QACdirector/EditPGProgram';
+import SubmitIntent from './pages/DeanDirector/SubmitIntent';
 
 function App() {
 
@@ -28,8 +30,13 @@ function App() {
     "DashBoard": "/",
     "Add PG Program" : "/qacdirector/AddPGProgramPage",
     "Add Accounts" : "/qacdirector/AddAccounts",
+    "Edit PG Program" : "/qacdirector/EditPGProgram",
   }
 
+  const deanDirectorRoutes = {
+    "DashBoard": "/",
+    "Submit Intent Letter" : "/deandirector/SubmitIntent",
+  }
   //temporary
   const userRouts = reviewerRoutes;
 
@@ -54,10 +61,15 @@ function App() {
       <Route path="/qacdirector" >
         <Route path="AddPGProgramPage" element={<MainLayout sideDrawerRoutes={qacDirectorRoutes} mainContent={<AddPGProgramPage/>}/>} />
         <Route path="AddAccounts" element={<MainLayout sideDrawerRoutes={qacDirectorRoutes} mainContent={<AddAccounts/>}/>} />
+        <Route path="EditPGProgram" element={<MainLayout sideDrawerRoutes={qacDirectorRoutes} mainContent={<EditPGProgram/>}/>} />
       </Route>
       
       <Route path="/reviewer" >
         <Route path="viewser" element={<MainLayout sideDrawerRoutes={reviewerRoutes} mainContent={<ViewSer/>}/>} />
+      </Route>
+
+      <Route path="/deandirector" >
+        <Route path="SubmitIntent" element={<MainLayout sideDrawerRoutes={deanDirectorRoutes} mainContent={<SubmitIntent/>}/>} />
       </Route>
 
       <Route path="*" element={<NotFound/>}/>

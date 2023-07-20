@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Form = ({ topic, fields, cancelButtonText, submitButtonText, onCancel, onSubmit }) => {
+const Form = ({ topic, fields, cancelButtonText, submitButtonText, onCancel, onSubmit, additionalContent  }) => {
   const handleSubmit = (event) => {
     event.preventDefault();
     // Handle form submission logic
@@ -95,6 +95,8 @@ const Form = ({ topic, fields, cancelButtonText, submitButtonText, onCancel, onS
             )}
           </div>
         ))}
+        {/* Additional Content */}
+        {additionalContent}
         <div className="flex justify-end">
           <button
             type="button"
