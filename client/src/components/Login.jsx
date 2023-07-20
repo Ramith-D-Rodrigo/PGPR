@@ -37,7 +37,7 @@ const Login = () => {
   // navigations
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || "/"; // where the use got here
+  const from = location.state?.from?.pathname || "/start"; // where the use got here
 
   // useEffect(() => {
   //   userInputRef.current.focus();

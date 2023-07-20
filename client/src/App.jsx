@@ -8,6 +8,7 @@ import MainLayout from './components/MainLayout';
 import NotFound from './pages/NotFound';
 import AddPGProgramPage from './pages/QACdirector/AddPGProgramPage';
 import AddAccounts from './pages/QACdirector/AddAccounts';
+import Start from './components/Start';
 //
 import Authenticate from "./components/Authenticate";
 import Unauthorized from "./components/Unauthorized";
@@ -47,7 +48,7 @@ function App() {
             <Route path="unauthorized" element={<Unauthorized/>}></Route>
 
             <Route element={<LoginPersist/>}>
-              
+              <Route path="/start" element={<Start allowedRoles={["user", "reviewer", "qac"]} />}/>
               <Route element={<MainLayout sideDrawerRoutes={userRoutes}/>}>
                 
                 {/* protected routes */}
