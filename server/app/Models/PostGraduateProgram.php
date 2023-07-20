@@ -9,6 +9,16 @@ class PostGraduateProgram extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'title',
+        'slqf_level',
+        'commencement_year',
+        'faculty_id',
+        'added_by_cqa_director_id',
+        'edited_by_cqa_director_id',
+        'programme_coordinator_id'
+    ];
+
     // PostGraduateProgram is offered by a faculty
     public function faculty()
     {

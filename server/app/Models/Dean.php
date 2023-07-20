@@ -8,6 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class Dean extends Model
 {
     use HasFactory;
+    protected $fillable = [
+        'faculty_id',
+        'academic_staff_id',
+        'assigned_date'
+    ];
 
     //dean is an academic staff
     public function academicStaff(){

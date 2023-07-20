@@ -9,6 +9,12 @@ class Reviewer extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'id',
+        'working_faculty',
+        'reviewer_status' //pending, accepted, rejected, suspended
+    ];
+
     //reviewer is an academic staff
     public function academicStaff(){
         return $this->belongsTo(AcademicStaff::class);

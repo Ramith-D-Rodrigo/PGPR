@@ -9,6 +9,17 @@ class University extends Model
 {
     use HasFactory;
 
+    protected $fillable = [ //the following fields can be mass assigned (i.e. using University::create())
+        'name',
+        'address',
+        'contact_no',
+        'fax_no',
+        'website',
+        'logo',
+        'center_for_quality_assurance_id'
+    ];
+    //we do not need to add quality_assurance_council_director_id because they are not mass assignable (not in $fillable)
+
     //university has many university sides
     public function universitySides(){
         return $this->hasMany(UniversitySide::class);

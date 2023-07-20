@@ -9,6 +9,17 @@ class Faculty extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'name',
+        'dean_id',
+        'website',
+        'address',
+        'contact_no',
+        'fax_no',
+        'university_id',
+        'iqau_id', //not in the migration
+    ];
+
     //faculty belongs to a university
     public function university(){
         return $this->belongsTo(University::class);
