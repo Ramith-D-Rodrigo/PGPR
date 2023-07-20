@@ -16,9 +16,7 @@ const Universities = () => {
     ];
 
     return (
-        <MainLayout>
             <Table data={tableData} />
-        </MainLayout>
     )
 }
 
