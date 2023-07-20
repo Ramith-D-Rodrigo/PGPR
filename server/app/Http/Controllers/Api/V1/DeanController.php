@@ -55,18 +55,13 @@ class DeanController extends Controller
         try{
             DB::beginTransaction();
 
+            //store the files
+            $validatedData = DeanService::storeFiles($validatedData);
+
             $dean = DeanService::create($validatedData);
 
-            //send email to the dean
-            $user = [
-                'surname' => $validatedData['surname'],
-                'initials' => $validatedData['initials'],
-                'password' => $password,
-                'roles' => $validatedData['roles'],
-                'official_email' => $validatedData['official_email'],
-            ];
-
-            Mail::to($validatedData['official_email']) -> send(new sendPassword($user, 'Created Account for Postgraduate Programme Review System', 'mail.userAccountPassword'));
+            //send the email
+            DeanService::sendAccountCreateMail($validatedData, $password);
             DB::commit();   //commit the changes if all of them were successful
             return new DeanResource($dean);
         }
