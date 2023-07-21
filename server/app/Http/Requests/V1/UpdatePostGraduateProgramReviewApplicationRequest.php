@@ -44,6 +44,7 @@ class UpdatePostGraduateProgramReviewApplicationRequest extends FormRequest
             'year_5' => ['sometimes', 'required', 'string'],
             'y_end' => ['sometimes', 'required', 'date'],
             'dean_id' => ['sometimes', 'required', 'integer', 'exists:deans,id'],
+            'intent_letter' => ['sometimes', 'required', 'file', 'mimes:pdf'],
         ];
 
         $returnArr['post_graduate_program_id'] =
