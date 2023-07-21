@@ -27,7 +27,7 @@ class UniversitySide extends Model
 
     //there is one academic staff who is a university side
     public function academicStaff(){
-        return $this -> hasOne(AcademicStaff::class);
+        return $this -> hasOne(AcademicStaff::class, 'id', 'id');
     }
 
     //there is a vice chancellor who is a university side
