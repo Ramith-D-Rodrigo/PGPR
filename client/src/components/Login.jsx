@@ -46,8 +46,12 @@ const Login = () => {
   // navigations
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || "/"+role; // where the use got here
+  let from = location.state?.from?.pathname || "/"+role; // where the use got here
 
+  if(!from.startsWith("/"+role))
+  {
+    from = "/"+role;
+  }
   // useEffect(() => {
   //   userInputRef.current.focus();
   // }, []);
@@ -150,7 +154,6 @@ const Login = () => {
                                 </InputAdornment>
                               }
                               autoComplete="off"
-                              
                               type='email'
                               placeholder='Email'
                               value={email}
@@ -198,8 +201,8 @@ const Login = () => {
                               onChange={handleChange}
                               label="Role"
                             >
-                              <MenuItem value={"reviwer"}>Reviewer</MenuItem>
-                              <MenuItem value={"coordinator"}>Coordinator</MenuItem>
+                              <MenuItem value={"reviewer"}>Reviewer</MenuItem>
+                              <MenuItem value={"coordinator"}>Program Coordinator</MenuItem>
                               <MenuItem value={"iqauofficer"}>IQAU Officer</MenuItem>
                               <MenuItem value={"cqadirector"}>CQA Director</MenuItem>
                               <MenuItem value={"qacdirector"}>QAC Director</MenuItem>
