@@ -9,6 +9,21 @@ class PostGraduateProgramReviewApplication extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'intent_letter',
+        'request_date',
+        'application_date',
+        'dean_id',
+        'year_1',
+        'year_2',
+        'year_3',
+        'year_4',
+        'year_5',
+        'y_end',
+        'post_graduate_program_id',
+        'quality_assurance_council_officer_id'
+    ];
+
     //dean submits many post graduate program review applications (intent letter)
     public function deans(){
         return $this->belongsTo(Dean::class);

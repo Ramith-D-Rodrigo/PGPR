@@ -4,6 +4,8 @@ namespace App\Http\Requests\V1;
 
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
@@ -31,7 +33,7 @@ class StoreUserRequest extends FormRequest
             'initials' => ['required', 'string', 'max:255'],
             'surname' => ['required', 'string', 'max:255'],
             'contact_no' => ['required', 'json'],
-            'profile_pic' => ['required', 'string', 'max:255'], //need to change to file image
+            'profile_pic' => ['present', 'nullable', 'file', 'mimes:jpeg,jpg,png', 'max:1024'], //1MB
             'full_name' => ['required', 'string', 'max:255'],
             'official_telephone_no' => ['required', 'string', 'max:255'],
             'nic' => ['required', 'unique:users,nic'],
@@ -44,6 +46,7 @@ class StoreUserRequest extends FormRequest
     public function prepareForValidation(){
         //convert all fields to snake case
         $fieldsWithVals = $this -> all();
+
         $newFieldsWithVals = [];
         foreach($fieldsWithVals as $key => $val){
             $newFieldsWithVals[Str::snake($key)] = $val;
@@ -65,7 +68,10 @@ class StoreUserRequest extends FormRequest
             'surname.required' => 'Surname is required',
             'contact_no.required' => 'Contact number is required',
             'contact_no.json' => 'Contact number should be a json string',
-            'profile_pic.required' => 'Profile picture is required',
+            'profile_pic.file' => 'Profile picture should be a file',
+            'profile_pic.mimes' => 'Profile picture should be a jpeg, jpg or png',
+            'profile_pic.max' => 'Profile picture should be less than 1MB',
+            'profile_pic.present' => 'Profile picture should be present',
             'full_name.required' => 'Full name is required',
             'official_telephone_no.required' => 'Official telephone number is required',
             'nic.required' => 'NIC is required',

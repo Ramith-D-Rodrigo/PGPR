@@ -37,16 +37,16 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::apiResource('properEvaluations', 'ProperEvaluationController');
     Route::apiResource('programmeCoordinators', 'ProgrammeCoordinatorController');
     Route::apiResource('postGraduateProgramReviews', 'PostGraduateProgramReviewController');
-    Route::apiResource('pgprApplications', 'PostGraduateProgamReviewApplicationController');
+    Route::apiResource('pgprApplications', 'PostGraduateProgramReviewApplicationController');
     Route::apiResource('postGraduatePrograms', 'PostGraduateProgramController');
     Route::apiResource('iqauDirectors', 'InternalQualityAssuranceUnitDirectorController');
-    Route::apiResource('iqaUnits', 'InternalQualityAssuranceUnitsController');
+    Route::apiResource('iqaUnits', 'InternalQualityAssuranceUnitController');
     Route::apiResource('faculties', 'FacultyController');
     Route::apiResource('deskEvaluations', 'DeskEvaluationController');
     Route::apiResource('deans', 'DeanController');
     Route::apiResource('criterias', 'CriteriaController');
     Route::apiResource('cqaDirectors', 'CenterForQualityAssuranceDirectorController');
-    Route::apiResource('centerForQualityAssurances', 'CenterForQualityAssurancesController');
+    Route::apiResource('centerForQualityAssurances', 'CenterForQualityAssuranceController');
     Route::apiResource('academicStaffs', 'AcademicStaffController');
 
     //route for reviewer import from excel
@@ -54,4 +54,5 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
 
     //route for google drive file info (for now, only the metadata is returned (testing))
     Route::post('driveFileInfo', 'GoogleDriveController@getFileInfo');
+    Route::get('downloadFile', 'GoogleDriveController@downloadFile');
 });

@@ -9,6 +9,13 @@ class ProgrammeCoordinator extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'faculty_id',
+        'post_grad_program_id',
+        'assigned_date',
+        'current_status'
+    ];
+
     //programme coordinator is an academic staff
     public function academicStaff(){
         return $this->belongsTo(AcademicStaff::class);

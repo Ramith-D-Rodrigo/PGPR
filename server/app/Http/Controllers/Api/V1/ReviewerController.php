@@ -42,6 +42,12 @@ class ReviewerController extends Controller
                 'message' => 'Reviewers imported successfully'
             ], 200);
         }
+        catch(\Google\Service\Exception $e){ //google drive error
+            return response() -> json([
+                'message' => 'Error occurred while importing reviewers',
+                'error' => $e -> getErrors(),
+            ], 500);
+        }
         catch(ValidationException $e){
             $failures = $e -> errors();
             return response()->json([
