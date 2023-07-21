@@ -8,6 +8,7 @@ use App\Http\Requests\V1\StorePostGraduateProgramReviewApplicationRequest;
 use App\Http\Requests\V1\UpdatePostGraduateProgramReviewApplicationRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\V1\PostGraduateProgramReviewApplicationResource;
+use Illuminate\Support\Facades\Auth;
 class PostGraduateProgramReviewApplicationController extends Controller
 {
     /**
@@ -37,9 +38,9 @@ class PostGraduateProgramReviewApplicationController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(PostGraduateProgramReviewApplication $postGraduateProgramReviewApplication)
+    public function show(PostGraduateProgramReviewApplication $pgprApplication)
     {
-        return new PostGraduateProgramReviewApplicationResource($postGraduateProgramReviewApplication);
+        return new PostGraduateProgramReviewApplicationResource($pgprApplication);
     }
 
     /**
@@ -53,9 +54,16 @@ class PostGraduateProgramReviewApplicationController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdatePostGraduateProgramReviewApplicationRequest $request, PostGraduateProgramReviewApplication $postGraduateProgramReviewApplication)
+    public function update(UpdatePostGraduateProgramReviewApplicationRequest $request, PostGraduateProgramReviewApplication $pgprApplication)
     {
-        //
+        try{
+            $pgprApplication->update($request->validated());
+        }
+        catch(\Exception $e){
+            return response()->json(['message' => 'Error updating post graduate program review application.',
+                'error' => $e->getMessage()]
+            , 400);
+        }
     }
 
     /**
