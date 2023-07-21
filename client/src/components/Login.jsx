@@ -15,6 +15,8 @@ import IconButton from '@mui/material/IconButton';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import React from 'react'
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
 //
 import { useRef, useState, useEffect, useContext } from "react";
 import axios from "../api/api.js";
@@ -33,11 +35,18 @@ const Login = () => {
   const [email,setEmail] = React.useState('');
   const [password,setPassword] = React.useState('');
   const [errorMsg, setErrorMsg] = useState("");
+
+  const [role, setRole] = React.useState('');
+  const [rememberMe, setRememberMe] = React.useState(false);
+
+  const handleChange = (event) => {
+    setRole(event.target.value);
+  };
   
   // navigations
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || "/"; // where the use got here
+  const from = location.state?.from?.pathname || "/"+role; // where the use got here
 
   // useEffect(() => {
   //   userInputRef.current.focus();
@@ -47,7 +56,7 @@ const Login = () => {
   // when loading set the messages to empty strings
   useEffect(() => {
     setErrorMsg("");
-  }, [email, password]);
+  }, [email, password, role]);
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -66,6 +75,7 @@ const Login = () => {
         {
           official_email: email,
           password,
+          role,
         },
       );
       // don't wrap the return value in the backend with the Response()
@@ -176,8 +186,31 @@ const Login = () => {
                               onChange={(e)=>setPassword(e.target.value)}
                             />
                           </FormControl>
+
+                          <FormControl style={{margin:"15px 0"}} variant="standard" fullWidth
+                              required>
+                            {/* <InputLabel htmlFor="input-with-icon-adornment">Email</InputLabel> */}
+                            <InputLabel id="demo-simple-select-standard-label">Role</InputLabel>
+                            <Select
+                              labelId="demo-simple-select-standard-label"
+                              id="demo-simple-select-standard"
+                              value={role}
+                              onChange={handleChange}
+                              label="Role"
+                            >
+                              <MenuItem value={"reviwer"}>Reviewer</MenuItem>
+                              <MenuItem value={"coordinator"}>Coordinator</MenuItem>
+                              <MenuItem value={"iqauofficer"}>IQAU Officer</MenuItem>
+                              <MenuItem value={"cqadirector"}>CQA Director</MenuItem>
+                              <MenuItem value={"qacdirector"}>QAC Director</MenuItem>
+                              <MenuItem value={"qaofficer"}>QAC Officer</MenuItem>
+                              <MenuItem value={"dean"}>Director/Dean</MenuItem>
+                              <MenuItem value={"vicechancellor"}>Vice Chancellor</MenuItem>
+                            </Select>
+
+                          </FormControl>
                           <FormGroup style={{margin:"20px 0 0"}}>
-                            <FormControlLabel control={<Checkbox defaultChecked />} label="Remember me" />
+                            <FormControlLabel control={<Checkbox defaultChecked value={rememberMe}/>} label="Remember me" />
                           </FormGroup>
                           {/* show errors */}
                         <p style={{color:'red'}} ref={errorRef}>{errorMsg}</p>

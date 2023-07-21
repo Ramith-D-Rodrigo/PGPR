@@ -44,6 +44,7 @@ function App() {
 
             {/* guest routes */}
             <Route path="login" element={<Login/>}/>
+            <Route path="/" element={<Login/>}/>
             <Route path="unauthorized" element={<Unauthorized/>}></Route>
 
             <Route element={<LoginPersist/>}>
@@ -53,14 +54,14 @@ function App() {
                 {/* protected routes */}
                 <Route element={<Authenticate allowedRoles={["qac"]}/>}>
                   <Route path="qacofficer/" >
-                      <Route path="dashboard" element={<Dashboard/>}/>
+                      <Route path="" element={<Dashboard/>}/>
                       <Route path="universities" element={<Universities/>} />
                   </Route>
                 </Route>
 
                 <Route element={<Authenticate allowedRoles={["qac"]}/>}>
                   <Route path="qacdirector/" >
-                      <Route path="dashboard" element={<Dashboard/>}/>
+                      <Route path="" element={<Dashboard/>}/>
                       <Route path="AddPGProgramPage" element={<AddPGProgramPage/>} />
                       <Route path="AddAccounts" element={<AddAccounts/>} />
                   </Route>
@@ -68,7 +69,7 @@ function App() {
                 
                 <Route element={<Authenticate allowedRoles={["user", "qac"]}/>}>
                   <Route path="reviewer/" >
-                      <Route path="dashboard" element={<Dashboard/>}/>
+                      <Route path="" element={<Dashboard/>}/>
                       <Route path="viewser" element={<ViewSer/>} />
                   </Route>
                 </Route>
@@ -76,7 +77,7 @@ function App() {
                 {/* dean routes */}
                 <Route element={<Authenticate allowedRoles={["dean"]}/>}>
                   <Route path="dean/">
-                    <Route path="dashboard" element={<Dashboard/>}/>
+                    <Route path="" element={<Dashboard/>}/>
                   </Route>
                 </Route>
               </Route>
