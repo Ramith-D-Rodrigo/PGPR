@@ -23,6 +23,8 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     //all routes that belong to v1 version of the API will go here
     //for now, the routes for all the controllers are defined
     //later we can remove the routes that are not needed
+
+    //TODO: Renamed route names should reflect on the method names in the controllers
     Route::apiResource('viceChancellors', 'ViceChancellorController');
     Route::apiResource('users', 'UserController');
     Route::apiResource('universitySides', 'UniversitySideController');
@@ -37,7 +39,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::apiResource('properEvaluations', 'ProperEvaluationController');
     Route::apiResource('programmeCoordinators', 'ProgrammeCoordinatorController');
     Route::apiResource('postGraduateProgramReviews', 'PostGraduateProgramReviewController');
-    Route::apiResource('pgprApplications', 'PostGraduateProgramReviewApplicationController');
+    Route::apiResource('pgprApplications', 'PostGraduateProgramReviewApplicationController') -> middleware('auth');
     Route::apiResource('postGraduatePrograms', 'PostGraduateProgramController');
     Route::apiResource('iqauDirectors', 'InternalQualityAssuranceUnitDirectorController');
     Route::apiResource('iqaUnits', 'InternalQualityAssuranceUnitController');
