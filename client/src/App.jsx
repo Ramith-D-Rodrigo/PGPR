@@ -9,6 +9,8 @@ import Unauthorized from "./components/Unauthorized";
 import PageLayout from "./layouts/PageLayout";
 import LoginPersist from "./components/LoginPersist.jsx";
 import "./App.css";
+import ResetInitialPassword from "./components/ResetInitialPassword.jsx";
+import NotFound from "./components/NotFound.jsx";
 
 function App() {
     return (
@@ -22,6 +24,7 @@ function App() {
                     <Route path="unauthorized" element={<Unauthorized/>}></Route>
 
                     <Route element={<LoginPersist/>}>
+                        <Route path="initial-password-reset" element={<ResetInitialPassword />}/>
 
                         {/* protected routes */}
                         <Route element={<Authenticate allowedRoles={["user", "reviewer", "qac"]}/>}>
@@ -46,6 +49,9 @@ function App() {
                         >
                             {/* QACOfficer routes */}
                         </Route>
+
+                        {/* route didn't find a matching case */}
+                        <Route path="*" element={<NotFound/>}/>
                     </Route>
                 </Route>
             </Route>
