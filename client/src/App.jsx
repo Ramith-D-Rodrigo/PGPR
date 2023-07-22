@@ -7,9 +7,9 @@ import ImportReviewers from './pages/QACOfficer/ImportReviewers';
 import ViewSer from './pages/Reviewer/ViewSer';
 import MainLayout from './components/MainLayout';
 import NotFound from './pages/NotFound';
-import AddPGProgramPage from './pages/QACdirector/AddPGProgramPage';
-import AddAccounts from './pages/QACdirector/AddAccounts';
-import EditPGProgram from './pages/QACdirector/EditPGProgram';
+import AddPGProgramPage from './pages/CQAdirector/AddPGProgramPage';
+import AddAccounts from './pages/CQAdirector/AddAccounts';
+import EditPGProgram from './pages/CQAdirector/EditPGProgram';
 import SubmitIntent from './pages/DeanDirector/SubmitIntent';
 import SubmitConsent from './pages/DeanDirector/SubmitConsent';
 import SetDate from './pages/ReviewerChair/SetDate';
@@ -30,11 +30,11 @@ function App() {
     "Import Reviewers" : "/qacofficer/importreviewers",
   }
 
-  const qacDirectorRoutes = {
+  const cqaDirectorRoutes = {
     "DashBoard": "/",
-    "Add PG Program" : "/qacdirector/AddPGProgramPage",
-    "Add Accounts" : "/qacdirector/AddAccounts",
-    "Edit PG Program" : "/qacdirector/EditPGProgram",
+    "Add PG Program" : "/cqadirector/AddPGProgramPage",
+    "Add Accounts" : "/cqadirector/AddAccounts",
+    "Edit PG Program" : "/cqadirector/EditPGProgram",
   }
 
   const deanDirectorRoutes = {
@@ -71,10 +71,10 @@ function App() {
         <Route path="importreviewers" element={<MainLayout sideDrawerRoutes={qacOfficerRoutes} mainContent={<ImportReviewers/>}/>} />
       </Route>
 
-      <Route path="/qacdirector" >
-        <Route path="AddPGProgramPage" element={<MainLayout sideDrawerRoutes={qacDirectorRoutes} mainContent={<AddPGProgramPage/>}/>} />
-        <Route path="AddAccounts" element={<MainLayout sideDrawerRoutes={qacDirectorRoutes} mainContent={<AddAccounts/>}/>} />
-        <Route path="EditPGProgram" element={<MainLayout sideDrawerRoutes={qacDirectorRoutes} mainContent={<EditPGProgram/>}/>} />
+      <Route path="/cqadirector" >
+        <Route path="AddPGProgramPage" element={<MainLayout sideDrawerRoutes={cqaDirectorRoutes} mainContent={<AddPGProgramPage/>}/>} />
+        <Route path="AddAccounts" element={<MainLayout sideDrawerRoutes={cqaDirectorRoutes} mainContent={<AddAccounts/>}/>} />
+        <Route path="EditPGProgram" element={<MainLayout sideDrawerRoutes={cqaDirectorRoutes} mainContent={<EditPGProgram/>}/>} />
       </Route>
       
       <Route path="/reviewer" >
