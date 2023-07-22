@@ -5,12 +5,9 @@ const useRefreshLogin = () => {
     const { setAuth } = useAuth();
 
     return async () => {
-
         await axios.get("/sanctum/csrf-cookie");
-        let response = await axios.get('/api/user');
-        console.log(response);
-        setAuth(response?.data);
-        console.log(response?.data);
+        let response = await axios.get('/api/auth');
+        setAuth(response?.data?.data || null);
         return response?.data;
     };
 }

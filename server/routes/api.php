@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\api\v1\UserController;
+use App\Http\Middleware\AuthorizeAction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -19,6 +21,12 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return Auth::user();
 });
 
+Route::middleware(['auth:sanctum'])->get('/auth', [UserController::class, 'loginAuth']);
+
+Route::middleware(['auth:sanctum', 'authorize.role:reviewer'])->get('/role/user', function (Request $request) {
+    return Auth::user()->roles;
+});
+  
 Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], function () {
     //all routes that belong to v1 version of the API will go here
     //for now, the routes for all the controllers are defined
