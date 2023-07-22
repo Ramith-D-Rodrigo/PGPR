@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\api\v1\UserController;
+use App\Http\Middleware\AuthorizeAction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -17,4 +19,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return Auth::user();
+});
+
+Route::middleware(['auth:sanctum'])->get('/auth', [UserController::class, 'loginAuth']);
+
+Route::middleware(['auth:sanctum', 'authorize.role:reviewer'])->get('/role/user', function (Request $request) {
+    return Auth::user()->roles;
 });
