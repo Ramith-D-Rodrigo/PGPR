@@ -5,31 +5,28 @@ import {useState, useEffect} from 'react';
 
 const LoginPersist = () => {
 
-    // const location = useLocation();
-    // const from = location.state?.from?.pathname || '/';
-    // const navigate = useNavigate();
     const {auth} = useAuth();
     const refresh = useRefreshLogin();
     const [isPageLoading, setIsPageLoading] = useState(true);
 
     // if the page was refreshed then aat the time of loading
     useEffect(() => {
-        // let mounted = true;
+        let mounted = true;
         const verifyUser = async () => {
             try {
                 await refresh();
             } catch (error) {
                 console.error(error);
             } finally {
-                // mounted && setIsPageLoading(false);
-                setIsPageLoading(false);
+                mounted && setIsPageLoading(false);
+                // setIsPageLoading(false);
             }
         }
 
         !auth ? verifyUser() : setIsPageLoading(false);
-        /*return () => {
+        return () => {
             mounted = false;
-        };*/
+        };
     }, []);
 
     useEffect(() => {
