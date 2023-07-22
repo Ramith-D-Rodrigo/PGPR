@@ -42,13 +42,9 @@ const Login = () => {
             setPassword("");
             setRole("");
 
-
             if (response.data.initialLogin === true) {
-                console.log("called");
-                console.log(response.data.initialLogin);
                 navigate('/initial-password-reset', {replace: true}); // this login will be pushed to the history
             } else {
-                console.log("did not call");
                 navigate(from, {replace: true}); // this login will be pushed to the history
             }
         } catch (error) {
