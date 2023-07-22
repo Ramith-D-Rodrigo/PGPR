@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\api\v1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Auth\AuthResource;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Http\Resources\V1\UserResource;
 use App\Http\Resources\V1\UserCollection;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -64,5 +66,14 @@ class UserController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    /**
+     * Sends the auth data of the user to the frontend
+     * after authentication
+     */
+    public function loginAuth(): AuthResource
+    {
+        return new AuthResource(Auth::user());
     }
 }
