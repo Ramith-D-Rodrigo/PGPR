@@ -7,7 +7,7 @@ const Authenticate = ({ allowedRoles }) => {
   const { auth } = useAuth();
   const location = useLocation(); // to redirect the user to where he/she came from
 
-  if (auth?.roles && JSON.parse(auth?.roles).some((role) => allowedRoles.includes(role))) {
+  if (!(auth?.initialLogin) && auth?.authRole && auth?.authRole.some((role) => allowedRoles.includes(role))) {
     return <Outlet />
   } else if (auth) {
     return <Navigate to="/unauthorized" state={{ from: location }} replace />
