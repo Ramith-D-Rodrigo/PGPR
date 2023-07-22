@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
-class AuthoriseAction
+class AuthorizeAction
 {
     /**
      * Handle an incoming request.
@@ -23,10 +23,10 @@ class AuthoriseAction
         $user = Auth::user();
 
         // current user role => the auth_role must be set in the array
-        $auth_role = $request->session()->get('auth_role');
+        $auth_role = $request->session()->get('authRole');
 
         // validate the current user role
-        if ($user && $auth_role && in_array($auth_role, $roles)) {
+        if ($user && $user->logins && $auth_role &&  in_array($auth_role, $roles)) {
             return $next($request);
         }
 
