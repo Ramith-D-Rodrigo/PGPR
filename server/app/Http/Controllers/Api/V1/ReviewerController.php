@@ -2,10 +2,15 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Requests\V1\StoreAcademicStaffRequest;
 use App\Models\Reviewer;
-use App\Http\Requests\StoreReviewerRequest;
-use App\Http\Requests\UpdateReviewerRequest;
+use App\Http\Requests\V1\StoreReviewerRequest;
+use App\Http\Requests\V1\UpdateReviewerRequest;
 use App\Http\Controllers\Controller;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\V1\ReviewerImport;
+use Illuminate\Validation\ValidationException as ValidationValidationException;
+use Maatwebsite\Excel\Validators\ValidationException;
 
 class ReviewerController extends Controller
 {
@@ -23,6 +28,32 @@ class ReviewerController extends Controller
     public function create()
     {
         //
+    }
+
+    //import reviewers using excel file
+    public function importReviewers()
+    {
+        try{
+            Excel::import(new ReviewerImport, request()->file('file'));
+            //$arr = Excel::toArray(new ReviewerImport, request()->file('file'));
+
+            //0th index has the all the rows
+            return response()->json([
+                'message' => 'Reviewers imported successfully'
+            ], 200);
+        }
+        catch(ValidationException $e){
+            $failures = $e -> errors();
+            return response()->json([
+                'errors' => $failures
+            ], 422);
+        }
+        catch(ValidationValidationException $e){ //validation errors of the array of rows when validating
+            return response()->json([
+                'message' => 'Error occurred while importing reviewers',
+                'error' => $e -> errors(),
+            ], 500);
+        }
     }
 
     /**

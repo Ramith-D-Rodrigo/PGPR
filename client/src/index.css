@@ -1,5 +1,14 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+*{
+    box-sizing: border-box;
+}
+
 #root{
     min-height: 100vh;
+    background-color: #D8E6FC;
 }
 
 
@@ -7,3 +16,38 @@ body{
     margin: 0;
     padding: 0;
 }
+
+a{
+    text-decoration: none;
+}
+
+.ScrollableDiv{
+    user-select: none;
+}
+::-webkit-scrollbar{
+    display: none;
+}
+.ScrollableDiv .scroll-indicator {
+    /* rotate: 90 degree; */
+    rotate: 90deg;
+
+    animation-name: arrowAnimation;
+    animation-duration: 0.7s;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+  }
+  
+  @keyframes arrowAnimation {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(15px);
+    }
+  }
+
+  /* .DiscriptiveDiv{
+    margin-top: 10px;
+    border:1px solid;
+  } */

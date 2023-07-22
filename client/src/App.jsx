@@ -1,62 +1,94 @@
-import {Route, Routes} from "react-router-dom";
-import Login from "./components/Login";
-import Landing from "./components/Landing";
-import Profile from "./components/Profile";
-import Home from "./components/Home";
-import Reviewer from "./components/Reviewer";
+import {Route, Routes} from 'react-router-dom';
+import Dashboard from './components/Dashboard';
+import Login from './components/Login';
+import Universities from './pages/QACOfficer/Universities';
+import ViewSer from './pages/Reviewer/ViewSer';
+import MainLayout from './components/MainLayout';
+import NotFound from './pages/NotFound';
+import AddPGProgramPage from './pages/QACdirector/AddPGProgramPage';
+import AddAccounts from './pages/QACdirector/AddAccounts';
+//
 import Authenticate from "./components/Authenticate";
 import Unauthorized from "./components/Unauthorized";
-import PageLayout from "./layouts/PageLayout";
 import LoginPersist from "./components/LoginPersist.jsx";
-import "./App.css";
+
 import ResetInitialPassword from "./components/ResetInitialPassword.jsx";
 import NotFound from "./components/NotFound.jsx";
+import "./App.css";
 
 function App() {
-    return (
-        // make changes as needed
-        <Routes>
-            <Route element={<PageLayout/>}>
-                <Route path="/">
-                    {/* guest routes */}
-                    <Route path="login" element={<Login/>}/>
-                    <Route path="landing" element={<Landing/>}/>
-                    <Route path="unauthorized" element={<Unauthorized/>}></Route>
 
-                    <Route element={<LoginPersist/>}>
-                        <Route path="initial-password-reset" element={<ResetInitialPassword />}/>
+  //Demo routes for side drawer
+  //fetch from backend using loged in user type
+  const reviewerRoutes = {
+    "DashBoard": "/reviewer/dashboard",
+    "PG Assignment" : "/reviewer/viewser",
+  }
+  const qacOfficerRoutes = {
+    "DashBoard": "/qacofficer/dashboard",
+    "Universities" : "/qacofficer/universities",
+    "Import Reviewers" : "/qacofficer/importreviewers",
+  }
 
-                        {/* protected routes */}
-                        <Route element={<Authenticate allowedRoles={["user", "reviewer", "qac"]}/>}>
-                            {/* general user routes */}
-                            <Route path="/" element={<Home/>}/>
-                            <Route path="home" element={<Home/>}/>
-                            <Route path="profile" element={<Profile/>}/>
-                        </Route>
+  const qacDirectorRoutes = {
+    "DashBoard": "/qacdirector/dashboard",
+    "Add PG Program" : "/qacdirector/AddPGProgramPage",
+    "Add Accounts" : "/qacdirector/AddAccounts",
+  }
 
+  //temporary
+  const userRoutes = qacDirectorRoutes;//reviewerRoutes;
+  const userBreadCrumbs = ["Home", "DashBoard"];//["Home", "DashBoard", "PG Assignment"];
 
-                        <Route
-                            element={<Authenticate allowedRoles={["dean"]}/>}
-                        >
-                            {/* reviewer routes */}
-                            <Route path="/" element={<Home/>}/>
-                            <Route path="reviewer" element={<Reviewer/>}></Route>
-                        </Route>
+  return (
 
+    <Routes>
+        <Route path="/">
 
-                        <Route
-                            element={<Authenticate allowedRoles={["qac"]}/>}
-                        >
-                            {/* QACOfficer routes */}
-                        </Route>
+            {/* guest routes */}
+            <Route path="/login" element={<Login/>}/>
+            <Route path="unauthorized" element={<Unauthorized/>}></Route>
 
-                        {/* route didn't find a matching case */}
-                        <Route path="*" element={<NotFound/>}/>
-                    </Route>
+            <Route element={<LoginPersist/>}>
+              // initial login password change component and the routes
+             <Route path="initial-password-reset" element={<ResetInitialPassword />}/>
+              
+             <Route element={<MainLayout sideDrawerRoutes={userRoutes}/>}>
+                
+                {/* protected routes */}
+                <Route element={<Authenticate allowedRoles={["user", "reviewer", "qac"]}/>}>
+                  <Route path="qacofficer/" >
+                      <Route path="dashboard" element={<Dashboard/>}/>
+                      <Route path="universities" element={<Universities/>} />
+                      <Route path="importreviewers" element={<ImportReviewers/>} />
+                  </Route>
                 </Route>
+
+                <Route element={<Authenticate allowedRoles={["user", "reviewer", "qac"]}/>}>
+                  <Route path="qacdirector/" >
+                      <Route path="dashboard" element={<Dashboard/>}/>
+                      <Route path="AddPGProgramPage" element={<AddPGProgramPage/>} />
+                      <Route path="AddAccounts" element={<AddAccounts/>} />
+                  </Route>
+                </Route>
+                
+                 <Route element={<Authenticate allowedRoles={["user", "reviewer", "qac"]}/>}>
+                  <Route path="reviewer/" >
+                      <Route path="dashboard" element={<Dashboard/>}/>
+                      <Route path="viewser" element={<ViewSer/>} />
+                  </Route>
+                 </Route>
+
+
+              </Route>
+
             </Route>
-        </Routes>
-    );
+
+            {/* 404 page & UnAuth ... */}
+            <Route path="*" element={<NotFound/>}/>
+        </Route>
+    </Routes>
+  );
 }
 
 export default App;

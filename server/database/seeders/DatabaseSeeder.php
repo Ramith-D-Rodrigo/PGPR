@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
         //     'name' => 'Test User',
         //     'email' => 'test@example.com',
         // ]);
+
         // UniversitySide::factory()->count(10)->create();
         // AcademicStaff::factory()->count(10)->create();
         // ViceChancellor::factory()->count(10)->create();
@@ -31,5 +32,8 @@ class DatabaseSeeder extends Seeder
 
         /*User::factory()->count(10)->hasUniversitySide()->create();
         UniversitySide::factory()->hasViceChancellor()->create();*/
+
+        //run criteria seeder
+        $this -> call([CriteriaSeeder::class]);
     }
 }

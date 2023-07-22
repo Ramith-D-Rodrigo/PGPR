@@ -19,7 +19,7 @@ return new class extends Migration
             $table->json('contact_no');
             $table->json('fax_no');
             $table -> unsignedBigInteger('center_for_quality_assurance_id');
-            $table -> unsignedBigInteger('quality_assurance_council_director_id'); //the director who added the university
+            $table -> unsignedBigInteger('quality_assurance_council_director_id') -> nullable(); //the director who added the university (null for now due to testing)
             $table->timestamps();
 
             //foreign keys

@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Resources\V1\FacultyCollection;
+use App\Http\Resources\V1\FacultyResource;
 use App\Models\Faculty;
-use App\Http\Requests\StoreFacultyRequest;
-use App\Http\Requests\UpdateFacultyRequest;
+use App\Http\Requests\V1\StoreFacultyRequest;
+use App\Http\Requests\V1\UpdateFacultyRequest;
 use App\Http\Controllers\Controller;
 
 class FacultyController extends Controller
@@ -14,7 +16,7 @@ class FacultyController extends Controller
      */
     public function index()
     {
-        //
+        return new FacultyCollection(Faculty::paginate());
     }
 
     /**
@@ -30,7 +32,7 @@ class FacultyController extends Controller
      */
     public function store(StoreFacultyRequest $request)
     {
-        //
+        return new FacultyResource(Faculty::create($request->validated()));
     }
 
     /**
@@ -38,7 +40,7 @@ class FacultyController extends Controller
      */
     public function show(Faculty $faculty)
     {
-        //
+        return new FacultyResource($faculty);
     }
 
     /**
