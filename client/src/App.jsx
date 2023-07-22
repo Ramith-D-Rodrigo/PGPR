@@ -12,6 +12,7 @@ import AddAccounts from './pages/QACdirector/AddAccounts';
 import Authenticate from "./components/Authenticate";
 import Unauthorized from "./components/Unauthorized";
 import LoginPersist from "./components/LoginPersist.jsx";
+import PGPRApplication from './pages/Dean/PGPRApplication';
 
 function App() {
 
@@ -31,6 +32,11 @@ function App() {
     "DashBoard": "/qacdirector/dashboard",
     "Add PG Program" : "/qacdirector/AddPGProgramPage",
     "Add Accounts" : "/qacdirector/AddAccounts",
+  }
+
+  const deanRoutes = {
+    "DashBoard": "/dean/dashboard",
+    "PGPR Application" : "/dean/PGPRApplication",
   }
 
   //temporary
@@ -77,6 +83,7 @@ function App() {
                 <Route element={<Authenticate allowedRoles={["dean"]}/>}>
                   <Route path="dean/">
                     <Route path="dashboard" element={<Dashboard/>}/>
+                    <Route path="PGPRApplication" element={<PGPRApplication/>} />
                   </Route>
                 </Route>
               </Route>
