@@ -6,7 +6,7 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules;
 
-class PasswordResetResource extends FormRequest
+class PasswordResetRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -31,6 +31,9 @@ class PasswordResetResource extends FormRequest
 
     protected function prepareForValidation()
     {
-
+        $this->merge([
+            'official_email' => $this->officialEmail,
+            'password_confirmation' => $this->passwordConfirmation,
+        ]);
     }
 }
