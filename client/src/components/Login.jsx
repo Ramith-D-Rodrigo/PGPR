@@ -77,9 +77,9 @@ const Login = () => {
         "/login",
         // payload
         {
-          official_email: email,
+          officialEmail: email,
           password,
-          role,
+          loginAs: role,
         },
       );
       // don't wrap the return value in the backend with the Response()
@@ -206,7 +206,7 @@ const Login = () => {
                               <MenuItem value={"iqauofficer"}>IQAU Officer</MenuItem>
                               <MenuItem value={"cqadirector"}>CQA Director</MenuItem>
                               <MenuItem value={"qacdirector"}>QAC Director</MenuItem>
-                              <MenuItem value={"qaofficer"}>QAC Officer</MenuItem>
+                              <MenuItem value={"qacofficer"}>QAC Officer</MenuItem>
                               <MenuItem value={"dean"}>Director/Dean</MenuItem>
                               <MenuItem value={"vicechancellor"}>Vice Chancellor</MenuItem>
                             </Select>
