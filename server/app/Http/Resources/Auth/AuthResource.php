@@ -24,12 +24,7 @@ class AuthResource extends JsonResource
             'fullName' => $this->full_name,
             'authRole' => [$request->session()->get('authRole')],
             'session' => true,
-            'initialLogin' => !($this->logins),
+            'initialLogin' => $this->logins == 0,
         ];
-    }
-
-    public function withResponse(Request $request, JsonResponse $response): void
-    {
-
     }
 }
