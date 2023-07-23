@@ -2,6 +2,7 @@ import { styled } from '@mui/material/styles';
 import DrawerHeader from './DrawerHeader';
 import Footer from './Footer';
 import Box from '@mui/material/Box';
+import { Outlet } from "react-router-dom";
 
 import { PropTypes } from 'prop-types';
 
@@ -29,12 +30,13 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
     }),
   );
 
-const MainContent = ({open, drawerWidthInput, content}) => {
+const MainContent = ({open, drawerWidthInput}) => {
 
     MainContent.propTypes = {
       open: PropTypes.bool.isRequired,
       drawerWidthInput: PropTypes.number.isRequired,
-      content: PropTypes.element.isRequired,
+      // content
+      // content: PropTypes.element.isRequired,
     };
 
     drawerWidth = drawerWidthInput;
@@ -43,7 +45,8 @@ const MainContent = ({open, drawerWidthInput, content}) => {
             <Main open={open}>
                 {!open && <DrawerHeader/>}
 
-                {content} {/* content according to the page */}
+                {/* {content} content according to the page */}
+                <Outlet />
 
             </Main>         
             <Footer drawerOpen={open} drawerWidthInput={drawerWidthInput}/>

@@ -1,13 +1,28 @@
-import useAuth from "../hooks/useAuth";
+import axios from '../api/api.js';
+import {useEffect, useState} from "react";
 
 const Profile = () => {
-  const { auth } = useAuth();
-  console.log(auth);
-  return (
-    <section>
-      <p>{JSON.stringify(auth)}</p>
-    </section>
-  );
+    const [user, setUser] = useState({});
+
+    async function getUserData() {
+        try {
+            let response = await axios.get('/api/role/user');
+            setUser(response?.data);
+        } catch (error) {
+            console.log(error);
+            return null;
+        }
+    }
+
+    useEffect(() => {
+        getUserData();
+    }, []);
+
+    return (
+        <section>
+            <p>{JSON.stringify(user)}</p>
+        </section>
+    );
 };
 
 export default Profile;

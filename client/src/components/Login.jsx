@@ -1,3 +1,4 @@
+
 import { Grid, Paper,Avatar, Box, Typography, Button } from '@mui/material'
 import { styled } from '@mui/material/styles';
 import LockIcon from '@mui/icons-material/Lock';
@@ -15,45 +16,78 @@ import IconButton from '@mui/material/IconButton';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import React from 'react'
+//
+import { useRef, useState, useEffect, useContext } from "react";
+
+import axios from "../api/api.js";
+import AuthContext from "../contexts/AuthProvider.jsx";
+import {useNavigate, useLocation} from "react-router-dom";
 
 const Login = () => {
+  
+  //refs & auth
+  const userInputRef = useRef(); // used to set the focus on inputs
+  const errorRef = useRef(); // in case of input error set the focus on them
+  const { setAuth } = useContext(AuthContext);
 
+  //user data states
   const [showPassword, setShowPassword] = React.useState(false);
   const [email,setEmail] = React.useState('');
+  const [role, setRole] = useState("");
   const [password,setPassword] = React.useState('');
+  
+  // navigations
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/"; // where the use got here
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
   const handleMouseDownPassword = (event) => {
     event.preventDefault();
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    //send data to backend using fetch api
-    const data = {email,password};
-    console.log(data);
-
-    //use fetch API
-    fetch('http://localhost:8000/login',{
-      method:'POST',
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify(data)
-    }).then((res)=>{
-      if(res.status === 200){
-        console.log("Login Successful");
-        window.location.href = "/dashboard";
-      }
-      else{
-        console.log("Login Failed");
-      }
-    }
-    ).catch((err)=>{
-      console.log(err);
-    }
-    )
   }
+  
+  async function handleLogin(event) {
+    event.preventDefault();
+    try {
+      // get the CSRF-cookie
+      await axios.get("/sanctum/csrf-cookie");
+      let response = await axios.post(
+        "/login",
+        // payload
+        {
+          officialEmail: email,
+          password,
+          loginAs: role,
+        },
+      );
+      // don't wrap the return value in the backend with the Response()
+      // the returned data won't be in this format
+      setAuth(response?.data || null);
+      setEmail("");
+      setPassword("");
+      setRole("");
 
+       if (response.data.initialLogin === true) {
+                navigate('/initial-password-reset', {replace: true}); // this login will be pushed to the history
+            } else {
+                navigate(from, {replace: true}); // this login will be pushed to the history
+            }
+    } catch (error) {
+      console.error(error?.response);
+      if (!error?.response) {
+        // check if the request went through to the server
+        setErrorMsg("No Server Response");
+      } else {
+        // read the errors
+        console.log(error.response);
+        let { message, errors } =  error.response?.data || "An unknown error occurred";
+        console.log(errors);
+        setErrorMsg(message);
+        }
+      errorRef.current.focus();
+    }
+    
   const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
     ...theme.typography.body2,
@@ -87,8 +121,11 @@ const Login = () => {
                     <Grid align="center">
                         {/* <Avatar style={avatarStyles}><LockIcon fontSize={"large"}/></Avatar> */}
                         <Typography style={{margin:"20px 0"}} variant="h3">Sign In</Typography>
-
-                        <form onSubmit={handleSubmit}>
+                        
+                        {/* show errors */}
+                        <p ref={errorRef}>{errorMsg}</p>
+                          
+                        <form onSubmit={handleLogin}>
                           <FormControl style={{margin:"15px 0"}} variant="standard" fullWidth
                               required>
                             {/* <InputLabel htmlFor="input-with-icon-adornment">Email</InputLabel> */}
@@ -99,6 +136,8 @@ const Login = () => {
                                   <EmailIcon fontSize='large' />
                                 </InputAdornment>
                               }
+                              autoComplete="off"
+                              ref={userInputRef}
                               type='email'
                               placeholder='Email'
                               value={email}
