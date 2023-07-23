@@ -127,6 +127,55 @@ class PostGraduateProgramReviewApplicationController extends Controller
         }
     }
 
+    //cqa director recommendation
+    public function cqaDirectorRecommendation(Request $request, PostGraduateProgramReviewApplication $pgprApplication){
+        try{
+            //check submitting user is the cqa director
+            $cqaDirector = Auth::user();
+            $cqaDirectorID = $cqaDirector -> universitySide -> qualityAssuranceStaff -> centerForQualityAssuranceDirector -> id;
+            if($cqaDirectorID != $pgprApplication -> postGraduatePrograms -> faculty -> university -> cqa_director_id){
+                return response()->json(['message' => 'You are not authorized to approve this post graduate program review application.'], 403);
+            }
+
+            //check whether the application is already approved
+            if($pgprApplication -> cqa_director_approval_date){
+                return response()->json(['message' => 'This post graduate program review application is already approved.'], 400);
+            }
+
+            $pgprApplication -> update(['cqa_director_approval_date' => today() -> toDateString()]);
+        }
+        catch(\Exception $e){
+            return response()->json(['message' => 'Error approving post graduate program review application.',
+                'error' => $e->getMessage()]
+            , 400);
+        }
+    }
+
+    //qac officer approval
+    public function qacOfficerApproval(Request $request, PostGraduateProgramReviewApplication $pgprApplication){
+        try{
+            //check submitting user is the qac officer
+            $qacOfficer = Auth::user();
+            $qacOfficerID = $qacOfficer -> qualityAssuranceCouncilOfficer -> id ?? null;
+
+            //not a qac officer
+            if(!$qacOfficerID){
+                return response()->json(['message' => 'You are not authorized to approve this post graduate program review application.'], 403);
+            }
+
+            //check whether the application is already approved
+            if($pgprApplication -> quality_assurance_council_officer_id){
+                return response()->json(['message' => 'This post graduate program review application is already approved.'], 400);
+            }
+
+            $pgprApplication -> update(['quality_assurance_council_officer_id' => $qacOfficerID]);
+        }
+        catch(\Exception $e){
+            return response()->json(['message' => 'Error approving post graduate program review application.',
+                'error' => $e->getMessage()]
+            , 400);
+        }
+    }
     /**
      * Remove the specified resource from storage.
      */
