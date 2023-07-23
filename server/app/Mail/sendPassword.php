@@ -16,12 +16,12 @@ class sendPassword extends Mailable
     /**
      * Create a new message instance.
      */
-    public $reviewer;
+    public $user;
     public $subject;
 
     public function __construct($user, $subject, $relatedView){
         $this->subject = $subject;
-        $this->reviewer = $user;
+        $this->user = $user;
         $this -> view($relatedView);
     }
 

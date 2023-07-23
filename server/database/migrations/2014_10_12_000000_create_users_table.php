@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('surname');
             $table->json('roles')->nullable();
             $table->json('contact_no');
-            $table->string('profile_pic');
+            $table->string('profile_pic') -> nullable();
             $table->string('official_telephone_no');
             $table->string('nic')->unique();
             $table->enum('gender', ['m', 'f']);
@@ -26,9 +26,9 @@ return new class extends Migration
             $table->string('personal_email')->unique();
             $table->string('password');
             $table->timestamp('email_verified_at')->nullable();
-            $table->unsignedBigInteger('created_by')->nullable()->default(NULL);
+            $table->unsignedBigInteger('created_by')->nullable();
+            $table->enum('status', ['active', 'inactive', 'pending']);
             $table->integer('logins')->default(0);
-            $table->enum('status', ['active', 'inactive']);
             $table->rememberToken();
             $table->timestamps();
 

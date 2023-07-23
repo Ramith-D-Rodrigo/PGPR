@@ -31,7 +31,7 @@ class PostGraduateProgramReviewApplicationController extends Controller
      */
     public function store(StorePostGraduateProgramReviewApplicationRequest $request)
     {
-        //
+        return new PostGraduateProgramReviewApplicationResource(PostGraduateProgramReviewApplication::create($request->validated()));
     }
 
     /**

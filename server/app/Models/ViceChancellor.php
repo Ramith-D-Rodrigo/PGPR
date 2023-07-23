@@ -10,6 +10,12 @@ class ViceChancellor extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'appointed_date',
+        'term_date',
+        'vc_status',
+    ];
+
     //vice chancellor is a university side
     public function universitySide(){
         return $this->belongsTo(UniversitySide::class);

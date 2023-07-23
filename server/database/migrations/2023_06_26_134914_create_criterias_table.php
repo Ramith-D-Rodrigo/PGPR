@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('criterias', function (Blueprint $table) {
             $table->id();
             $table->string("name");
-            $table->double("min_weightage_score");
+            $table->double("weightage_on_thousand");
             $table->timestamps();
         });
     }

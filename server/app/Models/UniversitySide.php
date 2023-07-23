@@ -12,7 +12,7 @@ class UniversitySide extends Model
     protected $fillable = [
         'id',
         'university_id',
-        'staff_position'
+        //'staff_position'
     ];
 
     //university side is a user
