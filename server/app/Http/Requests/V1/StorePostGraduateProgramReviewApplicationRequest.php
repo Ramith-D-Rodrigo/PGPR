@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\V1;
 
+use App\Models\PostGraduateProgram;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
@@ -14,6 +15,41 @@ class StorePostGraduateProgramReviewApplicationRequest extends FormRequest
      */
     public function authorize(): bool
     {
+        $user = Auth::user();
+        if(!$user){
+            return false;
+        }
+
+        //a user is logged in
+
+        //only dean can create a post graduate program review application
+        $dean = $user -> universitySide -> academicStaff -> dean ?? null;
+
+        if(!$dean){
+            return false;
+        }
+
+        //a dean is logged in
+        //check if the dean is adding the post graduate program review application for his faculty
+        $deanFacultyID = $dean -> faculty -> id;
+
+        //compare the dean's faculty id with the faculty id of the post graduate program
+
+        //get the post graduate program id from the request
+        $postGraduateProgramFacultyID = $this -> post_graduate_program_id;
+
+        //create a new post graduate program object
+        $postGraduateProgram = new PostGraduateProgram();
+        $postGraduateProgram -> id = $postGraduateProgramFacultyID;
+
+        //get the faculty id of the post graduate program
+        $postGraduateProgramFacultyID = $postGraduateProgram -> faculty -> id;
+
+        if($deanFacultyID !== $postGraduateProgramFacultyID){
+            return false;
+        }
+
+        //the dean is adding the post graduate program review application for his faculty
         return true;
     }
 
@@ -45,7 +81,7 @@ class StorePostGraduateProgramReviewApplicationRequest extends FormRequest
             'y_end' => ['required', 'date'],
             'dean_id' => ['required', 'integer', 'exists:deans,id'],
         ];
-        
+
         $returnArr['post_graduate_program_id'] =
             ['required', 'integer', Rule::exists('post_graduate_programs', 'id') -> where(function($query) use ($deanFacultyID){
                 $query -> where('faculty_id', $deanFacultyID);
