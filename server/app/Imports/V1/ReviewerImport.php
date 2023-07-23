@@ -92,7 +92,6 @@ class ReviewerImport implements ToModel, WithHeadingRow, WithValidation, WithEve
         $row['status'] = 'active';
         $row['password'] = $registeringReviewer['password'];
         $row['roles'] = ['reviewer'];
-        $row['staff_position'] = 'academic';
         $row['reviewer_status'] = 'pending';
 
         return ReviewerService::create($row); //call the function and return the reviewer object
@@ -130,10 +129,6 @@ class ReviewerImport implements ToModel, WithHeadingRow, WithValidation, WithEve
         //json array fields
 
         $this -> reviewerRequestObj -> replace($data);
-
-        //add staff position to the request object
-        $this -> reviewerRequestObj -> merge(['staff_position' => 'academic']);
-
         $this -> reviewerRequestObj -> prepareForValidation();
 
         return $this -> reviewerRequestObj -> all();

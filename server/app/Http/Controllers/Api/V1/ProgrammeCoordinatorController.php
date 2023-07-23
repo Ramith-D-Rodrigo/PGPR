@@ -41,7 +41,6 @@ class ProgrammeCoordinatorController extends Controller
         $validatedData = $request -> validated();
 
         //store the other required data
-        $validatedData['staff_position'] = 'academic';
         $validatedData['status'] = 'Pending';
         $validatedData['current_status'] = 'Active';
         $validatedData['roles'] = ['programme_coordinator'];

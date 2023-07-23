@@ -39,7 +39,6 @@ class ViceChancellorController extends Controller
 
         //insert additional data to validated data
         $validatedData['status'] = 'pending';
-        $validatedData['staff_position'] = 'vc';
         $validatedData['roles'] = ['vice_chancellor'];
         $validatedData['vc_status'] = 'ACTIVE';
         //term date is appointed date + 5 years
