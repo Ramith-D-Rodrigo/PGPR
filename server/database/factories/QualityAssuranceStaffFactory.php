@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\UniversitySide;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +18,8 @@ class QualityAssuranceStaffFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'id' => UniversitySide::factory(),
+            'assigned_date' => fake()->date(),
         ];
     }
 }

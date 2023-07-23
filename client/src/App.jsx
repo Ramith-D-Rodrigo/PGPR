@@ -1,4 +1,3 @@
-import './App.css'
 import {Route, Routes} from 'react-router-dom';
 import Dashboard from './components/Dashboard';
 import Login from './components/Login';
@@ -12,6 +11,9 @@ import AddAccounts from './pages/QACdirector/AddAccounts';
 import Authenticate from "./components/Authenticate";
 import Unauthorized from "./components/Unauthorized";
 import LoginPersist from "./components/LoginPersist.jsx";
+
+import ResetInitialPassword from "./components/ResetInitialPassword.jsx";
+import "./App.css";
 
 function App() {
 
@@ -48,28 +50,34 @@ function App() {
             <Route path="unauthorized" element={<Unauthorized/>}></Route>
 
             <Route element={<LoginPersist/>}>
+              // initial login password change component and the routes
+             <Route path="initial-password-reset" element={<ResetInitialPassword />}/>
               
-              <Route element={<MainLayout sideDrawerRoutes={userRoutes}/>}>
+             <Route element={<MainLayout sideDrawerRoutes={userRoutes}/>}>
                 
                 {/* protected routes */}
-                <Route element={<Authenticate allowedRoles={["qac"]}/>}>
+
+                <Route element={<Authenticate allowedRoles={["user", "reviewer", "qac"]}/>}>
                   <Route path="qacofficer/" >
                       <Route path="" element={<Dashboard/>}/>
+                      <Route path="dashboard" element={<Dashboard/>}/>
                       <Route path="universities" element={<Universities/>} />
                   </Route>
                 </Route>
 
-                <Route element={<Authenticate allowedRoles={["qac"]}/>}>
+                <Route element={<Authenticate allowedRoles={["user", "reviewer", "qac"]}/>}>
                   <Route path="qacdirector/" >
                       <Route path="" element={<Dashboard/>}/>
+                      <Route path="dashboard" element={<Dashboard/>}/>
                       <Route path="AddPGProgramPage" element={<AddPGProgramPage/>} />
                       <Route path="AddAccounts" element={<AddAccounts/>} />
                   </Route>
                 </Route>
-                
-                <Route element={<Authenticate allowedRoles={["user", "qac"]}/>}>
+
+                <Route element={<Authenticate allowedRoles={["user", "reviewer", "qac"]}/>}>
                   <Route path="reviewer/" >
                       <Route path="" element={<Dashboard/>}/>
+                      <Route path="dashboard" element={<Dashboard/>}/>
                       <Route path="viewser" element={<ViewSer/>} />
                   </Route>
                 </Route>
@@ -78,6 +86,7 @@ function App() {
                 <Route element={<Authenticate allowedRoles={["dean"]}/>}>
                   <Route path="dean/">
                     <Route path="" element={<Dashboard/>}/>
+                    <Route path="dashboard" element={<Dashboard/>}/>
                   </Route>
                 </Route>
               </Route>

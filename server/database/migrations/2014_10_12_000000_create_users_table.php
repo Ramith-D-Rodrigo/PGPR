@@ -26,8 +26,14 @@ return new class extends Migration
             $table->string('personal_email')->unique();
             $table->string('password');
             $table->timestamp('email_verified_at')->nullable();
+<<<<<<< HEAD
             $table->unsignedBigInteger('created_by')->nullable();
             $table->enum('status', ['active', 'inactive', 'pending']);
+=======
+            $table->unsignedBigInteger('created_by')->nullable()->default(NULL);
+            $table->integer('logins')->default(0);
+            $table->enum('status', ['active', 'inactive']);
+>>>>>>> master
             $table->rememberToken();
             $table->timestamps();
 
