@@ -23,5 +23,8 @@ class DatabaseSeeder extends Seeder
 
         //run criteria seeder
         $this -> call([CriteriaSeeder::class]);
+
+        //run standard seeder
+        $this -> call([StandardSeeder::class]);
     }
 }
