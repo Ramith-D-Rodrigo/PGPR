@@ -16,13 +16,13 @@ class StandardSeeder extends Seeder
         $standardFactory = new \Database\Factories\StandardFactory();
         $standardFactoryMethods = get_class_methods($standardFactory);
 
+        //filter the methods that have 'standard' in their name
+        $standardFactoryMethods = array_filter($standardFactoryMethods, function ($method) {
+            return strpos($method, 'standard') !== false;
+        });
+
 
         foreach ($standardFactoryMethods as $method) {
-            //skip definition method
-            if ($method == "definition") {
-                continue;
-            }
-
             //call the method
             $standardFactory->$method()->create();
         }
