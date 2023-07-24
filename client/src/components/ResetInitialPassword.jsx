@@ -5,7 +5,7 @@ import {useLocation, useNavigate} from "react-router-dom";
 import useRefreshLogin from "../hooks/useRefreshLogin.js";
 
 //
-import { Grid, Paper,Avatar, Box, Typography, Button, CircularProgress, Snackbar } from '@mui/material'
+import { Grid, Paper,Avatar, Box, Typography, Button, CircularProgress, Snackbar,Alert } from '@mui/material'
 import LockIcon from '@mui/icons-material/Lock';
 import Input from '@mui/material/Input';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -38,7 +38,7 @@ const InitialPasswordRest = () => {
     const location = useLocation();
     const from = location.state?.from?.pathname || "/"; // where the use got here
 
-    // console.log(auth);
+    console.log(auth);
 
     const handleClickShowPassword = () => {
         setShowPassword((show) => !show);
@@ -101,6 +101,7 @@ const InitialPasswordRest = () => {
            setConfirmPassword("");
 
         } catch (error) {
+            setLoading(false);
             console.error(error?.response);
             if (!error?.response) {
                 setErrorMsg("No Server Response");
@@ -112,20 +113,18 @@ const InitialPasswordRest = () => {
             }
             errorRef.current.focus();
         }
+        
     }
 
-    // useEffect(() => {
-    //     userInputRef.current.focus();
-    // }, []);
 
     useEffect(() => {
         if (success) {
           // Redirect to login page after displaying the success message
           setTimeout(() => {
-            navigate(from, { replace: true }); // navigate to the intended page
-          }, 2000); // Change the delay time to your preference
+            navigate(from, { replace: true });
+          }, 2000);
         }
-    }, [success, history]);
+    }, [success]);
 
     // when loading set the messages to empty strings
     useEffect(() => {
@@ -216,7 +215,7 @@ const InitialPasswordRest = () => {
 
                                         
                                             {/* show errors */}
-                                            <p style={{color:'red'}} ref={errorRef}>{errorMsg}</p>
+                                            {/* <p style={{color:'red'}} ref={errorRef}>{errorMsg}</p> */}
                                             <Button style={{margin:"0 0 15px"}} {...disableButton} type='submit' color='primary' variant="contained" fullWidth
                                             >
                                                 {loading ? <CircularProgress size={24} /> : 'Change Password'}
@@ -224,12 +223,23 @@ const InitialPasswordRest = () => {
                                         </form>
                                         {/* success message */}
                                         <Snackbar
+                                            open={errorMsg =="" ? false : true}
+                                            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                                        >
+                                            <Alert onClose={() => setErrorMsg("")} severity="error">
+                                                {errorMsg}
+                                            </Alert>
+                                        </Snackbar>
+                                        <Snackbar
                                             open={success}
-                                            message="Password changed successfully!"
                                             autoHideDuration={2000}
                                             onClose={() => setSuccess(false)}
                                             anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-                                        />
+                                        >
+                                            <Alert onClose={() => setSuccess(false)} severity="success">
+                                                Password changed successfully!
+                                            </Alert>
+                                        </Snackbar>
                                     </Grid>
                                 </Box>
                             </Paper>
