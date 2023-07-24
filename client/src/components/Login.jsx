@@ -33,13 +33,13 @@ const Login = () => {
   const { setAuth } = useContext(AuthContext);
 
   //user data states
-  const [showPassword, setShowPassword] = React.useState(false);
-  const [email,setEmail] = React.useState('');
-  const [password,setPassword] = React.useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [email,setEmail] = useState('');
+  const [password,setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState("");
 
-  const [role, setRole] = React.useState('');
-  const [rememberMe, setRememberMe] = React.useState(false);
+  const [role, setRole] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
 
   const handleChange = (event) => {
     setRole(event.target.value);
