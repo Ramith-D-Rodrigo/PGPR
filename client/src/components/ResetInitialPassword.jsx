@@ -5,7 +5,7 @@ import {useLocation, useNavigate} from "react-router-dom";
 import useRefreshLogin from "../hooks/useRefreshLogin.js";
 
 //
-import { Grid, Paper,Avatar, Box, Typography, Button } from '@mui/material'
+import { Grid, Paper,Avatar, Box, Typography, Button, CircularProgress, Snackbar } from '@mui/material'
 import LockIcon from '@mui/icons-material/Lock';
 import Input from '@mui/material/Input';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -17,7 +17,7 @@ import React from 'react';
 
 const InitialPasswordRest = () => {
 
-    const userInputRef = useRef(); // used to set the focus on inputs
+    // const userInputRef = useRef(); // used to set the focus on inputs
     const errorRef = useRef(); // in case of input error set the focus on them
     const { auth } = useContext(AuthContext);
     const refresh = useRefreshLogin();
@@ -26,23 +26,61 @@ const InitialPasswordRest = () => {
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [showPassword, setShowPassword] = React.useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
     const [errorMsg, setErrorMsg] = useState("");
+    const [disableButton, setDisableButton] = useState({disabled:true});
+
+    const [loading, setLoading] = useState(false);
+    const [success, setSuccess] = useState(false);
 
     // navigations
     const navigate = useNavigate();
     const location = useLocation();
     const from = location.state?.from?.pathname || "/"; // where the use got here
 
-    console.log(auth);
+    // console.log(auth);
 
-    const handleClickShowPassword = () => setShowPassword((show) => !show);
+    const handleClickShowPassword = () => {
+        setShowPassword((show) => !show);
+        setShowConfirmPassword(false);
+    }
+    const handleClickShowConfirmPassword = () => {
+        setShowConfirmPassword((show) => !show);
+        setShowPassword(false);
+    }
 
     const handleMouseDownPassword = (event) => {
         event.preventDefault();
     }
+    const handleMouseDownConfirmPassword = (event) => {
+        event.preventDefault();
+    }
+
+    const handleConfirmPassword = (e) => {
+        setConfirmPassword(e.target.value);
+        if (password !== e.target.value) {
+            //disable the submit button
+            setDisableButton({ disabled: true });
+        }
+        else{
+            setDisableButton({ disabled: false });
+        }
+    }
+
+    const handlePassword = (e) => {
+        setPassword(e.target.value);
+        if (confirmPassword !== e.target.value) {
+            //disable the submit button
+            setDisableButton({ disabled: true });
+        }
+        else{
+            setDisableButton({ disabled: false });
+        }
+    }
 
     async function handlePasswordReset(event) {
         event.preventDefault();
+        setLoading(true);
         try {
             // get the CSRF-cookie
             await axios.get("/sanctum/csrf-cookie");
@@ -52,15 +90,16 @@ const InitialPasswordRest = () => {
                 {
                     officialEmail: auth?.officialEmail,
                     password,
-                    pDasswordConfirmation:confirmPassword,
+                    passwordConfirmation:confirmPassword,
                 },
             );
             await refresh();
 
+            setLoading(false);
+           setSuccess(true); 
            setPassword("");
            setConfirmPassword("");
-           alert("Password Successfully Changed");
-           navigate(from, { replace: true }); // navigate to the intended page
+
         } catch (error) {
             console.error(error?.response);
             if (!error?.response) {
@@ -75,9 +114,18 @@ const InitialPasswordRest = () => {
         }
     }
 
+    // useEffect(() => {
+    //     userInputRef.current.focus();
+    // }, []);
+
     useEffect(() => {
-        userInputRef.current.focus();
-    }, []);
+        if (success) {
+          // Redirect to login page after displaying the success message
+          setTimeout(() => {
+            navigate(from, { replace: true }); // navigate to the intended page
+          }, 2000); // Change the delay time to your preference
+        }
+    }, [success, history]);
 
     // when loading set the messages to empty strings
     useEffect(() => {
@@ -107,7 +155,8 @@ const InitialPasswordRest = () => {
                                         <form onSubmit={handlePasswordReset}>
 
                                             <FormControl style={{margin:"15px 0"}} variant="standard" fullWidth
-                                                required>
+                                                required
+                                                >
                                                 {/* <InputLabel htmlFor="input-with-icon-adornment">Password</InputLabel> */}
                                                 <Input style={{margin:"15px 0"}}
                                                 id="input-password"
@@ -127,11 +176,12 @@ const InitialPasswordRest = () => {
                                                     </IconButton>
                                                     </InputAdornment>
                                                 }
+                                                autoFocus
                                                 placeholder='Password'
                                                 type={showPassword ? 'text' : 'password'}
                                                 fontSize='large'
                                                 value={password}
-                                                onChange={(e)=>setPassword(e.target.value)}
+                                                onChange={(e)=>handlePassword(e)}
                                                 />
                                             </FormControl>
 
@@ -149,68 +199,43 @@ const InitialPasswordRest = () => {
                                                     <InputAdornment position="end">
                                                     <IconButton
                                                         aria-label="toggle password visibility"
-                                                        onClick={handleClickShowPassword}
-                                                        onMouseDown={handleMouseDownPassword}
+                                                        onClick={handleClickShowConfirmPassword}
+                                                        onMouseDown={handleMouseDownConfirmPassword}
                                                     >
-                                                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                                                        {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
                                                     </IconButton>
                                                     </InputAdornment>
                                                 }
                                                 placeholder='Confirm Password'
-                                                type={showPassword ? 'text' : 'password'}
+                                                type={showConfirmPassword ? 'text' : 'password'}
                                                 fontSize='large'
                                                 value={confirmPassword}
-                                                onChange={(e)=>setConfirmPassword(e.target.value)}
+                                                onChange={(e)=>{handleConfirmPassword(e)}}
                                                 />
                                             </FormControl>
 
                                         
                                             {/* show errors */}
                                             <p style={{color:'red'}} ref={errorRef}>{errorMsg}</p>
-                                            <Button style={{margin:"0 0 15px"}} type='submit' color='primary' variant="contained" fullWidth
+                                            <Button style={{margin:"0 0 15px"}} {...disableButton} type='submit' color='primary' variant="contained" fullWidth
                                             >
-                                                Change
+                                                {loading ? <CircularProgress size={24} /> : 'Change Password'}
                                             </Button>
                                         </form>
+                                        {/* success message */}
+                                        <Snackbar
+                                            open={success}
+                                            message="Password changed successfully!"
+                                            autoHideDuration={2000}
+                                            onClose={() => setSuccess(false)}
+                                            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                                        />
                                     </Grid>
                                 </Box>
                             </Paper>
                         </Grid>
                 </Grid>
             </Box>
-        
-                <section>
-                    <p ref={errorRef}>{errorMsg}</p>
-                    <h1>Reset Password</h1>
-                    <p>This is your first login please change your password to proceed.</p>
-                    <form onSubmit={handlePasswordReset}>
-                        <label htmlFor="password">Password: </label>
-                        <input
-                            type="password"
-                            id="password"
-                            name="reset-passowrd"
-                            ref={userInputRef}
-                            autoComplete="off"
-                            onChange={(e) => {
-                                setPassword(e.target.value);
-                            }}
-                            value={password}
-                            required
-                        ></input>
-                        <label htmlFor="password-confirmation">Confirm the password: </label>
-                        <input
-                            type="password"
-                            id="password-confirmation"
-                            name="reset-password-confirmation"
-                            onChange={(e) => {
-                                setConfirmPassword(e.target.value);
-                            }}
-                            value={confirmPassword}
-                            required
-                        ></input>
-                        <button>Change Password</button>
-                    </form>
-                </section>
         </>
     );
 }
