@@ -1,7 +1,6 @@
+import React from "react";
 import MainContent from "../../components/MainContent";
 import ScrollableDiv from "../../components/ScrollableDiv";
-import Table from "../../components/Table";
-
 
 const SetDateForm = () => {
   const handleSubmit = (formValues) => {
@@ -94,49 +93,86 @@ const SetDateForm = () => {
   );
 };
 
-const SetCriteria = () => {
-  const tableData = [
-    {
-      name: "Reviewer 1",
-      designation: "Professor",
-      status: "Chairman",
-      criterias: "1, 2, 3",
-    },
-    {
-      name: "Reviewer 2",
-      designation: "Professor",
-      status: "Reviewer",
-      criterias: "2, 3, 4",
-    },
-    {
-      name: "Reviewer 2",
-      designation: "Senior Lecturer",
-      status: "Reviewer",
-      criterias: "5, 6, 7",
-    },
-    // Add more data here if needed
-  ];
-
-  const tableColumns = [
-    { header: "Name", dataKey: "name" },
-    { header: "Designation", dataKey: "designation" },
-    { header: "Status", dataKey: "status" },
-    { header: "List of Criterias", dataKey: "criterias" },
-    {
-      header: "Actions",
-      buttons: [
-        { label: "Add", color: "red", onClick: () => console.log("Add clicked") },
-        { label: "Edit", color: "blue", onClick: () => console.log("Edit clicked") },
-        { label: "View", color: "green", onClick: () => console.log("View clicked") },
-        // Add more buttons as needed
-      ],
-    },
+const Table = () => {
+    const tableData = [
+        {
+          name: "Reviewer 1",
+          designation: "Professor",
+          status: "Chairman",
+          criterias: "1, 2, 3",
+          actions: "add , edit, view",
+        },
+        {
+          name: "Reviewer 2",
+          designation: "Professor",
+          status: "Reviewer",
+          criterias: "2, 3, 4",
+          actions: "add, edit, view",
+        },
+        {
+          name: "Reviewer 2",
+          designation: "Senior Lecturer",
+          status: "Reviewer",
+          criterias: "5, 6, 7",
+          actions: "add, edit, view",
+        },
   ];
 
   return (
+    <div className="mt-6">
+      <div className="overflow-x-auto">
+        <table className="min-w-full border-collapse border border-black">
+          <thead>
+            <tr>
+              <th className="border border-black px-4 py-2">Name</th>
+              <th className="border border-black px-4 py-2">Designation</th>
+              <th className="border border-black px-4 py-2">Status</th>
+              <th className="border border-black px-4 py-2">
+                List of Criterias
+              </th>
+              <th className="border border-black px-4 py-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {tableData.map((row, index) => (
+              <tr key={index}>
+                <td className="border border-black px-4 py-2 text-center">
+                  {row.name}
+                </td>
+                <td className="border border-black px-4 py-2 text-center">
+                  {row.designation}
+                </td>
+                <td className="border border-black px-4 py-2 text-center">
+                  {row.status}
+                </td>
+                <td className="border border-black px-4 py-2 text-center">
+                  {row.criterias}
+                </td>
+                <td className="border border-black px-4 py-2 flex justify-center">
+                  <button className="mr-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                    Edit
+                  </button>
+                  <button className="mr-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                    View
+                  </button>
+                  <button className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+                    Add
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+const SetCriteria = () => {
+  return (
     <ScrollableDiv height="600px">
       <SetDateForm />
-      <Table columns={tableColumns} data={tableData} />
+      <Table />
     </ScrollableDiv>
   );
 };
