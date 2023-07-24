@@ -38,7 +38,7 @@ const InitialPasswordRest = () => {
     const location = useLocation();
     const from = location.state?.from?.pathname || "/"; // where the use got here
 
-    console.log(auth);
+    // console.log(auth);
 
     const handleClickShowPassword = () => {
         setShowPassword((show) => !show);
@@ -116,6 +116,10 @@ const InitialPasswordRest = () => {
         
     }
 
+    useEffect(() => {
+        let from = location.state?.from?.pathname || auth?.authRole[0]? "/"+auth.authRole[0]+"/dashboard" : "/login";
+        auth?.officialEmail && navigate(from, { replace: false });
+    }, []);
 
     useEffect(() => {
         if (success) {
