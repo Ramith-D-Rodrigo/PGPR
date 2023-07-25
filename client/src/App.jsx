@@ -1,4 +1,3 @@
-import './App.css'
 import {Route, Routes} from 'react-router-dom';
 import Dashboard from './components/Dashboard';
 import Login from './components/Login';
@@ -13,6 +12,8 @@ import Authenticate from "./components/Authenticate";
 import Unauthorized from "./components/Unauthorized";
 import LoginPersist from "./components/LoginPersist.jsx";
 import PGPRApplication from './pages/Dean/PGPRApplication';
+import ResetInitialPassword from "./components/ResetInitialPassword.jsx";
+import "./App.css";
 
 function App() {
 
@@ -47,24 +48,25 @@ function App() {
 
     <Routes>
         <Route path="/">
-
             {/* guest routes */}
             <Route path="login" element={<Login/>}/>
             <Route path="unauthorized" element={<Unauthorized/>}></Route>
 
             <Route element={<LoginPersist/>}>
+              {/* initial login password change component and the routes*/}
+             <Route path="initial-password-reset" element={<ResetInitialPassword />}/>
               
-              <Route element={<MainLayout sideDrawerRoutes={userRoutes}/>}>
+             <Route element={<MainLayout sideDrawerRoutes={userRoutes}/>}>
                 
                 {/* protected routes */}
-                <Route element={<Authenticate allowedRoles={["qac"]}/>}>
+                <Route element={<Authenticate allowedRoles={["user", "reviewer", "qac"]}/>}>
                   <Route path="qacofficer/" >
                       <Route path="dashboard" element={<Dashboard/>}/>
                       <Route path="universities" element={<Universities/>} />
                   </Route>
                 </Route>
 
-                <Route element={<Authenticate allowedRoles={["qac"]}/>}>
+                <Route element={<Authenticate allowedRoles={["user", "reviewer", "qac"]}/>}>
                   <Route path="qacdirector/" >
                       <Route path="dashboard" element={<Dashboard/>}/>
                       <Route path="AddPGProgramPage" element={<AddPGProgramPage/>} />
@@ -72,24 +74,17 @@ function App() {
                   </Route>
                 </Route>
                 
-                <Route element={<Authenticate allowedRoles={["user", "qac"]}/>}>
+                 <Route element={<Authenticate allowedRoles={["user", "reviewer", "qac"]}/>}>
                   <Route path="reviewer/" >
                       <Route path="dashboard" element={<Dashboard/>}/>
                       <Route path="viewser" element={<ViewSer/>} />
                   </Route>
-                </Route>
+                 </Route>
 
-                {/* dean routes */}
-                <Route element={<Authenticate allowedRoles={["dean"]}/>}>
-                  <Route path="dean/">
-                    <Route path="dashboard" element={<Dashboard/>}/>
-                    <Route path="PGPRApplication" element={<PGPRApplication/>} />
-                  </Route>
-                </Route>
+
               </Route>
 
             </Route>
-
             {/* 404 page & UnAuth ... */}
             <Route path="*" element={<NotFound/>}/>
         </Route>

@@ -11,8 +11,7 @@ function Nav() {
     // get the csrf-cookie
     try {
       axios.get("/sanctum/csrf-cookie");
-      let response = await axios.post("/logout");
-      console.log(response?.status);
+      await axios.post("/logout");
       setAuth(null);
       navigate("/login");
     } catch (error) {
