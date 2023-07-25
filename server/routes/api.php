@@ -1,6 +1,9 @@
 <?php
 
+use App\Http\Controllers\Api\V1\UserController;
+use App\Http\Middleware\AuthorizeAction;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,13 +18,21 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
-    return $request->user();
+    return Auth::user();
 });
 
+Route::middleware(['auth:sanctum'])->get('/auth', [UserController::class, 'loginAuth']);
+
+Route::middleware(['auth:sanctum', 'authorize.role:reviewer'])->get('/role/user', function (Request $request) {
+    return Auth::user()->roles;
+});
+  
 Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], function () {
     //all routes that belong to v1 version of the API will go here
     //for now, the routes for all the controllers are defined
     //later we can remove the routes that are not needed
+
+    //TODO: Renamed route names should reflect on the method names in the controllers
     Route::apiResource('viceChancellors', 'ViceChancellorController');
     Route::apiResource('users', 'UserController');
     Route::apiResource('universitySides', 'UniversitySideController');
@@ -36,7 +47,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::apiResource('properEvaluations', 'ProperEvaluationController');
     Route::apiResource('programmeCoordinators', 'ProgrammeCoordinatorController');
     Route::apiResource('postGraduateProgramReviews', 'PostGraduateProgramReviewController');
-    Route::apiResource('pgprApplications', 'PostGraduateProgramReviewApplicationController');
+    Route::apiResource('pgprApplications', 'PostGraduateProgramReviewApplicationController') -> middleware('auth');
     Route::apiResource('postGraduatePrograms', 'PostGraduateProgramController');
     Route::apiResource('iqauDirectors', 'InternalQualityAssuranceUnitDirectorController');
     Route::apiResource('iqaUnits', 'InternalQualityAssuranceUnitController');
@@ -54,4 +65,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     //route for google drive file info (for now, only the metadata is returned (testing))
     Route::post('driveFileInfo', 'GoogleDriveController@getFileInfo');
     Route::get('downloadFile', 'GoogleDriveController@downloadFile');
+
+    //other routes for pgpr application
+    Route::post('pgprApplications/{pgprApplication}/submit', 'PostGraduateProgramReviewApplicationController@submit') -> middleware('auth');  //submit pgpr application by the dean
 });

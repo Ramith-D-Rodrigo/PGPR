@@ -131,28 +131,4 @@ class StoreAcademicStaffRequest extends StoreUniversitySideRequest
 
         return array_merge($parentMsgs, $messageArr);
     }
-
-    public function passedValidation(){
-        //for profile pic
-        parent::passedValidation(); //call the passedValidation method of the parent class (StoreUniversitySideRequest)
-
-        //for cv
-        $cv = $this -> cv;
-
-        if($cv){ //has uploaded a cv
-            $ext = $cv -> getClientOriginalExtension();
-            $cvName = $this -> official_email . '.' . $ext;
-
-            //create the cv directory if it does not exist
-            if(!File::exists(public_path('storage/cvs'))){
-                File::makeDirectory(public_path('storage/cvs'));
-            }
-
-            Storage::put('public/cvs/' . $cvName, $cv -> getContent());
-
-            //get the cv url
-            $cvUrl = Storage::url('public/cvs/' . $cvName);
-            $this -> merge(['cv' => $cvUrl]);
-        }
-    }
 }

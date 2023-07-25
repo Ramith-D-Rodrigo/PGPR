@@ -87,26 +87,4 @@ class StoreUserRequest extends FormRequest
             'personal_email.not_in' => 'Personal email is already used in this system',
         ];
     }
-
-    public function passedValidation(){
-        //store the profile picture
-        $profilePic = $this -> profile_pic;
-        if($profilePic){
-            $ext = $profilePic -> getClientOriginalExtension();
-            $profilePictureName = $this -> official_email . '.' . $ext;
-
-            //create the profile picture directory if it does not exist
-            if(!File::exists(public_path('storage/profile_pics'))){
-                File::makeDirectory(public_path('storage/profile_pics'));
-            }
-
-            Storage::put('public/profile_pics/' . $profilePictureName, $profilePic -> getContent());
-
-            //get the profile picture url
-            $profilePictureUrl = Storage::url('public/profile_pics/' . $profilePictureName);
-            $this -> merge([
-                'profile_pic' => $profilePictureUrl
-            ]);
-        }
-    }
 }

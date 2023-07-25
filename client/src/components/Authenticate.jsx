@@ -7,14 +7,17 @@ const Authenticate = ({ allowedRoles }) => {
   const { auth } = useAuth();
   const location = useLocation(); // to redirect the user to where he/she came from
 
-  return auth?.roles &&
-    JSON.parse(auth?.roles).some((role) => allowedRoles.includes(role)) ? (
-    <Outlet />
-  ) : auth?.user ? (
-    <Navigate to="/unauthorized" state={{ from: location }} replace />
-  ) : (
-    <Navigate to="login" state={{ from: location }} replace />
-  );
+  if (!(auth?.initialLogin) && auth?.authRole && auth?.authRole.some((role) => allowedRoles.includes(role))) {
+    return <Outlet />
+  }
+  else if (auth?.initialLogin) {
+    return <Navigate to="/initial-password-reset" state={{ from: location }} replace />
+  }
+  else if (auth) {
+    return <Navigate to="/unauthorized" state={{ from: location }} replace />
+  } else {
+    return <Navigate to="/login" state={{ from: location }} replace />
+  }
 };
 
 Authenticate.propTypes = {

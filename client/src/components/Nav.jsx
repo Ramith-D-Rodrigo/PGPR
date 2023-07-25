@@ -1,16 +1,19 @@
-import { Link } from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import axios from "../api/api.js";
+import "../styles/nav.css";
 
 function Nav() {
-  const { user } = useAuth();
+  const { auth, setAuth } = useAuth();
+  const navigate = useNavigate();
 
-  function handleLogout() {
+  async function handleLogout() {
     // get the csrf-cookie
     try {
       axios.get("/sanctum/csrf-cookie");
-      let response = axios.post("/logout");
-      console.log(response.status);
+      await axios.post("/logout");
+      setAuth(null);
+      navigate("/login");
     } catch (error) {
       if (!error?.response) {
         console.log("No Server Response");
@@ -26,18 +29,25 @@ function Nav() {
         <li>
           <Link to={"/home"}>Home</Link>
         </li>
-        {user && (
+        {auth && (
           <li>
             <Link onClick={handleLogout}>Logout</Link>
           </li>
         )}
-        {!user && (
+        {!auth && (
           <li>
             <Link to={"/login"}>Sign in</Link>
           </li>
         )}
-        <li>
+        {auth && (
+            <li>
+              <Link to={"/profile"}>Profile</Link>
+            </li>
+        )}<li>
           <Link to={"/register"}>Register</Link>
+        </li>
+        <li>
+          <Link to={"/reviewer"}>Reviewer</Link>
         </li>
       </ul>
     </nav>

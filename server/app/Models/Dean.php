@@ -16,7 +16,7 @@ class Dean extends Model
 
     //dean is an academic staff
     public function academicStaff(){
-        return $this->belongsTo(AcademicStaff::class);
+        return $this->belongsTo(AcademicStaff::class, 'id', 'id');
     }
 
     //dean belongs to a faculty

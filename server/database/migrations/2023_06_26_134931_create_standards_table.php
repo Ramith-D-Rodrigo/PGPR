@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('standards', function (Blueprint $table) {
             $table->id();
             $table -> unsignedBigInteger('criteria_id');
-            $table->double("standard_no") -> unique(); // since there are only 7 criteria and each standard is associated with a criteria
+            $table->double("standard_no"); //cannot be unique due to change of description with same number in different slqf levels
             $table->longText("description");
+            $table->json("valid_slqf_levels"); //if it has "all" then it is valid for all slqf levels, otherwise it is valid for the slqf levels specified
             $table->timestamps();
 
             //foreign key
