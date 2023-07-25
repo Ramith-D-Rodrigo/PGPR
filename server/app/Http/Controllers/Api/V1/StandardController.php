@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Resources\V1\StandardCollection;
 use App\Models\Standard;
 use App\Http\Requests\StoreStandardRequest;
 use App\Http\Requests\UpdateStandardRequest;
@@ -14,7 +15,7 @@ class StandardController extends Controller
      */
     public function index()
     {
-        //
+        return new StandardCollection(Standard::paginate());
     }
 
     /**
