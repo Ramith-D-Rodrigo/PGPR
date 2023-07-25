@@ -19,6 +19,6 @@ class InternalQualityAssuranceUnitDirectorService extends QualityAssuranceStaffS
 
         $internalQualityAssuranceUnitDirector -> save();
 
-        return $internalQualityAssuranceUnitDirector; //return the internal quality assurance unit director object and the password (password for sending the email)
+        return $internalQualityAssuranceUnitDirector; //return the internal quality assurance unit director object
     }
 }

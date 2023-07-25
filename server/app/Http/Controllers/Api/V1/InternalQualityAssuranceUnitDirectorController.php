@@ -45,7 +45,7 @@ class InternalQualityAssuranceUnitDirectorController extends Controller
             DB::beginTransaction();
 
             //store the files (profile pic)
-            $validatedDataWithFiles = InternalQualityAssuranceUnitDirectorService::storeFiles($validatedData,);
+            $validatedDataWithFiles = InternalQualityAssuranceUnitDirectorService::storeFiles($validatedData);
 
             //create the iqau director
             $iqauDirector = InternalQualityAssuranceUnitDirectorService::create($validatedDataWithFiles);
