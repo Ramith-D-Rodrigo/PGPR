@@ -45,13 +45,16 @@ function App() {
         <Route path="/">
 
             {/* guest routes */}
-            <Route path="login" element={<Login/>}/>
-            <Route path="/" element={<Login/>}/>
+            
+            
             <Route path="unauthorized" element={<Unauthorized/>}></Route>
 
             <Route element={<LoginPersist/>}>
               // initial login password change component and the routes
              <Route path="initial-password-reset" element={<ResetInitialPassword />}/>
+             // note: note final
+             <Route path="login" element={<Login/>}/>
+             <Route path="/" element={<Login/>}/>
               
              <Route element={<MainLayout sideDrawerRoutes={userRoutes}/>}>
                 

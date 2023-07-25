@@ -122,7 +122,8 @@ const InitialPasswordRest = () => {
         if (success) {
           // Redirect to login page after displaying the success message
           setTimeout(() => {
-            navigate(from, { replace: true });
+            //logout and go to login
+            navigate('/login', { replace: true });
           }, 2000);
         }
     }, [success]);

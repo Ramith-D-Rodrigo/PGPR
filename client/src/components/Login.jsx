@@ -27,7 +27,6 @@ import {useNavigate, useLocation} from "react-router-dom";
 const Login = () => {
   
   const { auth,setAuth } = useContext(AuthContext);
-  console.log(auth);  // "error: auth object is undefined"
 
   //user data states
   const [showPassword, setShowPassword] = useState(false);
@@ -109,9 +108,6 @@ const Login = () => {
     //redirect if logged in (auth object is not null)
     let from = location.state?.from?.pathname || auth?.authRole[0]? "/"+auth.authRole[0]+"/dashboard" : "/login";
     auth && navigate(from, { replace: false });
-    // console.log(auth);
-    // console.log(from);
-    // console.log("here");
 }, []);
 
 useEffect(() => {
