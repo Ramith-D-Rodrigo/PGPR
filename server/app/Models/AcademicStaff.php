@@ -46,7 +46,7 @@ class AcademicStaff extends Model
     }
 
     public function dean(){
-        return $this->hasOne(Dean::class);
+        return $this->hasOne(Dean::class, 'id', 'id');
     }
 
 }

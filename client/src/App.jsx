@@ -11,7 +11,6 @@ import AddAccounts from './pages/QACdirector/AddAccounts';
 import Authenticate from "./components/Authenticate";
 import Unauthorized from "./components/Unauthorized";
 import LoginPersist from "./components/LoginPersist.jsx";
-
 import ResetInitialPassword from "./components/ResetInitialPassword.jsx";
 import NotFound from "./components/NotFound.jsx";
 import "./App.css";
@@ -44,7 +43,6 @@ function App() {
 
     <Routes>
         <Route path="/">
-
             {/* guest routes */}
             <Route path="/login" element={<Login/>}/>
             <Route path="unauthorized" element={<Unauthorized/>}></Route>
@@ -83,7 +81,6 @@ function App() {
               </Route>
 
             </Route>
-
             {/* 404 page & UnAuth ... */}
             <Route path="*" element={<NotFound/>}/>
         </Route>
