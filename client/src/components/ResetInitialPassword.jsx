@@ -17,7 +17,7 @@ import React from 'react';
 
 const InitialPasswordRest = () => {
 
-    const { auth } = useContext(AuthContext);
+    const { auth,setAuth } = useContext(AuthContext);
     const refresh = useRefreshLogin();
 
     // this should go to the LoginContext.js
@@ -114,17 +114,33 @@ const InitialPasswordRest = () => {
     }
 
     useEffect(() => {
-        let from = location.state?.from?.pathname || auth?.authRole[0]? "/"+auth.authRole[0]+"/dashboard" : "/login";
+        let from = location.state?.from?.pathname || auth?.authRole[0]? "/"+auth?.authRole[0] : "/login";
         auth?.initialLogin == false && navigate(from, { replace: false });
     }, []);
 
     useEffect(() => {
         if (success) {
           // Redirect to login page after displaying the success message
-          setTimeout(() => {
-            //logout and go to login
-            navigate('/login', { replace: true });
-          }, 2000);
+          // Note: backend will log out the user after the password reset
+
+          const logout = async () => {
+            try {
+                axios.get("/sanctum/csrf-cookie");
+                let response = await axios.post("/logout");
+                console.log(response?.status);
+                setAuth(null);
+                navigate("/login");
+              } catch (error) {
+                if (!error?.response) {
+                  console.log("No Server Response");
+                  setAuth(null);
+                  navigate("/login");
+                } else {
+                  console.log(error?.response);
+                }
+            }
+        }
+            logout();
         }
     }, [success]);
 

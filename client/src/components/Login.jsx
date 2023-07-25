@@ -106,7 +106,7 @@ const Login = () => {
 
   useEffect(() => {
     //redirect if logged in (auth object is not null)
-    let from = location.state?.from?.pathname || auth?.authRole[0]? "/"+auth.authRole[0]+"/dashboard" : "/login";
+    let from = location.state?.from?.pathname || auth?.authRole[0]? "/"+auth?.authRole[0] : "/login";
     auth && navigate(from, { replace: false });
 }, []);
 
