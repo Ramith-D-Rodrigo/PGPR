@@ -10,6 +10,17 @@ class PostGraduateProgramReview extends Model
 {
   use HasFactory;
 
+  protected $fillable = [
+    'post_graduate_program_id',
+    'qac_dir_id',
+    'status_of_pgpr',
+    'payment_voucher',
+    'grouped_with',
+    'action_plan',
+    'preliminary_report',
+    'pgpr_application_id'
+  ];
+
 /*  // a post graduate review program has one desk evaluation
   public function deskEvaluations()
   {
