@@ -1,5 +1,5 @@
 
-import { Grid, Paper,Avatar, Box, Typography, Button } from '@mui/material'
+import { Grid, Paper,Avatar, Box, Typography, Button, CircularProgress, Snackbar,Alert} from '@mui/material'
 import { styled } from '@mui/material/styles';
 import LockIcon from '@mui/icons-material/Lock';
 import TextField from '@mui/material/TextField';
@@ -27,10 +27,8 @@ import {useNavigate, useLocation} from "react-router-dom";
 
 const Login = () => {
   
-  //refs & auth
-  const userInputRef = useRef(); // used to set the focus on inputs
-  const errorRef = useRef(); // in case of input error set the focus on them
-  const { setAuth } = useContext(AuthContext);
+  const { auth,setAuth } = useContext(AuthContext);
+  console.log(auth);  // "error: auth object is undefined"
 
   //user data states
   const [showPassword, setShowPassword] = useState(false);
@@ -40,6 +38,8 @@ const Login = () => {
 
   const [role, setRole] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   const handleChange = (event) => {
     setRole(event.target.value);
@@ -54,10 +54,6 @@ const Login = () => {
   {
     from = "/"+role;
   }
-  // useEffect(() => {
-  //   userInputRef.current.focus();
-  // }, []);
-  /* doesn't work because MUI <Input> != html <input> in rendered page*/
 
   // when loading set the messages to empty strings
   useEffect(() => {
@@ -72,6 +68,7 @@ const Login = () => {
   
   async function handleLogin(event) {
     event.preventDefault();
+    setLoading(true);
     try {
       // get the CSRF-cookie
       await axios.get("/sanctum/csrf-cookie");
@@ -87,16 +84,17 @@ const Login = () => {
       // don't wrap the return value in the backend with the Response()
       // the returned data won't be in this format
       setAuth(response?.data || null);
+      setLoading(false);
+      setSuccess(true);
       setEmail("");
       setPassword("");
-      setRole("");
-
-       if (response.data.initialLogin === true) {
-                navigate('/initial-password-reset', {replace: true}); // this login will be pushed to the history
-            } else {
-                navigate(from, {replace: true}); // this login will be pushed to the history
-            }
+      // setRole("");
+      if (response.data.initialLogin === true) {
+              from = '/initial-password-reset'; //redirect to initiallogin page
+      }
+      
     } catch (error) {
+      setLoading(false);
       console.error(error?.response);
       if (!error?.response) {
         // check if the request went through to the server
@@ -108,9 +106,26 @@ const Login = () => {
         console.log(errors);
         setErrorMsg(message);
         }
-      errorRef.current.focus();
     }
   }
+
+  useEffect(() => {
+    //redirect if logged in (auth object is not null)
+    // let from = location.state?.from?.pathname || auth?.authRole[0]? "/"+auth.authRole[0]+"/dashboard" : "/login";
+    // !auth && navigate(from, { replace: false });
+    // console.log(auth);
+    // console.log(from);
+    // console.log("here");
+}, []);
+
+useEffect(() => {
+  if (success) {
+    // Redirect to login page after displaying the success message
+    setTimeout(() => {
+      navigate(from, { replace: true });
+    }, 1000);
+  }
+}, [success]);
     
   const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -122,7 +137,6 @@ const Login = () => {
 
     const paperStyle = {padding:20,height:'70vh',width:'80%',margin:"30px auto",borderRadius:"20px"}
 
-    const avatarStyles = {backgroundColor:'#3f51b5',width:'60px',height:'60px'}
   return (
     <Box sx={{display:"flex",alignItems:"center",height:"100vh",justifyContent:"center"}}>
       <Grid container spacing={2}
@@ -152,13 +166,14 @@ const Login = () => {
                           <FormControl style={{margin:"15px 0"}} variant="standard" fullWidth
                               required>
                             {/* <InputLabel htmlFor="input-with-icon-adornment">Email</InputLabel> */}
-                            <Input ref={userInputRef} className='INP' style={{margin:"15px 0"}}
+                            <Input style={{margin:"15px 0"}}
                               id="input-email"
                               startAdornment={
                                 <InputAdornment style={{margin:"15px 10px 20px 0px"}} position="start">
                                   <EmailIcon fontSize='large' />
                                 </InputAdornment>
                               }
+                              autoFocus
                               autoComplete="off"
                               type='email'
                               placeholder='Email'
@@ -222,10 +237,9 @@ const Login = () => {
                             <FormControlLabel control={<Checkbox defaultChecked value={rememberMe}/>} label="Remember me" />
                           </FormGroup>
                           {/* show errors */}
-                        <p style={{color:'red'}} ref={errorRef}>{errorMsg}</p>
                           <Button style={{margin:"0 0 15px"}} type='submit' color='primary' variant="contained" fullWidth
                           >
-                            Sign in
+                            {loading ? <CircularProgress thickness={6} color='secondary' size={24} /> : 'Sign In'}
                           </Button>
                         </form>
                         <Typography style={{marginTop:"15px"}}>
@@ -238,6 +252,26 @@ const Login = () => {
                             Sign Up
                           </Link>
                         </Typography>
+
+                        <Snackbar
+                            open={errorMsg =="" ? false : true}
+                            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                            onClose={() => setErrorMsg("")}
+                        >
+                            <Alert onClose={() => setErrorMsg("")} severity="error">
+                                {errorMsg}
+                            </Alert>
+                        </Snackbar>
+                        <Snackbar
+                            open={success}
+                            autoHideDuration={1000}
+                            onClose={() => setSuccess(false)}
+                            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                        >
+                            <Alert onClose={() => setSuccess(false)} severity="success">
+                                Login Successfull!
+                            </Alert>
+                        </Snackbar>
                     </Grid>
                   </Box>
                 </Paper>

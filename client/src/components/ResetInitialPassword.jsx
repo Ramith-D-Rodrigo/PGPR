@@ -17,8 +17,6 @@ import React from 'react';
 
 const InitialPasswordRest = () => {
 
-    // const userInputRef = useRef(); // used to set the focus on inputs
-    const errorRef = useRef(); // in case of input error set the focus on them
     const { auth } = useContext(AuthContext);
     const refresh = useRefreshLogin();
 
@@ -111,7 +109,6 @@ const InitialPasswordRest = () => {
                 console.log(errors);
                 setErrorMsg(message);
             }
-            errorRef.current.focus();
         }
         
     }
