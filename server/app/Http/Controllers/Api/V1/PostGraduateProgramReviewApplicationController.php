@@ -9,6 +9,7 @@ use App\Http\Requests\V1\StorePostGraduateProgramReviewApplicationRequest;
 use App\Http\Requests\V1\UpdatePostGraduateProgramReviewApplicationRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\V1\PostGraduateProgramReviewApplicationResource;
+use App\Models\SelfEvaluationReport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -180,6 +181,12 @@ class PostGraduateProgramReviewApplicationController extends Controller
                 'pgpr_application_id' => $pgprApplication -> id
             ]);
 
+            //now create self evaluation report for the pgpr
+            $ser = SelfEvaluationReport::create([
+                'post_graduate_program_review_id' => $pgpr -> id,
+                'pgp_coordinator_id' => $pgpr -> postGraduateProgram -> currentProgrammeCoordinator -> id //get the current pgp coordinator
+            ]);
+            
             DB::commit();
         }
         catch(\Exception $e){
