@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\api\v1\UserController;
+use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Middleware\AuthorizeAction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;

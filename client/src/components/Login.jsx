@@ -1,8 +1,7 @@
 
-import { Grid, Paper,Avatar, Box, Typography, Button } from '@mui/material'
+import { Grid, Paper, Box, Typography, Button, CircularProgress, Snackbar,Alert} from '@mui/material'
 import { styled } from '@mui/material/styles';
 import LockIcon from '@mui/icons-material/Lock';
-import TextField from '@mui/material/TextField';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
@@ -16,29 +15,48 @@ import IconButton from '@mui/material/IconButton';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import React from 'react'
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
 //
-import { useRef, useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
+
 import axios from "../api/api.js";
 import AuthContext from "../contexts/AuthProvider.jsx";
 import {useNavigate, useLocation} from "react-router-dom";
 
 const Login = () => {
   
-  //refs & auth
-  const userInputRef = useRef(); // used to set the focus on inputs
-  const errorRef = useRef(); // in case of input error set the focus on them
-  const { setAuth } = useContext(AuthContext);
+  const { auth,setAuth } = useContext(AuthContext);
 
   //user data states
-  const [showPassword, setShowPassword] = React.useState(false);
-  const [email,setEmail] = React.useState('');
-  const [role, setRole] = useState("");
-  const [password,setPassword] = React.useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [email,setEmail] = useState('');
+  const [password,setPassword] = useState('');
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const [role, setRole] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+
+  const handleChange = (event) => {
+    setRole(event.target.value);
+  };
   
   // navigations
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || "/"; // where the use got here
+  let from = location.state?.from?.pathname || "/"+role; // where the use got here
+
+  if(!from.startsWith("/"+role))
+  {
+    from = "/"+role;
+  }
+
+  // when loading set the messages to empty strings
+  useEffect(() => {
+    setErrorMsg("");
+  }, [email, password, role]);
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -48,6 +66,7 @@ const Login = () => {
   
   async function handleLogin(event) {
     event.preventDefault();
+    setLoading(true);
     try {
       // get the CSRF-cookie
       await axios.get("/sanctum/csrf-cookie");
@@ -63,20 +82,17 @@ const Login = () => {
       // don't wrap the return value in the backend with the Response()
       // the returned data won't be in this format
       setAuth(response?.data || null);
+      setLoading(false);
+      setSuccess(true);
       setEmail("");
       setPassword("");
-      setRole("");
-
-       if (response.data.initialLogin === true) {
-                navigate('/initial-password-reset', {replace: true}); // this login will be pushed to the history
-            } else {
-                navigate(from, {replace: true}); // this login will be pushed to the history
-            }
+      // setRole("");
     } catch (error) {
+      setLoading(false);
       console.error(error?.response);
       if (!error?.response) {
         // check if the request went through to the server
-        setErrorMsg("No Server Response");
+        setErrorMsg("Server Not Responded. Check your Connection");
       } else {
         // read the errors
         console.log(error.response);
@@ -84,8 +100,23 @@ const Login = () => {
         console.log(errors);
         setErrorMsg(message);
         }
-      errorRef.current.focus();
     }
+  }
+
+  useEffect(() => {
+    //redirect if logged in (auth object is not null)
+    let from = location.state?.from?.pathname || auth?.authRole[0]? "/"+auth?.authRole[0] : "/login";
+    auth && navigate(from, { replace: false });
+}, []);
+
+useEffect(() => {
+  if (success) {
+    // Redirect to login page after displaying the success message
+    setTimeout(() => {
+      auth?.initialLogin ? navigate('/initial-password-reset', { replace: true }) : navigate(from, { replace: true });
+    }, 1000);
+  }
+}, [success]);
     
   const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -97,7 +128,6 @@ const Login = () => {
 
     const paperStyle = {padding:20,height:'70vh',width:'80%',margin:"30px auto",borderRadius:"20px"}
 
-    const avatarStyles = {backgroundColor:'#3f51b5',width:'60px',height:'60px'}
   return (
     <Box sx={{display:"flex",alignItems:"center",height:"100vh",justifyContent:"center"}}>
       <Grid container spacing={2}
@@ -121,8 +151,7 @@ const Login = () => {
                         {/* <Avatar style={avatarStyles}><LockIcon fontSize={"large"}/></Avatar> */}
                         <Typography style={{margin:"20px 0"}} variant="h3">Sign In</Typography>
                         
-                        {/* show errors */}
-                        <p ref={errorRef}>{errorMsg}</p>
+                        
                           
                         <form onSubmit={handleLogin}>
                           <FormControl style={{margin:"15px 0"}} variant="standard" fullWidth
@@ -135,8 +164,8 @@ const Login = () => {
                                   <EmailIcon fontSize='large' />
                                 </InputAdornment>
                               }
+                              autoFocus
                               autoComplete="off"
-                              ref={userInputRef}
                               type='email'
                               placeholder='Email'
                               value={email}
@@ -172,12 +201,36 @@ const Login = () => {
                               onChange={(e)=>setPassword(e.target.value)}
                             />
                           </FormControl>
+
+                          <FormControl style={{margin:"15px 0"}} variant="standard" fullWidth
+                              required>
+                            {/* <InputLabel htmlFor="input-with-icon-adornment">Email</InputLabel> */}
+                            <InputLabel id="demo-simple-select-standard-label">Role</InputLabel>
+                            <Select
+                              labelId="demo-simple-select-standard-label"
+                              id="demo-simple-select-standard"
+                              value={role}
+                              onChange={handleChange}
+                              label="Role"
+                            >
+                              <MenuItem value={"reviewer"}>Reviewer</MenuItem>
+                              <MenuItem value={"coordinator"}>Program Coordinator</MenuItem>
+                              <MenuItem value={"iqauofficer"}>IQAU Officer</MenuItem>
+                              <MenuItem value={"cqadirector"}>CQA Director</MenuItem>
+                              <MenuItem value={"qacdirector"}>QAC Director</MenuItem>
+                              <MenuItem value={"qacofficer"}>QAC Officer</MenuItem>
+                              <MenuItem value={"dean"}>Director/Dean</MenuItem>
+                              <MenuItem value={"vicechancellor"}>Vice Chancellor</MenuItem>
+                            </Select>
+
+                          </FormControl>
                           <FormGroup style={{margin:"20px 0 0"}}>
-                            <FormControlLabel control={<Checkbox defaultChecked />} label="Remember me" />
+                            <FormControlLabel control={<Checkbox defaultChecked value={rememberMe}/>} label="Remember me" />
                           </FormGroup>
+                          {/* show errors */}
                           <Button style={{margin:"0 0 15px"}} type='submit' color='primary' variant="contained" fullWidth
                           >
-                            Sign in
+                            {loading ? <CircularProgress thickness={6} color='secondary' size={24} /> : 'Sign In'}
                           </Button>
                         </form>
                         <Typography style={{marginTop:"15px"}}>
@@ -190,6 +243,26 @@ const Login = () => {
                             Sign Up
                           </Link>
                         </Typography>
+
+                        <Snackbar
+                            open={errorMsg =="" ? false : true}
+                            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                            onClose={() => setErrorMsg("")}
+                        >
+                            <Alert onClose={() => setErrorMsg("")} severity="error">
+                                {errorMsg}
+                            </Alert>
+                        </Snackbar>
+                        <Snackbar
+                            open={success}
+                            autoHideDuration={1000}
+                            onClose={() => setSuccess(false)}
+                            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                        >
+                            <Alert onClose={() => setSuccess(false)} severity="success">
+                                Login Successfull!
+                            </Alert>
+                        </Snackbar>
                     </Grid>
                   </Box>
                 </Paper>
