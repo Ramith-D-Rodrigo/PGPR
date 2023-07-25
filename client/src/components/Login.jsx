@@ -1,3 +1,4 @@
+
 import { Grid, Paper,Avatar, Box, Typography, Button } from '@mui/material'
 import { styled } from '@mui/material/styles';
 import LockIcon from '@mui/icons-material/Lock';
@@ -19,7 +20,7 @@ import React from 'react'
 import { useRef, useState, useEffect, useContext } from "react";
 import axios from "../api/api.js";
 import AuthContext from "../contexts/AuthProvider.jsx";
-import { useNavigate, useLocation } from "react-router-dom";
+import {useNavigate, useLocation} from "react-router-dom";
 
 const Login = () => {
   
@@ -31,6 +32,7 @@ const Login = () => {
   //user data states
   const [showPassword, setShowPassword] = React.useState(false);
   const [email,setEmail] = React.useState('');
+  const [role, setRole] = useState("");
   const [password,setPassword] = React.useState('');
   
   // navigations
@@ -53,8 +55,9 @@ const Login = () => {
         "/login",
         // payload
         {
-          official_email: email,
+          officialEmail: email,
           password,
+          loginAs: role,
         },
       );
       // don't wrap the return value in the backend with the Response()
@@ -62,9 +65,13 @@ const Login = () => {
       setAuth(response?.data || null);
       setEmail("");
       setPassword("");
+      setRole("");
 
-      // add the user navigation
-      navigate(from, { replace: true }); // this login will be pushed to the history
+       if (response.data.initialLogin === true) {
+                navigate('/initial-password-reset', {replace: true}); // this login will be pushed to the history
+            } else {
+                navigate(from, {replace: true}); // this login will be pushed to the history
+            }
     } catch (error) {
       console.error(error?.response);
       if (!error?.response) {
@@ -79,8 +86,7 @@ const Login = () => {
         }
       errorRef.current.focus();
     }
-  }
-
+    
   const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
     ...theme.typography.body2,

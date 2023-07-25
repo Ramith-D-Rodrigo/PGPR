@@ -28,6 +28,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->unsignedBigInteger('created_by')->nullable();
             $table->enum('status', ['active', 'inactive', 'pending']);
+            $table->integer('logins')->default(0);
             $table->rememberToken();
             $table->timestamps();
 

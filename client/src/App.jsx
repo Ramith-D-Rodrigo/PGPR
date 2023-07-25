@@ -1,4 +1,3 @@
-import './App.css'
 import {Route, Routes} from 'react-router-dom';
 import Dashboard from './components/Dashboard';
 import Login from './components/Login';
@@ -12,6 +11,9 @@ import AddAccounts from './pages/QACdirector/AddAccounts';
 import Authenticate from "./components/Authenticate";
 import Unauthorized from "./components/Unauthorized";
 import LoginPersist from "./components/LoginPersist.jsx";
+import ResetInitialPassword from "./components/ResetInitialPassword.jsx";
+import NotFound from "./components/NotFound.jsx";
+import "./App.css";
 
 function App() {
 
@@ -41,18 +43,19 @@ function App() {
 
     <Routes>
         <Route path="/">
-
             {/* guest routes */}
             <Route path="/login" element={<Login/>}/>
             <Route path="unauthorized" element={<Unauthorized/>}></Route>
 
             <Route element={<LoginPersist/>}>
+              // initial login password change component and the routes
+             <Route path="initial-password-reset" element={<ResetInitialPassword />}/>
               
-              <Route element={<MainLayout sideDrawerRoutes={userRoutes}/>}>
+             <Route element={<MainLayout sideDrawerRoutes={userRoutes}/>}>
                 
                 {/* protected routes */}
                 <Route element={<Authenticate allowedRoles={["user", "reviewer", "qac"]}/>}>
-                  <Route path="/qacofficer" >
+                  <Route path="qacofficer/" >
                       <Route path="dashboard" element={<Dashboard/>}/>
                       <Route path="universities" element={<Universities/>} />
                       <Route path="importreviewers" element={<ImportReviewers/>} />
@@ -60,7 +63,7 @@ function App() {
                 </Route>
 
                 <Route element={<Authenticate allowedRoles={["user", "reviewer", "qac"]}/>}>
-                  <Route path="/qacdirector" >
+                  <Route path="qacdirector/" >
                       <Route path="dashboard" element={<Dashboard/>}/>
                       <Route path="AddPGProgramPage" element={<AddPGProgramPage/>} />
                       <Route path="AddAccounts" element={<AddAccounts/>} />
@@ -68,15 +71,16 @@ function App() {
                 </Route>
                 
                  <Route element={<Authenticate allowedRoles={["user", "reviewer", "qac"]}/>}>
-                  <Route path="/reviewer" >
+                  <Route path="reviewer/" >
                       <Route path="dashboard" element={<Dashboard/>}/>
                       <Route path="viewser" element={<ViewSer/>} />
                   </Route>
                  </Route>
+
+
               </Route>
 
             </Route>
-
             {/* 404 page & UnAuth ... */}
             <Route path="*" element={<NotFound/>}/>
         </Route>

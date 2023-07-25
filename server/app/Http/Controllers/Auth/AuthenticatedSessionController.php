@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use App\Http\Controllers\api\v1\UserController;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -15,13 +16,15 @@ class AuthenticatedSessionController extends Controller
      * Handle an incoming authentication request.
      * @throws ValidationException
      */
-    public function store(LoginRequest $request): Response
+    public function store(LoginRequest $request): Response|string
     {
         $request->authenticate();
 
         $request->session()->regenerate();
 
-        return response(Auth::user());
+        session()->put('authRole', !$request->input('role') ? 'user': $request->input('role')); // add the default user role => user
+
+        return response((new UserController())->loginAuth());
     }
 
     /**
@@ -30,6 +33,8 @@ class AuthenticatedSessionController extends Controller
     public function destroy(Request $request): Response
     {
         Auth::guard('web')->logout();
+
+        session()->remove('authRole'); // remove the user role from the session as well
 
         $request->session()->invalidate();
 
