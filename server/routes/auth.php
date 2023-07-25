@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\api\v1\UserController;
+use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
 // this is not used since, choosing user roles after login will not be implemented
