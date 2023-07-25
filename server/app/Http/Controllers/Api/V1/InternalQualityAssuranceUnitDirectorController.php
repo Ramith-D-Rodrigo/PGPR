@@ -36,6 +36,7 @@ class InternalQualityAssuranceUnitDirectorController extends Controller
     {
         $validatedData = $request -> validated();
         $validatedData['status'] = 'pending'; //set the status to pending
+        $validatedData['roles'] = ['iqau_director']; //set the roles to iqau director
 
         //random password
         $password = Str::random(8);

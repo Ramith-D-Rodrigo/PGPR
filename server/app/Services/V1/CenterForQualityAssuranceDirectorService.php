@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class CenterForQualityAssuranceDirectorService extends QualityAssuranceStaffService {
     public static function create(array $validatedData) : Model {
-        //make sure validated data has status field
+        //make sure validated data has status field and the roles field
         $qualityAssuranceStaff = parent::create($validatedData); //call the parent create function to create the quality assurance staff model
 
         $CQADirector = new CenterForQualityAssuranceDirector();

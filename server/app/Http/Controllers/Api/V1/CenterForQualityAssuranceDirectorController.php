@@ -37,6 +37,7 @@ class CenterForQualityAssuranceDirectorController extends Controller
     {
         $validatedData = $request->validated();
         $validatedData['status'] = 'pending'; //set the status to pending
+        $validatedData['roles'] = ['cqa_director']; //set the roles to cqa director
 
         //random password
         $password = Str::random(8);

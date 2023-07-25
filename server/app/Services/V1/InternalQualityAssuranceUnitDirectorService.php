@@ -10,7 +10,7 @@ use App\Models\InternalQualityAssuranceUnitDirector;
 class InternalQualityAssuranceUnitDirectorService extends QualityAssuranceStaffService {
 
     public static function create(array $validateData) : Model {
-        //make sure validated data has status field
+        //make sure validated data has status field and the roles field
         $qualityAssuranceStaff = parent::create($validateData); //call the parent create function to create the quality assurance staff model
 
         $internalQualityAssuranceUnitDirector = new InternalQualityAssuranceUnitDirector();
