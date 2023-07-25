@@ -67,6 +67,7 @@ const InitialPasswordRest = () => {
 
     const handlePassword = (e) => {
         setPassword(e.target.value);
+        //todo: validation s.a. strong password should be check
         if (confirmPassword !== e.target.value) {
             //disable the submit button
             setDisableButton({ disabled: true });
@@ -236,7 +237,7 @@ const InitialPasswordRest = () => {
                                             {/* <p style={{color:'red'}} ref={errorRef}>{errorMsg}</p> */}
                                             <Button style={{margin:"0 0 15px"}} {...disableButton} type='submit' color='primary' variant="contained" fullWidth
                                             >
-                                                {loading ? <CircularProgress size={24} /> : 'Change Password'}
+                                                {loading ? <CircularProgress thickness={6} color='secondary' size={24} /> : 'Change Password'}
                                             </Button>
                                         </form>
                                         {/* success message */}
