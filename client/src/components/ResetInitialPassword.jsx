@@ -4,7 +4,6 @@ import AuthContext from "../contexts/AuthProvider.jsx";
 import {useLocation, useNavigate} from "react-router-dom";
 import useRefreshLogin from "../hooks/useRefreshLogin.js";
 
-//
 import { Grid, Paper,Avatar, Box, Typography, Button, CircularProgress, Snackbar,Alert } from '@mui/material'
 import LockIcon from '@mui/icons-material/Lock';
 import Input from '@mui/material/Input';
@@ -94,7 +93,7 @@ const InitialPasswordRest = () => {
             );
             await refresh();
 
-            setLoading(false);
+           setLoading(false);
            setSuccess(true); 
            setPassword("");
            setConfirmPassword("");

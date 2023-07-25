@@ -12,7 +12,7 @@ class UniversitySide extends Model
     protected $fillable = [
         'id',
         'university_id',
-        'staff_position'
+        //'staff_position'
     ];
 
     //university side is a user
@@ -27,7 +27,8 @@ class UniversitySide extends Model
 
     //there is one academic staff who is a university side
     public function academicStaff(){
-        return $this -> hasOne(AcademicStaff::class, 'id');
+        return $this -> hasOne(AcademicStaff::class, 'id', 'id');
+        // return $this -> hasOne(AcademicStaff::class, 'id');
     }
 
     //there is a vice chancellor who is a university side

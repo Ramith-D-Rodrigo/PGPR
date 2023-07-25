@@ -43,9 +43,6 @@ class StoreUniversitySideRequest extends StoreUserRequest //because university s
         $currMessages = [
             'university_id.required' => 'University ID is required',
             'university_id.exists' => 'University ID does not exist',
-            'staff_position.required' => 'Staff position is required',
-            'staff_position.in' => 'Staff position should be one of the following: qa, academic, vc',
-            'staff_position.string' => 'Staff position should be a string'
         ];
 
         return array_merge($parentMsgs, $currMessages);

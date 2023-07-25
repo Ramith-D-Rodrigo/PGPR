@@ -87,7 +87,6 @@ const Login = () => {
       setEmail("");
       setPassword("");
       // setRole("");
-      
     } catch (error) {
       setLoading(false);
       console.error(error?.response);

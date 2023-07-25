@@ -4,7 +4,6 @@ import useAuth from "../hooks/useAuth.js";
 import {useState, useEffect} from 'react';
 
 const LoginPersist = () => {
-
     const {auth} = useAuth();
     const refresh = useRefreshLogin();
     const [isPageLoading, setIsPageLoading] = useState(true);
