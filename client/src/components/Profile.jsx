@@ -17,6 +17,7 @@ const Profile = () => {
     useEffect(() => {
         getUserData();
     }, []);
+  
     return (
         <section>
             <p>{JSON.stringify(user)}</p>

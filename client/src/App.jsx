@@ -15,6 +15,9 @@ import PGPRApplication from './pages/Dean/PGPRApplication';
 import ResetInitialPassword from "./components/ResetInitialPassword.jsx";
 import "./App.css";
 
+import ResetInitialPassword from "./components/ResetInitialPassword.jsx";
+import "./App.css";
+
 function App() {
 
   //Demo routes for side drawer
@@ -49,18 +52,23 @@ function App() {
     <Routes>
         <Route path="/">
             {/* guest routes */}
-            <Route path="login" element={<Login/>}/>
             <Route path="unauthorized" element={<Unauthorized/>}></Route>
 
             <Route element={<LoginPersist/>}>
-              {/* initial login password change component and the routes*/}
+              
+              // initial login password change component and the routes
              <Route path="initial-password-reset" element={<ResetInitialPassword />}/>
+             // note: note final
+             <Route path="login" element={<Login/>}/>
+             <Route path="/" element={<Login/>}/>
               
              <Route element={<MainLayout sideDrawerRoutes={userRoutes}/>}>
                 
                 {/* protected routes */}
+
                 <Route element={<Authenticate allowedRoles={["user", "reviewer", "qac"]}/>}>
                   <Route path="qacofficer/" >
+                      <Route path="" element={<Dashboard/>}/>
                       <Route path="dashboard" element={<Dashboard/>}/>
                       <Route path="universities" element={<Universities/>} />
                   </Route>
@@ -68,20 +76,28 @@ function App() {
 
                 <Route element={<Authenticate allowedRoles={["user", "reviewer", "qac"]}/>}>
                   <Route path="qacdirector/" >
+                      <Route path="" element={<Dashboard/>}/>
                       <Route path="dashboard" element={<Dashboard/>}/>
                       <Route path="AddPGProgramPage" element={<AddPGProgramPage/>} />
                       <Route path="AddAccounts" element={<AddAccounts/>} />
                   </Route>
                 </Route>
-                
-                 <Route element={<Authenticate allowedRoles={["user", "reviewer", "qac"]}/>}>
+
+                <Route element={<Authenticate allowedRoles={["user", "reviewer", "qac"]}/>}>
                   <Route path="reviewer/" >
+                      <Route path="" element={<Dashboard/>}/>
                       <Route path="dashboard" element={<Dashboard/>}/>
                       <Route path="viewser" element={<ViewSer/>} />
                   </Route>
-                 </Route>
+                </Route>
 
-
+                {/* dean routes */}
+                <Route element={<Authenticate allowedRoles={["dean"]}/>}>
+                  <Route path="dean/">
+                    <Route path="" element={<Dashboard/>}/>
+                    <Route path="dashboard" element={<Dashboard/>}/>
+                  </Route>
+                </Route>
               </Route>
 
             </Route>

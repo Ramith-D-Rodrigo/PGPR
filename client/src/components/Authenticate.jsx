@@ -9,7 +9,11 @@ const Authenticate = ({ allowedRoles }) => {
 
   if (!(auth?.initialLogin) && auth?.authRole && auth?.authRole.some((role) => allowedRoles.includes(role))) {
     return <Outlet />
-  } else if (auth) {
+  }
+  else if (auth?.initialLogin) {
+    return <Navigate to="/initial-password-reset" state={{ from: location }} replace />
+  }
+  else if (auth) {
     return <Navigate to="/unauthorized" state={{ from: location }} replace />
   } else {
     return <Navigate to="/login" state={{ from: location }} replace />
