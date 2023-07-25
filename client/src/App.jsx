@@ -11,8 +11,8 @@ import AddAccounts from './pages/QACdirector/AddAccounts';
 import Authenticate from "./components/Authenticate";
 import Unauthorized from "./components/Unauthorized";
 import LoginPersist from "./components/LoginPersist.jsx";
+import PGPRApplication from './pages/Dean/PGPRApplication';
 import ResetInitialPassword from "./components/ResetInitialPassword.jsx";
-import NotFound from "./components/NotFound.jsx";
 import "./App.css";
 
 import ResetInitialPassword from "./components/ResetInitialPassword.jsx";
@@ -38,6 +38,11 @@ function App() {
     "Add Accounts" : "/qacdirector/AddAccounts",
   }
 
+  const deanRoutes = {
+    "DashBoard": "/dean/dashboard",
+    "PGPR Application" : "/dean/PGPRApplication",
+  }
+
   //temporary
   const userRoutes = qacDirectorRoutes;//reviewerRoutes;
   const userBreadCrumbs = ["Home", "DashBoard"];//["Home", "DashBoard", "PG Assignment"];
@@ -47,8 +52,6 @@ function App() {
     <Routes>
         <Route path="/">
             {/* guest routes */}
-            
-            
             <Route path="unauthorized" element={<Unauthorized/>}></Route>
 
             <Route element={<LoginPersist/>}>
