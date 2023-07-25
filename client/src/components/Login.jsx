@@ -1,8 +1,7 @@
 
-import { Grid, Paper,Avatar, Box, Typography, Button, CircularProgress, Snackbar,Alert} from '@mui/material'
+import { Grid, Paper, Box, Typography, Button, CircularProgress, Snackbar,Alert} from '@mui/material'
 import { styled } from '@mui/material/styles';
 import LockIcon from '@mui/icons-material/Lock';
-import TextField from '@mui/material/TextField';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
@@ -19,7 +18,7 @@ import React from 'react'
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 //
-import { useRef, useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 
 import axios from "../api/api.js";
 import AuthContext from "../contexts/AuthProvider.jsx";
@@ -89,9 +88,6 @@ const Login = () => {
       setEmail("");
       setPassword("");
       // setRole("");
-      if (response.data.initialLogin === true) {
-              from = '/initial-password-reset'; //redirect to initiallogin page
-      }
       
     } catch (error) {
       setLoading(false);
@@ -111,8 +107,8 @@ const Login = () => {
 
   useEffect(() => {
     //redirect if logged in (auth object is not null)
-    // let from = location.state?.from?.pathname || auth?.authRole[0]? "/"+auth.authRole[0]+"/dashboard" : "/login";
-    // !auth && navigate(from, { replace: false });
+    let from = location.state?.from?.pathname || auth?.authRole[0]? "/"+auth.authRole[0]+"/dashboard" : "/login";
+    auth && navigate(from, { replace: false });
     // console.log(auth);
     // console.log(from);
     // console.log("here");
@@ -122,7 +118,7 @@ useEffect(() => {
   if (success) {
     // Redirect to login page after displaying the success message
     setTimeout(() => {
-      navigate(from, { replace: true });
+      auth?.initialLogin ? navigate('/initial-password-reset', { replace: true }) : navigate(from, { replace: true });
     }, 1000);
   }
 }, [success]);

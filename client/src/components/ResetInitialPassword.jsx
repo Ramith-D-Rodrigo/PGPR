@@ -115,7 +115,7 @@ const InitialPasswordRest = () => {
 
     useEffect(() => {
         let from = location.state?.from?.pathname || auth?.authRole[0]? "/"+auth.authRole[0]+"/dashboard" : "/login";
-        auth?.officialEmail && navigate(from, { replace: false });
+        auth?.initialLogin == false && navigate(from, { replace: false });
     }, []);
 
     useEffect(() => {
