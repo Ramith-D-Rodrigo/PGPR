@@ -45,7 +45,7 @@ class PostGraduateProgramReview extends Model
       return $this->hasOne(PostGraduateProgramReview::class, 'review_team_id');
   }*/
 
-  public function postGraduatePrograms()
+  public function postGraduateProgram()
   {
       return $this->belongsTo(PostGraduateProgram::class, 'post_graduate_program_id', 'id');
   }
