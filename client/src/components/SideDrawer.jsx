@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Drawer from '@mui/material/Drawer';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
@@ -17,8 +17,9 @@ import axios from "../api/api.js";
 let drawerWidth = 240;
 
 
-const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput, userRoutes }) => {
+const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
   const { auth, setAuth } = useAuth();
+  const [userRole, setUserRole] = useState(auth?.authRole[0]);
   const navigate = useNavigate();
 
   async function handleLogout() {
@@ -48,6 +49,90 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput, userRout
     }
 
     // const selectedStyle = {backgroundColor:'#D8E6FC'};
+
+    //Demo routes for side drawer
+    //fetch from backend using loged in user type
+    const reviewerRoutes = [
+      {route:"DashBoard",link: "/reviewer/dashboard"},
+      {route:"PG Assignment" ,link: "/reviewer/viewser"},
+      {route:"Set Date" ,link: "/reviewerchair/SetDate"},
+      {route:"Set Criteria" ,link: "/reviewerchair/SetCriteria"},
+    ]
+
+    const qacDirectorRoutes = [
+      {route:"DashBoard",link: "/qac_director/dashboard"},
+      {route:"Add PG Program" ,link: "/qac_director/AddPGProgramPage"},
+      {route:"Add Accounts" ,link: "/qac_director/AddAccounts"},
+    ]
+
+    const qacOfficerRoutes = [
+      {route:"DashBoard",link: "/qac_officer/dashboard"},
+      {route:"Universities" ,link: "/qac_officer/universities"},
+      //{route:"Import Reviewers" ,link: "/qac_officer/importreviewers"},
+  ]
+
+    const cqaDirectorRoutes = [
+      {route:"DashBoard",link: "/"},
+      {route:"Add PG Program" ,link: "/cqa_director/AddPGProgramPage"},
+      {route:"Add Accounts" ,link: "/cqa_director/AddAccounts"},
+      {route:"Edit PG Program" ,link: "/cqa_director/EditPGProgram"},
+    ]
+
+    const deanDirectorRoutes = [
+      {route:"DashBoard",link: "/"},
+      {route:"Submit Intent Letter" ,link: "/dean/SubmitIntent"},
+      {route:"Submit Consent" ,link: "/dean/SubmitConsent"},
+    ]
+
+    const iqauDirectorRoutes = [
+      {route:"DashBoard",link: "/"},
+    ]
+
+    const programmeCoordinatorRoutes = [
+      {route:"DashBoard",link: "/"},
+    ]
+
+    const viceChancellorRoutes = [
+      {route:"DashBoard",link: "/"},
+    ]
+
+    // auth?.authRole && setUserRole(auth?.authRole);
+
+    let userRoutes = [];
+    
+    // console.log("userRole",userRole);
+    switch (userRole) {
+      case "reviewer":
+        userRoutes = reviewerRoutes;
+        break;
+      case "qac_director":
+        userRoutes = qacDirectorRoutes;
+        break;
+      case "qac_officer":
+        userRoutes = qacOfficerRoutes;
+        break;
+      case "cqa_director":
+        userRoutes = cqaDirectorRoutes;
+        break;
+      case "dean":
+        userRoutes = deanDirectorRoutes;
+        break;
+      case "iqau_director":
+        userRoutes = iqauDirectorRoutes;
+        break;
+      case "programme_coordinator":
+        userRoutes = programmeCoordinatorRoutes;
+        break;
+      case "vice_chancellor":
+        userRoutes = viceChancellorRoutes;
+        break;
+      default:
+        userRoutes = [];
+        break;
+    }
+    // console.log("userRoutes",userRoutes);
+    
+
 
     return (
         <Drawer

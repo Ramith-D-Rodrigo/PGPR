@@ -5,13 +5,11 @@ import MainContent from './MainContent';
 import Box from '@mui/material/Box';
 import { PropTypes } from 'prop-types';
 
-const MainLayout = ({navigationBreadCrumbs, sideDrawerRoutes,}) => {
+const MainLayout = ({navigationBreadCrumbs,}) => {
 
     MainLayout.propTypes = {
         navigationBreadCrumbs: PropTypes.array.isRequired,
-        sideDrawerRoutes: PropTypes.array.isRequired,
-        // mainContent
-        // mainContent: PropTypes.element.isRequired,
+        // sideDrawerRoutes: PropTypes.array.isRequired,
     };
     
     const [drawerOpen, setDrawerOpen] = React.useState(true);
@@ -31,7 +29,7 @@ const MainLayout = ({navigationBreadCrumbs, sideDrawerRoutes,}) => {
       {/* {console.log("sideDrawerRoutes",sideDrawerRoutes)} */}
         <Box sx={{display: 'flex'}}>
             <NavigationBar open={drawerOpen} openDrawer={handleDrawerOpen} drawerWidthInput={drawerWidth} breadCrumbs={navigationBreadCrumbs} />
-            <SideDrawer drawerOpen={drawerOpen} drawerCloseHandler={handleDrawerClose} drawerWidthInput={drawerWidth} userRoutes={sideDrawerRoutes}/>
+            <SideDrawer drawerOpen={drawerOpen} drawerCloseHandler={handleDrawerClose} drawerWidthInput={drawerWidth}/>
             <MainContent open={drawerOpen} drawerWidthInput={drawerWidth} />
         </Box>
       </>
