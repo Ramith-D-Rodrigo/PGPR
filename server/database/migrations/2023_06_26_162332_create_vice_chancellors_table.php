@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->date("appointed_date");
             $table->date("term_date"); // appointed_date + 5 year
-            $table->enum("vc_status", ["ACTIVE", "INACTIVE"]);
+            $table->enum("status", ["ACTIVE", "INACTIVE"]);
             $table->timestamps();
 
             //foreign key

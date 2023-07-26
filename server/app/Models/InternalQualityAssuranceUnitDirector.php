@@ -9,6 +9,11 @@ class InternalQualityAssuranceUnitDirector extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'id',
+        'iqau_id',
+    ];
+
     //internal quality assurance unit director is a quality assurance staff
     public function qualityAssuranceStaff(){
         return $this -> belongsTo(QualityAssuranceStaff::class);

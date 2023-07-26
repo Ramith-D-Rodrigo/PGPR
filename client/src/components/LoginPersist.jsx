@@ -18,6 +18,7 @@ const LoginPersist = () => {
                 console.error(error);
             } finally {
                 mounted && setIsPageLoading(false);
+                // setIsPageLoading(false);
             }
         }
 
