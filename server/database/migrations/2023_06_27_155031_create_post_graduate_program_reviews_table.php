@@ -14,10 +14,9 @@ return new class extends Migration
         Schema::create('post_graduate_program_reviews', function (Blueprint $table) {
             $table->id();
             $table->foreignId('post_graduate_program_id');
-            $table->foreignId('coordinator_id');
             $table->foreignId('qac_dir_id')->nullable()->default(NULL);
             $table->enum('status_of_pgpr', ['APPROVED', 'REJECTED', 'PENDING'])->default('PENDING');
-            $table->string("payment_voucher"); // link of the voucher
+            $table->string("payment_voucher") -> nullable(); // link of the voucher
 
             // $table->foreignId('final_report_id')->nullable()->default(NULL);
             // $table->foreignId('review_team_id')->nullable()->default(NULL);
@@ -25,9 +24,9 @@ return new class extends Migration
             $table->foreignId('grouped_with')->nullable()->default(NULL);
 
             // added the string type for storing links
-            $table->string("action_plan");
+            $table->string("action_plan") -> nullable();
 
-            $table->string("preliminary_report");
+            $table->string("preliminary_report") -> nullable();
 
             // $table->foreignId('de_id')->nullable()->default(NULL);
             // $table->foreignId('pe_id')->nullable()->default(NULL);

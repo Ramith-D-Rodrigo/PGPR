@@ -38,7 +38,7 @@ class SelfEvaluationReportController extends Controller
      */
     public function show(SelfEvaluationReport $selfEvaluationReport)
     {
-        //
+        
     }
 
     /**

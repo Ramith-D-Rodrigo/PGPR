@@ -31,7 +31,7 @@ class UserFactory extends Factory
             'official_email' => fake()->unique()->safeEmail(),
             'personal_email' => fake()->unique()->safeEmail(),
             'created_by' => 1,
-            'status' => fake()->randomElement(['active', 'inactive']),
+            'status' => 'active',
             'email_verified_at' => now(),
             'password' => Hash::make('password'), // password
             'remember_token' => Str::random(10),
@@ -47,4 +47,55 @@ class UserFactory extends Factory
             'email_verified_at' => null,
         ]);
     }
+
+    public function reviewer(): static {
+        return $this->state(fn (array $attributes) => [
+            'roles' => json_encode(['reviewer']),
+        ]);
+    }
+
+    public function cqa_director(): static {
+        return $this->state(fn (array $attributes) => [
+            'roles' => json_encode(['cqa_director']),
+        ]);
+    }
+
+    public function qac_officer(): static {
+        return $this->state(fn (array $attributes) => [
+            'roles' => json_encode(['qac_officer']),
+        ]);
+    }
+
+    public function qac_director(): static {
+        return $this->state(fn (array $attributes) => [
+            'roles' => json_encode(['qac_director']),
+        ]);
+    }
+
+    public function vice_chancellor(): static {
+        return $this->state(fn (array $attributes) => [
+            'roles' => json_encode(['vice_chancellor']),
+        ]);
+    }
+
+    public function dean(): Factory {
+        return $this->state(fn (array $attributes) => [
+            'roles' => json_encode(['dean']),
+        ]);
+    }
+
+    public function iqau_director(): Factory {
+        return $this->state(fn (array $attributes) => [
+            'roles' => json_encode(['iqau_director']),
+        ]);
+    }
+
+    public function programme_coordinator(): Factory {
+        return $this->state(fn (array $attributes) => [
+            'roles' => json_encode(['programme_coordinator']),
+        ]);
+    }
+
+
+
 }

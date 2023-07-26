@@ -3,13 +3,16 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Resources\V1\PostGraduateProgramReviewApplicationCollection;
+use App\Models\PostGraduateProgramReview;
 use App\Models\PostGraduateProgramReviewApplication;
 use App\Http\Requests\V1\StorePostGraduateProgramReviewApplicationRequest;
 use App\Http\Requests\V1\UpdatePostGraduateProgramReviewApplicationRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\V1\PostGraduateProgramReviewApplicationResource;
+use App\Models\SelfEvaluationReport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 class PostGraduateProgramReviewApplicationController extends Controller
@@ -168,9 +171,26 @@ class PostGraduateProgramReviewApplicationController extends Controller
                 return response()->json(['message' => 'This post graduate program review application is already approved.'], 400);
             }
 
+            DB::beginTransaction();
+
             $pgprApplication -> update(['quality_assurance_council_officer_id' => $qacOfficerID]);
+
+            //after approving, create a post graduate program review
+            $pgpr = PostGraduateProgramReview::create([
+                'post_graduate_program_id' => $pgprApplication -> post_graduate_program_id,
+                'pgpr_application_id' => $pgprApplication -> id
+            ]);
+
+            //now create self evaluation report for the pgpr
+            $ser = SelfEvaluationReport::create([
+                'post_graduate_program_review_id' => $pgpr -> id,
+                'pgp_coordinator_id' => $pgpr -> postGraduateProgram -> currentProgrammeCoordinator -> id //get the current pgp coordinator
+            ]);
+            
+            DB::commit();
         }
         catch(\Exception $e){
+            DB::rollBack();
             return response()->json(['message' => 'Error approving post graduate program review application.',
                 'error' => $e->getMessage()]
             , 400);
