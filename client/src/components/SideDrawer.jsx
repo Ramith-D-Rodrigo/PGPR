@@ -42,7 +42,13 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
 
   drawerWidth = drawerWidthInput;
 
-    const handleClickLink = (Selectedid)=>{
+    const handleClickLink = (e,Selectedid)=>{
+      // console.log("Selectedid",e.target);
+      userRoutes.map((Route,index)=>{
+        let route = document.getElementById("listitem"+index);
+        // console.log(Route);
+        route.style.backgroundColor = "white";
+      })
       let selected = document.getElementById("listitem"+Selectedid);
       // console.log(selected);
       selected.style.backgroundColor = "#D8E6FC";
@@ -55,8 +61,8 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
     const reviewerRoutes = [
       {route:"DashBoard",link: "/reviewer/dashboard"},
       {route:"PG Assignment" ,link: "/reviewer/viewser"},
-      {route:"Set Date" ,link: "/reviewerchair/SetDate"},
-      {route:"Set Criteria" ,link: "/reviewerchair/SetCriteria"},
+      {route:"Set Date" ,link: "/reviewer/SetDate"},
+      {route:"Set Criteria" ,link: "/reviewer/SetCriteria"},
     ]
 
     const qacDirectorRoutes = [
@@ -171,7 +177,7 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
             {
               userRoutes && userRoutes.map((route,index)=>{
                 return(
-                  <Link to={route.link} onClick={() => {handleClickLink(index)}} key={index}>
+                  <Link to={route.link} onClick={(e) => {handleClickLink(e,index)}} key={index}>
                     <ListItem id={"listitem"+index} className='Listitem' button divider>
                         <ListItemText primary={route.route} />
                     </ListItem>
