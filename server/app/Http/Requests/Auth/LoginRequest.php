@@ -32,7 +32,7 @@ class LoginRequest extends FormRequest
             'official_email' => ['required', 'string', 'email'],
             'role' => [
                 'required',
-                Rule::in(['cqa', 'qac', 'reviewer', 'user', 'dean', 'vc']), // TODO: add more roles
+                Rule::in(['cqa_director', 'qac_officer', 'qac_director', 'reviewer', 'user', 'dean', 'vice_chancellor', 'programme_coordinator', 'iqau_director']), // TODO: add more roles
             ],
             'password' => ['required', 'string'],
         ];
