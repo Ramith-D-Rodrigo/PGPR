@@ -25,7 +25,7 @@ import AuthContext from "../contexts/AuthProvider.jsx";
 import {useNavigate, useLocation} from "react-router-dom";
 
 const Login = () => {
-  
+
   const { auth,setAuth } = useContext(AuthContext);
 
   //user data states
@@ -58,11 +58,11 @@ const Login = () => {
     setErrorMsg("");
   }, [email, password, role]);
 
-  const handleClickShowPassword = () => setShowPassword((show) => !show);
+      const handleClickShowPassword = () => setShowPassword((show) => !show);
 
-  const handleMouseDownPassword = (event) => {
-    event.preventDefault();
-  }
+      const handleMouseDownPassword = (event) => {
+        event.preventDefault();
+      }
   
   async function handleLogin(event) {
     event.preventDefault();
@@ -143,8 +143,14 @@ useEffect(() => {
                 <img style={{height:'60vh',width:'60%',margin:"auto"}} src={"https://assets-global.website-files.com/5e8b3356a5a8f5321855bbe7/648c7d9b38164fd8fc587f8a_img-person-form.png"} alt="temporary" />
             </Grid>
 
-            <Grid item xs={5}>
-              
+      const avatarStyles = {backgroundColor:'#3f51b5',width:'60px',height:'60px'}
+      return (
+        <Box sx={{display:"flex",alignItems:"center",height:"100vh",justifyContent:"center"}}>
+          <Grid container spacing={2}
+            direction="row"
+            justifyContent="center"
+            alignItems="center"
+            >
                 <Paper elevation={10} style = {paperStyle}>
                   <Box sx={{display:"flex",alignItems:"center",height:"100%",justifyContent:"center"}}>
                     <Grid align="center">
