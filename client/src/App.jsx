@@ -7,16 +7,22 @@ import MainLayout from './components/MainLayout';
 import NotFound from './pages/NotFound';
 import AddPGProgramPage from './pages/QACdirector/AddPGProgramPage';
 import AddAccounts from './pages/QACdirector/AddAccounts';
-//
 import Authenticate from "./components/Authenticate";
 import Unauthorized from "./components/Unauthorized";
 import LoginPersist from "./components/LoginPersist.jsx";
 import PGPRApplication from './pages/Dean/PGPRApplication';
 import ResetInitialPassword from "./components/ResetInitialPassword.jsx";
 import "./App.css";
-
 import ResetInitialPassword from "./components/ResetInitialPassword.jsx";
 import "./App.css";
+
+/* 
+  important: 
+  please check before merge whether the import paths duplicated
+  & please use the correct import path.
+  if there is no imported path similar to the import path(by you), please remove the import path
+  & instead do the changes into file already in there.
+*/
 
 function App() {
 
