@@ -103,6 +103,14 @@ function App() {
                     <Route path="dashboard" element={<Dashboard/>}/>
                   </Route>
                 </Route>
+
+                {/* iqau routes */}
+                <Route element={<Authenticate allowedRoles={["iqau_director"]}/>}>
+                  <Route path="iqau_director/">
+                    <Route path="" element={<Dashboard/>}/>
+                    <Route path="dashboard" element={<Dashboard/>}/>
+                  </Route>
+                </Route>
               </Route>
 
             </Route>

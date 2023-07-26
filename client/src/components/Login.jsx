@@ -217,13 +217,13 @@ useEffect(() => {
                               label="Role"
                             >
                               <MenuItem value={"reviewer"}>Reviewer</MenuItem>
-                              <MenuItem value={"coordinator"}>Program Coordinator</MenuItem>
-                              <MenuItem value={"iqauofficer"}>IQAU Officer</MenuItem>
-                              <MenuItem value={"cqadirector"}>CQA Director</MenuItem>
-                              <MenuItem value={"qacdirector"}>QAC Director</MenuItem>
-                              <MenuItem value={"qacofficer"}>QAC Officer</MenuItem>
+                              <MenuItem value={"programme_coordinator"}>Programme Coordinator</MenuItem>
+                              <MenuItem value={"iqau_director"}>IQAU Director</MenuItem>
+                              <MenuItem value={"cqa_director"}>CQA Director</MenuItem>
+                              <MenuItem value={"qac_director"}>QAC Director</MenuItem>
+                              <MenuItem value={"qac_officer"}>QAC Officer</MenuItem>
                               <MenuItem value={"dean"}>Director/Dean</MenuItem>
-                              <MenuItem value={"vicechancellor"}>Vice Chancellor</MenuItem>
+                              <MenuItem value={"vice_chancellor"}>Vice Chancellor</MenuItem>
                             </Select>
 
                           </FormControl>
