@@ -2,6 +2,7 @@ import React from 'react';
 import Form from '../../components//Form';
 import ScrollableDiv from '../../components/ScrollableDiv';
 import TestForm from '../../components/TestForm';
+import handlePGPRApplicationCreation from '../../api/Dean/handlePGPRApplicationCreation';
 
 const PGPRApplication = () => {
   return (
@@ -26,7 +27,7 @@ const PGPRApplication = () => {
             /*there should be a save button to add the intent letter and edit the programme application later */
 
             onCancel={() => {}}
-            onSubmit={() => {}}
+            onSubmit={handlePGPRApplicationCreation}
         />
     </ScrollableDiv>
 

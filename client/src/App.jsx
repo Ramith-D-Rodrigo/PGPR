@@ -13,7 +13,6 @@ import LoginPersist from "./components/LoginPersist.jsx";
 import PGPRApplication from './pages/Dean/PGPRApplication';
 import ResetInitialPassword from "./components/ResetInitialPassword.jsx";
 import "./App.css";
-import ResetInitialPassword from "./components/ResetInitialPassword.jsx";
 import "./App.css";
 
 /* 
@@ -62,9 +61,9 @@ function App() {
 
             <Route element={<LoginPersist/>}>
               
-              // initial login password change component and the routes
+              {/* initial login password change component and the routes*/}
              <Route path="initial-password-reset" element={<ResetInitialPassword />}/>
-             // note: note final
+             {/*note: note final*/}
              <Route path="login" element={<Login/>}/>
              <Route path="/" element={<Login/>}/>
               
@@ -100,6 +99,14 @@ function App() {
                 {/* dean routes */}
                 <Route element={<Authenticate allowedRoles={["dean"]}/>}>
                   <Route path="dean/">
+                    <Route path="" element={<Dashboard/>}/>
+                    <Route path="dashboard" element={<Dashboard/>}/>
+                  </Route>
+                </Route>
+
+                {/* iqau routes */}
+                <Route element={<Authenticate allowedRoles={["iqau_director"]}/>}>
+                  <Route path="iqau_director/">
                     <Route path="" element={<Dashboard/>}/>
                     <Route path="dashboard" element={<Dashboard/>}/>
                   </Route>

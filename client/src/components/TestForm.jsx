@@ -7,7 +7,10 @@ const TestForm = ({topic, fields, cancelButtonText, submitButtonText, onCancel, 
         // Handle form submission logic
         const formData = new FormData(event.target);
         const formValues = Object.fromEntries(formData.entries());
-        onSubmit(formValues);
+
+        onSubmit(formValues).then((res) => {
+            alert(res.data);
+        });
     };
 
     const handleCancel = (event) => {
