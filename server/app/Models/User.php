@@ -66,6 +66,31 @@ class User extends Authenticatable
         return $this -> hasOne(QualityAssuranceCouncilOfficer::class, 'id', 'id');
     }
 
+    //user maybe an academic staff member through university side
+    public function academicStaff(){
+        return $this -> hasOneThrough(AcademicStaff::class, UniversitySide::class, 'id', 'id', 'id', 'id');
+    }
+
+    //user maybe a vice chancellor through university side
+    public function viceChancellor(){
+        return $this -> hasOneThrough(ViceChancellor::class, UniversitySide::class, 'id', 'id', 'id', 'id');
+    }
+
+    //user maybe a quality assurance staff through university side
+    public function qualityAssuranceStaff(){
+        return $this -> hasOneThrough(QualityAssuranceStaff::class, UniversitySide::class, 'id', 'id', 'id', 'id');
+    }
+
+    //user maybe a cqa director through univesity side then quality assurance staff
+    public function CenterForQualityAssuranceDirector(){
+        return $this -> qualityAssuranceStaff() -> centerForQualityAssuranceDirector();
+    }
+
+    //user maybe a iqau director through univesity side then quality assurance staff
+    public function InternalQualityAssuranceUnitDirector(){
+        return $this -> qualityAssuranceStaff() -> internalQualityAssuranceUnitDirector();
+    }
+
 /*   user account is created by some other user
     following are the scenarios of the different types of users.
         qac officer create accounts for cqa director,vice chancellor and reviewer )
