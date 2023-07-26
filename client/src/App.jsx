@@ -5,8 +5,6 @@ import Universities from './pages/QACOfficer/Universities';
 import ViewSer from './pages/Reviewer/ViewSer';
 import MainLayout from './components/MainLayout';
 import NotFound from './pages/NotFound';
-import AddPGProgramPage from './pages/QACdirector/AddPGProgramPage';
-import AddAccounts from './pages/QACdirector/AddAccounts';
 import Authenticate from "./components/Authenticate";
 import Unauthorized from "./components/Unauthorized";
 import LoginPersist from "./components/LoginPersist.jsx";
@@ -22,6 +20,12 @@ import "./App.css";
   if there is no imported path similar to the import path(by you), please remove the import path
   & instead do the changes into file already in there.
 */
+import EditPGProgram from './pages/CQAdirector/EditPGProgram';
+import SubmitIntent from './pages/DeanDirector/SubmitIntent';
+import SubmitConsent from './pages/DeanDirector/SubmitConsent';
+import SetDate from './pages/ReviewerChair/SetDate';
+import SetCriteria from './pages/ReviewerChair/SetCriteria';
+
 
 function App() {
 
@@ -37,16 +41,25 @@ function App() {
     //"Import Reviewers" : "/qacofficer/importreviewers",
   }
 
-  const qacDirectorRoutes = {
-    "DashBoard": "/qacdirector/dashboard",
-    "Add PG Program" : "/qacdirector/AddPGProgramPage",
-    "Add Accounts" : "/qacdirector/AddAccounts",
+  const cqaDirectorRoutes = {
+    "DashBoard": "/",
+    "Add PG Program" : "/cqadirector/AddPGProgramPage",
+    "Add Accounts" : "/cqadirector/AddAccounts",
+    "Edit PG Program" : "/cqadirector/EditPGProgram",
   }
 
-  const deanRoutes = {
-    "DashBoard": "/dean/dashboard",
-    "PGPR Application" : "/dean/PGPRApplication",
+  const deanDirectorRoutes = {
+    "DashBoard": "/",
+    "Submit Intent Letter" : "/dean/SubmitIntent",
+    "Submit Consent" : "/dean/SubmitConsent",
   }
+
+  const reviewerChairRoutes = {
+    "DashBoard": "/qacdirector/dashboard",
+    "Set Date" : "/reviewerchair/SetDate",
+    "Set Criteria" : "/reviewerchair/SetCriteria",
+  }
+
 
   //temporary
   const userRoutes = qacDirectorRoutes;//reviewerRoutes;
