@@ -10,7 +10,13 @@ import Unauthorized from "./components/Unauthorized";
 import LoginPersist from "./components/LoginPersist.jsx";
 import PGPRApplication from './pages/Dean/PGPRApplication';
 import ResetInitialPassword from "./components/ResetInitialPassword.jsx";
-import "./App.css";
+import AddPGProgramPage from './pages/CQAdirector/AddPGProgramPage';
+import AddAccounts from './pages/CQAdirector/AddAccounts';
+import EditPGProgram from './pages/CQAdirector/EditPGProgram';
+import SubmitIntent from './pages/DeanDirector/SubmitIntent';
+import SubmitConsent from './pages/DeanDirector/SubmitConsent';
+import SetDate from './pages/ReviewerChair/SetDate';
+import SetCriteria from './pages/ReviewerChair/SetCriteria';
 import "./App.css";
 
 /* 
@@ -20,11 +26,6 @@ import "./App.css";
   if there is no imported path similar to the import path(by you), please remove the import path
   & instead do the changes into file already in there.
 */
-import EditPGProgram from './pages/CQAdirector/EditPGProgram';
-import SubmitIntent from './pages/DeanDirector/SubmitIntent';
-import SubmitConsent from './pages/DeanDirector/SubmitConsent';
-import SetDate from './pages/ReviewerChair/SetDate';
-import SetCriteria from './pages/ReviewerChair/SetCriteria';
 
 
 function App() {
@@ -34,30 +35,33 @@ function App() {
   const reviewerRoutes = {
     "DashBoard": "/reviewer/dashboard",
     "PG Assignment" : "/reviewer/viewser",
+    "Set Date" : "/reviewerchair/SetDate",
+    "Set Criteria" : "/reviewerchair/SetCriteria",
   }
+
+  const qacDirectorRoutes = {
+    "DashBoard": "/qac_director/dashboard",
+    "Add PG Program" : "/qac_director/AddPGProgramPage",
+    "Add Accounts" : "/qac_director/AddAccounts",
+  }
+
   const qacOfficerRoutes = {
-    "DashBoard": "/qacofficer/dashboard",
-    "Universities" : "/qacofficer/universities",
-    //"Import Reviewers" : "/qacofficer/importreviewers",
+    "DashBoard": "/qac_officer/dashboard",
+    "Universities" : "/qac_officer/universities",
+    //"Import Reviewers" : "/qac_officer/importreviewers",
   }
 
   const cqaDirectorRoutes = {
     "DashBoard": "/",
-    "Add PG Program" : "/cqadirector/AddPGProgramPage",
-    "Add Accounts" : "/cqadirector/AddAccounts",
-    "Edit PG Program" : "/cqadirector/EditPGProgram",
+    "Add PG Program" : "/cqa_director/AddPGProgramPage",
+    "Add Accounts" : "/cqa_director/AddAccounts",
+    "Edit PG Program" : "/cqa_director/EditPGProgram",
   }
 
   const deanDirectorRoutes = {
     "DashBoard": "/",
     "Submit Intent Letter" : "/dean/SubmitIntent",
     "Submit Consent" : "/dean/SubmitConsent",
-  }
-
-  const reviewerChairRoutes = {
-    "DashBoard": "/qacdirector/dashboard",
-    "Set Date" : "/reviewerchair/SetDate",
-    "Set Criteria" : "/reviewerchair/SetCriteria",
   }
 
 
@@ -84,28 +88,38 @@ function App() {
                 
                 {/* protected routes */}
 
-                <Route element={<Authenticate allowedRoles={["user", "reviewer", "qac"]}/>}>
-                  <Route path="qacofficer/" >
+                <Route element={<Authenticate allowedRoles={["qac_officer"]}/>}>
+                  <Route path="qac_officer/" >
                       <Route path="" element={<Dashboard/>}/>
                       <Route path="dashboard" element={<Dashboard/>}/>
                       <Route path="universities" element={<Universities/>} />
                   </Route>
                 </Route>
 
-                <Route element={<Authenticate allowedRoles={["user", "reviewer", "qac"]}/>}>
-                  <Route path="qacdirector/" >
-                      <Route path="" element={<Dashboard/>}/>
-                      <Route path="dashboard" element={<Dashboard/>}/>
-                      <Route path="AddPGProgramPage" element={<AddPGProgramPage/>} />
-                      <Route path="AddAccounts" element={<AddAccounts/>} />
+                <Route element={<Authenticate allowedRoles={["cqa_director"]}/>}>
+                  <Route path="cqa_director/" >
+                    <Route path="" element={<Dashboard/>}/>
+                    <Route path="dashboard" element={<Dashboard/>}/>
+                    <Route path="AddPGProgramPage" element={<AddPGProgramPage/>} />
+                    <Route path="AddAccounts" element={<AddAccounts/>} />
+                    <Route path="EditPGProgram" element={<EditPGProgram/>} />
                   </Route>
                 </Route>
 
-                <Route element={<Authenticate allowedRoles={["user", "reviewer", "qac"]}/>}>
+                <Route element={<Authenticate allowedRoles={["qac_director"]}/>}>
+                  <Route path="qac_director/" >
+                      <Route path="" element={<Dashboard/>}/>
+                      <Route path="dashboard" element={<Dashboard/>}/>
+                  </Route>
+                </Route>
+
+                <Route element={<Authenticate allowedRoles={["reviewer"]}/>}>
                   <Route path="reviewer/" >
                       <Route path="" element={<Dashboard/>}/>
                       <Route path="dashboard" element={<Dashboard/>}/>
                       <Route path="viewser" element={<ViewSer/>} />
+                      <Route path="SetDate" element={<SetDate/>} />
+                      <Route path="SetCriteria" element={<SetCriteria/>} />
                   </Route>
                 </Route>
 
@@ -114,6 +128,8 @@ function App() {
                   <Route path="dean/">
                     <Route path="" element={<Dashboard/>}/>
                     <Route path="dashboard" element={<Dashboard/>}/>
+                    <Route path="SubmitIntent" element={<SubmitIntent/>} />
+                    <Route path="SubmitConsent" element={<SubmitConsent/>} />
                   </Route>
                 </Route>
 
@@ -124,6 +140,21 @@ function App() {
                     <Route path="dashboard" element={<Dashboard/>}/>
                   </Route>
                 </Route>
+
+                <Route element={<Authenticate allowedRoles={["programme_coordinator"]}/>}>
+                  <Route path="programme_coordinator/">
+                    <Route path="" element={<Dashboard/>}/>
+                    <Route path="dashboard" element={<Dashboard/>}/>
+                  </Route>
+                </Route>
+
+                <Route element={<Authenticate allowedRoles={["vice_chancellor"]}/>}>
+                  <Route path="vice_chancellor/">
+                    <Route path="" element={<Dashboard/>}/>
+                    <Route path="dashboard" element={<Dashboard/>}/>
+                  </Route>
+                </Route>
+
               </Route>
 
             </Route>
