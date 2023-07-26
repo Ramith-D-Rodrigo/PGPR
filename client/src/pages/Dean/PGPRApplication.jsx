@@ -9,26 +9,32 @@ import { useState, useEffect, useRef } from 'react';
 const PGPRApplication = () => {
   const [pgps, setPGPs] = useState([]); //state variable to store the response data
 
-  let selectedPGP = useRef("");
-  let selectedSLQFLevel = useRef("");
+  const [selectedPGP, setSelectedPGP] = useState(null);
+  const [selectedSLQFLevel, setSelectedSLQFLevel] = useState(null);
 
   useEffect(() => {
-    getPostGraduateProgrammes().then((res) => {
-      setPGPs(res.data.data);
-      console.log(res.data.data); //data is an array of objects
-    })
-    .then(() => {
-      selectedPGP.current = pgps[0];
-      selectedSLQFLevel.current = selectedPGP.current.slqfLevel;
+    const func = async () => {
+      getPostGraduateProgrammes().then((res) => {
+        setPGPs(res.data.data);
+  
+/*         //call displaySLQFLevelForPGP to set the initial value of selectedSLQFLevel
+        displaySLQFLevelForPGP({target: {value: res.data.data[0].id}}); */
+        
+      });
+    };
 
-      displaySLQFLevelForPGP({target: {value: selectedPGP.id}});
-    }) ;
+    func();
   }, []);
 
 
   const displaySLQFLevelForPGP = (event) => {
-    selectedPGP.current = pgps.find((pgp) => pgp.id === event.target.value);
-    selectedSLQFLevel.current = selectedPGP.current.slqfLevel;
+    const selectedItem = event.target.value;
+    setSelectedPGP(selectedItem);
+
+    const foundPGP = pgps.find((pgp) => pgp.id == selectedItem);
+    if(foundPGP){
+      setSelectedSLQFLevel(foundPGP.slqfLevel);
+    }
   }
 
 
@@ -40,6 +46,7 @@ const PGPRApplication = () => {
                 {label: "PostGraduate Programme", name: "postgraduateProgramId", type: "select", isReadonly: false, 
                 options: pgps.map((pgp) => ({label: pgp.title, value: pgp.id})),
                 onchange: displaySLQFLevelForPGP,
+                value: {selectedPGP}
                 },
                 {label: "Professional Postgraduate Programme", name: "isProfessionalDegreeProgramme", type: "checkbox", isReadonly: true, options: [{label: "Yes", value: "1"}]},
                 {label: "SLQF Level", name: "slqfLevel", type: "text", isReadonly: true, value:{selectedSLQFLevel}},

@@ -22,7 +22,7 @@ const FormField = ({label, name, type, isReadonly, options, onChange, value}) =>
         : (
             <div className="relative flex-grow">
                 {(type === 'select') ? (
-                    <select id={name} name={name} className="form-select block w-full h-10 bg-white border border-black rounded-lg hover:border-black focus:outline-none px-2 py-1 pr-8" readOnly={isReadonly} onChange={onChange}>    
+                    <select id={name} name={name} className="form-select block w-full h-10 bg-white border border-black rounded-lg hover:border-black focus:outline-none px-2 py-1 pr-8" readOnly={isReadonly} onChange={onChange} value={value}>    
                         {options.map((option) => (
                             <option key={name + option.value} value={option.value}>
                                 {option.label}
