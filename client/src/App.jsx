@@ -81,6 +81,11 @@ function App() {
                   </Route>
                  </Route>
 
+                <Route element={<Authenticate allowedRoles={["dean"]}/>}>
+                  <Route path="dean/" >
+                      <Route path="dashboard" element={<Dashboard/>}/>
+                  </Route>
+                </Route>
 
               </Route>
 
