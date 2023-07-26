@@ -4,6 +4,7 @@ import SideDrawer from './SideDrawer'
 import MainContent from './MainContent';
 import Box from '@mui/material/Box';
 import { PropTypes } from 'prop-types';
+import {UserNavigationsProvider} from '../contexts/UserNavigationsProvider';
 
 const MainLayout = ({navigationBreadCrumbs,}) => {
 
@@ -27,11 +28,13 @@ const MainLayout = ({navigationBreadCrumbs,}) => {
     return (
       <>
       {/* {console.log("sideDrawerRoutes",sideDrawerRoutes)} */}
+      <UserNavigationsProvider>
         <Box sx={{display: 'flex'}}>
             <NavigationBar open={drawerOpen} openDrawer={handleDrawerOpen} drawerWidthInput={drawerWidth} breadCrumbs={navigationBreadCrumbs} />
             <SideDrawer drawerOpen={drawerOpen} drawerCloseHandler={handleDrawerClose} drawerWidthInput={drawerWidth}/>
             <MainContent open={drawerOpen} drawerWidthInput={drawerWidth} />
         </Box>
+      </UserNavigationsProvider>
       </>
 
     )
