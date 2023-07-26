@@ -13,6 +13,7 @@ import ListItemText from '@mui/material/ListItemText';
 import {Link, useNavigate} from 'react-router-dom';
 import useAuth from "../hooks/useAuth.js";
 import axios from "../api/api.js";
+import { useLocation } from 'react-router-dom';
 
 let drawerWidth = 240;
 
@@ -21,6 +22,7 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
   const { auth, setAuth } = useAuth();
   const [userRole, setUserRole] = useState(auth?.authRole[0]);
   const navigate = useNavigate();
+  const location = useLocation();
 
   async function handleLogout() {
 
@@ -42,25 +44,30 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
 
   drawerWidth = drawerWidthInput;
 
-    const handleClickLink = (e,Selectedid)=>{
-      // console.log("Selectedid",e.target);
-      userRoutes.map((Route,index)=>{
-        let route = document.getElementById("listitem"+index);
-        // console.log(Route);
+  //change selected sidedrawer route based on location
+  useEffect(() => {
+
+    userRoutes.map((Route,index)=>{
+      let route = document.getElementById("listitem"+index);
+      // console.log(route);
+      if(location.pathname.includes(Route.link) || location.pathname.includes(Route.link+"/")){
+        route.style.backgroundColor = "#D8E6FC";
+        console.log("Selected : ",Route);
+      }
+      else if((location.pathname === "/"+userRole+"/" || location.pathname === "/"+userRole) && Route.link === "/"+userRole+"/dashboard"){
+        route.style.backgroundColor = "#D8E6FC";
+      }
+      else{
         route.style.backgroundColor = "white";
-      })
-      let selected = document.getElementById("listitem"+Selectedid);
-      // console.log(selected);
-      selected.style.backgroundColor = "#D8E6FC";
-    }
+      }
+    })
 
-    // const selectedStyle = {backgroundColor:'#D8E6FC'};
+  },[location]);
 
-    //Demo routes for side drawer
-    //fetch from backend using loged in user type
+    //routes for side drawer -- not completed
     const reviewerRoutes = [
       {route:"DashBoard",link: "/reviewer/dashboard"},
-      {route:"PG Assignment" ,link: "/reviewer/viewser"},
+      {route:"PG Assignment" ,link: "/reviewer/PG_Assignment"},
       {route:"Set Date" ,link: "/reviewer/SetDate"},
       {route:"Set Criteria" ,link: "/reviewer/SetCriteria"},
     ]
@@ -102,11 +109,8 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
       {route:"DashBoard",link: "/"},
     ]
 
-    // auth?.authRole && setUserRole(auth?.authRole);
-
+    //set user routes based on user role
     let userRoutes = [];
-    
-    // console.log("userRole",userRole);
     switch (userRole) {
       case "reviewer":
         userRoutes = reviewerRoutes;
@@ -136,9 +140,6 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
         userRoutes = [];
         break;
     }
-    // console.log("userRoutes",userRoutes);
-    
-
 
     return (
         <Drawer
@@ -177,7 +178,7 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
             {
               userRoutes && userRoutes.map((route,index)=>{
                 return(
-                  <Link to={route.link} onClick={(e) => {handleClickLink(e,index)}} key={index}>
+                  <Link to={route.link} key={index}>
                     <ListItem id={"listitem"+index} className='Listitem' button divider>
                         <ListItemText primary={route.route} />
                     </ListItem>

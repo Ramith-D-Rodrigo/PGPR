@@ -33,7 +33,7 @@ function App() {
   const userBreadCrumbs = [
     {name:"Home",link:"/"}, 
     {name:"DashBoard",link:"/"},
-  ];//["Home", "DashBoard", "PG Assignment"];
+  ];
 
   return (
 
@@ -83,7 +83,7 @@ function App() {
                   <Route path="reviewer/" >
                       <Route path="" element={<Dashboard/>}/>
                       <Route path="dashboard" element={<Dashboard/>}/>
-                      <Route path="viewser" element={<ViewSer/>} />
+                      <Route path="PG_Assignment" element={<ViewSer/>} />
                       <Route path="SetDate" element={<SetDate/>} />
                       <Route path="SetCriteria" element={<SetCriteria/>} />
                   </Route>
