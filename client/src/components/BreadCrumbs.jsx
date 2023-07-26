@@ -1,11 +1,14 @@
 import { Breadcrumbs } from '@mui/material'
 import { Link } from 'react-router-dom'
 
-const BreadCrumbs = () => {
+const BreadCrumbs = ({locations}) => {
   return (
     <Breadcrumbs aria-label='breadcrumb' sx={{flexGrow: 1}} separator='&#x27A4;'>
-        <Link to='/'>CQA Director</Link>
-        <Link to='/'>PG Programs</Link>
+        {locations.map((location, index) => {
+            return (
+                <Link key={index} to={location.link}>{location.name}</Link>
+            )
+        })}
     </Breadcrumbs>
   )
 }

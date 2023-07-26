@@ -83,16 +83,17 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput, userRout
           {/*userRoutes*/} {/* routes according to the user role */}
           <List component="nav" aria-label="mailbox folders">
 
-            {userRoutes && Object.keys(userRoutes).map((key,index)=>{
-              return(
-                <Link to={userRoutes[key]} onClick={() => {handleClickLink(index)}} key={index}>
-                  <ListItem id={"listitem"+index} className='Listitem' button divider>
-                      <ListItemText primary={key} />
-                  </ListItem>
-                </Link>
-              )
-
-            })}
+            {
+              userRoutes && userRoutes.map((route,index)=>{
+                return(
+                  <Link to={route.link} onClick={() => {handleClickLink(index)}} key={index}>
+                    <ListItem id={"listitem"+index} className='Listitem' button divider>
+                        <ListItemText primary={route.route} />
+                    </ListItem>
+                  </Link>
+                )
+              })
+            }
             
           </List>
 

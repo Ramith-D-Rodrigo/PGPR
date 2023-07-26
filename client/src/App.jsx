@@ -32,42 +32,45 @@ function App() {
 
   //Demo routes for side drawer
   //fetch from backend using loged in user type
-  const reviewerRoutes = {
-    "DashBoard": "/reviewer/dashboard",
-    "PG Assignment" : "/reviewer/viewser",
-    "Set Date" : "/reviewerchair/SetDate",
-    "Set Criteria" : "/reviewerchair/SetCriteria",
-  }
+  const reviewerRoutes = [
+    {route:"DashBoard",link: "/reviewer/dashboard"},
+    {route:"PG Assignment" ,link: "/reviewer/viewser"},
+    {route:"Set Date" ,link: "/reviewerchair/SetDate"},
+    {route:"Set Criteria" ,link: "/reviewerchair/SetCriteria"},
+  ]
 
-  const qacDirectorRoutes = {
-    "DashBoard": "/qac_director/dashboard",
-    "Add PG Program" : "/qac_director/AddPGProgramPage",
-    "Add Accounts" : "/qac_director/AddAccounts",
-  }
+  const qacDirectorRoutes = [
+    {route:"DashBoard",link: "/qac_director/dashboard"},
+    {route:"Add PG Program" ,link: "/qac_director/AddPGProgramPage"},
+    {route:"Add Accounts" ,link: "/qac_director/AddAccounts"},
+  ]
 
-  const qacOfficerRoutes = {
-    "DashBoard": "/qac_officer/dashboard",
-    "Universities" : "/qac_officer/universities",
-    //"Import Reviewers" : "/qac_officer/importreviewers",
-  }
+  const qacOfficerRoutes = [
+    {route:"DashBoard",link: "/qac_officer/dashboard"},
+    {route:"Universities" ,link: "/qac_officer/universities"},
+    //{route:"Import Reviewers" ,link: "/qac_officer/importreviewers"},
+]
 
-  const cqaDirectorRoutes = {
-    "DashBoard": "/",
-    "Add PG Program" : "/cqa_director/AddPGProgramPage",
-    "Add Accounts" : "/cqa_director/AddAccounts",
-    "Edit PG Program" : "/cqa_director/EditPGProgram",
-  }
+  const cqaDirectorRoutes = [
+    {route:"DashBoard",link: "/"},
+    {route:"Add PG Program" ,link: "/cqa_director/AddPGProgramPage"},
+    {route:"Add Accounts" ,link: "/cqa_director/AddAccounts"},
+    {route:"Edit PG Program" ,link: "/cqa_director/EditPGProgram"},
+  ]
 
-  const deanDirectorRoutes = {
-    "DashBoard": "/",
-    "Submit Intent Letter" : "/dean/SubmitIntent",
-    "Submit Consent" : "/dean/SubmitConsent",
-  }
+  const deanDirectorRoutes = [
+    {route:"DashBoard",link: "/"},
+    {route:"Submit Intent Letter" ,link: "/dean/SubmitIntent"},
+    {route:"Submit Consent" ,link: "/dean/SubmitConsent"},
+  ]
 
 
   //temporary
   const userRoutes = qacDirectorRoutes;//reviewerRoutes;
-  const userBreadCrumbs = ["Home", "DashBoard"];//["Home", "DashBoard", "PG Assignment"];
+  const userBreadCrumbs = [
+    {name:"Home",link:"/"}, 
+    {name:"DashBoard",link:"/"},
+  ];//["Home", "DashBoard", "PG Assignment"];
 
   return (
 
@@ -84,7 +87,7 @@ function App() {
              <Route path="login" element={<Login/>}/>
              <Route path="/" element={<Login/>}/>
               
-             <Route element={<MainLayout sideDrawerRoutes={userRoutes}/>}>
+             <Route element={<MainLayout sideDrawerRoutes={userRoutes} navigationBreadCrumbs={userBreadCrumbs}/>}>
                 
                 {/* protected routes */}
 
