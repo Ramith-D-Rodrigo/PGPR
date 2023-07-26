@@ -46,7 +46,7 @@ const NavigationBar = ({open , openDrawer, drawerWidthInput, breadCrumbs}) => {
               >
                 <MenuIcon />
               </IconButton>
-              <BreadCrumbs locations={breadCrumbs}/>{/* breadcrumbs according to the page */}
+              <BreadCrumbs/>{/* breadcrumbs according to the page */}
               <Stack sx={{ justifyContent: "center", alignItems:"center" }} direction='row' spacing={2}>
                   <NotificationsIcon/>
                   <Typography variant='h6' color='black'>

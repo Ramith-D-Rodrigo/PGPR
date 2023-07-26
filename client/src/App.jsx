@@ -30,11 +30,6 @@ import "./App.css";
 
 function App() {
 
-  const userBreadCrumbs = [
-    {name:"Home",link:"/"}, 
-    {name:"DashBoard",link:"/"},
-  ];
-
   return (
 
     <Routes>
@@ -50,7 +45,7 @@ function App() {
              <Route path="login" element={<Login/>}/>
              <Route path="/" element={<Login/>}/>
               
-             <Route element={<MainLayout navigationBreadCrumbs={userBreadCrumbs}/>}>
+             <Route element={<MainLayout/>}>
                 
                 {/* protected routes */}
 

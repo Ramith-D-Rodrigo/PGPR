@@ -2,8 +2,22 @@ import React from 'react';
 import ScrollableDiv from './ScrollableDiv';
 import Card from './DashboardCard';
 import { Grid } from '@mui/material';
+import useSetUserNavigations from '../hooks/useSetUserNavigations';
 
+//set page navigations
+/*
+ * * all pages should do this
+*/
 const Dashboard = ({contents}) => {
+  useSetUserNavigations(
+    [
+      {
+        name: "Dashboard",
+        link: "/dashboard"
+      }
+    ] 
+  );
+    
   return (
     <>
       <ScrollableDiv height="600px">

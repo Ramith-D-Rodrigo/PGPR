@@ -30,7 +30,7 @@ const MainLayout = ({navigationBreadCrumbs,}) => {
       {/* {console.log("sideDrawerRoutes",sideDrawerRoutes)} */}
       <UserNavigationsProvider>
         <Box sx={{display: 'flex'}}>
-            <NavigationBar open={drawerOpen} openDrawer={handleDrawerOpen} drawerWidthInput={drawerWidth} breadCrumbs={navigationBreadCrumbs} />
+            <NavigationBar open={drawerOpen} openDrawer={handleDrawerOpen} drawerWidthInput={drawerWidth} />
             <SideDrawer drawerOpen={drawerOpen} drawerCloseHandler={handleDrawerClose} drawerWidthInput={drawerWidth}/>
             <MainContent open={drawerOpen} drawerWidthInput={drawerWidth} />
         </Box>

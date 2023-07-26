@@ -4,8 +4,17 @@ import DiscriptiveDiv from '../../components/DiscriptiveDiv';
 import Card from '../../components/DashboardCard';
 import { Grid } from '@mui/material';
 import { useState } from 'react';
+import useSetUserNavigations from '../../hooks/useSetUserNavigations';
 
 const ViewSer = () => {
+    useSetUserNavigations(
+        [
+            {
+              name: "PG Assignments",
+              link: "/PG_Assignment"
+            }
+        ]
+    );
 
     let descriptionWidth = 30;
 

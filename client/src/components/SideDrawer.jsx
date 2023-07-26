@@ -52,7 +52,7 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
       // console.log(route);
       if(location.pathname.includes(Route.link) || location.pathname.includes(Route.link+"/")){
         route.style.backgroundColor = "#D8E6FC";
-        console.log("Selected : ",Route);
+        // console.log("Selected : ",Route);
       }
       else if((location.pathname === "/"+userRole+"/" || location.pathname === "/"+userRole) && Route.link === "/"+userRole+"/dashboard"){
         route.style.backgroundColor = "#D8E6FC";
