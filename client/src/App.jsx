@@ -14,6 +14,7 @@ import LoginPersist from "./components/LoginPersist.jsx";
 
 import ResetInitialPassword from "./components/ResetInitialPassword.jsx";
 import "./App.css";
+import ImportReviewers from "./api/QACOfficer/importReviewers.js";
 
 function App() {
 
