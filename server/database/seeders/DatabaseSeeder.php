@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Models\AcademicStaff;
+use App\Models\QualityAssuranceCouncilDirector;
+use App\Models\QualityAssuranceCouncilOfficer;
 use App\Models\QualityAssuranceStaff;
 use App\Models\UniversitySide;
 use App\Models\ViceChancellor;
@@ -28,6 +30,7 @@ class DatabaseSeeder extends Seeder
         User::factory()->vice_chancellor()->hasUniversitySide()->create();
 
         User::factory()->qac_officer()->hasQualityAssuranceCouncilOfficer()->create();
+        QualityAssuranceCouncilOfficer::factory()->for(User::factory()->qac_director())->hasQualityAssuranceCouncilDirector()->create();
         //User::factory()->qac_director()->hasQualityAssuranceStaff()->create();
         // \App\Models\User::factory()->create([
         //     'name' => 'Test User',

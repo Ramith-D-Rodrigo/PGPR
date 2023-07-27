@@ -8,6 +8,7 @@ use App\Http\Requests\V1\StoreDeanRequest;
 use App\Http\Requests\V1\UpdateDeanRequest;
 use App\Http\Controllers\Controller;
 use App\Mail\sendPassword;
+use App\Models\Faculty;
 use App\Services\V1\DeanService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -43,7 +44,6 @@ class DeanController extends Controller
 
         $validatedData['status'] = 'Pending'; //set the status (user account status)
         $validatedData['current_status'] = 'Active';   //set the current status (dean status)
-        $validatedData['staff_position'] = 'academic'; //set the staff position
         $validatedData['roles'] = ['dean']; //set the roles (dean role)
 
 
@@ -59,6 +59,13 @@ class DeanController extends Controller
             $validatedData = DeanService::storeFiles($validatedData);
 
             $dean = DeanService::create($validatedData);
+
+            //update the faculty dean id
+            $faculty = Faculty::findOrFail($validatedData['faculty_id']);
+
+            $faculty -> update([
+                'dean_id' => $dean -> id
+            ]);
 
             //send the email
             DeanService::sendAccountCreateMail($validatedData, $password);

@@ -9,6 +9,15 @@ class InternalQualityAssuranceUnit extends Model
 {
   use HasFactory;
 
+  protected $fillable = [
+    'address',
+    'contact_no',
+    'fax_no',
+    'email',
+    'iqau_dir_id',
+    'faculty_id',
+  ];
+
   // Internal Quality Assurance Unit has a director
   // since both sides are total in participation
   // belongs to is used

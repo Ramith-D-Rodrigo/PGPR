@@ -3,6 +3,7 @@
 namespace App\Http\Requests\V1;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class StoreViceChancellorRequest extends StoreUniversitySideRequest
 {
@@ -11,7 +12,9 @@ class StoreViceChancellorRequest extends StoreUniversitySideRequest
      */
     public function authorize(): bool
     {
-        return true;
+        //only qac officer can create vice chancellor
+        $qacOfficer = Auth::user() -> qualityAssuranceCouncilOfficer ?? null;
+        return $qacOfficer !== null;
     }
 
     /**
