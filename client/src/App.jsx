@@ -5,14 +5,18 @@ import Universities from './pages/QACOfficer/Universities';
 import ViewSer from './pages/Reviewer/ViewSer';
 import MainLayout from './components/MainLayout';
 import NotFound from './pages/NotFound';
-import AddPGProgramPage from './pages/QACdirector/AddPGProgramPage';
-import AddAccounts from './pages/QACdirector/AddAccounts';
 import Authenticate from "./components/Authenticate";
 import Unauthorized from "./components/Unauthorized";
 import LoginPersist from "./components/LoginPersist.jsx";
 import PGPRApplication from './pages/Dean/PGPRApplication';
 import ResetInitialPassword from "./components/ResetInitialPassword.jsx";
-import "./App.css";
+import AddPGProgramPage from './pages/CQAdirector/AddPGProgramPage';
+import AddAccounts from './pages/CQAdirector/AddAccounts';
+import EditPGProgram from './pages/CQAdirector/EditPGProgram';
+import SubmitIntent from './pages/DeanDirector/SubmitIntent';
+import SubmitConsent from './pages/DeanDirector/SubmitConsent';
+import SetDate from './pages/ReviewerChair/SetDate';
+import SetCriteria from './pages/ReviewerChair/SetCriteria';
 import "./App.css";
 
 /* 
@@ -23,34 +27,8 @@ import "./App.css";
   & instead do the changes into file already in there.
 */
 
+
 function App() {
-
-  //Demo routes for side drawer
-  //fetch from backend using loged in user type
-  const reviewerRoutes = {
-    "DashBoard": "/reviewer/dashboard",
-    "PG Assignment" : "/reviewer/viewser",
-  }
-  const qacOfficerRoutes = {
-    "DashBoard": "/qacofficer/dashboard",
-    "Universities" : "/qacofficer/universities",
-    //"Import Reviewers" : "/qacofficer/importreviewers",
-  }
-
-  const qacDirectorRoutes = {
-    "DashBoard": "/qacdirector/dashboard",
-    "Add PG Program" : "/qacdirector/AddPGProgramPage",
-    "Add Accounts" : "/qacdirector/AddAccounts",
-  }
-
-  const deanRoutes = {
-    "DashBoard": "/dean/dashboard",
-    "PGPR Application" : "/dean/PGPRApplication",
-  }
-
-  //temporary
-  const userRoutes = qacDirectorRoutes;//reviewerRoutes;
-  const userBreadCrumbs = ["Home", "DashBoard"];//["Home", "DashBoard", "PG Assignment"];
 
   return (
 
@@ -67,32 +45,42 @@ function App() {
              <Route path="login" element={<Login/>}/>
              <Route path="/" element={<Login/>}/>
               
-             <Route element={<MainLayout sideDrawerRoutes={userRoutes}/>}>
+             <Route element={<MainLayout/>}>
                 
                 {/* protected routes */}
 
-                <Route element={<Authenticate allowedRoles={["user", "reviewer", "qac"]}/>}>
-                  <Route path="qacofficer/" >
+                <Route element={<Authenticate allowedRoles={["qac_officer"]}/>}>
+                  <Route path="qac_officer/" >
                       <Route path="" element={<Dashboard/>}/>
                       <Route path="dashboard" element={<Dashboard/>}/>
                       <Route path="universities" element={<Universities/>} />
                   </Route>
                 </Route>
 
-                <Route element={<Authenticate allowedRoles={["user", "reviewer", "qac"]}/>}>
-                  <Route path="qacdirector/" >
-                      <Route path="" element={<Dashboard/>}/>
-                      <Route path="dashboard" element={<Dashboard/>}/>
-                      <Route path="AddPGProgramPage" element={<AddPGProgramPage/>} />
-                      <Route path="AddAccounts" element={<AddAccounts/>} />
+                <Route element={<Authenticate allowedRoles={["cqa_director"]}/>}>
+                  <Route path="cqa_director/" >
+                    <Route path="" element={<Dashboard/>}/>
+                    <Route path="dashboard" element={<Dashboard/>}/>
+                    <Route path="AddPGProgramPage" element={<AddPGProgramPage/>} />
+                    <Route path="AddAccounts" element={<AddAccounts/>} />
+                    <Route path="EditPGProgram" element={<EditPGProgram/>} />
                   </Route>
                 </Route>
 
-                <Route element={<Authenticate allowedRoles={["user", "reviewer", "qac"]}/>}>
+                <Route element={<Authenticate allowedRoles={["qac_director"]}/>}>
+                  <Route path="qac_director/" >
+                      <Route path="" element={<Dashboard/>}/>
+                      <Route path="dashboard" element={<Dashboard/>}/>
+                  </Route>
+                </Route>
+
+                <Route element={<Authenticate allowedRoles={["reviewer"]}/>}>
                   <Route path="reviewer/" >
                       <Route path="" element={<Dashboard/>}/>
                       <Route path="dashboard" element={<Dashboard/>}/>
-                      <Route path="viewser" element={<ViewSer/>} />
+                      <Route path="PG_Assignment" element={<ViewSer/>} />
+                      <Route path="SetDate" element={<SetDate/>} />
+                      <Route path="SetCriteria" element={<SetCriteria/>} />
                   </Route>
                 </Route>
 
@@ -101,6 +89,8 @@ function App() {
                   <Route path="dean/">
                     <Route path="" element={<Dashboard/>}/>
                     <Route path="dashboard" element={<Dashboard/>}/>
+                    <Route path="SubmitIntent" element={<SubmitIntent/>} />
+                    <Route path="SubmitConsent" element={<SubmitConsent/>} />
                   </Route>
                 </Route>
 
@@ -111,6 +101,21 @@ function App() {
                     <Route path="dashboard" element={<Dashboard/>}/>
                   </Route>
                 </Route>
+
+                <Route element={<Authenticate allowedRoles={["programme_coordinator"]}/>}>
+                  <Route path="programme_coordinator/">
+                    <Route path="" element={<Dashboard/>}/>
+                    <Route path="dashboard" element={<Dashboard/>}/>
+                  </Route>
+                </Route>
+
+                <Route element={<Authenticate allowedRoles={["vice_chancellor"]}/>}>
+                  <Route path="vice_chancellor/">
+                    <Route path="" element={<Dashboard/>}/>
+                    <Route path="dashboard" element={<Dashboard/>}/>
+                  </Route>
+                </Route>
+
               </Route>
 
             </Route>
