@@ -26,7 +26,7 @@ class ViceChancellorFactory extends Factory
             'id' => UniversitySide::factory(),
             'appointed_date' => fake()->date(),
             'term_date' => fake()->date(),
-            'status' => fake()->randomElement(['ACTIVE', 'INACTIVE']),
+            'vc_status' => fake()->randomElement(['ACTIVE', 'INACTIVE']),
         ];
     }
 }
