@@ -5,7 +5,7 @@ import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import HelpIcon from '@mui/icons-material/Help';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { Avatar, Typography } from '@mui/material';
+import { Avatar, Typography, Box } from '@mui/material';
 import DrawerHeader from './DrawerHeader';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -13,6 +13,7 @@ import ListItemText from '@mui/material/ListItemText';
 import {Link, useNavigate} from 'react-router-dom';
 import useAuth from "../hooks/useAuth.js";
 import axios from "../api/api.js";
+import CircularProgress from '@mui/material/CircularProgress';
 import { useLocation } from 'react-router-dom';
 
 let drawerWidth = 240;
@@ -20,19 +21,24 @@ let drawerWidth = 240;
 
 const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
   const { auth, setAuth } = useAuth();
-  const [userRole, setUserRole] = useState(auth?.authRole[0]);
+  const [userRole] = useState(auth?.authRole[0]);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
   async function handleLogout() {
 
+    setIsLoading(true);
     // get the csrf-cookie
     try {
-      axios.get("/sanctum/csrf-cookie");
-      let response = await axios.post("/logout");
-      console.log(response?.status);
-      setAuth(null);
-      navigate("/login");
+      // axios.get("/sanctum/csrf-cookie");
+      // let response = await axios.post("/logout");
+      // console.log(response?.status);
+      setTimeout(() => {
+        setIsLoading(false);
+      },2000);
+      // setAuth(null);
+      // navigate("/login");
     } catch (error) {
       if (!error?.response) {
         console.log("No Server Response");
@@ -190,18 +196,23 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
           </List>
 
           <Link onClick={handleLogout}>
-            <IconButton sx={{
-            position:"fixed",width:"fit-content",left:"0px",bottom:"10px",
+            <Box sx={{
+            position:"fixed",width:drawerWidth+"px",left:"0px",bottom:"10px",display:"flex",justifyContent:"flex-start",alignItems:"flex-end",
             }}
             >
                 <LogoutIcon
                 titleAccess='Log Out'
-                sx={{width:35,height:35,}}
+                sx={{width:35,height:35,margin:"0 10px"}}
                 />
-                <Typography gutterBottom variant='body1' component='div'>
-                  Log Out
-                </Typography>
-            </IconButton>
+                {
+                  !isLoading ? 
+                    <Typography gutterBottom variant='body1' component='div'>
+                      Log Out
+                    </Typography>
+                  : 
+                    <CircularProgress size={30}/>
+                }
+            </Box>
           </Link>
         </Drawer>
     );
