@@ -28,17 +28,15 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
 
   async function handleLogout() {
 
-    setIsLoading(true);
     // get the csrf-cookie
     try {
-      // axios.get("/sanctum/csrf-cookie");
-      // let response = await axios.post("/logout");
-      // console.log(response?.status);
-      setTimeout(() => {
-        setIsLoading(false);
-      },2000);
-      // setAuth(null);
-      // navigate("/login");
+      setIsLoading(true);
+      axios.get("/sanctum/csrf-cookie");
+      let response = await axios.post("/logout");
+      console.log(response?.status);
+      setAuth(null);
+      setIsLoading(false);
+      navigate("/login");
     } catch (error) {
       if (!error?.response) {
         console.log("No Server Response");
