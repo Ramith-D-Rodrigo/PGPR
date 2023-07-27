@@ -3,6 +3,7 @@
 namespace App\Http\Requests\V1;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 class StoreFacultyRequest extends FormRequest
@@ -12,7 +13,21 @@ class StoreFacultyRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true; //set true for now, we will add authorization later
+        //only cqa director can add a faculty
+        $uniSide = Auth::user() -> universitySide ?? null;
+
+        if($uniSide === null){
+            return false;
+        }
+
+        $qaStaff = $uniSide -> qualityAssuranceStaff ?? null;
+        if($qaStaff === null){
+            return false;
+        }
+
+        $cqaDirector = $qaStaff -> centerForQualityAssuranceDirector ?? null;
+
+        return $cqaDirector !== null;
     }
 
     /**
@@ -31,7 +46,13 @@ class StoreFacultyRequest extends FormRequest
             'fax_no' => ['required', 'json'],
             'university_id' => ['required', 'integer', 'exists:universities,id'],
             //'iqau_id', //not in the migration
-            // need to add qac or cqa director id (who added the faculty)
+
+            //iqau data is also required
+            'iqau_address' => ['required', 'string', 'max:255'],
+            'iqau_contact_no' => ['required', 'json'],
+            'iqau_fax_no' => ['required', 'json'],
+            'iqau_email' => ['required', 'string', 'email', 'max:255', 'unique:internal_quality_assurance_units,email'],
+
         ];
     }
 
@@ -56,6 +77,18 @@ class StoreFacultyRequest extends FormRequest
         if($this -> has('fax_no') and $this -> fax_no !== 'null'){ //if fax_no is given and not null
             $this -> merge([
                 'fax_no' => json_encode($this -> fax_no)
+            ]);
+        }
+        //convert iqau_contact_no and iqau_fax_no to json
+        if($this -> has('iqau_contact_no') and $this -> iqau_contact_no !== 'null'){ //if iqau_contact_no is given and not null
+            $this -> merge([
+                'iqau_contact_no' => json_encode($this -> iqau_contact_no)
+            ]);
+        }
+
+        if($this -> has('iqau_fax_no') and $this -> iqau_fax_no !== 'null'){ //if iqau_fax_no is given and not null
+            $this -> merge([
+                'iqau_fax_no' => json_encode($this -> iqau_fax_no)
             ]);
         }
     }

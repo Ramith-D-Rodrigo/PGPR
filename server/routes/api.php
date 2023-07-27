@@ -51,7 +51,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::apiResource('postGraduatePrograms', 'PostGraduateProgramController');
     Route::apiResource('iqauDirectors', 'InternalQualityAssuranceUnitDirectorController');
     Route::apiResource('iqaUnits', 'InternalQualityAssuranceUnitController');
-    Route::apiResource('faculties', 'FacultyController');
+    Route::apiResource('faculties', 'FacultyController') -> middleware('auth');
     Route::apiResource('deskEvaluations', 'DeskEvaluationController');
     Route::apiResource('deans', 'DeanController');
     Route::apiResource('criterias', 'CriteriaController');
