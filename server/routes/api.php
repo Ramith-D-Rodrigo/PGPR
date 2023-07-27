@@ -48,7 +48,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::apiResource('programmeCoordinators', 'ProgrammeCoordinatorController');
     Route::apiResource('postGraduateProgramReviews', 'PostGraduateProgramReviewController');
     Route::apiResource('pgprApplications', 'PostGraduateProgramReviewApplicationController') -> middleware('auth');
-    Route::apiResource('postGraduatePrograms', 'PostGraduateProgramController');
+    Route::apiResource('postGraduatePrograms', 'PostGraduateProgramController') -> middleware('auth');
     Route::apiResource('iqauDirectors', 'InternalQualityAssuranceUnitDirectorController');
     Route::apiResource('iqaUnits', 'InternalQualityAssuranceUnitController');
     Route::apiResource('faculties', 'FacultyController') -> middleware('auth');

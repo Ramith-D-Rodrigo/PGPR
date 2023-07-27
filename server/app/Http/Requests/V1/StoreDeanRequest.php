@@ -15,7 +15,6 @@ class StoreDeanRequest extends StoreAcademicStaffRequest
     public function authorize(): bool
     {
         //only cqa director can store a dean
-        //only cqa director can add a faculty
         $uniSide = Auth::user() -> universitySide ?? null;
 
         if($uniSide === null){
