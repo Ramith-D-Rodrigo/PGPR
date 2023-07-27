@@ -28,6 +28,13 @@ class StoreDeanRequest extends StoreAcademicStaffRequest
 
         $cqaDirector = $qaStaff -> centerForQualityAssuranceDirector ?? null;
 
+        //only can create for his university
+
+        $universityId = $this -> university_id;
+        if($universityId !== $uniSide -> university_id){
+            return false;
+        }
+
         return $cqaDirector !== null;
     }
 
