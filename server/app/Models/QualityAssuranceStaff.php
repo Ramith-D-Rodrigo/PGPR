@@ -10,6 +10,10 @@ class QualityAssuranceStaff extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'assigned_date'
+    ];
+
     //quality assurance staff is a university side
 
     public function universitySide(){
