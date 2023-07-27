@@ -11,12 +11,12 @@ class QualityAssuranceCouncilOfficer extends Model
 
     //quality assurance council officer is a user
     public function user(){
-        return $this -> belongsTo(User::class);
+        return $this -> belongsTo(User::class, 'id', 'id');
     }
 
     //there is a quality assurance council director who is a quality assurance council officer
     public function qualityAssuranceCouncilDirector(){
-        return $this -> hasOne(QualityAssuranceCouncilDirector::class);
+        return $this -> hasOne(QualityAssuranceCouncilDirector::class, 'id', 'id');
     }
 
     //quality assurance council officer creates many review teams and review teams belong to a quality assurance council officer (one-to-many relationship)
