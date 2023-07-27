@@ -10,8 +10,8 @@ class Dean extends Model
     use HasFactory;
     protected $fillable = [
         'faculty_id',
-        'academic_staff_id',
-        'assigned_date'
+        'assigned_date',
+        'current_status',
     ];
 
     //dean is an academic staff
