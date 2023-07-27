@@ -89,28 +89,28 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
   ]
 
     const cqaDirectorRoutes = [
-      {route:"DashBoard",link: "/"},
+      {route:"DashBoard",link: "/cqa_director/dashboard"},
       {route:"Add PG Program" ,link: "/cqa_director/AddPGProgramPage"},
       {route:"Add Accounts" ,link: "/cqa_director/AddAccounts"},
       {route:"Edit PG Program" ,link: "/cqa_director/EditPGProgram"},
     ]
 
     const deanDirectorRoutes = [
-      {route:"DashBoard",link: "/"},
+      {route:"DashBoard",link: "/dean/dashboard"},
       {route:"Submit Intent Letter" ,link: "/dean/SubmitIntent"},
       {route:"Submit Consent" ,link: "/dean/SubmitConsent"},
     ]
 
     const iqauDirectorRoutes = [
-      {route:"DashBoard",link: "/"},
+      {route:"DashBoard",link: "/iqau_director/dashboard"},
     ]
 
     const programmeCoordinatorRoutes = [
-      {route:"DashBoard",link: "/"},
+      {route:"DashBoard",link: "/programme_coordinator/dashboard"},
     ]
 
     const viceChancellorRoutes = [
-      {route:"DashBoard",link: "/"},
+      {route:"DashBoard",link: "/vice_chancellor/dashboard"},
     ]
 
     //set user routes based on user role
