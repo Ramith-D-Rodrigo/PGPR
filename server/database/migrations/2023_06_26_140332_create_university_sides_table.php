@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('university_sides', function (Blueprint $table) {
             $table->id();
-            $table->enum('staff_position', ['qa','academic', 'vc']); //qa -> quality assurance staff, vc -> vice chancellor
+            //$table->enum('staff_position', ['qa','academic', 'vc']); //qa -> quality assurance staff, vc -> vice chancellor
             $table->unsignedBigInteger('university_id') -> nullable();
             $table->timestamps();
 

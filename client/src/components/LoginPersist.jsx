@@ -2,9 +2,10 @@ import {Outlet} from "react-router-dom";
 import useRefreshLogin from "../hooks/useRefreshLogin.js";
 import useAuth from "../hooks/useAuth.js";
 import {useState, useEffect} from 'react';
+import CircularProgress from '@mui/material/CircularProgress';
+import {Box, Typography} from '@mui/material';
 
 const LoginPersist = () => {
-
     const {auth} = useAuth();
     const refresh = useRefreshLogin();
     const [isPageLoading, setIsPageLoading] = useState(true);
@@ -29,15 +30,22 @@ const LoginPersist = () => {
         };
     }, []);
 
-    useEffect(() => {
-        // set a spinner to indicate loading in here
-        console.log(`Page loading :${isPageLoading}`)
-    }, [isPageLoading]);
+    const boxStyles = {
+        display: 'flex',height: '100vh',flexDirection:'column',width: '100vw',justifyContent: 'center',alignItems: 'center'
+    }
 
     return (
         <>
             {
-                isPageLoading ? <p>Loading...</p> : <Outlet/>
+                isPageLoading ? 
+                    <Box sx={boxStyles}>
+                        <Typography variant="h4" component="h4" gutterBottom>
+                            Please Wait...
+                        </Typography>
+                        <CircularProgress size={60}/>
+                    </Box>
+                : 
+                    <Outlet/>
             }
         </>
     );

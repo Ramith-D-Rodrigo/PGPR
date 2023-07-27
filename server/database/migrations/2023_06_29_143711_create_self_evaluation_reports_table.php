@@ -17,6 +17,9 @@ return new class extends Migration
             $table -> unsignedBigInteger('pgp_coordinator_id');
             $table -> unsignedBigInteger('vice_chancellor_id') -> nullable(); //approved by vice chancellor
             $table -> unsignedBigInteger('dean_id') -> nullable();    //approved by dean
+            $table -> string('section_a') -> nullable(); //url of the section a
+            $table -> string('section_b') -> nullable(); //url of the section b
+            $table -> string('section_d') -> nullable(); //url of the section d
             $table -> unsignedBigInteger('center_for_quality_assurance_director_id') -> nullable();   //approved by center for quality assurance director
             $table->timestamps();
 

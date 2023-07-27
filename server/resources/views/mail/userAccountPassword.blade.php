@@ -10,9 +10,13 @@ Password: {{$user['password']}}<br><br>
 This password is temporary and you will be asked to change it on your first login.<br><br>
 
 You have currently have access to following roles.<br>
-@foreach($user['roles'] as $role)
-    {{$role}}<br>
 
+<ul>
+@foreach($user['roles'] as $role)
+    <li>{{$role}}</li>
+@endforeach
+</ul>
+<br>
 Regards,<br>
 Postgraduate Programme Review System,<br>
 Quality Assurance Council

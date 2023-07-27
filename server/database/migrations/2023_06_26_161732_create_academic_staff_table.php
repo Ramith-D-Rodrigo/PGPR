@@ -31,7 +31,7 @@ return new class extends Migration
             $table -> json('postgraduate_qualifications'); //postgraduate qualifications (qualiifcation , slqf level of the qualification) [up to 4]
             $table -> json('prior_training_in_programme_review') -> nullable();
 
-            $table -> string('cv'); //cv file path
+            $table -> string('cv') -> nullable(); //cv file path
 
             //foreign key
             $table -> foreign('id') -> references('id') -> on('university_sides');

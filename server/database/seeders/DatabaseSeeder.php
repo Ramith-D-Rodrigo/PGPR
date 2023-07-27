@@ -19,7 +19,16 @@ class DatabaseSeeder extends Seeder
     {
         // \App\Models\User::factory(10)->create();
 
-        User::factory()->count(5)->hasUniversitySide()->create();
+        //User::factory()->count(5)->hasUniversitySide()->create();
+        User::factory()->dean()->hasUniversitySide()->create();
+        User::factory()->programme_coordinator()->hasUniversitySide()->create();
+        User::factory()->cqa_director()->hasUniversitySide()->create();
+        User::factory()->reviewer()->hasUniversitySide()->create();
+        User::factory()->iqau_director()->hasUniversitySide()->create();
+        User::factory()->vice_chancellor()->hasUniversitySide()->create();
+
+        User::factory()->qac_officer()->hasQualityAssuranceCouncilOfficer()->create();
+        //User::factory()->qac_director()->hasQualityAssuranceStaff()->create();
         // \App\Models\User::factory()->create([
         //     'name' => 'Test User',
         //     'email' => 'test@example.com',
@@ -35,5 +44,8 @@ class DatabaseSeeder extends Seeder
 
         //run criteria seeder
         $this -> call([CriteriaSeeder::class]);
+
+        //run standard seeder
+        $this -> call([StandardSeeder::class]);
     }
 }
