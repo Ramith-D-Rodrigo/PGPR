@@ -24,7 +24,6 @@ class UniversitySideFactory extends Factory
     {
         return [
             'id' => User::factory(),
-            'staff_position' => fake()->randomElement(['cqa', 'academic', 'vc']),
 //            'university_id' => University::factory(),
             'university_id' => NULL,
         ];

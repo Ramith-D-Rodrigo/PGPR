@@ -22,7 +22,7 @@ class ProgrammeCoordinator extends Model
     }
 
     // program coordinator belongs to a post graduate program
-    public function postGraduatePrograms()
+    public function postGraduateProgram()
     {
         return $this->belongsTo(PostGraduateProgram::class, 'post_grad_program_id', 'id');
     }

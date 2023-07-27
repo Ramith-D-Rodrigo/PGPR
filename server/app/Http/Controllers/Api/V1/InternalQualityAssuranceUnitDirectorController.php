@@ -3,9 +3,13 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Models\InternalQualityAssuranceUnitDirector;
-use App\Http\Requests\StoreInternalQualityAssuranceUnitDirectorRequest;
-use App\Http\Requests\UpdateInternalQualityAssuranceUnitDirectorRequest;
+use App\Http\Requests\V1\StoreInternalQualityAssuranceUnitDirectorRequest;
+use App\Http\Requests\V1\UpdateInternalQualityAssuranceUnitDirectorRequest;
 use App\Http\Controllers\Controller;
+use App\Services\V1\InternalQualityAssuranceUnitDirectorService;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class InternalQualityAssuranceUnitDirectorController extends Controller
 {
@@ -30,7 +34,36 @@ class InternalQualityAssuranceUnitDirectorController extends Controller
      */
     public function store(StoreInternalQualityAssuranceUnitDirectorRequest $request)
     {
-        //
+        $validatedData = $request -> validated();
+        $validatedData['status'] = 'pending'; //set the status to pending
+        $validatedData['roles'] = ['iqau_director']; //set the roles to iqau director
+
+        //random password
+        $password = Str::random(8);
+        $validatedData['password'] = Hash::make($password); //hash the password
+
+        try{
+            DB::beginTransaction();
+
+            //store the files (profile pic)
+            $validatedDataWithFiles = InternalQualityAssuranceUnitDirectorService::storeFiles($validatedData);
+
+            //create the iqau director
+            $iqauDirector = InternalQualityAssuranceUnitDirectorService::create($validatedDataWithFiles);
+
+            //send email
+            InternalQualityAssuranceUnitDirectorService::sendAccountCreateMail($validatedDataWithFiles, $password);
+
+            DB::commit();
+            return new InternalQualityAssuranceUnitDirectorResource($iqauDirector);
+        }
+        catch(\Exception $e){
+            DB::rollBack();
+            return response()->json(['message' => 'Failed to create the internal quality assurance unit director', 'error' => $e->getMessage()], 500);
+
+        }
+
+
     }
 
     /**

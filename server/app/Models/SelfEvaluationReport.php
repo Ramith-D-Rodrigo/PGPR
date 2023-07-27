@@ -8,6 +8,18 @@ use Illuminate\Database\Eloquent\Model;
 class SelfEvaluationReport extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'post_graduate_program_review_id',
+        'pgp_coordinator_id',
+        'vice_chancellor_id',
+        'dean_id',
+        'section_a',
+        'section_b',
+        'section_d',
+        'center_for_quality_assurance_director_id'
+    ];
+
     // self evaluation report belongs to a post graduate program review
     public function postGraduateProgramReview()
     {
