@@ -14,7 +14,7 @@ const Dashboard = ({contents}) => {
       {
         name: "Dashboard",
         link: "/dashboard"
-      }
+      },
     ] 
   );
     

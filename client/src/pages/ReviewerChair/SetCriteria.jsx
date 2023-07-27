@@ -1,8 +1,20 @@
 import React from "react";
 import MainContent from "../../components/MainContent";
 import ScrollableDiv from "../../components/ScrollableDiv";
+import useSetUserNavigations from '../../hooks/useSetUserNavigations';
 
 const SetDateForm = () => {
+  /*
+ * * all pages should do this
+*/
+  useSetUserNavigations(
+    [
+      {
+        name: "SetCriteria",
+        link: "/SetCriteria"
+      },
+    ] 
+  );
   const handleSubmit = (formValues) => {
     // Handle form submission
     console.log(formValues);
