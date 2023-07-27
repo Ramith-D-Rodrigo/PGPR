@@ -20,10 +20,12 @@ return new class extends Migration
             $table->json('fax_no');
             $table -> unsignedBigInteger('center_for_quality_assurance_id');
             $table -> unsignedBigInteger('quality_assurance_council_director_id') -> nullable(); //the director who added the university (null for now due to testing)
+            $table -> unsignedBigInteger('vice_chancellor_id') -> nullable(); //the vice chancellor of the university (null for now due to testing)
             $table->timestamps();
 
             //foreign keys
             $table -> foreign('quality_assurance_council_director_id') -> references('id') -> on('quality_assurance_council_directors');
+            $table -> foreign('vice_chancellor_id') -> references('id') -> on('vice_chancellors');
         });
 
         //university foreign key (alter univeristy_sides table)
