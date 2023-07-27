@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\V1;
 
+use App\Models\Faculty;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -26,6 +27,14 @@ class StoreFacultyRequest extends FormRequest
         }
 
         $cqaDirector = $qaStaff -> centerForQualityAssuranceDirector ?? null;
+
+        //only can create for his university
+
+        $universityId = $this -> university_id;
+
+        if($universityId !== $uniSide -> university_id){
+            return false;
+        }
 
         return $cqaDirector !== null;
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\V1;
 
+use App\Models\Faculty;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -26,6 +27,22 @@ class StorePostGraduateProgramRequest extends FormRequest
         }
 
         $cqaDirector = $qaStaff -> centerForQualityAssuranceDirector ?? null;
+
+        //only can create for his university
+
+        //use faculty id to get the university id
+        $facultyId = $this -> faculty_id;
+        $faculty = Faculty::find($facultyId);
+
+        if($faculty === null){  //if faculty not found
+            return false;
+        }
+
+        $universityId = $faculty -> university_id;
+
+        if($universityId !== $uniSide -> university_id){
+            return false;
+        }
 
         return $cqaDirector !== null;
     }
