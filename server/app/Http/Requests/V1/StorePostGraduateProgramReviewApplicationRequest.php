@@ -42,7 +42,7 @@ class StorePostGraduateProgramReviewApplicationRequest extends FormRequest
         $postGraduateProgram = PostGraduateProgram::find($pgpID);
 
         //get the faculty id of the post graduate program
-        $postGraduateProgramFacultyID = $postGraduateProgram -> faculty -> id;
+        $postGraduateProgramFacultyID = $postGraduateProgram -> faculty -> id ?? null;
 
         if($deanFacultyID !== $postGraduateProgramFacultyID){
             return false;
