@@ -2,12 +2,13 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
+ * @extends Factory<User>
  */
 class UserFactory extends Factory
 {
@@ -22,16 +23,6 @@ class UserFactory extends Factory
             'full_name' => fake()->name(),
             'initials' => fake()->randomLetter(),
             'surname' => fake()->lastName(),
-            'roles' => json_encode(
-                fake()->randomElement(
-                    [
-                        ['qac_director', 'cqa', 'reviewer'],
-                        ['iqau_director', 'cqa_officer', 'reviewer'],
-                        ['qac', 'cqa', 'reviewer'],
-                        ['qac', 'cqa', 'reviewer'],
-                    ]
-                )
-            ),
             'contact_no' => json_encode(['0712345678', '0776543210']),
             'profile_pic' => fake()->imageUrl(),
             'official_telephone_no' => fake()->phoneNumber(),
