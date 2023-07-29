@@ -21,24 +21,27 @@ class Faculty extends Model
     ];
 
     //faculty belongs to a university
-    public function university(){
+    public function university()
+    {
         return $this->belongsTo(University::class);
     }
 
     //faculty has many deans
-    public function deans(){
+    public function deans()
+    {
         return $this->hasMany(Dean::class);
     }
 
     //but only one dean at a time
-    public function currentDean(){
+    public function currentDean()
+    {
         return $this->hasOne(Dean::class, 'id', 'dean_id');
     }
 
     // Faculty has an Internal Quality Assurance Unit
     public function internalQualityAssuranceUnit()
     {
-      return $this->hasOne(InternalQualityAssuranceUnit::class, 'iqau_id');
+        return $this->hasOne(InternalQualityAssuranceUnit::class, 'iqau_id');
     }
 
     // Faculty has many postgraduate degree programs
@@ -53,7 +56,8 @@ class Faculty extends Model
         return $this->hasMany(ProgrammeCoordinator::class, 'faculty_id');
     }
 
-    public function workingReviewers(){
-        return $this -> hasMany(Reviewer::class, 'working_faculty');
+    public function workingReviewers()
+    {
+        return $this->hasMany(Reviewer::class, 'working_faculty');
     }
 }

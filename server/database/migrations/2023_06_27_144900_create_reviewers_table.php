@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('reviewers', function (Blueprint $table) {
             $table->id();
-            $table -> unsignedBigInteger('working_faculty');
+            $table -> unsignedBigInteger('working_faculty')->nullable();
             $table -> enum('reviewer_status', ['pending', 'accepted', 'rejected', 'suspended']);
             $table->timestamps();
 

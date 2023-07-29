@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('address');
             $table->json('contact_no');
             $table->json('fax_no');
-            $table->foreignId('university_id');
+            $table->foreignId('university_id')->nullable();
             //need to specify who added the faculty (qac director or cqa director??)
             $table->timestamps();
 
