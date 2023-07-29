@@ -17,11 +17,11 @@ class Reviewer extends Model
 
     //reviewer is an academic staff
     public function academicStaff(){
-        return $this->belongsTo(AcademicStaff::class);
+        return $this->belongsTo(AcademicStaff::class, 'id', 'id');
     }
 
     public function reviewTeams(){
-        return $this -> belongsToMany(ReviewTeam::class, 'reviewer_review_teams');
+        return $this->belongsToMany(ReviewTeam::class, 'reviewer_review_teams');
     }
 
     // reviewers can score for many standards
@@ -46,6 +46,6 @@ class Reviewer extends Model
 
     //reviewer working faculty
     public function workingFaculty(){
-        return $this -> belongsTo(Faculty::class, 'working_faculty');
+        return $this->belongsTo(Faculty::class, 'working_faculty', 'id');
     }
 }
