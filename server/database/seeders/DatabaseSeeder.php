@@ -7,20 +7,23 @@ use App\Models\AcademicStaff;
 use App\Models\QualityAssuranceStaff;
 use App\Models\UniversitySide;
 use App\Models\ViceChancellor;
+use Database\Factories\UniversitySideFactory;
 use Illuminate\Database\Seeder;
 use App\Models\User;
+use Illuminate\Support\Facades\App;
 
 class DatabaseSeeder extends Seeder
 {
     /**
      * Seed the application's database.
      */
-    public function run(): void
+    /*public function run(): void
     {
         // \App\Models\User::factory(10)->create();
 
-        //User::factory()->count(5)->hasUniversitySide()->create();
-        User::factory()->dean()->hasUniversitySide()->create();
+        // User::factory()->count(5)->hasUniversitySide()->create();
+        // UniversitySide::factory()->count(10)->create();
+
         User::factory()->programme_coordinator()->hasUniversitySide()->create();
         User::factory()->cqa_director()->hasUniversitySide()->create();
         User::factory()->reviewer()->hasUniversitySide()->create();
@@ -39,13 +42,20 @@ class DatabaseSeeder extends Seeder
         // ViceChancellor::factory()->count(10)->create();
         // QualityAssuranceStaff::factory()->count(10)->create();
 
-        /*User::factory()->count(10)->hasUniversitySide()->create();
-        UniversitySide::factory()->hasViceChancellor()->create();*/
+        User::factory()->count(10)->hasUniversitySide()->create();
+        UniversitySide::factory()->hasViceChancellor()->create();
 
         //run criteria seeder
-        $this -> call([CriteriaSeeder::class]);
+        // $this -> call([CriteriaSeeder::class]);
 
         //run standard seeder
-        $this -> call([StandardSeeder::class]);
+        // $this -> call([StandardSeeder::class]);
+    }*/
+
+    // new run function for seeding
+
+    public function run(): void
+    {
+        UniversitySide::factory()->count(10)->create();
     }
 }

@@ -17,7 +17,9 @@ class DeanFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'assigned_date' => fake()->date,
+            'current_status' => fake()->randomElement(['ACTIVE', 'INACTIVE']),
+            'faculty_id' => NULL
         ];
     }
 }
