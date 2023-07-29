@@ -3,6 +3,7 @@
 namespace App\Http\Requests\V1;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use App\Http\Requests\V1\StoreAcademicStaffRequest;
 
@@ -13,7 +14,28 @@ class StoreDeanRequest extends StoreAcademicStaffRequest
      */
     public function authorize(): bool
     {
-        return true;
+        //only cqa director can store a dean
+        $uniSide = Auth::user() -> universitySide ?? null;
+
+        if($uniSide === null){
+            return false;
+        }
+
+        $qaStaff = $uniSide -> qualityAssuranceStaff ?? null;
+        if($qaStaff === null){
+            return false;
+        }
+
+        $cqaDirector = $qaStaff -> centerForQualityAssuranceDirector ?? null;
+
+        //only can create for his university
+
+        $universityId = $this -> university_id;
+        if($universityId !== $uniSide -> university_id){
+            return false;
+        }
+
+        return $cqaDirector !== null;
     }
 
     /**

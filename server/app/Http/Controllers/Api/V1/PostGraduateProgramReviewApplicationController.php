@@ -105,7 +105,7 @@ class PostGraduateProgramReviewApplicationController extends Controller
         try{
             //check submitting user is the dean of the faculty
             $dean = Auth::user();
-            $deanFacultyID = $dean -> universitySide -> academicStaff -> dean -> faculty -> id;
+            $deanFacultyID = $dean -> universitySide -> academicStaff -> dean -> faculty -> id ?? null;
             if($deanFacultyID != $pgprApplication -> postGraduatePrograms -> faculty_id){
                 return response()->json(['message' => 'You are not authorized to submit this post graduate program review application.'], 403);
             }
@@ -135,7 +135,7 @@ class PostGraduateProgramReviewApplicationController extends Controller
         try{
             //check submitting user is the cqa director
             $cqaDirector = Auth::user();
-            $cqaDirectorID = $cqaDirector -> universitySide -> qualityAssuranceStaff -> centerForQualityAssuranceDirector -> id;
+            $cqaDirectorID = $cqaDirector -> universitySide -> qualityAssuranceStaff -> centerForQualityAssuranceDirector -> id ?? null;
             if($cqaDirectorID != $pgprApplication -> postGraduatePrograms -> faculty -> university -> cqa_director_id){
                 return response()->json(['message' => 'You are not authorized to approve this post graduate program review application.'], 403);
             }
@@ -186,7 +186,7 @@ class PostGraduateProgramReviewApplicationController extends Controller
                 'post_graduate_program_review_id' => $pgpr -> id,
                 'pgp_coordinator_id' => $pgpr -> postGraduateProgram -> currentProgrammeCoordinator -> id //get the current pgp coordinator
             ]);
-            
+
             DB::commit();
         }
         catch(\Exception $e){

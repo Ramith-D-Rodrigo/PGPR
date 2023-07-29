@@ -30,7 +30,7 @@ class UserFactory extends Factory
             'gender' => fake()->randomElement(['m', 'f']),
             'official_email' => fake()->unique()->safeEmail(),
             'personal_email' => fake()->unique()->safeEmail(),
-            'created_by' => 1,
+            'created_by' => NULL,
             'status' => 'active',
             'email_verified_at' => now(),
             'password' => Hash::make('password'), // password
@@ -63,12 +63,16 @@ class UserFactory extends Factory
     public function qac_officer(): static {
         return $this->state(fn (array $attributes) => [
             'roles' => json_encode(['qac_officer']),
+            'official_email' => 'qacofficer@gmail.com',
+            'logins' => 1 //so no need to change password
         ]);
     }
 
     public function qac_director(): static {
         return $this->state(fn (array $attributes) => [
             'roles' => json_encode(['qac_director']),
+            'official_email' => 'qacdirector@gmail.com',
+            'logins' => 1 //so no need to change password
         ]);
     }
 
