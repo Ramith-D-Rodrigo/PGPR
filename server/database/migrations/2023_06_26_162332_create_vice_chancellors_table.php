@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('vice_chancellors', function (Blueprint $table) {
             $table->id();
             $table->date("appointed_date");
+            $table->foreignId('university_id')->nullable();
             $table->date("term_date"); // appointed_date + 5 year
             $table->enum("status", ["ACTIVE", "INACTIVE"]);
             $table->timestamps();
