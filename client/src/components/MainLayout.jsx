@@ -6,12 +6,7 @@ import Box from '@mui/material/Box';
 import { PropTypes } from 'prop-types';
 import {UserNavigationsProvider} from '../contexts/UserNavigationsProvider';
 
-const MainLayout = ({navigationBreadCrumbs,}) => {
-
-    MainLayout.propTypes = {
-        navigationBreadCrumbs: PropTypes.array.isRequired,
-        // sideDrawerRoutes: PropTypes.array.isRequired,
-    };
+const MainLayout = () => {
     
     const [drawerOpen, setDrawerOpen] = React.useState(true);
 

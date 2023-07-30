@@ -17,6 +17,9 @@ import SubmitIntent from './pages/DeanDirector/SubmitIntent';
 import SubmitConsent from './pages/DeanDirector/SubmitConsent';
 import SetDate from './pages/ReviewerChair/SetDate';
 import SetCriteria from './pages/ReviewerChair/SetCriteria';
+import PGAssignments from './pages/Reviewer/PGAssignments';
+import ConductDE from './pages/Reviewer/ConductDE';
+import ConductPE from './pages/Reviewer/ConductPE';
 import "./App.css";
 
 /* 
@@ -78,7 +81,10 @@ function App() {
                   <Route path="reviewer/" >
                       <Route path="" element={<Dashboard/>}/>
                       <Route path="dashboard" element={<Dashboard/>}/>
-                      <Route path="PG_Assignment" element={<ViewSer/>} />
+                      <Route path="PG_Assignments/ViewSer/:id" element={<ViewSer/>} />
+                      <Route path="PG_Assignments/Conduct_DE/:id" element={<ConductDE/>} />
+                      <Route path="PG_Assignments/Conduct_PE/:id" element={<ConductPE/>} />
+                      <Route path="PG_Assignments" element={<PGAssignments/>} />
                       <Route path="SetDate" element={<SetDate/>} />
                       <Route path="SetCriteria" element={<SetCriteria/>} />
                   </Route>

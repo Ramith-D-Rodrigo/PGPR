@@ -5,7 +5,7 @@ import ScrollableDiv from '../../components/ScrollableDiv';
 import DiscriptiveDiv from '../../components/DiscriptiveDiv';
 import { useState } from 'react';
 
-const ViewSer = () => {
+const ConductDE = () => {
     const {id} = useParams();
     useSetUserNavigations(
         [
@@ -14,8 +14,8 @@ const ViewSer = () => {
               link: "/PG_Assignments"
             },
             {
-                name: "View SER",
-                link: "/PG_Assignments/ViewSer/"+id
+                name: "Conduct DE",
+                link: "/PG_Assignments/Conduct_DE/"+id
             }
         ]
     );
@@ -44,7 +44,7 @@ const ViewSer = () => {
             <DiscriptiveDiv description="Desk Evaluation" width='100%' height={newHeight} backgroundColor="#D9D9D9" >
                 <ScrollableDiv width="100%" height="500px">
                     <div>
-                        View SER = {id}
+                        Conduct DE {id}
                     </div>
                 </ScrollableDiv>
             </DiscriptiveDiv>
@@ -52,4 +52,5 @@ const ViewSer = () => {
     )
 }
 
-export default ViewSer
+export default ConductDE
+
