@@ -1,12 +1,21 @@
-Hello {{$user['surname'] . " " . $user['initials']}},<br><br>
+Sir/Madam,<br>
+{{$recipient['surname'] . " " . $recipient['initials']}},<br><br>
 
-You have been assigned as a reviewer for the postgradute programme review.<br>
-Please use the following credentials to login to the system.<br><br>
+@if ($remark != NULL || $remark != "")
+    The following user has rejected his/her appointment as a reviewer, with the following comment.<br>
+    Email: {{$rejected_user['official_email']}}<br>
+    Name: {{$rejected_user['full_name']}}<br>
+    Comment: {{$remark}}.<br>
+@else
+    The following user has rejected his/her appointment as a reviewer.<br>
+    Email: {{$rejected_user['official_email']}}<br>
+    Name: {{$rejected_user['full_name']}}<br>
+@endif
 
-Email: {{$user['official_email']}}<br>
-Password: {{$user['password']}}<br><br>
+Please be kind enough to make follow-up calls to make sure that this was intentional.<br>
+If this happened due to a mistake you can make amends using the options provided on our website.<br><br>
 
-This password is temporary and you will be asked to change it on your first login.<br><br>
+Thank you.<br><br>
 
 Regards,<br>
 Postgraduate Programme Review System,<br>
