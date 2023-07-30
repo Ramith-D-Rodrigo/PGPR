@@ -60,6 +60,15 @@ class DatabaseSeeder extends Seeder
                 )->create()
             )->create();
 
+        Reviewer::factory()
+            ->for(
+                AcademicStaff::factory()->for(
+                    UniversitySide::factory()->for(
+                        User::factory()->reviewer()->create()
+                    )->create()
+                )->create()
+            )->create();
+
         //run criteria seeder
         $this->call([CriteriaSeeder::class]);
 
