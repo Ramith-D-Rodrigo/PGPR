@@ -145,6 +145,8 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
         break;
     }
 
+    const logo = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR8G70_aXsPvet0K-TvhODLgf6P8eJVQ2iL_ZsmDx5Lm9eK7C_9pWXAg3dfmtaTjad0xZM&usqp=CAU";
+
     return (
         <Drawer
           sx={{
@@ -167,11 +169,7 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
                 <HelpIcon/>
           </IconButton> 
           <DrawerHeader sx={{justifyContent:"center",padding:"10px"}}>
-            <Avatar
-              alt="UGC LOGO"
-              sx={{width:120,height:120}}
-              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR8G70_aXsPvet0K-TvhODLgf6P8eJVQ2iL_ZsmDx5Lm9eK7C_9pWXAg3dfmtaTjad0xZM&usqp=CAU"
-            />
+            <img src={logo} alt="UGC LOGO" style={{width:"140px",height:"140px"}}/>
           </DrawerHeader>
 
           <Divider variant="middle" color='black'/>
