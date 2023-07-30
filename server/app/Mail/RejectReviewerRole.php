@@ -2,8 +2,8 @@
 
 namespace App\Mail;
 
+use App\Models\User;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -16,9 +16,9 @@ class RejectReviewerRole extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct()
+    public function __construct(public User $recipient , public User $rejected_user, public String|null $remark, public $subject, public $content)
     {
-        //
+        $this->view($this->content);
     }
 
     /**
@@ -27,7 +27,7 @@ class RejectReviewerRole extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Reject Reviewer Role',
+            subject:  $this->subject
         );
     }
 
@@ -37,7 +37,7 @@ class RejectReviewerRole extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'view.name',
+            view: $this->view
         );
     }
 
