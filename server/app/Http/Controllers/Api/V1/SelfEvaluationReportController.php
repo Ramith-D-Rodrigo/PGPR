@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Requests\V1\StoreAdherenceToSERStandard;
 use App\Models\SelfEvaluationReport;
-use App\Http\Requests\StoreSelfEvaluationReportRequest;
-use App\Http\Requests\UpdateSelfEvaluationReportRequest;
+use App\Http\Requests\V1\StoreSelfEvaluationReportRequest;
+use App\Http\Requests\V1\UpdateSelfEvaluationReportRequest;
 use App\Http\Controllers\Controller;
+use Exception;
+use Symfony\Component\HttpFoundation\Request;
 
 class SelfEvaluationReportController extends Controller
 {
@@ -38,7 +41,7 @@ class SelfEvaluationReportController extends Controller
      */
     public function show(SelfEvaluationReport $selfEvaluationReport)
     {
-        
+
     }
 
     /**
@@ -63,5 +66,29 @@ class SelfEvaluationReportController extends Controller
     public function destroy(SelfEvaluationReport $selfEvaluationReport)
     {
         //
+    }
+
+    //add adherence to standards
+    public function addAdherenceToStandards(StoreAdherenceToSERStandard $request, SelfEvaluationReport $selfEvaluationReport)
+    {
+        $validatedData = $request->validated();
+
+        //check whether the adherence to standard already exists
+        $standard = $selfEvaluationReport->adherenceToStandards()->where('standard_id', $validatedData['standard_id'])->first();
+        if($standard){
+            //then update the adherence
+            $selfEvaluationReport -> adherenceToStandards() -> updateExistingPivot($validatedData['standard_id'], [
+                'adherence' => $validatedData['adherence'],
+            ]);
+        }
+        else{
+            $selfEvaluationReport -> adherenceToStandards() -> attach($validatedData['standard_id'], [
+                'adherence' => $validatedData['adherence'],
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'Adherence to standard added successfully',
+        ], 201);
     }
 }

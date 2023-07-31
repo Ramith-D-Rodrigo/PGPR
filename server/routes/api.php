@@ -38,7 +38,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::apiResource('universitySides', 'UniversitySideController');
     Route::apiResource('universities', 'UniversityController') -> middleware('auth');
     Route::apiResource('standards', 'StandardController');
-    Route::apiResource('selfEvaluationReports', 'SelfEvaluationReportController');
+    Route::apiResource('selfEvaluationReports', 'SelfEvaluationReportController') -> middleware('auth');
     Route::apiResource('reviewTeams', 'ReviewTeamController');
     Route::apiResource('reviewers', 'ReviewerController');
     Route::apiResource('qualityAssuranceStaffs', 'QualityAssuranceStaffController');
@@ -68,4 +68,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
 
     //other routes for pgpr application
     Route::post('pgprApplications/{pgprApplication}/submit', 'PostGraduateProgramReviewApplicationController@submit') -> middleware('auth');  //submit pgpr application by the dean
+
+    //routes for self evaluation report methods
+    Route::post('selfEvaluationReports/{selfEvaluationReport}/addAdherenceToStandards', 'SelfEvaluationReportController@addAdherenceToStandards') -> middleware('auth') -> middleware('authorize.role:programme_coodinator');
 });
