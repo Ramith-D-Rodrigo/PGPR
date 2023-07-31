@@ -52,6 +52,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::apiResource('iqauDirectors', 'InternalQualityAssuranceUnitDirectorController') -> middleware('auth') -> middleware('authorize.role:cqa_director')->only(['store', 'update', 'destroy']);
     Route::apiResource('iqaUnits', 'InternalQualityAssuranceUnitController');
     Route::apiResource('faculties', 'FacultyController') -> middleware('auth');
+    Route::apiResource('evidences', 'EvidenceController') -> middleware('auth') -> middleware('authorize.role:programme_coodinator') -> only(['store', 'update', 'destroy']);
     Route::apiResource('deskEvaluations', 'DeskEvaluationController');
     Route::apiResource('deans', 'DeanController');
     Route::apiResource('criterias', 'CriteriaController');
