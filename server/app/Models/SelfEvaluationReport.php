@@ -46,11 +46,16 @@ class SelfEvaluationReport extends Model
 
     public function evidences()
     {
-        return $this->belongsToMany(Evidence::class, 'ser_evidence_standard', 'ser_id', 'evidence_id')->withPivot('adherence');
+        return $this->belongsToMany(Evidence::class, 'ser_evidence_standard', 'ser_id', 'evidence_id');
     }
 
     public function standards()
     {
-        return $this->belongsToMany(Standard::class, 'ser_evidence_standard', 'ser_id', 'standard_id')->withPivot('adherence');
+        return $this->belongsToMany(Standard::class, 'ser_evidence_standard', 'ser_id', 'standard_id');
+    }
+
+    public function adherenceToStandards()
+    {
+        return $this->belongsToMany(Standard::class, 'ser_standard_adherence', 'ser_id', 'standard_id')->withPivot('adherence');
     }
 }
