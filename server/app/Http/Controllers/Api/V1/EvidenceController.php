@@ -42,7 +42,13 @@ class EvidenceController extends Controller
             $evidence = Evidence::create($validatedData);
 
             //insert to ser_evidence_standard table
-            $evidence -> standards() -> attach($validatedData['standard_id'], ['ser_id' => $validatedData['ser_id']]);
+            $evidence -> standards() -> attach($validatedData['standard_id'], [
+                'ser_id' => $validatedData['self_evaluation_report_id'],
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+
+            DB::commit();
 
             return response()->json([
                 'success' => true,
@@ -51,6 +57,7 @@ class EvidenceController extends Controller
             ], 201);
         }
         catch(\Exception $e){
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => 'Unable to create evidence',
@@ -89,6 +96,9 @@ class EvidenceController extends Controller
     public function destroy(Evidence $evidence)
     {
         try{
+            //remove the pivot record from ser_evidence_standard table
+            $evidence -> standards() -> detach();
+            
             $evidence->delete();
 
             return response()->json([
