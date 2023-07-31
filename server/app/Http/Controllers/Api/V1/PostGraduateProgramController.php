@@ -89,6 +89,8 @@ class PostGraduateProgramController extends Controller
      */
     public function store(StorePostGraduateProgramRequest $request)
     {
+        //add authorized cqa director id to the request
+        $request['added_by_cqa_director_id'] = Auth::user() -> id;
         return new PostGraduateProgramResource(PostGraduateProgram::create($request->validated()));
     }
 

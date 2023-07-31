@@ -136,15 +136,12 @@ useEffect(() => {
         alignItems="center"
         >
           
-            <Grid item xs={7} justifyContent={"center"} alignItems={"center"}>
-                <Typography variant="h4" gutterBottom textAlign={"center"}>
-                  Quality Assurance Framework for <br/> <span style={{color:"#3f51b5"}}>Postgraduate</span> Programs
-                </Typography>
-                <img style={{height:'60vh',width:'60%',margin:"auto"}} src={"https://assets-global.website-files.com/5e8b3356a5a8f5321855bbe7/648c7d9b38164fd8fc587f8a_img-person-form.png"} alt="temporary" />
-            </Grid>
-
-      const avatarStyles = {backgroundColor:'#3f51b5',width:'60px',height:'60px'}
-      return (
+        <Grid item xs={7} justifyContent={"center"} alignItems={"center"}>
+            <Typography variant="h4" gutterBottom textAlign={"center"}>
+              Quality Assurance Framework for <br/> <span style={{color:"#3f51b5"}}>Postgraduate</span> Programs
+            </Typography>
+            <img style={{height:'60vh',width:'60%',margin:"auto"}} src={"https://assets-global.website-files.com/5e8b3356a5a8f5321855bbe7/648c7d9b38164fd8fc587f8a_img-person-form.png"} alt="temporary" />
+        </Grid>
         <Box sx={{display:"flex",alignItems:"center",height:"100vh",justifyContent:"center"}}>
           <Grid container spacing={2}
             direction="row"
@@ -220,13 +217,13 @@ useEffect(() => {
                               label="Role"
                             >
                               <MenuItem value={"reviewer"}>Reviewer</MenuItem>
-                              <MenuItem value={"coordinator"}>Program Coordinator</MenuItem>
-                              <MenuItem value={"iqauofficer"}>IQAU Officer</MenuItem>
-                              <MenuItem value={"cqadirector"}>CQA Director</MenuItem>
-                              <MenuItem value={"qacdirector"}>QAC Director</MenuItem>
-                              <MenuItem value={"qacofficer"}>QAC Officer</MenuItem>
+                              <MenuItem value={"programme_coordinator"}>Programme Coordinator</MenuItem>
+                              <MenuItem value={"iqau_director"}>IQAU Director</MenuItem>
+                              <MenuItem value={"cqa_director"}>CQA Director</MenuItem>
+                              <MenuItem value={"qac_director"}>QAC Director</MenuItem>
+                              <MenuItem value={"qac_officer"}>QAC Officer</MenuItem>
                               <MenuItem value={"dean"}>Director/Dean</MenuItem>
-                              <MenuItem value={"vicechancellor"}>Vice Chancellor</MenuItem>
+                              <MenuItem value={"vice_chancellor"}>Vice Chancellor</MenuItem>
                             </Select>
 
                           </FormControl>
@@ -244,12 +241,6 @@ useEffect(() => {
                             Forgot password ?
                           </Link>
                         </Typography >
-                        <Typography> Do you have an account ?
-                          <Link href="#" >
-                            Sign Up
-                          </Link>
-                        </Typography>
-
                         <Snackbar
                             open={errorMsg =="" ? false : true}
                             anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
@@ -273,6 +264,7 @@ useEffect(() => {
                   </Box>
                 </Paper>
             </Grid>
+          </Box>
       </Grid>
     </Box>
   )

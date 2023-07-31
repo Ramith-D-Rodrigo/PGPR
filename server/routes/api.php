@@ -36,7 +36,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::apiResource('viceChancellors', 'ViceChancellorController');
     Route::apiResource('users', 'UserController');
     Route::apiResource('universitySides', 'UniversitySideController');
-    Route::apiResource('universities', 'UniversityController');
+    Route::apiResource('universities', 'UniversityController') -> middleware('auth');
     Route::apiResource('standards', 'StandardController');
     Route::apiResource('selfEvaluationReports', 'SelfEvaluationReportController');
     Route::apiResource('reviewTeams', 'ReviewTeamController');
@@ -45,13 +45,13 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::apiResource('qacOfficers', 'QualityAssuranceCouncilOfficerController');
     Route::apiResource('qacDirectors', 'QualityAssuranceCouncilDirectorController');
     Route::apiResource('properEvaluations', 'ProperEvaluationController');
-    Route::apiResource('programmeCoordinators', 'ProgrammeCoordinatorController');
+    Route::apiResource('programmeCoordinators', 'ProgrammeCoordinatorController') -> middleware('auth') -> middleware('authorize.role:cqa_director')->only(['store', 'update', 'destroy']);
     Route::apiResource('postGraduateProgramReviews', 'PostGraduateProgramReviewController');
     Route::apiResource('pgprApplications', 'PostGraduateProgramReviewApplicationController') -> middleware('auth');
-    Route::apiResource('postGraduatePrograms', 'PostGraduateProgramController');
-    Route::apiResource('iqauDirectors', 'InternalQualityAssuranceUnitDirectorController');
+    Route::apiResource('postGraduatePrograms', 'PostGraduateProgramController') -> middleware('auth');
+    Route::apiResource('iqauDirectors', 'InternalQualityAssuranceUnitDirectorController') -> middleware('auth') -> middleware('authorize.role:cqa_director')->only(['store', 'update', 'destroy']);
     Route::apiResource('iqaUnits', 'InternalQualityAssuranceUnitController');
-    Route::apiResource('faculties', 'FacultyController');
+    Route::apiResource('faculties', 'FacultyController') -> middleware('auth');
     Route::apiResource('deskEvaluations', 'DeskEvaluationController');
     Route::apiResource('deans', 'DeanController');
     Route::apiResource('criterias', 'CriteriaController');

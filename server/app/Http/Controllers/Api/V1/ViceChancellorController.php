@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Resources\V1\ViceChancellorResource;
+use App\Models\University;
 use App\Models\ViceChancellor;
 use App\Http\Requests\V1\StoreViceChancellorRequest;
 use App\Http\Requests\V1\UpdateViceChancellorRequest;
@@ -57,6 +58,13 @@ class ViceChancellorController extends Controller
             $validatedData = ViceChancellorService::storeFiles($validatedData);
 
             $viceChancellor = ViceChancellorService::create($validatedData);
+
+            //add vice chancellor to the university
+            //find the university
+            $university = University::findOrFail($validatedData['university_id']);
+
+            //update the vice chancellor id in the university table
+            $university->update(['vice_chancellor_id' => $viceChancellor -> id]);
 
             //send mail
             ViceChancellorService::sendAccountCreateMail($validatedData, $password);

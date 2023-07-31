@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Drawer from '@mui/material/Drawer';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import HelpIcon from '@mui/icons-material/Help';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { Avatar, Typography } from '@mui/material';
+import { Avatar, Typography, Box } from '@mui/material';
 import DrawerHeader from './DrawerHeader';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -13,22 +13,29 @@ import ListItemText from '@mui/material/ListItemText';
 import {Link, useNavigate} from 'react-router-dom';
 import useAuth from "../hooks/useAuth.js";
 import axios from "../api/api.js";
+import CircularProgress from '@mui/material/CircularProgress';
+import { useLocation } from 'react-router-dom';
 
 let drawerWidth = 240;
 
 
-const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput, userRoutes }) => {
+const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
   const { auth, setAuth } = useAuth();
+  const [userRole] = useState(auth?.authRole[0]);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   async function handleLogout() {
 
     // get the csrf-cookie
     try {
+      setIsLoading(true);
       axios.get("/sanctum/csrf-cookie");
       let response = await axios.post("/logout");
       console.log(response?.status);
       setAuth(null);
+      setIsLoading(false);
       navigate("/login");
     } catch (error) {
       if (!error?.response) {
@@ -41,13 +48,102 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput, userRout
 
   drawerWidth = drawerWidthInput;
 
-    const handleClickLink = (Selectedid)=>{
-      let selected = document.getElementById("listitem"+Selectedid);
-      // console.log(selected);
-      selected.style.backgroundColor = "#D8E6FC";
-    }
+  //change selected sidedrawer route based on location
+  useEffect(() => {
 
-    // const selectedStyle = {backgroundColor:'#D8E6FC'};
+    userRoutes.map((Route,index)=>{
+      let route = document.getElementById("listitem"+index);
+      // console.log(route);
+      if(location.pathname.includes(Route.link) || location.pathname.includes(Route.link+"/")){
+        route.style.backgroundColor = "#D8E6FC";
+        // console.log("Selected : ",Route);
+      }
+      else if((location.pathname === "/"+userRole+"/" || location.pathname === "/"+userRole) && Route.link === "/"+userRole+"/dashboard"){
+        route.style.backgroundColor = "#D8E6FC";
+      }
+      else{
+        route.style.backgroundColor = "white";
+      }
+    })
+
+  },[location]);
+
+    //routes for side drawer -- not completed
+    const reviewerRoutes = [
+      {route:"DashBoard",link: "/reviewer/dashboard"},
+      {route:"PG Assignment" ,link: "/reviewer/PG_Assignment"},
+      {route:"Set Date" ,link: "/reviewer/SetDate"},
+      {route:"Set Criteria" ,link: "/reviewer/SetCriteria"},
+    ]
+
+    const qacDirectorRoutes = [
+      {route:"DashBoard",link: "/qac_director/dashboard"},
+      {route:"Add PG Program" ,link: "/qac_director/AddPGProgramPage"},
+      {route:"Add Accounts" ,link: "/qac_director/AddAccounts"},
+    ]
+
+    const qacOfficerRoutes = [
+      {route:"DashBoard",link: "/qac_officer/dashboard"},
+      {route:"Universities" ,link: "/qac_officer/universities"},
+      //{route:"Import Reviewers" ,link: "/qac_officer/importreviewers"},
+  ]
+
+    const cqaDirectorRoutes = [
+      {route:"DashBoard",link: "/cqa_director/dashboard"},
+      {route:"Add PG Program" ,link: "/cqa_director/AddPGProgramPage"},
+      {route:"Add Accounts" ,link: "/cqa_director/AddAccounts"},
+      {route:"Edit PG Program" ,link: "/cqa_director/EditPGProgram"},
+    ]
+
+    const deanDirectorRoutes = [
+      {route:"DashBoard",link: "/dean/dashboard"},
+      {route:"Submit Intent Letter" ,link: "/dean/SubmitIntent"},
+      {route:"Submit Consent" ,link: "/dean/SubmitConsent"},
+    ]
+
+    const iqauDirectorRoutes = [
+      {route:"DashBoard",link: "/iqau_director/dashboard"},
+    ]
+
+    const programmeCoordinatorRoutes = [
+      {route:"DashBoard",link: "/programme_coordinator/dashboard"},
+    ]
+
+    const viceChancellorRoutes = [
+      {route:"DashBoard",link: "/vice_chancellor/dashboard"},
+    ]
+
+    //set user routes based on user role
+    let userRoutes = [];
+    switch (userRole) {
+      case "reviewer":
+        userRoutes = reviewerRoutes;
+        break;
+      case "qac_director":
+        userRoutes = qacDirectorRoutes;
+        break;
+      case "qac_officer":
+        userRoutes = qacOfficerRoutes;
+        break;
+      case "cqa_director":
+        userRoutes = cqaDirectorRoutes;
+        break;
+      case "dean":
+        userRoutes = deanDirectorRoutes;
+        break;
+      case "iqau_director":
+        userRoutes = iqauDirectorRoutes;
+        break;
+      case "programme_coordinator":
+        userRoutes = programmeCoordinatorRoutes;
+        break;
+      case "vice_chancellor":
+        userRoutes = viceChancellorRoutes;
+        break;
+      default:
+        userRoutes = [];
+        break;
+    }
 
     return (
         <Drawer
@@ -83,32 +179,38 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput, userRout
           {/*userRoutes*/} {/* routes according to the user role */}
           <List component="nav" aria-label="mailbox folders">
 
-            {userRoutes && Object.keys(userRoutes).map((key,index)=>{
-              return(
-                <Link to={userRoutes[key]} onClick={() => {handleClickLink(index)}} key={index}>
-                  <ListItem id={"listitem"+index} className='Listitem' button divider>
-                      <ListItemText primary={key} />
-                  </ListItem>
-                </Link>
-              )
-
-            })}
+            {
+              userRoutes && userRoutes.map((route,index)=>{
+                return(
+                  <Link to={route.link} key={index}>
+                    <ListItem id={"listitem"+index} className='Listitem' button divider>
+                        <ListItemText primary={route.route} />
+                    </ListItem>
+                  </Link>
+                )
+              })
+            }
             
           </List>
 
           <Link onClick={handleLogout}>
-            <IconButton sx={{
-            position:"fixed",width:"fit-content",left:"0px",bottom:"10px",
+            <Box sx={{
+            position:"fixed",width:drawerWidth+"px",left:"0px",bottom:"10px",display:"flex",justifyContent:"flex-start",alignItems:"flex-end",
             }}
             >
                 <LogoutIcon
                 titleAccess='Log Out'
-                sx={{width:35,height:35,}}
+                sx={{width:35,height:35,margin:"0 10px"}}
                 />
-                <Typography gutterBottom variant='body1' component='div'>
-                  Log Out
-                </Typography>
-            </IconButton>
+                {
+                  !isLoading ? 
+                    <Typography gutterBottom variant='body1' component='div'>
+                      Log Out
+                    </Typography>
+                  : 
+                    <CircularProgress size={30}/>
+                }
+            </Box>
           </Link>
         </Drawer>
     );

@@ -12,13 +12,18 @@ class QualityAssuranceCouncilDirector extends Model
 
     //quality assurance council director is a quality assurance council officer
     public function qualityAssuranceCouncilOfficer(){
-        return $this -> belongsTo(QualityAssuranceCouncilOfficer::class);
+        return $this -> belongsTo(QualityAssuranceCouncilOfficer::class, 'id', 'id');
     }
 
     // QACDirectors can reject pgprs
     public function postGraduateProgramReviews()
     {
         return $this->hasMany(PostGraduateProgramReview::class, 'qac_dir_id');
+    }
+
+    //qac director belongs to a user through quality assurance council officer
+    public function user(){
+        return $this -> belongsTo(User::class, 'id', 'id');
     }
 
     //qac director creates many universities
