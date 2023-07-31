@@ -116,7 +116,7 @@ class PostGraduateProgramReviewApplicationController extends Controller
             }
 
             //check whether the application is already submitted
-            if($pgprApplication -> request_date){
+            if($pgprApplication -> request_date || $pgprApplication -> status == 'submitted'){
                 return response()->json(['message' => 'This post graduate program review application is already submitted.'], 400);
             }
 
@@ -141,11 +141,11 @@ class PostGraduateProgramReviewApplicationController extends Controller
             }
 
             //check whether the application is already approved
-            if($pgprApplication -> cqa_director_approval_date){
+            if($pgprApplication -> application_date){
                 return response()->json(['message' => 'This post graduate program review application is already approved.'], 400);
             }
 
-            $pgprApplication -> update(['cqa_director_approval_date' => today() -> toDateString()]);
+            $pgprApplication -> update(['application_date' => today() -> toDateString()]);
         }
         catch(\Exception $e){
             return response()->json(['message' => 'Error approving post graduate program review application.',
@@ -167,31 +167,33 @@ class PostGraduateProgramReviewApplicationController extends Controller
             }
 
             //check whether the application is already approved
-            if($pgprApplication -> quality_assurance_council_officer_id){
-                return response()->json(['message' => 'This post graduate program review application is already approved.'], 400);
+            if($pgprApplication -> quality_assurance_council_officer_id  && ($pgprApplication -> status == 'approved' || $pgprApplication -> status == 'rejected')){
+                return response()->json(['message' => 'This post graduate program review application is already handled.'], 400);
             }
 
             DB::beginTransaction();
 
-            $pgprApplication -> update(['quality_assurance_council_officer_id' => $qacOfficerID]);
+            $pgprApplication -> update(['quality_assurance_council_officer_id' => $qacOfficerID, 'status' => $request -> status]);
 
-            //after approving, create a post graduate program review
-            $pgpr = PostGraduateProgramReview::create([
-                'post_graduate_program_id' => $pgprApplication -> post_graduate_program_id,
-                'pgpr_application_id' => $pgprApplication -> id
-            ]);
+            //create a post graduate program review if the application is approved
+            if($request -> status == 'approved'){
+                //after approving, create a post graduate program review
+                $pgpr = PostGraduateProgramReview::create([
+                    'post_graduate_program_id' => $pgprApplication -> post_graduate_program_id,
+                    'pgpr_application_id' => $pgprApplication -> id
+                ]);
 
-            //now create self evaluation report for the pgpr
-            $ser = SelfEvaluationReport::create([
-                'post_graduate_program_review_id' => $pgpr -> id,
-                'pgp_coordinator_id' => $pgpr -> postGraduateProgram -> currentProgrammeCoordinator -> id //get the current pgp coordinator
-            ]);
-
+                //now create self evaluation report for the pgpr
+                $ser = SelfEvaluationReport::create([
+                    'post_graduate_program_review_id' => $pgpr -> id,
+                    'pgp_coordinator_id' => $pgpr -> postGraduateProgram -> currentProgrammeCoordinator -> id //get the current pgp coordinator
+                ]);
+            }
             DB::commit();
         }
         catch(\Exception $e){
             DB::rollBack();
-            return response()->json(['message' => 'Error approving post graduate program review application.',
+            return response()->json(['message' => 'Error approving/rejecting post graduate program review application.',
                 'error' => $e->getMessage()]
             , 400);
         }
