@@ -20,6 +20,7 @@ import SetCriteria from './pages/ReviewerChair/SetCriteria';
 import PGAssignments from './pages/Reviewer/PGAssignments';
 import ConductDE from './pages/Reviewer/ConductDE';
 import ConductPE from './pages/Reviewer/ConductPE';
+import {DrawerStateProvider} from './contexts/DrawerStateProvider';
 import "./App.css";
 
 /* 
@@ -48,7 +49,7 @@ function App() {
              <Route path="login" element={<Login/>}/>
              <Route path="/" element={<Login/>}/>
               
-             <Route element={<MainLayout/>}>
+             <Route element={<DrawerStateProvider><MainLayout/></DrawerStateProvider>}>
                 
                 {/* protected routes */}
 
