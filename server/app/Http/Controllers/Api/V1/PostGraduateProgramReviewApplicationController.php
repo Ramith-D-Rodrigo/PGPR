@@ -92,6 +92,8 @@ class PostGraduateProgramReviewApplicationController extends Controller
 
             //update the model
             $pgprApplication -> update($validatedData);
+
+            return response()->json(['message' => 'Post graduate program review application updated successfully.'], 200);
         }
         catch(\Exception $e){
             return response()->json(['message' => 'Error updating post graduate program review application.',
@@ -120,8 +122,9 @@ class PostGraduateProgramReviewApplicationController extends Controller
                 return response()->json(['message' => 'This post graduate program review application is already submitted.'], 400);
             }
 
+            $pgprApplication -> update(['request_date' => today() -> toDateString(), 'status' => 'submitted']);
 
-            $pgprApplication -> update(['request_date' => today() -> toDateString()]);
+            return response()->json(['message' => 'Post graduate program review application submitted successfully.'], 200);
         }
         catch(\Exception $e){
             return response()->json(['message' => 'Error submitting post graduate program review application.',
@@ -136,16 +139,18 @@ class PostGraduateProgramReviewApplicationController extends Controller
             //check submitting user is the cqa director
             $cqaDirector = Auth::user();
             $cqaDirectorID = $cqaDirector -> universitySide -> qualityAssuranceStaff -> centerForQualityAssuranceDirector -> id ?? null;
-            if($cqaDirectorID != $pgprApplication -> postGraduatePrograms -> faculty -> university -> cqa_director_id){
-                return response()->json(['message' => 'You are not authorized to approve this post graduate program review application.'], 403);
+            if($cqaDirectorID != $pgprApplication -> postGraduatePrograms -> faculty -> university -> centerForQualityAssurance -> currentQualityAssuranceDirector -> id ?? null){
+                return response()->json(['message' => 'You are not authorized to recommend this post graduate program review application.'], 403);
             }
 
             //check whether the application is already approved
             if($pgprApplication -> application_date){
-                return response()->json(['message' => 'This post graduate program review application is already approved.'], 400);
+                return response()->json(['message' => 'This post graduate program review application is already applied.'], 400);
             }
 
-            $pgprApplication -> update(['application_date' => today() -> toDateString()]);
+            $pgprApplication -> update(['application_date' => today() -> toDateString(), 'status' => 'applied']);
+
+            return response()->json(['message' => 'Post graduate program review application recommended successfully.'], 200);
         }
         catch(\Exception $e){
             return response()->json(['message' => 'Error approving post graduate program review application.',
@@ -190,6 +195,8 @@ class PostGraduateProgramReviewApplicationController extends Controller
                 ]);
             }
             DB::commit();
+
+            return response()->json(['message' => 'Post graduate program review application approved/rejected successfully.'], 200);
         }
         catch(\Exception $e){
             DB::rollBack();
