@@ -18,7 +18,7 @@ class CenterForQualityAssurance extends Model
 
     //center for quality assurance belongs to a university
     public function university(){
-        return $this->belongsTo(University::class);
+        return $this->hasOne(University::class);    //changed to reverse because uni has the center for quality assurance id in its table
     }
 
     //center for quality assurance has many center for quality assurance directors (because change over time)
