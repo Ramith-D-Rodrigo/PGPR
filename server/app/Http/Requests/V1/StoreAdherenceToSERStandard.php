@@ -3,6 +3,7 @@
 namespace App\Http\Requests\V1;
 
 use App\Models\Standard;
+use App\Services\V1\StandardService;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -18,7 +19,7 @@ class StoreAdherenceToSERStandard extends FormRequest
         //only need to check whether these roles belong to the particular post graduate program review
         $user = Auth::user();
 
-        //get the ser from the request to find the faculty id
+        //get the ser from the request
         $SER = $this->route('selfEvaluationReport');
 
         //check the pgp coordinator id
@@ -36,16 +37,8 @@ class StoreAdherenceToSERStandard extends FormRequest
     public function rules(): array
     {
         //standard id is required and that standard must be applicable to the slqf level of the post graduate program review
-        $applicableSLQFLevels = Standard::findOrFail($this->standard_id)->valid_slqf_levels;
-        $applicableSLQFLevels = json_decode($applicableSLQFLevels);
-
-        if(in_array("all", $applicableSLQFLevels)){ //if has all, then all slqf levels are applicable
-            $applicableSLQFLevels = [7,8,9,10,11,12];
-        }
-        else{
-            $applicableSLQFLevels = array_map('intval', $applicableSLQFLevels);
-        }
-
+        $applicableSLQFLevels = StandardService::getApplicableSLQFLevels(Standard::findOrFail($this->standard_id));
+        
         return [
             'standard_id' => ['required', 'exists:standards,id'],
             'slqf_level' => ['required', 'in:'.implode(',', $applicableSLQFLevels)],
