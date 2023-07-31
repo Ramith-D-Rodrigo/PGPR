@@ -79,11 +79,14 @@ class SelfEvaluationReportController extends Controller
             //then update the adherence
             $selfEvaluationReport -> adherenceToStandards() -> updateExistingPivot($validatedData['standard_id'], [
                 'adherence' => $validatedData['adherence'],
+                'updated_at' => now(),
             ]);
         }
         else{
             $selfEvaluationReport -> adherenceToStandards() -> attach($validatedData['standard_id'], [
                 'adherence' => $validatedData['adherence'],
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
         }
 
