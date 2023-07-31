@@ -20,6 +20,9 @@ import SetCriteria from './pages/ReviewerChair/SetCriteria';
 import PGAssignments from './pages/Reviewer/PGAssignments';
 import ConductDE from './pages/Reviewer/ConductDE';
 import ConductPE from './pages/Reviewer/ConductPE';
+import ViewUniversities from './pages/QACDirector/ViewUniversities'
+import ViewReviewers from './pages/QACDirector/ViewReviewers'
+import CqaOffices from './pages/QACDirector/CqaOffices'
 import {DrawerStateProvider} from './contexts/DrawerStateProvider';
 import "./App.css";
 
@@ -75,6 +78,9 @@ function App() {
                   <Route path="qac_director/" >
                       <Route path="" element={<Dashboard/>}/>
                       <Route path="dashboard" element={<Dashboard/>}/>
+                      <Route path="universities" element={<ViewUniversities/>}/>
+                      <Route path="cqa_offices" element={<CqaOffices/>}/>
+                      <Route path="reviewers" element={<ViewReviewers/>}/>
                   </Route>
                 </Route>
 
