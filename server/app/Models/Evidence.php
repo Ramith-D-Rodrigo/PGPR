@@ -8,6 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 class Evidence extends Model
 {
     use HasFactory;
+    protected $fillable = [
+        'evidence_code',
+        'evidence_name',
+        'applicable_years',
+        'url'
+    ];
 
     public function selfEvaluationReport()
     {
