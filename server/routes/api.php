@@ -45,7 +45,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::apiResource('qacOfficers', 'QualityAssuranceCouncilOfficerController');
     Route::apiResource('qacDirectors', 'QualityAssuranceCouncilDirectorController');
     Route::apiResource('properEvaluations', 'ProperEvaluationController');
-    Route::apiResource('programmeCoordinators', 'ProgrammeCoordinatorController');
+    Route::apiResource('programmeCoordinators', 'ProgrammeCoordinatorController') -> middleware('auth') -> middleware('authorize.role:cqa_director')->only(['store', 'update', 'destroy']);
     Route::apiResource('postGraduateProgramReviews', 'PostGraduateProgramReviewController');
     Route::apiResource('pgprApplications', 'PostGraduateProgramReviewApplicationController') -> middleware('auth');
     Route::apiResource('postGraduatePrograms', 'PostGraduateProgramController') -> middleware('auth');
