@@ -7,6 +7,7 @@ use App\Http\Resources\V1\EvidenceResource;
 use App\Models\Evidence;
 use Illuminate\Http\Request;
 use App\Http\Requests\V1\StoreEvidenceRequest;
+use Illuminate\Support\Facades\DB;
 
 class EvidenceController extends Controller
 {
@@ -36,12 +37,17 @@ class EvidenceController extends Controller
             //convert applicable years to json
             $validatedData['applicable_years'] = json_encode($validatedData['applicable_years']);
 
-            $resource = new EvidenceResource(Evidence::create($validatedData));
-            
+            DB::beginTransaction();
+
+            $evidence = Evidence::create($validatedData);
+
+            //insert to ser_evidence_standard table
+            $evidence -> standards() -> attach($validatedData['standard_id'], ['ser_id' => $validatedData['ser_id']]);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Evidence created successfully',
-                'data' => $resource
+                'data' => new EvidenceResource($evidence)
             ], 201);
         }
         catch(\Exception $e){
@@ -80,8 +86,23 @@ class EvidenceController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Evidence $evidence)
     {
-        //
+        try{
+            $evidence->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Evidence deleted successfully',
+                'data' => null
+            ], 200);
+        }
+        catch(\Exception $e){
+            return response()->json([
+                'success' => false,
+                'message' => 'Unable to delete evidence',
+                'data' => $e->getMessage()
+            ], 500);
+        }
     }
 }
