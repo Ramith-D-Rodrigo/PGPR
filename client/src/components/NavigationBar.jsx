@@ -8,7 +8,7 @@ import IconButton from '@mui/material/IconButton';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import MenuIcon from '@mui/icons-material/Menu';
 import useAuth from '../hooks/useAuth';
-import { Link } from 'react-router-dom';
+import { Link,useLocation, Navigate } from 'react-router-dom';
 
 let drawerWidth = 240; //default value
 
@@ -36,6 +36,11 @@ const AppBar = styled(MuiAppBar, {
 //open and openDrawer are for sidebar (navigation bar is a child of sidebar)
 const NavigationBar = ({open , openDrawer, drawerWidthInput, breadCrumbs}) => {
   const {auth} = useAuth();
+  const location = useLocation();
+  if(!auth)
+  {
+    return <Navigate to="/login" state={{ from: location }} replace />
+  }
   drawerWidth = drawerWidthInput;
   return (
       <AppBar color='transparent' open={open} position='absolute'>
