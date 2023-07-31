@@ -8,6 +8,7 @@ use App\Mail\sendPassword;
 use App\Models\User;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -19,6 +20,9 @@ class UserService {
         //make sure validatedData includes the status field and the roles field
         $user = new User();
         $validatedData['roles'] = json_encode($validatedData['roles']); //convert the array to json string
+
+        //add the authorized user who creates the account to the validated data
+        $validatedData['created_by'] = Auth::user()->id;
         $user -> fill($validatedData);
 
         $user -> save();
