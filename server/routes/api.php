@@ -67,7 +67,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::get('reviewers/download-declaration', 'ReviewerController@downloadDeclarationLetter')->middleware('auth');
     //upload the declaration letter
     Route::post('reviewers/accept-appointment', 'ReviewerController@acceptAppointment')->middleware('auth');
-    //valid declaration must be sent
+    //reject the appointment
     Route::post('reviewers/reject-appointment', 'ReviewerController@rejectAppointment')->middleware('auth');
 
     // api resource => this must come here otherwise the declaration doc will have problems
