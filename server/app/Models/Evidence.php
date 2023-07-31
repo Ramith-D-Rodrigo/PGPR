@@ -15,6 +15,8 @@ class Evidence extends Model
         'url'
     ];
 
+    protected $table = 'evidences';
+
     public function selfEvaluationReport()
     {
         return $this->belongsToMany(Evidence::class, 'ser_evidence_standard', 'evidence_id', 'ser_id');
