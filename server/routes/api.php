@@ -49,7 +49,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::apiResource('postGraduateProgramReviews', 'PostGraduateProgramReviewController');
     Route::apiResource('pgprApplications', 'PostGraduateProgramReviewApplicationController') -> middleware('auth');
     Route::apiResource('postGraduatePrograms', 'PostGraduateProgramController') -> middleware('auth');
-    Route::apiResource('iqauDirectors', 'InternalQualityAssuranceUnitDirectorController');
+    Route::apiResource('iqauDirectors', 'InternalQualityAssuranceUnitDirectorController') -> middleware('auth') -> middleware('authorize.role:cqa_director')->only(['store', 'update', 'destroy']);
     Route::apiResource('iqaUnits', 'InternalQualityAssuranceUnitController');
     Route::apiResource('faculties', 'FacultyController') -> middleware('auth');
     Route::apiResource('deskEvaluations', 'DeskEvaluationController');
