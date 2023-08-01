@@ -3,6 +3,8 @@
 namespace App\Services\V1;
 
 use App\Models\Standard;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 
 class StandardService {
     public static function getApplicableSLQFLevels(Standard $standard): array {
