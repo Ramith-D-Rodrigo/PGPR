@@ -64,11 +64,15 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
 
     //ROUTES OF THE REVIEWER ACTOR
     //get the appointment declaration
-    Route::get('reviewers/download-declaration', 'ReviewerController@downloadDeclarationLetter')->middleware('auth');
+    Route::get('reviewers/download-declaration', 'ReviewerController@downloadRoleAcceptanceDeclarationLetter')->middleware('auth');
+    //get the prgprs of the reviewer
+    Route::get('reviewers/pgprs', 'ReviewerController@browsePGPRs')->middleware('auth');
     //upload the declaration letter
     Route::post('reviewers/accept-appointment', 'ReviewerController@acceptAppointment')->middleware('auth');
     //reject the appointment
     Route::post('reviewers/reject-appointment', 'ReviewerController@rejectAppointment')->middleware('auth');
+    //download review team assignment appointment declaration letter
+    Route::get('reviewers/download-declaration', 'ReviewerController@downloadReviewAppointmentDeclarationLetter')->middleware('auth');
 
     // api resource => this must come here otherwise the declaration doc will have problems
     Route::apiResource('reviewers', 'ReviewerController');
