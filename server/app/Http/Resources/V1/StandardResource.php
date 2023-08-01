@@ -33,10 +33,10 @@ class StandardResource extends JsonResource
 
         }
 
-        $returnArr['criteria'] = new CriteriaCollection($this -> whenLoaded('criteria'));
+        $returnArr['criteria'] = new CriteriaResource($this -> whenLoaded('criteria'));
         $returnArr['evidences'] = new EvidenceCollection($this -> whenLoaded('evidences'));
-        $returnArr['standardAdherence'] = new StandardAdherenceResource($this -> whenPivotLoaded('ser_standard_adherence', function(){
-            return $this -> pivot;
+        $returnArr['standardAdherence'] = new StandardAdherenceResource($this -> whenLoaded('selfEvaluationReportAdherences', function(){
+            return $this -> selfEvaluationReportAdherences -> first();
         }));
 
         return $returnArr;
