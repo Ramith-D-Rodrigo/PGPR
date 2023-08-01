@@ -16,6 +16,8 @@ import AddIcon from '@mui/icons-material/Add';
 import IconButton from '@mui/material/IconButton';
 import { Box } from '@mui/material';
 import {Link} from 'react-router-dom';
+import { useEffect } from 'react';
+import axios from '../../api/api.js';
 
 const ViewUniversities = () => {
     useSetUserNavigations(
@@ -26,6 +28,24 @@ const ViewUniversities = () => {
           },
       ]
     );
+
+    useEffect(() => {
+        document.title = 'View Universities | QAC'
+
+        async function getUniversities() {
+            // await axios.get("/sanctum/csrf-cookie");
+            await axios.get('/api/v1/universities')
+            .then(res => {
+                console.log(res.data);
+            })
+            .catch(err => {
+                console.log(err);
+            });
+
+        }
+
+        getUniversities();
+    }, []);
 
     // axios.get(SERVER_URL + SERVER_API_VERSION + '/universities')
     // .then(res => {
