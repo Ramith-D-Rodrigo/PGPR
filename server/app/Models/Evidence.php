@@ -19,7 +19,7 @@ class Evidence extends Model
 
     public function selfEvaluationReport()
     {
-        return $this->belongsToMany(Evidence::class, 'ser_evidence_standard', 'evidence_id', 'ser_id');
+        return $this->belongsToMany(SelfEvaluationReport::class, 'ser_evidence_standard', 'evidence_id', 'ser_id');
     }
 
     public function standards()

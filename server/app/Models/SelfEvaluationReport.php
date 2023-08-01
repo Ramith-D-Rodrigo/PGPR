@@ -41,7 +41,7 @@ class SelfEvaluationReport extends Model
     //self evaluation report is given approval by internal quality assurance unit director
     public function internalQualityAssuranceUnitDirector()
     {
-        return $this->belongsTo(InternalQualityAssuranceUnitDirector::class);
+        return $this->belongsTo(InternalQualityAssuranceUnitDirector::class, 'iqau_dir_id');
     }
 
     public function evidences()
