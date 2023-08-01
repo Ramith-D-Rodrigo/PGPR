@@ -14,6 +14,14 @@ class ReviewerBrowsePGPRResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'pgprId' => $this->pgpr->id,
+            'statusOfPGPR' => $this->pgpr->status_of_pgpr,
+            'postGraduateProgram' => $this->post_graduate_program->title,
+            'facultyName' => $this->faculty->name,
+            'university' => $this->university->name,
+            'role' => $this->review_team_pivot->role,
+            //'reviewer_role_status' => $this->review_team_pivot->status, //not confirmed yet
+        ];
     }
 }
