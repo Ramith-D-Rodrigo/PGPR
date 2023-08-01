@@ -25,7 +25,6 @@ class PostGraduateProgramController extends Controller
         //cqa_director, vice_chancellor can view all pgps of their university
         //qac_director, qac_officer can view all the pgps in the system
 
-
         $filter = new PostGraduateProgramFilter();
 
         $queryItems = $filter -> transform($request);   //[column, operator, value]
@@ -52,17 +51,36 @@ class PostGraduateProgramController extends Controller
                 //replace the faculty_id with the faculty id of the user
                 if($facultyIdIndex !== false){ //if faculty_id is present in the query items
                     $queryItems[$facultyIdIndex][2] = $facultyID;
+
+                    //set the operator to =
+                    $queryItems[$facultyIdIndex][1] = '='; //because the actor can view only their faculty pgps
                 }
                 else{
                     $queryItems[] = ['faculty_id', '=', $facultyID];
                 }
             }
-            else if($role == 'cqa_director' || $role == 'vice_chancellor'){
+            else if($role == 'cqa_director' || $role == 'vice_chancellor'){ //can view all the pgps in the university
+                $universityID = Auth::user() -> universitySide -> university; //get the university model
+
+                //get all the faculty ids of the university
+                $facultyIDs = $universityID -> faculties -> pluck('id') -> toArray();
+
+                //find the column faculty_id in query items
+                $facultyIdIndex = array_search('faculty_id', array_column($queryItems, 0));
+                if($facultyIdIndex !== false){ //if faculty_id is present in the query items
+                    $queryItems[$facultyIdIndex][2] = $facultyIDs;
+
+                    //set the operator to =
+                    $queryItems[$facultyIdIndex][1] = '='; //because the actor can view only their uni pgps
+                }
+                else{
+                    $queryItems[] = ['faculty_id', 'in', $facultyIDs];
+                }
 
             }
-            else if($role == 'qac_director' || $role == 'qac_officer'){
+            //qac director and qac officer can view all the pgps in the system
+            //role authorization done in the middleware
 
-            }
             if(count($queryItems) > 0){
                 $pgps = PostGraduateProgram::where($queryItems) -> paginate();
 
