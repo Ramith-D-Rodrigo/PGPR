@@ -27,6 +27,9 @@ class PostGraduateProgramResource extends JsonResource
             $returnArr[Str::camel($key)] = $value;
         }
 
+        $returnArr['faculty'] = new FacultyResource($this -> whenLoaded('faculty'));
+        $returnArr['programmeCoordinator'] = $this -> whenLoaded('currentProgrammeCoordinator');
+        $returnArr['criteria'] = new CriteriaCollection($this -> whenLoaded('criteria'));
         return $returnArr;
     }
 }
