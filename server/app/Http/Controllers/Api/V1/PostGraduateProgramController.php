@@ -80,13 +80,8 @@ class PostGraduateProgramController extends Controller
             }
             //qac director and qac officer can view all the pgps in the system
             //role authorization done in the middleware
-
-            if(count($queryItems) > 0){
-                $pgps = PostGraduateProgram::where($queryItems) -> paginate();
-
-                return new PostGraduateProgramCollection($pgps -> appends($request -> query()));    //pagination should include the query params
-            }
-            return new PostGraduateProgramCollection(PostGraduateProgram::paginate());
+            $pgps = PostGraduateProgram::where($queryItems) -> paginate();
+            return new PostGraduateProgramCollection($pgps -> appends($request -> query()));    //pagination should include the query params
         }
         catch(\Exception $e){
             return response() -> json(['message' => $e -> getMessage()], 500);
