@@ -21,7 +21,16 @@ class Reviewer extends Model
     }
 
     public function reviewTeams(){
-        return $this->belongsToMany(ReviewTeam::class, 'reviewer_review_teams');
+        return $this->belongsToMany(
+            ReviewTeam::class,
+            'reviewer_review_teams',
+            'reviewer_id',
+            'review_team_id'
+        )->withPivot([
+            'role',
+            'declaration_letter',
+            'reviewer_confirmation',
+        ]); //get the role from the pivot table
     }
 
     // reviewers can score for many standards
