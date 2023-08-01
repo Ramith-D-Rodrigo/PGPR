@@ -74,11 +74,11 @@ const ViewUniversities = () => {
     }
 
     const rows = [
-        createData(1,'University of Colombo', 9, 'In-review', 'Yes', [{action:'View',allow:true}, {action:'Edit',allow:false}, {action:'Delete',allow:false}]),
-        createData(2,'University of Peradeniya', 12, 'In-review', 'No', [{action:'View',allow:true}, {action:'Edit',allow:true}, {action:'Delete',allow:false}]),
-        createData(3,'University of Ruhuna', 9, 'In-review', 'Yes', [{action:'View',allow:true}, {action:'Edit',allow:false}, {action:'Delete',allow:true}]),
-        createData(4,'University of Moratuwa', 5, 'In-review', 'No', [{action:'View',allow:true}, {action:'Edit',allow:false}, {action:'Delete',allow:false}]),
-        createData(5,'NSBM', 5, 'In-review', 'Yes', [{action:'View',allow:true}, {action:'Edit',allow:true}, {action:'Delete',allow:true}]),
+        createData(1,'University of Colombo', 9, 'Colombo', 'Yes', [{action:'View',allow:true}, {action:'Edit',allow:false}, {action:'Delete',allow:false}]),
+        createData(2,'University of Peradeniya', 12, 'Peradeniya', 'No', [{action:'View',allow:true}, {action:'Edit',allow:true}, {action:'Delete',allow:false}]),
+        createData(3,'University of Ruhuna', 9, 'Ruhuna', 'Yes', [{action:'View',allow:true}, {action:'Edit',allow:false}, {action:'Delete',allow:true}]),
+        createData(4,'University of Moratuwa', 5, 'Moratuwa', 'No', [{action:'View',allow:true}, {action:'Edit',allow:false}, {action:'Delete',allow:false}]),
+        createData(5,'NSBM', 5, 'Colombo', 'Yes', [{action:'View',allow:true}, {action:'Edit',allow:true}, {action:'Delete',allow:true}]),
       ];
 
     // const tableData = [
@@ -92,7 +92,7 @@ const ViewUniversities = () => {
         <Box sx={{
             display:'flex',alignItems:'center',justifyContent:'flex-end',
         }}>
-            <Link to="/qacofficer/universities/add">
+            <Link to="add">
                 <IconButton style={{backgroundColor:"#D8E6FC",boxShadow:'2px 3px 8px 1px #888888'}} aria-label="delete" size="large">
                     <AddIcon style={{width:"50px",height:"50px"}} fontSize="large" />
                 </IconButton>
