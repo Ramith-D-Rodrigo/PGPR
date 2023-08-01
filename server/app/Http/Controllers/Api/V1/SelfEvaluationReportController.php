@@ -4,10 +4,15 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Requests\V1\StoreAdherenceToSERStandard;
 use App\Http\Resources\V1\SelfEvaluationReportResource;
+use App\Http\Resources\V1\StandardCollection;
+use App\Models\Criteria;
 use App\Models\SelfEvaluationReport;
 use App\Http\Requests\V1\StoreSelfEvaluationReportRequest;
 use App\Http\Requests\V1\UpdateSelfEvaluationReportRequest;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\V1\StandardResource;
+use App\Models\Standard;
+use App\Services\V1\StandardService;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -71,8 +76,11 @@ class SelfEvaluationReportController extends Controller
                 ],
                 'postGraduateProgramReviewApplication:id,application_date'
             ],
-            'adherenceToStandards:id' => [
-                'evidences:id,applicable_years'
+            'standards:id' => [
+                'evidences:id,applicable_years',
+                'selfEvaluationReportAdherences' => function($query) use ($selfEvaluationReport){
+                    $query -> where('ser_id', $selfEvaluationReport -> id);
+                }
             ]
         ]);
 
@@ -128,5 +136,44 @@ class SelfEvaluationReportController extends Controller
         return response()->json([
             'message' => 'Adherence to standard added successfully',
         ], 201);
+    }
+
+    //get the standards of the self evaluation report by the criteria id sent by client
+    public function getStandards(SelfEvaluationReport $selfEvaluationReport, Criteria $criteria){
+        //we need to get the standards that are applicable to the self evaluation report
+        $pgp = $selfEvaluationReport -> postGraduateProgramReview -> postGraduateProgram;
+        $applicableStandards = StandardService::getApplicableStandards(
+            $pgp -> slqf_level,
+            $pgp -> is_professional_pg_programme,
+            $criteria -> id);
+
+
+        //return the standard resources
+        return new StandardCollection($applicableStandards);
+    }
+
+    //get the evidences and adherence of the standard
+    public function getStandardEvidencesAndAdherence(SelfEvaluationReport $selfEvaluationReport, Standard $standard){
+        try{
+            //get the evidences and adherence of the standard of the self evaluation report
+            $standard -> load([
+                'evidences' => function($query) use ($selfEvaluationReport, $standard){
+                    $query -> whereHas('selfEvaluationReport', function($query) use ($selfEvaluationReport, $standard){
+                        $query -> where('ser_id', $selfEvaluationReport -> id) -> where('standard_id', $standard -> id);
+                    });
+                },
+                'selfEvaluationReportAdherences' => function($query) use ($selfEvaluationReport, $standard){
+                    $query -> where('ser_id', $selfEvaluationReport -> id) -> where('standard_id', $standard -> id);
+                }
+            ]);
+            //dd($standard);
+            return new StandardResource($standard);
+        }
+        catch(Exception $e){
+            return response()->json([
+                'message' => 'Error occurred while getting the standard evidences and adherence',
+                'error' => $e -> getTrace()
+            ], 500);
+        }
     }
 }
