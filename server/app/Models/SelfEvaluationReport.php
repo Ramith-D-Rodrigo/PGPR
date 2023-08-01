@@ -13,10 +13,10 @@ class SelfEvaluationReport extends Model
         'post_graduate_program_review_id',
         'pgp_coordinator_id',
         'vice_chancellor_id',
-        'dean_id',
         'section_a',
         'section_b',
         'section_d',
+        'iqau_dir_id',
         'center_for_quality_assurance_director_id'
     ];
 
