@@ -12,12 +12,12 @@ return new class extends Migration {
     {
         Schema::create('review_teams', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('quality_assurance_council_officer_id'); //qac officer who created the review team
-            $table->foreignId('pgpr_id');
-            $table->unsignedBigInteger('dean_id'); //dean who gives the consent
-            $table->enum('status', ['PENDING', 'ACCEPTED', 'REJECTED']); //in case the deans rejected the review team
-            $table->string('dean_decision');
-            $table->string('remarks');
+            $table->unsignedBigInteger('quality_assurance_council_officer_id')->nullable(); //qac officer who created the review team
+            $table->foreignId('pgpr_id')->nullable();
+            $table->unsignedBigInteger('dean_id')->nullable(); //dean who gives the consent
+            $table->enum('status', ['PENDING', 'ACCEPTED', 'REJECTED'])->default('PENDING'); //in case the deans rejected the review team
+            $table->string('dean_decision')->nullable();
+            $table->string('remarks')->nullable();
             $table->timestamps();
 
             // indices
@@ -33,7 +33,9 @@ return new class extends Migration {
             $table->id();
             $table->unsignedBigInteger('reviewer_id');
             $table->unsignedBigInteger('review_team_id');
-            $table->enum('role', ['CHAIR', 'MEMBER']);
+            $table->enum('role', ['CHAIR', 'MEMBER'])->default('MEMBER');
+            $table->enum('reviewer_confirmation', ['ACCEPTED', 'REJECTED', 'PENDING'])->default('PENDING');
+            $table->string('declaration_letter')->nullable();
             $table->timestamps();
 
             //foreign key
