@@ -6,10 +6,14 @@ use App\Models\AcademicStaff;
 use App\Models\CenterForQualityAssurance;
 use App\Models\Dean;
 use App\Models\Faculty;
+use App\Models\PostGraduateProgramReviewApplication;
+use App\Models\ProgrammeCoordinator;
 use App\Models\Reviewer;
+use App\Models\ReviewTeam;
 use App\Models\University;
 use App\Models\UniversitySide;
 use App\Models\ViceChancellor;
+use Database\Factories\PostGraduateProgramReviewApplicationFactory;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 
@@ -25,49 +29,17 @@ class DatabaseSeeder extends Seeder
         User::factory()->iqau_director()->hasUniversitySide()->create();
         User::factory()->vice_chancellor()->hasUniversitySide()->create();
 
-        $university = University::factory()
-            ->has(
-                ViceChancellor::factory()->for(
-                    UniversitySide::factory()->for(
-                        User::factory()->vice_chancellor()->create()
-                    )->create()
-                )
-            )
-            ->has(
-                CenterForQualityAssurance::factory()
-            )->create();
+        /*//run reviewer seeder
+        $this->call([ReviewerSeeder::class]);
+        $this->call([ReviewerSeeder::class]);
 
-        $dean = Dean::factory()
-            ->for(
-                AcademicStaff::factory()->for(
-                    UniversitySide::factory()->for(
-                        User::factory()->dean()->create()
-                    )->create()
-                )
-            );
+        //run review team seeder
+        $this->call([ReviewerSeeder::class]);
 
-        $faculty = Faculty::factory()
-            ->has($dean)
-            ->for($university)
-            ->create();
+        //run university seeder
+        $this->call([FacultySeeder::class]);*/
 
-        Reviewer::factory()
-            ->for(
-                AcademicStaff::factory()->for(
-                    UniversitySide::factory()->for(
-                        User::factory()->reviewer()->create()
-                    )->create()
-                )->create()
-            )->create();
-
-        Reviewer::factory()
-            ->for(
-                AcademicStaff::factory()->for(
-                    UniversitySide::factory()->for(
-                        User::factory()->reviewer()->create()
-                    )->create()
-                )->create()
-            )->create();
+        $this->call([PostGraduateProgramSeeder::class]);
 
         //run criteria seeder
         $this->call([CriteriaSeeder::class]);
