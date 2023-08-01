@@ -26,9 +26,14 @@ class StandardService {
     }
 
     //function to get applicable standards for a given slqf level and whether it is a professional pg programme
-    public static function getApplicableStandards(int $slqfLevel, bool $isProffessionalPGProgramme): array {
+    public static function getApplicableStandards(int $slqfLevel, bool $isProffessionalPGProgramme, int $criteriaId = 0): array {
         //we have to query the standards table to get the applicable standards
-        $standards = Standard::all();
+        if($criteriaId !== 0){
+            $standards = Standard::where('criteria_id', $criteriaId) -> get();
+        }
+        else{
+            $standards = Standard::all();
+        }
         $returnArr = [];
 
         foreach($standards as $standard){
