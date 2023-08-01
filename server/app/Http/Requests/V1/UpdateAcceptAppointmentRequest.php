@@ -24,7 +24,7 @@ class UpdateAcceptAppointmentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'file' => 'required|file|mimes:pdf|max:4096'
+            'file' => 'nullable|file|mimes:pdf|max:4096'
         ];
     }
 }
