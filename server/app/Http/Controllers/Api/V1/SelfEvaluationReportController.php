@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Requests\V1\StoreAdherenceToSERStandard;
+use App\Http\Resources\V1\SelfEvaluationReportResource;
 use App\Models\SelfEvaluationReport;
 use App\Http\Requests\V1\StoreSelfEvaluationReportRequest;
 use App\Http\Requests\V1\UpdateSelfEvaluationReportRequest;
@@ -41,7 +42,41 @@ class SelfEvaluationReportController extends Controller
      */
     public function show(SelfEvaluationReport $selfEvaluationReport)
     {
+        //needed details
+        //university name and faculty name
+        //pgpr id
+        //pgp name
+        //pgpr application date
+        //pgp slqf level
+        //pg coodinator name
+        //criterias
+        //submitted standards count
+        //evidence count for each applicable year of criteria
 
+        $selfEvaluationReport -> load([
+            //call the whenLoaded method to load the relations only if they are loaded
+            //load the following relations to get the needed details
+            'postGraduateProgramReview:id,post_graduate_program_id,pgpr_application_id' => [
+                'postGraduateProgram:id,title,slqf_level,faculty_id,programme_coordinator_id' => [
+                    'faculty:id,name,university_id' => [
+                        'university:id,name',
+                    ],
+                    'currentProgrammeCoordinator:id' => [
+                        'academicStaff:id' => [
+                            'universitySide:id' => [
+                                'user:id,initials,surname'
+                            ]
+                        ]
+                    ],
+                ],
+                'postGraduateProgramReviewApplication:id,application_date'
+            ],
+            'adherenceToStandards:id' => [
+                'evidences:id,applicable_years'
+            ]
+        ]);
+
+        return new SelfEvaluationReportResource($selfEvaluationReport);
     }
 
     /**
