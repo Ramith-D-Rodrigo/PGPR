@@ -52,7 +52,7 @@ class SelfEvaluationReportResource extends JsonResource
         }]) -> get());
 
         //load the standards that have given evidence
-        $returnArr['evidenceGivenStandards'] = new StandardCollection($this -> whenLoaded('adherenceToStandards'));
+        $returnArr['evidenceGivenStandards'] = new StandardCollection($this -> whenLoaded('standards'));
         return $returnArr;
     }
 }
