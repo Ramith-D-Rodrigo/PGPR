@@ -15,7 +15,10 @@ class StandardAdherenceResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $objProps = $this -> getAttributes();
+        $objProps = $this -> whenPivotLoaded('ser_standard_adherence', function(){
+            return $this -> pivot -> getAttributes();
+        });
+
         $returnArr = [];
 
         //convert to camel case
