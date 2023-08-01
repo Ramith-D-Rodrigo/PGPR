@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Requests\V1\UpdateAcceptAppointmentRequest;
 use App\Http\Requests\V1\StoreAcademicStaffRequest;
 use App\Http\Requests\V1\UpdateRejectAppointmentRequest;
+use App\Http\Resources\V1\ReviewerBrowsePGPRCollection;
+use App\Http\Resources\V1\ReviewerBrowsePGPRResource;
 use App\Mail\RejectReviewerRole;
 use App\Models\Reviewer;
 use App\Http\Requests\V1\StoreReviewerRequest;
@@ -12,12 +14,10 @@ use App\Http\Requests\V1\UpdateReviewerRequest;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Exception;
-use Illuminate\Contracts\Routing\ResponseFactory;
-use Illuminate\Foundation\Application;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -25,6 +25,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\V1\ReviewerImport;
 use Illuminate\Validation\ValidationException as ValidationValidationException;
 use Maatwebsite\Excel\Validators\ValidationException;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ReviewerController extends Controller
 {
@@ -37,7 +38,7 @@ class ReviewerController extends Controller
     }
 
     //import reviewers using excel file
-    public function importReviewers()
+    public function importReviewers(): JsonResponse
     {
         try {
             Excel::import(new ReviewerImport, request()->file('file'));
@@ -68,7 +69,7 @@ class ReviewerController extends Controller
     /**
      * Downloading the appointment declaration letter
      */
-    public function downloadDeclarationLetter()
+    public function downloadRoleAcceptanceDeclarationLetter(): BinaryFileResponse
     {
         $headers = [
             "Content-Type: application/octet-stream",
@@ -116,7 +117,7 @@ class ReviewerController extends Controller
     /**
      * Reject appointment
      */
-    public function rejectAppointment(UpdateRejectAppointmentRequest $request)
+    public function rejectAppointment(UpdateRejectAppointmentRequest $request): Response
     {
         try {
             //get the reviewer
@@ -157,19 +158,82 @@ class ReviewerController extends Controller
         }
     }
 
+    //TODO: NEED TO CHECK WHETHER THE USER IS ACTUALLY PART OF THE REVIEW TEAM
+    public function downloadReviewAppointmentDeclarationLetter(Request $request): BinaryFileResponse
+    {
+        $headers = [
+            "Content-Type: application/octet-stream",
+            "Content-Disposition: attachment; filename=\"Declaration.docx\""
+        ];
+
+        $path = "reviewer_review_team_declaration/Declaration.docx";
+
+        return response()->download(Storage::disk('public')->path($path), 'Declaration.dox', $headers);
+    }
+
     /**
      * Use case 1.1
-     * Browse assigned program reviews => with filtering
+     * View program reviews => with filtering
      */
-    public function browsePGPRs()
+    public function browsePGPRs(Request $request): Response|JsonResponse|ReviewerBrowsePGPRCollection
     {
+        //get the review teams and get the PGPRs from them
+        try {
+            //find the reviewer
+            $reviewer = Reviewer::findOrFail(Auth::id());
+            if (!$reviewer) {
+                return response()->json(["message" => "Your credentials are wrong, cannot be authorized for this action.", "data" => []], 401);
+            }
+
+            $review_teams = $reviewer->reviewTeams->where('status', 'ACCEPTED');
+
+            if (!count($review_teams)) {
+                return response()->json(["message" => "Currently you don't have any reviews", "data" => []]);
+            }
+
+            $data = collect();
+
+            foreach ($review_teams as $review_team) {
+                //get the pgpr of each review team
+                $pgpr = $review_team->postGraduateReviewProgram;
+                $post_grad_program = $pgpr->postGraduateProgram;
+                $faculty = $post_grad_program->faculty;
+                $university = $faculty->university;
+                $data->push(
+                    (object)[
+                        'pgpr' => $pgpr,
+                        'post_graduate_program' => $post_grad_program,
+                        'faculty' => $faculty,
+                        'university' => $university,
+                        'review_team_pivot' => $review_team->pivot,
+                    ]
+                );
+            }
+            return new ReviewerBrowsePGPRCollection($data);
+        } catch (Exception $exception) {
+            return response("An internal server error occurred, user request cannot be full filled.", 500);
+        }
     }
+
+    /**
+     * Accept PGPR assignment
+     */
+    public function acceptPGPRAssignment(Request $request)
+    {}
+
+
+    /**
+    * Reject PGPR assignment
+    */
+    public function rejectPGPRAssignment(Request $request)
+    {}
+
 
     /**
      * Use case 1.2
      * View specific program review
      */
-    public function viewSpecificPGPR()
+    public function viewSpecificPGPR(Request $request)
     {
     }
 
