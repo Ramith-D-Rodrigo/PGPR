@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Checkbox, CircularProgress, FormControl, FormControlLabel, FormGroup, IconButton, Input, InputAdornment, InputLabel, MenuItem, Select,Snackbar,Alert } from '@mui/material'
+import { Button, Checkbox, CircularProgress, FormControl, FormControlLabel, FormGroup, IconButton, Input, InputAdornment, InputLabel, MenuItem, Select,Snackbar,Alert, Box } from '@mui/material'
 import FormHelperText from '@mui/material/FormHelperText';
 import axios from '../../api/api.js';
 import {useState,useEffect} from 'react';
@@ -335,10 +335,13 @@ function AddUniversity() {
 
   return (
     <>
-        <form style={{display:"flex",flexWrap:'wrap',}} onSubmit={handleClickAddUniversity}>
+    <Box sx={{display:'flex',justifyContent:'center',alignItems:'center',padding:'20px',backgroundColor:'#f5f5f5',borderRadius:'10px'}}>
+        <form style={{display:"flex",flexWrap:'wrap',width:'90%',justifyContent:'center',alignItems:'flex-start'}} onSubmit={handleClickAddUniversity}>
             <FormControl sx={{padding:"15px 10px",width:'50%',boxSizing:'border-box'}} {...universityNameError.err} variant="standard">
                 <InputLabel htmlFor="university-name"><b>University Name</b></InputLabel>
                 <Input
+                required
+                // autoComplete='off'
                 value={universityName}
                 onChange={(e) => setUniversityName(e.target.value)}
                 id="uniName"
@@ -351,6 +354,8 @@ function AddUniversity() {
             <FormControl sx={{padding:"15px 10px",width:'50%',boxSizing:'border-box'}} {...universityAddressError.err} variant="standard">
                 <InputLabel htmlFor="university-address"><b>University Address</b></InputLabel>
                 <Input
+                required
+                // autoComplete='off'
                 value={universityAddress}
                 onChange={(e) => setUniversityAddress(e.target.value)}
                 id="uniAddress"
@@ -363,6 +368,8 @@ function AddUniversity() {
             <FormControl sx={{padding:"15px 10px",width:'50%',boxSizing:'border-box'}} {...universityWebsiteError.err} variant="standard">
                 <InputLabel htmlFor="university-website"><b>University Website</b></InputLabel>
                 <Input
+                required
+                // autoComplete='off'
                 value={universityWebsite}
                 onChange={(e) => setUniversityWebsite(e.target.value)}
                 id="uniWebsite"
@@ -375,6 +382,8 @@ function AddUniversity() {
             <FormControl sx={{padding:"15px 10px",width:'50%',boxSizing:'border-box'}} {...cqaEmailError.err} variant="standard">
                 <InputLabel htmlFor="cqa-email"><b>QAC Email</b></InputLabel>
                 <Input
+                required
+                // autoComplete='off'
                 value={cqaEmail}
                 onChange={(e) => setCqaEmail(e.target.value)}
                 id="cqaEmail"
@@ -388,10 +397,12 @@ function AddUniversity() {
                 {uniContactNumbers.numbers.map((contactNumber,index) => 
                     {//console.log("contact number : ",index);
                         return(
-                        <div key={index} style={{display:'flex',alignItems:'center'}}>
-                        <FormControl sx={{padding:"15px 15px",boxSizing:'border-box'}} fullWidth {...uniContactNumbers.errMsgs[index].err} variant="standard">
+                        <div key={index} style={{display:'flex',alignItems:'center',paddingRight:'20px'}}>
+                        <FormControl sx={{padding:"15px 5px",boxSizing:'border-box'}} fullWidth {...uniContactNumbers.errMsgs[index].err} variant="standard">
                             <InputLabel sx={{fontSize:"15px",padding:"0 0 0 10px"}} htmlFor="uni-contact-no">Contact Number {index+1}</InputLabel>
                             <Input
+                            required
+                            // autoComplete='off'
                             type="number"
                             value={contactNumber}
                             onChange={
@@ -420,10 +431,12 @@ function AddUniversity() {
                 {uniFaxNumbers.numbers.map((FaxNumber,index) => 
                     {
                         return(
-                        <div key={index} style={{display:'flex',alignItems:'center'}}>
-                        <FormControl sx={{padding:"15px 15px",boxSizing:'border-box'}} fullWidth {...uniFaxNumbers.errMsgs[index].err} variant="standard">
+                        <div key={index} style={{display:'flex',alignItems:'center',paddingRight:'20px'}}>
+                        <FormControl sx={{padding:"15px 5px",boxSizing:'border-box'}} fullWidth {...uniFaxNumbers.errMsgs[index].err} variant="standard">
                             <InputLabel sx={{fontSize:"15px",padding:"0 0 0 10px"}} htmlFor="uni-fax-no">Fax Number {index+1}</InputLabel>
                             <Input
+                            required
+                            // autoComplete='off'
                             type="number"
                             value={FaxNumber}
                             onChange={
@@ -452,10 +465,12 @@ function AddUniversity() {
                 {cqaContactNumbers.numbers.map((contactNo,index) => 
                     {
                         return(
-                        <div key={index} style={{display:'flex',alignItems:'center'}}>
-                        <FormControl sx={{padding:"15px 15px",boxSizing:'border-box'}} fullWidth {...cqaContactNumbers.errMsgs[index].err} variant="standard">
+                        <div key={index} style={{display:'flex',alignItems:'center',paddingRight:'20px'}}>
+                        <FormControl sx={{padding:"15px 5px",boxSizing:'border-box'}} fullWidth {...cqaContactNumbers.errMsgs[index].err} variant="standard">
                             <InputLabel sx={{fontSize:"15px",padding:"0 0 0 10px"}} htmlFor="cqa-contact-no">Contact Number {index+1}</InputLabel>
                             <Input
+                            required
+                            // autoComplete='off'
                             type="number"
                             value={contactNo}
                             onChange={
@@ -484,10 +499,12 @@ function AddUniversity() {
                 {cqaFaxNumbers.numbers.map((FaxNumber,index) =>
                     {
                         return(
-                        <div key={index} style={{display:'flex',alignItems:'center'}}>
-                        <FormControl sx={{padding:"15px 15px",boxSizing:'border-box'}} fullWidth {...cqaFaxNumbers.errMsgs[index].err} variant="standard">
+                        <div key={index} style={{display:'flex',alignItems:'center',paddingRight:'20px'}}>
+                        <FormControl sx={{padding:"15px 5px",boxSizing:'border-box'}} fullWidth {...cqaFaxNumbers.errMsgs[index].err} variant="standard">
                             <InputLabel sx={{fontSize:"15px",padding:"0 0 0 10px"}} htmlFor="cqa-fax-no">Fax Number {index+1}</InputLabel>
                             <Input
+                            required
+                            // autoComplete='off'
                             type="number"
                             value={FaxNumber}
                             onChange={
@@ -512,7 +529,7 @@ function AddUniversity() {
             </div>
 
             {/* show errors */}
-            <Button style={{margin:"20px 0 15px"}} type='submit' color='primary' variant="contained" fullWidth
+            <Button style={{margin:"20px 0 15px",width:'200px'}} type='submit' color='primary' variant="contained" fullWidth
             >
             {loading ? <CircularProgress thickness={6} color='secondary' size={24} /> : 'add'}
             </Button>
@@ -539,6 +556,7 @@ function AddUniversity() {
             </Snackbar>
 
         </form>
+        </Box>
     </>
   )
 }
