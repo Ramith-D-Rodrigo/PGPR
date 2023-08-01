@@ -40,7 +40,7 @@ class PostGraduateProgram extends Model
     // post graduate programs have many pgprs
     public function postGraduateProgramReviews()
     {
-        return $this->hasMany(PostGraduateProgramReview::class);
+        return $this->hasMany(PostGraduateProgramReview::class, 'post_graduate_program_id', 'id');
     }
 
     // post graduate programs have many post graduate program review applications
