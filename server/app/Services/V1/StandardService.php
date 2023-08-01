@@ -22,4 +22,27 @@ class StandardService {
 
         return $returnArr;
     }
+
+    //function to get applicable standards for a given slqf level and whether it is a professional pg programme
+    public static function getApplicableStandards(int $slqfLevel, bool $isProffessionalPGProgramme): array {
+        //we have to query the standards table to get the applicable standards
+        $standards = Standard::all();
+        $returnArr = [];
+
+        foreach($standards as $standard){
+            $applicableSLQFLevels = self::getApplicableSLQFLevels($standard);
+            if(in_array($slqfLevel, $applicableSLQFLevels)){ //if the slqf level is applicable
+                if(in_array("professionl_pg_programme", $applicableSLQFLevels)){ //if the standard is applicable for professional pg programmes
+                    if($isProffessionalPGProgramme){ //if the programme is a professional pg programme
+                        $returnArr[] = $standard; //add the standard to the return array
+                    }
+                }
+                else{
+                    $returnArr[] = $standard;
+                }
+            }
+        }
+
+        return $returnArr;
+    }
 }
