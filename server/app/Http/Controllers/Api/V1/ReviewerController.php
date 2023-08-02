@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Requests\V1\UpdateAcceptAppointmentRequest;
 use App\Http\Requests\V1\StoreAcademicStaffRequest;
+use App\Http\Requests\V1\UpdateAcceptPGPRRequest;
 use App\Http\Requests\V1\UpdateRejectAppointmentRequest;
+use App\Http\Requests\V1\UpdateRejectPGPRAssignmentRequest;
 use App\Http\Resources\V1\ReviewerBrowsePGPRCollection;
 use App\Http\Resources\V1\ReviewerBrowsePGPRResource;
 use App\Mail\RejectReviewerRole;
+use App\Mail\ReviewerRejectReviewAssignment;
 use App\Models\Reviewer;
 use App\Http\Requests\V1\StoreReviewerRequest;
 use App\Http\Requests\V1\UpdateReviewerRequest;
@@ -18,6 +21,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -84,12 +88,9 @@ class ReviewerController extends Controller
     /**
      * Accept appointment
      */
-    public function acceptAppointment(UpdateAcceptAppointmentRequest $request): Response
+    public function acceptAppointment(UpdateAcceptAppointmentRequest $request): Response|JsonResponse
     {
         try {
-            //get the file
-            $file = $request->file('file');
-
             // find the reviewer
             $reviewer = Reviewer::findOrFail(Auth::user()->id);
 
@@ -97,34 +98,46 @@ class ReviewerController extends Controller
                 return response("User has invalid credentials.", 401);
             }
 
+            //reviewer can on submit one declaration per role acceptance
+            if ($reviewer->status != 'pending') {
+                return response()->json(["message" => "Declarations can only be submitted only once."], 400);
+            }
+
+            //get the file
+            $file = $request->file('file');
+
+            if ($file) {
+                return response("The submission must have a pdf that contains the signed declaration.", 400);
+            }
+
             $candidateID = Auth::id();
 
             //move the file and create the file name
             $fileName = Str::random(10) . "_" . $candidateID . "." . $file->getClientOriginalExtension();
-            $path = $file->storeAs('reviewer_declaration_letters', $fileName,  'public');
+            $path = $file->storeAs('reviewer_declaration_letters', $fileName, 'public');
 
             //add the file path to the reviewer declaration_letter_path as an url
             $reviewer->path_to_declaration = Storage::disk('public')->url($path);
             $reviewer->reviewer_status = 'accepted';
             $reviewer->save();
 
-            return response("Your declaration letter was successfully submitted.", 200);
+            return response()->json(["message" => "Your declaration letter was successfully submitted."], 200);
         } catch (Exception $exception) {
-            return response("An internal server error occurred, file cannot be stored.", 500);
+            return response()->json(["message" => "Your request was duly noted, thank you for responding."], 201);
         }
     }
 
     /**
      * Reject appointment
      */
-    public function rejectAppointment(UpdateRejectAppointmentRequest $request): Response
+    public function rejectAppointment(UpdateRejectAppointmentRequest $request): JsonResponse
     {
         try {
             //get the reviewer
             $reviewer = Reviewer::findOrFail(Auth::user()->id);
 
             if (!$reviewer) {
-                return response("User has invalid credentials.", 401);
+                return response()->json(["message" => "User has invalid credentials."], 401);
             }
 
             //get user who created the reviewer account
@@ -152,9 +165,9 @@ class ReviewerController extends Controller
 
             $reviewer->save();
 
-            return response("Your request was duly noted, thank you for responding.");
+            return response()->json(["message" => "Your request was duly noted, thank you for responding."], 201);
         } catch (Exception $exception) {
-            return response("An internal server error occurred, user request cannot be full filled.", 500);
+            return response()->json(["message" => "An internal server error occurred, user request cannot be full filled."], 500);
         }
     }
 
@@ -174,6 +187,7 @@ class ReviewerController extends Controller
     /**
      * Use case 1.1
      * View program reviews => with filtering
+     * TODO: IMPLEMENT FILTERING
      */
     public function browsePGPRs(Request $request): Response|JsonResponse|ReviewerBrowsePGPRCollection
     {
@@ -185,7 +199,7 @@ class ReviewerController extends Controller
                 return response()->json(["message" => "Your credentials are wrong, cannot be authorized for this action.", "data" => []], 401);
             }
 
-            $review_teams = $reviewer->reviewTeams->where('status', 'ACCEPTED');
+            $review_teams = $reviewer->reviewTeams->whereIn('status', ['PENDING', 'APPROVED']); //only get either pending or accepted review teams only
 
             if (!count($review_teams)) {
                 return response()->json(["message" => "Currently you don't have any reviews", "data" => []]);
@@ -211,22 +225,132 @@ class ReviewerController extends Controller
             }
             return new ReviewerBrowsePGPRCollection($data);
         } catch (Exception $exception) {
-            return response("An internal server error occurred, user request cannot be full filled.", 500);
+            return response()->json(["message" => "An internal server error occurred, user request cannot be full filled."], 500);
         }
     }
 
     /**
      * Accept PGPR assignment
+     * Sends the pgprID and the file
      */
-    public function acceptPGPRAssignment(Request $request)
-    {}
+    public function acceptPGPRAssignment(UpdateAcceptPGPRRequest $request): Response|JsonResponse
+    {
+        try {
+            //get the declaration.
+            $file = $request->file('file');
+
+            /* echo json_encode($file);
+             exit;*/
+
+            if (!$file) {
+                return response()->json(["message" => "The signed declaration letter must be submitted."], 400);
+            }
+
+            //find the reviewer
+            $reviewer = Reviewer::findOrFail(Auth::id());
+            if (!$reviewer) {
+                return response()->json(["message" => "Your credentials are wrong, cannot be authorized for this action.", "data" => []], 401);
+            }
+
+            //get the review team based on he PGPR id
+            $review_team = $reviewer->reviewTeams
+                ->whereIn('status', ['PENDING', 'APPROVED'])
+                ->where('pgpr_id', $request->pgpr_id)
+                ->first(); //get the only review team
+
+            //check whether the review team exists
+            if (!$review_team) {
+                return response()->json(["message" => "The review that you are trying to accept doesn't exist."], 400);
+            }
+
+            if ($review_team->pivot->reviewer_Confirmation != 'PENDING') {
+                return response()->json(["message" => "You have either accepted or rejected this review before."], 400);
+            }
+
+            //upload the declaration file
+            $candidateID = Auth::id();
+
+            //move the file and create the file name
+            $fileName = Str::random(10) . "_" . $candidateID . "." . $file->getClientOriginalExtension();
+            $path = $file->storeAs('reviewer_pgpr_assignment_declaration_letters', $fileName, 'public');
+
+            //change the status to ACCEPTED in the reviewer_review_team table
+            $review_team->pivot->reviewer_confirmation = 'ACCEPTED';
+            $review_team->pivot->declaration_letter = Storage::disk('public')->url($path);//add the file url here
+            $review_team->pivot->save(); //save the data to the pivot table
+
+            return response()->json(['message' => 'Your declaration was successfully uploaded.'], 201);
+        } catch (Exception $exception) {
+            return response()->json(["message" => "An internal server error occurred, user request cannot be full filled."], 500);
+        }
+    }
 
 
     /**
-    * Reject PGPR assignment
-    */
-    public function rejectPGPRAssignment(Request $request)
-    {}
+     * Reject PGPR assignment
+     */
+    public function rejectPGPRAssignment(UpdateRejectPGPRAssignmentRequest $request): JsonResponse
+    {
+        try {
+            //find the reviewer
+            $reviewer = Reviewer::findOrFail(Auth::id());
+            if (!$reviewer) {
+                return response()->json(["message" => "Your credentials are wrong, cannot be authorized for this action.", "data" => []], 401);
+            }
+
+            //get the review team based on he PGPR id
+            $review_team = $reviewer->reviewTeams
+                ->whereIn('status', ['PENDING', 'APPROVED'])
+                ->where('pgpr_id', $request->pgpr_id)
+                ->first(); //get the only review team
+
+            $post_grad_program = $review_team->postGraduateReviewProgram->postGraduateProgram;
+
+            $creatorOfReviewTeam = User::find($review_team->quality_assurance_council_officer_id)->get();
+
+            if (!$creatorOfReviewTeam) {
+                throw new Exception("There is something wrong with this entry please check"); // needs better error logging
+            }
+
+            //check whether the review team exists
+            if (!$review_team) {
+                return response()->json(["message" => "The review that you are trying to reject doesn't exist."], 400);
+            }
+
+            if ($review_team->pivot->reviewer_Confirmation == 'PENDING') {
+                //set the state to reject
+                DB::beginTransaction();
+                $review_team->pivot->reviewer_confirmation = 'REJECTED';
+                $review_team->pivot->save();
+
+                //add the reviewer when rejecting the review to the reviewer_reject_post_graduate_program_review table
+                DB::table('reviewer_reject_post_graduate_program_review')->insert([
+                    'pgpr_id' => $review_team->pgpr_id,
+                    'reviewer_id' => $reviewer->id,
+                    'comment' => $request->comment ?? "",
+                ]);
+                DB::commit();
+
+                Mail::to($creatorOfReviewTeam->official_email)
+                    ->send(
+                        new ReviewerRejectReviewAssignment(
+                            $creatorOfReviewTeam,
+                            $reviewer,
+                            $post_grad_program,
+                            $request->validated('comment'),
+                            'Reviewer Rejected Postgraduate Program Review',
+                            'mail.reviewerRejectedReviewAssignment'
+                        )
+                    );
+                return response()->json(["message" => "Your request was duly noted, thank you for responding."], 201);
+            } else {
+                return response()->json(["message" => "You have already made your decision about this review cannot change it now."], 400);
+            }
+        } catch (Exception $exception) {
+            DB::rollBack();
+            return response()->json(["message" => "An internal server error occurred, user request cannot be full filled."], 500);
+        }
+    }
 
 
     /**
@@ -274,7 +398,10 @@ class ReviewerController extends Controller
      */
     public function store(StoreReviewerRequest $request)
     {
-        // incase the user wants to create a reviewer account
+        //incase the user wants to create a reviewer account,
+        //add the reviewer role to the user,
+        //add the user to the reviewer table
+        //return the response to the user
     }
 
     /**
@@ -282,7 +409,7 @@ class ReviewerController extends Controller
      */
     public function show(Reviewer $reviewer)
     {
-        //
+        //get the necessary data from the user table and return that
     }
 
     /**
@@ -290,7 +417,7 @@ class ReviewerController extends Controller
      */
     public function update(UpdateReviewerRequest $request, Reviewer $reviewer)
     {
-        //
+        //update the given fields of the reviewer in the review table
     }
 
     /**
@@ -298,6 +425,6 @@ class ReviewerController extends Controller
      */
     public function destroy(Reviewer $reviewer)
     {
-        //
+        //remove the user's reviewer role
     }
 }
