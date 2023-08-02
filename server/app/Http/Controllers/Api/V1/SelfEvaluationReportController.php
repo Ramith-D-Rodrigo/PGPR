@@ -18,7 +18,7 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
-use Symfony\Component\HttpFoundation\Request;
+use Illuminate\Http\Request;
 
 class SelfEvaluationReportController extends Controller
 {
@@ -254,6 +254,8 @@ class SelfEvaluationReportController extends Controller
                 'updated_at' => now(),
             ]);
 
+            DB::commit();
+
             return response()->json([
                 'message' => 'Self evaluation report submitted successfully',
                 'self_evaluation_report' => new SelfEvaluationReportResource($selfEvaluationReport)
@@ -280,6 +282,79 @@ class SelfEvaluationReportController extends Controller
 
             return response()->json([
                 'message' => 'Error occurred while submitting the self evaluation report',
+                'error' => $e -> getTrace()
+            ], 500);
+        }
+    }
+
+    public function recommendSelfEvaluationReport(Request $request, SelfEvaluationReport $selfEvaluationReport){
+        try{
+            //first check if the self evaluation report is submitted
+            //checked using section_a, section_b, section_d, final_ser_report and payment_voucher
+            if($selfEvaluationReport -> section_a === null ||
+            $selfEvaluationReport -> section_b === null ||
+            $selfEvaluationReport -> section_d === null ||
+            $selfEvaluationReport -> final_ser_report === null ||
+            $selfEvaluationReport -> postGraduateProgramReview -> payment_voucher === null){
+                return response()->json([
+                    'message' => 'Self evaluation report is not submitted yet'
+                ], 400);
+            }
+
+            //check if the self evaluation report is already recommended
+            if($selfEvaluationReport -> postGraduateProgramReview -> status_of_pgpr !== 'PLANNING'){
+                //only in planning stage, self evaluation report can be recommended
+                return response()->json([
+                    'message' => 'Cannot recommend Self Evaluation Report at this stage'
+                ], 400);
+            }
+
+            //get the requesting user role
+            $userRole = $request -> session() -> get('authRole');
+            //role should be either iqau_director, cqa_director or vice_chancellor
+            DB::beginTransaction();
+            if($userRole === 'iqau_director'){
+                //we have to update iqau_dir_id in self evaluation report
+                $selfEvaluationReport -> update([
+                    'iqau_dir_id' => $request -> user() -> id,
+                    'updated_at' => now(),
+                ]);
+            }
+            else if($userRole === 'cqa_director'){
+                //we have to update center_for_quality_assurance_director_id in self evaluation report
+                $selfEvaluationReport -> update([
+                    'center_for_quality_assurance_director_id' => $request -> user() -> id,
+                    'updated_at' => now(),
+                ]);
+            }
+            else if($userRole === 'vice_chancellor'){
+                //we have to update vice_chancellor_id in self evaluation report
+                $selfEvaluationReport -> update([
+                    'vice_chancellor_id' => $request -> user() -> id,
+                    'updated_at' => now(),
+                ]);
+            }
+            else{
+                return response()->json([
+                    'message' => 'You are not authorized to recommend the self evaluation report',
+                ], 403);
+            }
+
+            //check whether all the three roles have recommended the self evaluation report
+            if($selfEvaluationReport -> iqau_dir_id !== null && $selfEvaluationReport -> center_for_quality_assurance_director_id !== null && $selfEvaluationReport -> vice_chancellor_id !== null){
+                //update the status of the postgraduate programme review
+                $selfEvaluationReport -> postGraduateProgramReview -> update([
+                    'status_of_pgpr' => 'SUBMITTED',
+                    'updated_at' => now(),
+                ]);
+            }
+
+            DB::commit();
+        }
+        catch(Exception $e){
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Error occurred while recommending the self evaluation report',
                 'error' => $e -> getTrace()
             ], 500);
         }
