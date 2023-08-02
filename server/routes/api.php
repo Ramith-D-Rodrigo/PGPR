@@ -26,7 +26,7 @@ Route::middleware(['auth:sanctum'])->get('/auth', [UserController::class, 'login
 Route::middleware(['auth:sanctum', 'authorize.role:reviewer'])->get('/role/user', function (Request $request) {
     return Auth::user()->roles;
 });
-  
+
 Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], function () {
     //all routes that belong to v1 version of the API will go here
     //for now, the routes for all the controllers are defined
@@ -36,7 +36,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::apiResource('viceChancellors', 'ViceChancellorController');
     Route::apiResource('users', 'UserController');
     Route::apiResource('universitySides', 'UniversitySideController');
-    Route::apiResource('universities', 'UniversityController');
+    Route::apiResource('universities', 'UniversityController') -> middleware('auth');
     Route::apiResource('standards', 'StandardController');
     Route::apiResource('selfEvaluationReports', 'SelfEvaluationReportController');
     Route::apiResource('reviewTeams', 'ReviewTeamController');
@@ -48,10 +48,10 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::apiResource('programmeCoordinators', 'ProgrammeCoordinatorController');
     Route::apiResource('postGraduateProgramReviews', 'PostGraduateProgramReviewController');
     Route::apiResource('pgprApplications', 'PostGraduateProgramReviewApplicationController') -> middleware('auth');
-    Route::apiResource('postGraduatePrograms', 'PostGraduateProgramController');
+    Route::apiResource('postGraduatePrograms', 'PostGraduateProgramController') -> middleware('auth');
     Route::apiResource('iqauDirectors', 'InternalQualityAssuranceUnitDirectorController');
     Route::apiResource('iqaUnits', 'InternalQualityAssuranceUnitController');
-    Route::apiResource('faculties', 'FacultyController');
+    Route::apiResource('faculties', 'FacultyController') -> middleware('auth');
     Route::apiResource('deskEvaluations', 'DeskEvaluationController');
     Route::apiResource('deans', 'DeanController');
     Route::apiResource('criterias', 'CriteriaController');
