@@ -16,6 +16,7 @@ class SelfEvaluationReport extends Model
         'section_a',
         'section_b',
         'section_d',
+        'final_ser_report',
         'iqau_dir_id',
         'center_for_quality_assurance_director_id'
     ];

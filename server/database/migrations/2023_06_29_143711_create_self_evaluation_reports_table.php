@@ -20,6 +20,7 @@ return new class extends Migration
             $table -> string('section_a') -> nullable(); //url of the section a
             $table -> string('section_b') -> nullable(); //url of the section b
             $table -> string('section_d') -> nullable(); //url of the section d
+            $table -> string('final_ser_report') -> nullable(); //url of the final ser report
             $table -> unsignedBigInteger('center_for_quality_assurance_director_id') -> nullable();   //approved by center for quality assurance director
             $table->timestamps();
 
