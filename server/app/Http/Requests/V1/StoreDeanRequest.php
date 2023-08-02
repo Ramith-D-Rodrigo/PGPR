@@ -31,7 +31,7 @@ class StoreDeanRequest extends StoreAcademicStaffRequest
         //only can create for his university
 
         $universityId = $this -> university_id;
-        if($universityId !== $uniSide -> university_id){
+        if($universityId != $uniSide -> university_id){
             return false;
         }
 
