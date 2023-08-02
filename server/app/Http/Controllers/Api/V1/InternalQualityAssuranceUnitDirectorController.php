@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Resources\V1\InternalQualityAssuranceUnitDirectorResource;
+use App\Models\Faculty;
 use App\Models\InternalQualityAssuranceUnitDirector;
 use App\Http\Requests\V1\StoreInternalQualityAssuranceUnitDirectorRequest;
 use App\Http\Requests\V1\UpdateInternalQualityAssuranceUnitDirectorRequest;
 use App\Http\Controllers\Controller;
+use App\Models\InternalQualityAssuranceUnit;
 use App\Services\V1\InternalQualityAssuranceUnitDirectorService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -50,6 +53,13 @@ class InternalQualityAssuranceUnitDirectorController extends Controller
 
             //create the iqau director
             $iqauDirector = InternalQualityAssuranceUnitDirectorService::create($validatedDataWithFiles);
+
+            //update the iqau with iqau director id
+            //we got the iqau id from the prepare for validation function
+            $iqauID = $validatedData['iqau_id'];
+            $iqau = InternalQualityAssuranceUnit::find($iqauID);
+            $iqau -> iqau_dir_id = $iqauDirector -> id;
+            $iqau -> save();
 
             //send email
             InternalQualityAssuranceUnitDirectorService::sendAccountCreateMail($validatedDataWithFiles, $password);

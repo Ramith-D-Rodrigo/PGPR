@@ -8,6 +8,7 @@ use App\Models\ProgrammeCoordinator;
 use App\Http\Requests\V1\StoreProgrammeCoordinatorRequest;
 use App\Http\Requests\V1\UpdateProgrammeCoordinatorRequest;
 use App\Http\Controllers\Controller;
+use App\Models\PostGraduateProgram;
 use App\Services\V1\ProgrammeCoordinatorService;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -56,6 +57,12 @@ class ProgrammeCoordinatorController extends Controller
             $validatedDataWithStoredFiles = ProgrammeCoordinatorService::storeFiles($validatedData);
 
             $programmeCoordinator = ProgrammeCoordinatorService::create($validatedDataWithStoredFiles);
+
+            //update the programme coordinator id in the post graduate programme (cannot use eloquent relationship because the post graduate programme is not created yet (transaction))
+            $postGraduateProgramId = $validatedData['post_grad_program_id'];
+            $pgp = PostGraduateProgram::findOrFail($postGraduateProgramId);
+            $pgp -> programme_coordinator_id = $programmeCoordinator -> id;
+            $pgp -> save();
 
             //send email to the dean
             ProgrammeCoordinatorService::sendAccountCreateMail($validatedDataWithStoredFiles, $password);

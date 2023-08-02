@@ -38,7 +38,7 @@ class Faculty extends Model
     // Faculty has an Internal Quality Assurance Unit
     public function internalQualityAssuranceUnit()
     {
-      return $this->hasOne(InternalQualityAssuranceUnit::class, 'iqau_id');
+      return $this->hasOne(InternalQualityAssuranceUnit::class, 'id');
     }
 
     // Faculty has many postgraduate degree programs
