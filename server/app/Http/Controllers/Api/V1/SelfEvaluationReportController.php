@@ -347,6 +347,8 @@ class SelfEvaluationReportController extends Controller
                     'status_of_pgpr' => 'SUBMITTED',
                     'updated_at' => now(),
                 ]);
+
+                //TODO: we have to extract the files from evidences urls and store them in system's google drive
             }
 
             DB::commit();
