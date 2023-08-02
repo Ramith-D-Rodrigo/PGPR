@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Filters\V1\ProgrammeCoordinatorFilter;
+use App\Http\Resources\V1\ProgrammeCoordinatorCollection;
 use App\Http\Resources\V1\ProgrammeCoordinatorResource;
 use App\Mail\sendPassword;
 use App\Models\ProgrammeCoordinator;
@@ -11,6 +13,8 @@ use App\Http\Controllers\Controller;
 use App\Models\PostGraduateProgram;
 use App\Services\V1\ProgrammeCoordinatorService;
 use Exception;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -21,9 +25,89 @@ class ProgrammeCoordinatorController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $filter = new ProgrammeCoordinatorFilter();
+
+        $queryItems = $filter -> transform($request);   //[column, operator, value]
+
+        try{
+            $role = $request -> session() -> get('authRole');
+
+            if(in_array($role, ['cqa_director', 'vice_chancellor'])){   //these two can view only their university coordinators
+                //get the facultyid in query items
+                $facultyIdIndex = array_search('faculty_id', array_column($queryItems, 0));
+
+                //change the operator to = and value to faculties of the university
+                if($facultyIdIndex !== false){
+                    $queryItems[$facultyIdIndex][1] = '=';
+                    $queryItems[$facultyIdIndex][2] = Auth::user() -> universitySide -> university -> faculties -> pluck('id') -> toArray();
+                }
+                else{
+                    $queryItems[] = ['faculty_id', '=', Auth::user() -> universitySide -> university -> faculties -> pluck('id') -> toArray()];
+                }
+            }
+            else if(in_array($role, ['dean', 'iqau_director'])){ //these two can view only their faculty coordinators
+                //get the facultyid in query items
+                $facultyIdIndex = array_search('faculty_id', array_column($queryItems, 0));
+                $facultyId = null;
+                if($role === 'dean'){
+                    $facultyId = Auth::user() -> universitySide -> academicStaff -> dean -> faculty -> id;
+                }
+                else{
+                    $facultyId = Auth::user() -> universitySide -> qualityAssuranceStaff -> internalQualityAssuranceUnitDirector -> internalQualityAssuranceUnit -> faculty -> id;
+                }
+
+                //change the operator to = and value to faculty of the user
+                if($facultyIdIndex !== false){
+                    $queryItems[$facultyIdIndex][1] = '=';
+                    $queryItems[$facultyIdIndex][2] = $facultyId;
+                }
+                else{
+                    $queryItems[] = ['faculty_id', '=', $facultyId];
+                }
+            }
+            else if(in_array($role, ['qac_officer', 'qac_director', 'reviewer'])){
+                //they have no restrictions
+                //so do nothing
+            }
+
+            $programmeCoordinators = ProgrammeCoordinator::where($queryItems);
+
+            //check for flag for getting related data
+            //related data will be -> academic staff -> university side -> user, post graduate programme
+            $academicStaff = $request -> query('includeAcademicStaff');
+            $postGraduateProgramme = $request -> query('includePostGraduateProgramme');
+
+            if($academicStaff){
+                $programmeCoordinators = $programmeCoordinators -> with('academicStaff');
+                //check for university side
+                $universitySide = $request -> query('includeUniversitySide');
+                if($universitySide){
+                    $programmeCoordinators = $programmeCoordinators -> with(['academicStaff' => ['universitySide']]);
+                    //check for user
+                    $user = $request -> query('includeUser');
+                    if($user){
+                        $programmeCoordinators = $programmeCoordinators -> with(['academicStaff' => [
+                            'universitySide' => ['user']
+                            ]
+                        ]);
+                    }
+                }
+            }
+
+            if($postGraduateProgramme){
+                $programmeCoordinators = $programmeCoordinators -> with('postGraduateProgram');
+            }
+
+            return new ProgrammeCoordinatorCollection($programmeCoordinators -> paginate() -> appends($request -> query()));
+        }
+        catch(Exception $e){
+            return response() -> json([
+                'message' => 'Failed to retrieve the programme coordinators',
+                'error' => $e -> getMessage()
+            ], 500);
+        }
     }
 
     /**

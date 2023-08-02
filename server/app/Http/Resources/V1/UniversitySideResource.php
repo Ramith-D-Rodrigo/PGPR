@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Str;
 
-class ProgrammeCoordinatorResource extends JsonResource
+class UniversitySideResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,9 +15,11 @@ class ProgrammeCoordinatorResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $returnArr = [];
         $objProps = $this -> getAttributes();
 
+        $returnArr = [];
+
+        //convert to camel case
         foreach($objProps as $key => $value){
             //convert snake case to camel case
             if($key === 'created_at' || $key === 'updated_at'){
@@ -29,8 +31,7 @@ class ProgrammeCoordinatorResource extends JsonResource
         }
 
         //related data
-        $returnArr['AcademicStaff'] = new AcademicStaffResource($this -> whenLoaded('academicStaff'));
-        $returnArr['postGraduateProgram'] = new PostgraduateProgramResource($this -> whenLoaded('postGraduateProgram'));
+        $returnArr['User'] = new UserResource($this -> whenLoaded('user'));
         return $returnArr;
     }
 }
