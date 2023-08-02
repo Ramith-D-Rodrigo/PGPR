@@ -5,6 +5,7 @@ namespace App\Mail;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -16,7 +17,7 @@ class RejectReviewerRole extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct(public User $recipient , public User $rejected_user, public String|null $remark, public $subject, public $content)
+    public function __construct(public User $recipient , public User $rejected_reviewer, public String|null $comment, public $subject, public $content)
     {
         $this->view($this->content);
     }
@@ -44,7 +45,7 @@ class RejectReviewerRole extends Mailable
     /**
      * Get the attachments for the message.
      *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+     * @return array<int, Attachment>
      */
     public function attachments(): array
     {
