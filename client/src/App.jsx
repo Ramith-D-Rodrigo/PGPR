@@ -12,6 +12,7 @@ import PGPRApplication from './pages/Dean/PGPRApplication';
 import ResetInitialPassword from "./components/ResetInitialPassword.jsx";
 import AddPGProgramPage from './pages/CQAdirector/AddPGProgramPage';
 import AddAccounts from './pages/CQAdirector/AddAccounts';
+import ViewPGPrograms from './pages/CQAdirector/ViewPGPrograms';
 import EditPGProgram from './pages/CQAdirector/EditPGProgram';
 import SubmitIntent from './pages/DeanDirector/SubmitIntent';
 import SubmitConsent from './pages/DeanDirector/SubmitConsent';
@@ -74,6 +75,7 @@ function App() {
                     <Route path="AddPGProgramPage" element={<AddPGProgramPage/>} />
                     <Route path="AddAccounts" element={<AddAccounts/>} />
                     <Route path="EditPGProgram" element={<EditPGProgram/>} />
+                    <Route path="ViewPGPrograms" element={<ViewPGPrograms/>} />
                   </Route>
                 </Route>
 
