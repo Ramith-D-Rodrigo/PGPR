@@ -76,12 +76,15 @@ class SelfEvaluationReportController extends Controller
                 ],
                 'postGraduateProgramReviewApplication:id,application_date'
             ],
-            'standards:id' => [
-                'evidences:id,applicable_years',
-                'selfEvaluationReportAdherences' => function($query) use ($selfEvaluationReport){
-                    $query -> where('ser_id', $selfEvaluationReport -> id);
-                }
-            ]
+            'standards' => function($query){
+                $query -> whereHas('selfEvaluationReportAdherences')
+                -> whereHas('evidences') -> select('standards.id')
+                -> distinct() //only get the distinct standards (because a standard can have multiple evidences)
+                -> with([
+                    'evidences:id,applicable_years',
+                    'selfEvaluationReportAdherences'
+                ]);
+            }
         ]);
 
         return new SelfEvaluationReportResource($selfEvaluationReport);
