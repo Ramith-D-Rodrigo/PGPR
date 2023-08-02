@@ -2,9 +2,12 @@
 
 namespace App\Mail;
 
+use App\Models\PostGraduateProgram;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -16,9 +19,17 @@ class ReviewerRejectReviewAssignment extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct()
+    public function __construct(
+        public User                $recipient,
+        public User                $reviewer,
+        public PostGraduateProgram $pgpr,
+        public string              $comment,
+        public                     $subject,
+        public                     $content
+    )
     {
         //
+        $this->view($this->content);
     }
 
     /**
@@ -27,7 +38,7 @@ class ReviewerRejectReviewAssignment extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Reviewer Reject Review Assignment',
+            subject: $this->subject
         );
     }
 
@@ -37,14 +48,14 @@ class ReviewerRejectReviewAssignment extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'view.name',
+            view: $this->view,
         );
     }
 
     /**
      * Get the attachments for the message.
      *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+     * @return array<int, Attachment>
      */
     public function attachments(): array
     {
