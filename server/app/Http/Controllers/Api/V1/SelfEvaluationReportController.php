@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Requests\V1\StoreAdherenceToSERStandard;
+use App\Http\Requests\V1\SubmitSelfEvaluationReportRequest;
 use App\Http\Resources\V1\SelfEvaluationReportResource;
 use App\Http\Resources\V1\StandardCollection;
 use App\Models\Criteria;
@@ -14,6 +15,9 @@ use App\Http\Resources\V1\StandardResource;
 use App\Models\Standard;
 use App\Services\V1\StandardService;
 use Exception;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Request;
 
 class SelfEvaluationReportController extends Controller
@@ -77,8 +81,7 @@ class SelfEvaluationReportController extends Controller
                 'postGraduateProgramReviewApplication:id,application_date'
             ],
             'standards' => function($query){
-                $query -> whereHas('selfEvaluationReportAdherences')
-                -> whereHas('evidences') -> select('standards.id')
+                $query -> whereHas('evidences') -> select('standards.id')
                 -> distinct() //only get the distinct standards (because a standard can have multiple evidences)
                 -> with([
                     'evidences:id,applicable_years',
@@ -175,6 +178,108 @@ class SelfEvaluationReportController extends Controller
         catch(Exception $e){
             return response()->json([
                 'message' => 'Error occurred while getting the standard evidences and adherence',
+                'error' => $e -> getTrace()
+            ], 500);
+        }
+    }
+
+    //submit the ser report for iqau, cqa, vc recommendations
+    public function submitSelfEvaluationReport(SubmitSelfEvaluationReportRequest $request, SelfEvaluationReport $selfEvaluationReport){
+        try{
+            //get the validated data
+            $validatedData = $request -> validated();
+
+            //store the files in relevant folders
+            $sectionA = $validatedData['section_a'];
+            $sectionB = $validatedData['section_b'];
+            $sectionD = $validatedData['section_d'];
+            $paymentVoucher = $validatedData['payment_voucher'];
+            $finalSER = $validatedData['final_ser_report'];
+
+            //store section a in sectionA folder
+            if(!File::exists(public_path('storage/ser/sectionA'))){
+                File::makeDirectory(public_path('storage/ser/sectionA'), $mode = 0777, true, true); //mode is 0777 by default
+            }
+            $sectionAFileName = $selfEvaluationReport -> id . '_sectionA.' . $sectionA -> getClientOriginalExtension();
+            Storage::put('public/ser/sectionA/' . $sectionAFileName, $sectionA -> getContent());
+
+            //store section b in sectionB folder
+            if(!File::exists(public_path('storage/ser/sectionB'))){
+                File::makeDirectory(public_path('storage/ser/sectionB'), $mode = 0777, true, true); //mode is 0777 by default
+            }
+            $sectionBFileName = $selfEvaluationReport -> id . '_sectionB.' . $sectionB -> getClientOriginalExtension();
+            Storage::put('public/ser/sectionB/' . $sectionBFileName, $sectionB -> getContent());
+
+            //store section d in sectionD folder
+            if(!File::exists(public_path('storage/ser/sectionD'))){
+                File::makeDirectory(public_path('storage/ser/sectionD'), $mode = 0777, true, true); //mode is 0777 by default
+            }
+            $sectionDFileName = $selfEvaluationReport -> id . '_sectionD.' . $sectionD -> getClientOriginalExtension();
+            Storage::put('public/ser/sectionD/' . $sectionDFileName, $sectionD -> getContent());
+
+            //store payment voucher in paymentVoucher folder
+            if(!File::exists(public_path('storage/ser/paymentVoucher'))){
+                File::makeDirectory(public_path('storage/ser/paymentVoucher'), $mode = 0777, true, true); //mode is 0777 by default
+            }
+            $paymentVoucherFileName = $selfEvaluationReport -> id . '_paymentVoucher.' . $paymentVoucher -> getClientOriginalExtension();
+            Storage::put('public/ser/paymentVoucher/' . $paymentVoucherFileName, $paymentVoucher -> getContent());
+
+            //store final ser report in finalSER folder
+            if(!File::exists(public_path('storage/ser/finalSER'))){
+                File::makeDirectory(public_path('storage/ser/finalSER'), $mode = 0777, true, true); //mode is 0777 by default
+            }
+            $finalSERFileName = $selfEvaluationReport -> id . '_finalSER.' . $finalSER -> getClientOriginalExtension();
+            Storage::put('public/ser/finalSER/' . $finalSERFileName, $finalSER -> getContent());
+
+            //get the paths
+            $validatedData['section_a'] = Storage::url('public/ser/sectionA/' . $sectionAFileName);
+            $validatedData['section_b'] = Storage::url('public/ser/sectionB/' . $sectionBFileName);
+            $validatedData['section_d'] = Storage::url('public/ser/sectionD/' . $sectionDFileName);
+            $validatedData['payment_voucher'] = Storage::url('public/ser/paymentVoucher/' . $paymentVoucherFileName);
+            $validatedData['final_ser_report'] = Storage::url('public/ser/finalSER/' . $finalSERFileName);
+
+            //update the self evaluation report
+            DB::beginTransaction();
+            $selfEvaluationReport -> update([
+                'section_a' => $validatedData['section_a'],
+                'section_b' => $validatedData['section_b'],
+                'section_d' => $validatedData['section_d'],
+                'final_ser_report' => $validatedData['final_ser_report'],
+                'updated_at' => now(),
+            ]);
+
+            //update the payment voucher in postgraduate programme review
+            $selfEvaluationReport -> postGraduateProgramReview -> update([
+                'payment_voucher' => $validatedData['payment_voucher'],
+                'updated_at' => now(),
+            ]);
+
+            return response()->json([
+                'message' => 'Self evaluation report submitted successfully',
+                'self_evaluation_report' => new SelfEvaluationReportResource($selfEvaluationReport)
+            ], 200);
+        }
+        catch(Exception $e){
+            DB::rollBack();
+            //delete the files if they are stored
+            if(Storage::exists('public/ser/sectionA/' . $sectionAFileName)){
+                Storage::delete('public/ser/sectionA/' . $sectionAFileName);
+            }
+            if(Storage::exists('public/ser/sectionB/' . $sectionBFileName)){
+                Storage::delete('public/ser/sectionB/' . $sectionBFileName);
+            }
+            if(Storage::exists('public/ser/sectionD/' . $sectionDFileName)){
+                Storage::delete('public/ser/sectionD/' . $sectionDFileName);
+            }
+            if(Storage::exists('public/ser/paymentVoucher/' . $paymentVoucherFileName)){
+                Storage::delete('public/ser/paymentVoucher/' . $paymentVoucherFileName);
+            }
+            if(Storage::exists('public/ser/finalSER/' . $finalSERFileName)){
+                Storage::delete('public/ser/finalSER/' . $finalSERFileName);
+            }
+
+            return response()->json([
+                'message' => 'Error occurred while submitting the self evaluation report',
                 'error' => $e -> getTrace()
             ], 500);
         }
