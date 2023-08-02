@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\V1\UniversityResource;
 use App\Http\Resources\V1\UniversityCollection;
 use App\Models\CenterForQualityAssurance;
+use App\Services\V1\UniversityService;
 use Illuminate\Support\Facades\DB;
 
 class UniversityController extends Controller
@@ -28,16 +29,13 @@ class UniversityController extends Controller
     {
         $validatedData = $request -> validated();
 
-        //begin db transaction
-        DB::beginTransaction();
         try{
-            //create cqa for the university
-            $CQAid = CenterForQualityAssurance::create() -> id; //create an empty cqa and get its id
-            $validatedData['center_for_quality_assurance_id'] = $CQAid;
-            $resource = new UniversityResource(University::create($validatedData));
+            //begin db transaction
+            DB::beginTransaction();
+            $university = UniversityService::create($validatedData);
             //commit db transactions
             DB::commit();
-            return $resource;
+            return new UniversityResource($university);
         }
         catch(\Exception $e){
             //rollback db transactions

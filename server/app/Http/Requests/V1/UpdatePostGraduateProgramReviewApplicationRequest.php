@@ -3,6 +3,7 @@
 namespace App\Http\Requests\V1;
 
 use App\Models\PostGraduateProgram;
+use App\Models\PostGraduateProgramReviewApplication;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -35,12 +36,11 @@ class UpdatePostGraduateProgramReviewApplicationRequest extends FormRequest
 
         //compare the dean's faculty id with the faculty id of the post graduate program
 
-        //get the post graduate program id from the request
-        $postGraduateProgramFacultyID = $this -> post_graduate_program_id;
+        //get the post graduate program review application
+        $pgprApplication = $this -> route('pgprApplication');
 
-        //create a new post graduate program object
-        $postGraduateProgram = new PostGraduateProgram();
-        $postGraduateProgram -> id = $postGraduateProgramFacultyID;
+        //find the postgraduate program
+        $postGraduateProgram = PostGraduateProgram::find($pgprApplication -> post_graduate_program_id);
 
         //get the faculty id of the post graduate program
         $postGraduateProgramFacultyID = $postGraduateProgram -> faculty -> id;

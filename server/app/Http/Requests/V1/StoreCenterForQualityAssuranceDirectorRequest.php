@@ -2,16 +2,22 @@
 
 namespace App\Http\Requests\V1;
 
+use App\Models\CenterForQualityAssurance;
+use App\Models\University;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
-class StoreCenterForQualityAssuranceDirectorRequest extends FormRequest
+class StoreCenterForQualityAssuranceDirectorRequest extends StoreQualityAssuranceStaffRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return false;
+        //only qac officer can create center for quality assurance director
+        $qacOfficer = Auth::user() -> qualityAssuranceCouncilOfficer ?? null;
+
+        return $qacOfficer !== null;
     }
 
     /**
@@ -21,8 +27,26 @@ class StoreCenterForQualityAssuranceDirectorRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            //
-        ];
+        $parentRules = parent::rules();
+
+        //center_for_quality_assurance_id is required and should exist in the center for quality assurance table
+        $parentRules['center_for_quality_assurance_id'] = ['required', 'exists:center_for_quality_assurances,id'];
+
+        return $parentRules;
     }
+
+    public function prepareForValidation(){
+        //the frontend sends the university id as the center for quality assurance id, we need to find the center for quality assurance id from the university id
+        $centerForQualityAssuranceId = $this -> universityId;
+        $university = University::where('center_for_quality_assurance_id', '=', $centerForQualityAssuranceId) -> firstOrFail();
+
+        $this -> merge([
+            'centerForQualityAssuranceId' => $university -> center_for_quality_assurance_id
+        ]);
+
+        //call the parent prepare for validation function for converting camel case to snake case
+        parent::prepareForValidation();
+    }
+
+
 }

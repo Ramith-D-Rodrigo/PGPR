@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Resources\V1\CenterForQualityAssuranceDirectorResource;
+use App\Models\CenterForQualityAssurance;
 use App\Models\CenterForQualityAssuranceDirector;
 use App\Http\Requests\V1\StoreCenterForQualityAssuranceDirectorRequest;
 use App\Http\Requests\V1\UpdateCenterForQualityAssuranceDirectorRequest;
@@ -52,6 +53,10 @@ class CenterForQualityAssuranceDirectorController extends Controller
             //create the cqa director
             $cqaDirector = CenterForQualityAssuranceDirectorService::create($validatedDataWithFiles);
 
+            //update the center for quality assurance director id in the center for quality assurance table
+            $cqa  = CenterForQualityAssurance::findOrFail($validatedData['center_for_quality_assurance_id']);
+
+            $cqa -> update(['center_for_quality_assurance_director_id' => $cqaDirector -> id]);
             //send email
             CenterForQualityAssuranceDirectorService::sendAccountCreateMail($validatedDataWithFiles, $password);
 
@@ -60,7 +65,8 @@ class CenterForQualityAssuranceDirectorController extends Controller
         }
         catch(\Exception $e){
             DB::rollBack();
-            return response()->json(['message' => 'Failed to create CQA director account'], 500);
+            return response()->json(['message' => 'Failed to create CQA director account'
+                , 'error' => $e -> getMessage()], 500);
         }
     }
 
