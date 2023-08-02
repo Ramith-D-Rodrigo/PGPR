@@ -72,7 +72,11 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     //reject the appointment
     Route::post('reviewers/reject-appointment', 'ReviewerController@rejectAppointment')->middleware('auth');
     //download review team assignment appointment declaration letter
-    Route::get('reviewers/download-declaration', 'ReviewerController@downloadReviewAppointmentDeclarationLetter')->middleware('auth');
+    Route::get('reviewers/download-pgpr-declaration', 'ReviewerController@downloadReviewAppointmentDeclarationLetter')->middleware('auth');
+    //accept pgpr assignment
+    Route::post('reviewers/accept-pgpr-assignment', 'ReviewerController@acceptPGPRAssignment')->middleware('auth');
+    //reject pgpr assignment
+    Route::post('reviewers/reject-pgpr-assignment', 'ReviewerController@rejectPGPRAssignment')->middleware('auth');
 
     // api resource => this must come here otherwise the declaration doc will have problems
     Route::apiResource('reviewers', 'ReviewerController');
