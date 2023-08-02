@@ -18,9 +18,17 @@ class SubmitSelfEvaluationReportRequest extends FormRequest
         $user = Auth::user();
         $SER = $this -> route('selfEvaluationReport');
 
-        $pgpId = $SER -> postGraduateProgramReview -> postGraduateProgram -> currentProgrammeCoordinator -> id;
+        //first check whether this SER can be submitted (check the stage of the pgpr)
+        $pgpr = $SER -> postGraduateProgramReview;
 
-        if($user -> id === $pgpId){
+        if($pgpr -> status_of_pgpr !== 'PLANNING'){
+            return false;
+        }
+
+        //user authorization check
+        $pgpCoorId = $pgpr -> postGraduateProgram -> currentProgrammeCoordinator -> id;
+
+        if($user -> id === $pgpCoorId){
             return true;
         }
         return false;
