@@ -21,7 +21,7 @@ class ReviewerBrowsePGPRResource extends JsonResource
             'facultyName' => $this->faculty->name,
             'university' => $this->university->name,
             'role' => $this->review_team_pivot->role,
-            //'reviewer_role_status' => $this->review_team_pivot->status, //not confirmed yet
+            'reviewerConfirmation' => $this->review_team_pivot->reviewer_confirmation,
         ];
     }
 }
