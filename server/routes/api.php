@@ -77,9 +77,11 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::post('reviewers/accept-pgpr-assignment', 'ReviewerController@acceptPGPRAssignment')->middleware('auth');
     //reject pgpr assignment
     Route::post('reviewers/reject-pgpr-assignment', 'ReviewerController@rejectPGPRAssignment')->middleware('auth');
+    //display reviewer profile
+    Route::get('reviewers/display-reviewer-profile', 'ReviewerController@displayReviewerProfile')->middleware('auth');
 
     // api resource => this must come here otherwise the declaration doc will have problems
-    Route::apiResource('reviewers', 'ReviewerController');
+    Route::apiResource('reviewers', 'ReviewerController')->middleware('auth');
 
     //route for google drive file info (for now, only the metadata is returned (testing))
     Route::post('driveFileInfo', 'GoogleDriveController@getFileInfo');
