@@ -9,6 +9,8 @@ use App\Http\Requests\V1\UpdateRejectAppointmentRequest;
 use App\Http\Requests\V1\UpdateRejectPGPRAssignmentRequest;
 use App\Http\Resources\V1\ReviewerBrowsePGPRCollection;
 use App\Http\Resources\V1\ReviewerBrowsePGPRResource;
+use App\Http\Resources\V1\ReviewerCollection;
+use App\Http\Resources\V1\ReviewerResource;
 use App\Mail\RejectReviewerRole;
 use App\Mail\ReviewerRejectReviewAssignment;
 use App\Models\Reviewer;
@@ -17,6 +19,7 @@ use App\Http\Requests\V1\UpdateReviewerRequest;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -36,9 +39,10 @@ class ReviewerController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): ReviewerCollection
     {
-        //
+        //returns everything
+        return new ReviewerCollection(Reviewer::all()->loadMissing(['user', 'workingFaculty', 'reviewTeams']));
     }
 
     //import reviewers using excel file
@@ -94,10 +98,6 @@ class ReviewerController extends Controller
             // find the reviewer
             $reviewer = Reviewer::findOrFail(Auth::user()->id);
 
-            if (!$reviewer) {
-                return response("User has invalid credentials.", 401);
-            }
-
             //reviewer can on submit one declaration per role acceptance
             if ($reviewer->status != 'pending') {
                 return response()->json(["message" => "Declarations can only be submitted only once."], 400);
@@ -122,6 +122,8 @@ class ReviewerController extends Controller
             $reviewer->save();
 
             return response()->json(["message" => "Your declaration letter was successfully submitted."], 200);
+        } catch (ModelNotFoundException $exception) {
+            return response()->json(["message" => "The requested reviewer data cannot be found"], 400);
         } catch (Exception $exception) {
             return response()->json(["message" => "Your request was duly noted, thank you for responding."], 201);
         }
@@ -135,10 +137,6 @@ class ReviewerController extends Controller
         try {
             //get the reviewer
             $reviewer = Reviewer::findOrFail(Auth::user()->id);
-
-            if (!$reviewer) {
-                return response()->json(["message" => "User has invalid credentials."], 401);
-            }
 
             //get user who created the reviewer account
             $createdUser = User::findOrFail(Auth::user()->created_by);
@@ -166,6 +164,8 @@ class ReviewerController extends Controller
             $reviewer->save();
 
             return response()->json(["message" => "Your request was duly noted, thank you for responding."], 201);
+        } catch (ModelNotFoundException $exception) {
+            return response()->json(["message" => "User has invalid credentials."], 401);
         } catch (Exception $exception) {
             return response()->json(["message" => "An internal server error occurred, user request cannot be full filled."], 500);
         }
@@ -189,41 +189,25 @@ class ReviewerController extends Controller
      * View program reviews => with filtering
      * TODO: IMPLEMENT FILTERING
      */
-    public function browsePGPRs(Request $request): Response|JsonResponse|ReviewerBrowsePGPRCollection
+    public function browsePGPRs(Request $request): ReviewerBrowsePGPRCollection|JsonResponse
     {
         //get the review teams and get the PGPRs from them
         try {
             //find the reviewer
             $reviewer = Reviewer::findOrFail(Auth::id());
-            if (!$reviewer) {
-                return response()->json(["message" => "Your credentials are wrong, cannot be authorized for this action.", "data" => []], 401);
-            }
 
-            $review_teams = $reviewer->reviewTeams->whereIn('status', ['PENDING', 'APPROVED']); //only get either pending or accepted review teams only
+            //find the review teams
+            $review_teams = $reviewer
+                ->reviewTeams
+                ->whereIn('status', ['PENDING', 'APPROVED']); //only get either pending or accepted review teams only
 
             if (!count($review_teams)) {
                 return response()->json(["message" => "Currently you don't have any reviews", "data" => []]);
             }
 
-            $data = collect();
-
-            foreach ($review_teams as $review_team) {
-                //get the pgpr of each review team
-                $pgpr = $review_team->postGraduateReviewProgram;
-                $post_grad_program = $pgpr->postGraduateProgram;
-                $faculty = $post_grad_program->faculty;
-                $university = $faculty->university;
-                $data->push(
-                    (object)[
-                        'pgpr' => $pgpr,
-                        'post_graduate_program' => $post_grad_program,
-                        'faculty' => $faculty,
-                        'university' => $university,
-                        'review_team_pivot' => $review_team->pivot,
-                    ]
-                );
-            }
-            return new ReviewerBrowsePGPRCollection($data);
+            return new ReviewerBrowsePGPRCollection($review_teams);
+        }catch (ModelNotFoundException $exception) {
+            return response()->json(["message" => "Your credentials are wrong, cannot be authorized for this action.", "data" => []], 401);
         } catch (Exception $exception) {
             return response()->json(["message" => "An internal server error occurred, user request cannot be full filled."], 500);
         }
@@ -248,9 +232,6 @@ class ReviewerController extends Controller
 
             //find the reviewer
             $reviewer = Reviewer::findOrFail(Auth::id());
-            if (!$reviewer) {
-                return response()->json(["message" => "Your credentials are wrong, cannot be authorized for this action.", "data" => []], 401);
-            }
 
             //get the review team based on he PGPR id
             $review_team = $reviewer->reviewTeams
@@ -280,6 +261,8 @@ class ReviewerController extends Controller
             $review_team->pivot->save(); //save the data to the pivot table
 
             return response()->json(['message' => 'Your declaration was successfully uploaded.'], 201);
+        }catch (ModelNotFoundException $exception) {
+            return response()->json(["message" => "Your credentials are wrong, cannot be authorized for this action.", "data" => []], 401);
         } catch (Exception $exception) {
             return response()->json(["message" => "An internal server error occurred, user request cannot be full filled."], 500);
         }
@@ -294,9 +277,6 @@ class ReviewerController extends Controller
         try {
             //find the reviewer
             $reviewer = Reviewer::findOrFail(Auth::id());
-            if (!$reviewer) {
-                return response()->json(["message" => "Your credentials are wrong, cannot be authorized for this action.", "data" => []], 401);
-            }
 
             //get the review team based on he PGPR id
             $review_team = $reviewer->reviewTeams
@@ -346,6 +326,8 @@ class ReviewerController extends Controller
             } else {
                 return response()->json(["message" => "You have already made your decision about this review cannot change it now."], 400);
             }
+        } catch (ModelNotFoundException $exception) {
+            return response()->json(["message" => "Your credentials are wrong, cannot be authorized for this action.", "data" => []], 401);
         } catch (Exception $exception) {
             DB::rollBack();
             return response()->json(["message" => "An internal server error occurred, user request cannot be full filled."], 500);
@@ -405,11 +387,28 @@ class ReviewerController extends Controller
     }
 
     /**
+     * You can get the current reviewer profile data using this method
+     */
+    public function displayReviewerProfile(): ReviewerResource|JsonResponse
+    {
+        return $this->show(Auth::id());
+    }
+
+    /**
      * Display the specified resource.
      */
-    public function show(Reviewer $reviewer)
+    public function show(string $id)
     {
         //get the necessary data from the user table and return that
+        try {
+            $reviewer = Reviewer::with(['user', 'workingFaculty', 'reviewTeams'])->findOrFail($id); //get the reviewer
+            //to use the resource to send the data
+            return new ReviewerResource($reviewer);
+        } catch (ModelNotFoundException $exception) {
+            return response()->json(["message" => "The requested reviewer data cannot be found"], 400);
+        } catch (Exception $exception) {
+            return response()->json(["message" => "Some thing bad happened"], 500);
+        }
     }
 
     /**
