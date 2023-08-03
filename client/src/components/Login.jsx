@@ -126,7 +126,7 @@ useEffect(() => {
     color: theme.palette.text.secondary,
   }));
 
-    const paperStyle = {padding:20,height:'70vh',width:'80%',margin:"30px auto",borderRadius:"20px"}
+    const paperStyle = {padding:20,height:'70vh',width:'600px',margin:"30px auto",borderRadius:"20px"}
 
   return (
     <Box sx={{display:"flex",alignItems:"center",height:"100vh",justifyContent:"center"}}>
