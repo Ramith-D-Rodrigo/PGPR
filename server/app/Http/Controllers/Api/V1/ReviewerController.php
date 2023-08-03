@@ -309,7 +309,6 @@ class ReviewerController extends Controller
                     'reviewer_id' => $reviewer->id,
                     'comment' => $request->comment ?? "",
                 ]);
-                DB::commit();
 
                 Mail::to($creatorOfReviewTeam->official_email)
                     ->send(
@@ -322,6 +321,8 @@ class ReviewerController extends Controller
                             'mail.reviewerRejectedReviewAssignment'
                         )
                     );
+
+                DB::commit();
                 return response()->json(["message" => "Your request was duly noted, thank you for responding."], 201);
             } else {
                 return response()->json(["message" => "You have already made your decision about this review cannot change it now."], 400);
