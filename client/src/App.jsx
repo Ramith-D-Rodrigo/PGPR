@@ -14,6 +14,7 @@ import AddPGProgramPage from './pages/CQAdirector/AddPGProgramPage';
 import AddAccounts from './pages/CQAdirector/AddAccounts';
 import ViewPGPrograms from './pages/CQAdirector/ViewPGPrograms';
 import EditPGProgram from './pages/CQAdirector/EditPGProgram';
+import ViewCoordinators from './pages/CQAdirector/ViewCoordinators';
 import SubmitIntent from './pages/DeanDirector/SubmitIntent';
 import SubmitConsent from './pages/DeanDirector/SubmitConsent';
 import SetDate from './pages/ReviewerChair/SetDate';
@@ -76,6 +77,7 @@ function App() {
                     <Route path="AddAccounts" element={<AddAccounts/>} />
                     <Route path="EditPGProgram" element={<EditPGProgram/>} />
                     <Route path="ViewPGPrograms" element={<ViewPGPrograms/>} />
+                    <Route path="ViewCoordinators" element={<ViewCoordinators/>} />
                   </Route>
                 </Route>
 
