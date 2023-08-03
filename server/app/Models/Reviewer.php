@@ -15,12 +15,19 @@ class Reviewer extends Model
         'reviewer_status' //pending, accepted, rejected, suspended
     ];
 
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id', 'id');
+    }
+
     //reviewer is an academic staff
-    public function academicStaff(){
+    public function academicStaff()
+    {
         return $this->belongsTo(AcademicStaff::class, 'id', 'id');
     }
 
-    public function reviewTeams(){
+    public function reviewTeams()
+    {
         return $this->belongsToMany(
             ReviewTeam::class,
             'reviewer_review_teams',
@@ -30,7 +37,7 @@ class Reviewer extends Model
             'role',
             'declaration_letter',
             'reviewer_confirmation',
-        ]); //get the role from the pivot table
+        ])->with('postGraduateReviewProgram.postGraduateProgram.faculty.university');
     }
 
     // reviewers can score for many standards
@@ -54,7 +61,8 @@ class Reviewer extends Model
     }
 
     //reviewer working faculty
-    public function workingFaculty(){
-        return $this->belongsTo(Faculty::class, 'working_faculty', 'id');
+    public function workingFaculty()
+    {
+        return $this->belongsTo(Faculty::class, 'working_faculty', 'id')->with('university');
     }
 }
