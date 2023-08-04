@@ -23,6 +23,9 @@ class UniversityResource extends JsonResource
             if(in_array($key, ['created_at', 'updated_at'])){
                 continue;
             }
+            if($key === 'contact_no' || $key === 'fax_no'){
+                $value = json_decode($value, true);
+            }
 
             $returnArr[Str::camel($key)] = $value;
         }
