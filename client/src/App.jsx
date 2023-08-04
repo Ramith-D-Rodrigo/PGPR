@@ -21,6 +21,7 @@ import PGAssignments from './pages/Reviewer/PGAssignments';
 import ConductDE from './pages/Reviewer/ConductDE';
 import ConductPE from './pages/Reviewer/ConductPE';
 import {DrawerStateProvider} from './contexts/DrawerStateProvider';
+import AcceptAppointment from './pages/Reviewer/AcceptAppointment';
 import "./App.css";
 
 /* 
@@ -48,6 +49,8 @@ function App() {
              {/*note: note final*/}
              <Route path="login" element={<Login/>}/>
              <Route path="/" element={<Login/>}/>
+             {/* initial accept appoinment */}
+            <Route path="accept-appointment" element={<AcceptAppointment/>}/>
               
              <Route element={<DrawerStateProvider><MainLayout/></DrawerStateProvider>}>
                 
