@@ -114,6 +114,7 @@ function App() {
                   <Route path="dean/">
                     <Route path="" element={<Dashboard/>}/>
                     <Route path="dashboard" element={<Dashboard/>}/>
+                    <Route path="pgprApplication" element={<PGPRApplication/>}/>
                     <Route path="SubmitIntent" element={<SubmitIntent/>} />
                     <Route path="SubmitConsent" element={<SubmitConsent/>} />
                   </Route>
