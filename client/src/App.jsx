@@ -28,6 +28,7 @@ import ViewReviewers from './pages/QACDirector/ViewReviewers'
 import CqaOffices from './pages/QACDirector/CqaOffices'
 import {DrawerStateProvider} from './contexts/DrawerStateProvider';
 import "./App.css";
+import CreateAccounts from './pages/QACOfficer/CreateAccounts';
 
 /* 
   important: 
@@ -64,6 +65,7 @@ function App() {
                       <Route path="" element={<Dashboard/>}/>
                       <Route path="dashboard" element={<Dashboard/>}/>
                       <Route path="universities" element={<Universities/>} />
+                      <Route path="createAccounts/" element={<CreateAccounts/>} />
                   </Route>
                 </Route>
 
