@@ -2,37 +2,38 @@ import React, { useState } from "react";
 import MainContent from "../../components/MainContent";
 import ScrollableDiv from "../../components/ScrollableDiv";
 import useSetUserNavigations from '../../hooks/useSetUserNavigations';
-import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box, TextField, Typography } from '@mui/material';
+import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Avatar } from '@mui/material';
 import { Link } from "react-router-dom";
+import { NavigateBefore, NavigateNext, SkipNext, SkipPrevious, Search } from '@mui/icons-material';
 
-const CustomTable = ({ tableData, filterStatus }) => {
-    const filteredData = filterStatus
-      ? tableData.filter((row) => row.status === filterStatus)
-      : tableData;
-  
-    return (
+const CustomTable = ({ tableData }) => {
+  return (
     <div className="mt-6">
       <div className="overflow-x-auto">
         <TableContainer component={Paper}>
           <Table sx={{ minWidth: 650 }} aria-label="simple table">
             <TableHead style={{ backgroundColor: "#D8E6FC" }}>
               <TableRow>
-                <TableCell align="center"><b>PGPR ID</b></TableCell>
-                <TableCell align="center"><b>Coordinator</b></TableCell>
+                <TableCell align="center"><b>Profile Photo</b></TableCell>
+                <TableCell align="center"><b>C-ID</b></TableCell>
+                <TableCell align="center"><b>Name</b></TableCell>
+                <TableCell align="center"><b>Faculty</b></TableCell>
                 <TableCell align="center"><b>Status</b></TableCell>
-                <TableCell align="center"><b>PGP</b></TableCell>
-                <TableCell align="center"><b>Status (of PGP)</b></TableCell>
+                <TableCell align="center"><b>No. of PG Programs</b></TableCell>
                 <TableCell align="center"><b>Actions</b></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {tableData.map((row, index) => (
                 <TableRow key={index}>
-                  <TableCell align="center">{row.pgprID}</TableCell>
-                  <TableCell align="center">{row.coordinator}</TableCell>
+                  <TableCell align="center">
+                    <Avatar alt="Profile Photo" src={row.profilePhoto} />
+                  </TableCell>
+                  <TableCell align="center">{row.cid}</TableCell>
+                  <TableCell align="center">{row.name}</TableCell>
+                  <TableCell align="center">{row.faculty}</TableCell>
                   <TableCell align="center">{row.status}</TableCell>
-                  <TableCell align="center">{row.pgp}</TableCell>
-                  <TableCell align="center">{row.pgpStatus}</TableCell>
+                  <TableCell align="center">{row.pgCount}</TableCell>
                   <TableCell align="center">
                     <Button
                       style={{ margin: "0 8px" }}
@@ -40,38 +41,22 @@ const CustomTable = ({ tableData, filterStatus }) => {
                       color="primary"
                       size="small"
                       component={Link}
-                      to={"/view/" + row.pgprID}
+                      to={"/view/" + row.cid}
                     >
                       View
                     </Button>
+
                     <Button
                       style={{ margin: "0 8px" }}
                       variant="contained"
                       color="primary"
                       size="small"
                       component={Link}
-                      to={"/edit/" + row.pgprID}
+                      to={"/view/" + row.cid}
                     >
                       Edit
                     </Button>
-                    <Button
-                      style={{ margin: "0 8px" }}
-                      variant="contained"
-                      color="secondary"
-                      size="small"
-                      onClick={() => handleDelete(row.pgprID)}
-                    >
-                      Delete
-                    </Button>
-                    <Button
-                      style={{ margin: "0 8px" }}
-                      variant="contained"
-                      color="secondary"
-                      size="small"
-                      onClick={() => handleDelete(row.pgprID)}
-                    >
-                      Remove
-                    </Button>
+                    {/* Removed the onClick event for Delete button */}
                   </TableCell>
                 </TableRow>
               ))}
@@ -79,66 +64,74 @@ const CustomTable = ({ tableData, filterStatus }) => {
           </Table>
         </TableContainer>
       </div>
-      <Box mt={2} display="flex" justifyContent="center">
-        <Link to="/create_pgpr">
-          <Button variant="contained" color="primary">
-            Create PGPR Application
-          </Button>
-        </Link>
-      </Box>
     </div>
   );
 };
 
-const ViewPGPrograms = () => {
-    useSetUserNavigations([
-      {
-        name: "View PG Programs",
-        link: "/ViewPGPrograms",
-      },
-    ]);
-  
-    const [searchedUniversity, setSearchedUniversity] = useState("");
-    const [searchedFaculty, setSearchedFaculty] = useState("");
-    const [filterStatus, setFilterStatus] = useState(""); // State for filter by PGPR status
-  
-    const handleSearch = (universityName, facultyName) => {
-      setSearchedUniversity(universityName);
-      setSearchedFaculty(facultyName);
-    };
-  
+const Coordinators = () => {
+  useSetUserNavigations([
+    {
+      name: "View Program Coordinators",
+      link: "/ViewCoordinators",
+    },
+  ]);
+
+  const [searchedUniversity, setSearchedUniversity] = useState("");
+  const [searchedDirector, setSearchedDirector] = useState("");
+
+  const handleSearch = (universityName, directorName) => {
+    setSearchedUniversity(universityName);
+    setSearchedDirector(directorName);
+  };
 
   // Hardcoded data for the table
   const tableData = [
     {
-      pgprID: "UOC 12",
-      coordinator: "Dr. Manju",
-      status: "Recommended",
-      pgp: "MCS",
-      pgpStatus: "In Review",
+      cid: "C-100",
+      name: "Dr. Manju",
+      faculty: "Science",
+      status: "Approved",
+      pgCount: 3,
+      profilePhoto: "https://randomuser.me/api/portraits/men/1.jpg", // Professional profile photo of a gentleman
     },
     {
-      pgprID: "UOC 12",
-      coordinator: "Dr. Pasindu",
-      status: "Pending",
-      pgp: "MCS",
-      pgpStatus: "Accepted",
+      cid: "C-101",
+      name: "Dr. Pasindu",
+      faculty: "Arts",
+      status: "Confirmed",
+      pgCount: 2,
+      profilePhoto: "https://randomuser.me/api/portraits/men/2.jpg", // Professional profile photo of a gentleman
     },
     {
-      pgprID: "UOC 12",
-      coordinator: "Dr. Thilini",
-      status: "Completed",
-      pgp: "MCS",
-      pgpStatus: "Completed",
+      cid: "C-102",
+      name: "Dr. Thilini",
+      faculty: "Management",
+      status: "Canceled",
+      pgCount: 5,
+      profilePhoto: "https://randomuser.me/api/portraits/women/1.jpg", // Professional profile photo of a lady
     },
   ];
-  // Available PGPR status options for the filter dropdown
-  const pgprStatusOptions = [
-    "In Review",
-    "Accepted",
-    "Completed",
-  ];
-  
+
+  const handleNavigateBefore = () => {
+    // Handle the navigate before action here
+    console.log("Navigating before");
+  };
+
+  const handleNavigateNext = () => {
+    // Handle the navigate next action here
+    console.log("Navigating next");
+  };
+
+  const handleSkipPrevious = () => {
+    // Handle the skip previous action here
+    console.log("Skipping previous");
+  };
+
+  const handleSkipNext = () => {
+    // Handle the skip next action here
+    console.log("Skipping next");
+  };
+
   return (
     <ScrollableDiv height="600px">
       <div className="max-w-6xl mx-auto p-6 bg-white rounded-md mt-6">
@@ -156,48 +149,50 @@ const ViewPGPrograms = () => {
             />
           </div>
           <div className="flex flex-col">
-            <label htmlFor="faculty" className="block font-medium text-gray-700">
+            <label htmlFor="director" className="block font-medium text-gray-700">
               IQAU Director:
             </label>
             <input
               type="text"
-              id="faculty"
+              id="director"
               className="form-input border border-black p-1"
             />
           </div>
-          <div className="flex justify-center items-end col-span-2"> {/* Updated styles here */}
-            <Button variant="contained" color="primary" onClick={handleSearch}>
-              Search
-            </Button>
-          </div>
-          <div className="flex flex-col"> {/* Updated styles here */}
-            <label htmlFor="status" className="block font-medium text-gray-700">
-              Filter by PGPR Status:
-            </label>
-            <select
-              id="status"
-              className="form-select border border-black p-1"
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-            >
-              <option value="">All</option>
-              {pgprStatusOptions.map((status) => (
-                <option key={status} value={status}>
-                  {status}
-                </option>
-              ))}
-            </select>
-          </div>
+        </div>
+        <div className="flex justify-center mt-4">
+          <Button variant="contained" color="primary" onClick={() => handleSearch()}>
+            <Search />
+            Search
+          </Button>
+        </div>
+        <div className="flex justify-center mt-4">
+          <Button variant="contained" color="primary">
+            Show Current Coordinators
+          </Button>
+          <Button variant="contained" color="primary" style={{ marginLeft: "8px" }}>
+            Show Current Dean/Director
+          </Button>
+        </div>
+
+        <CustomTable tableData={tableData} />
+
+        <div className="flex justify-end mt-4"> {/* Align buttons to the right */}
+          <NavigateBefore color="primary" fontSize="large" />
+          <SkipPrevious color="primary" fontSize="large" />
+          <SkipNext color="primary" fontSize="large" />
+          <NavigateNext color="primary" fontSize="large" />
+        </div>
+        <div className="flex justify-start mt-4"> {/* Align buttons to the left */}
+          <Button variant="contained" color="primary" style={{ marginRight: "8px" }}>
+            Select Coordinator/Dean for PGPR
+          </Button>
+          <Button variant="contained" color="primary" style={{ marginRight: "8px" }}>
+            New Coordinator/Dean
+          </Button>
         </div>
       </div>
-      <CustomTable tableData={tableData} filterStatus={filterStatus} />
     </ScrollableDiv>
   );
 };
 
-export default ViewPGPrograms;
-
-
-
-
-
+export default Coordinators;

@@ -26,8 +26,8 @@ import ViewUniversities from './pages/QACDirector/ViewUniversities'
 import ViewUniversity from './pages/QACDirector/ViewUniversity'
 import EditUniversity from './pages/QACDirector/EditUniversity';
 import AddUniversity from './pages/QACDirector/AddUniversity';
-import ViewReviewers from './pages/QACDirector/ViewReviewers'
-import CqaOffices from './pages/QACDirector/CqaOffices'
+import ViewReviewers from './pages/QACDirector/ViewReviewers';
+import CqaOffices from './pages/QACDirector/CqaOffices';
 import {DrawerStateProvider} from './contexts/DrawerStateProvider';
 import "./App.css";
 
