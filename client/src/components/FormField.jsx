@@ -17,7 +17,7 @@ const FormField = ({label, name, type, isReadonly, options, onChange, value}) =>
         </label>
         {/*here the form field*/}
         {(type === 'textarea') ? (
-            <textarea id={name} name={name} className="form-input flex-grow h-30 resize-none bg-white border border-black rounded-lg hover:border-black focus:outline-none px-2 py-1" readOnly={isReadonly} onChange={onChange}/>
+            <textarea id={name} name={name} className="form-input w-full flex-grow h-30 resize-none bg-white border border-black rounded-lg hover:border-black focus:outline-none px-2 py-1" readOnly={isReadonly} onChange={onChange}/>
         )
         : (
             <div className="relative flex-grow">
@@ -35,8 +35,8 @@ const FormField = ({label, name, type, isReadonly, options, onChange, value}) =>
                         <div className="flex items-center mb-4" key={name + option.name}>
                             {(type === 'radio') ? (
                                 <>
-                                    <input id="default-radio-1" type="radio" value={option.value} name={option.name} className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" readOnly={isReadonly} onChange={onChange}/>
-                                    <label htmlFor="default-radio-1" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">{option.label}</label>
+                                    <input id={option.name + name} type="radio" value={option.value} name={name} className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" readOnly={isReadonly} onChange={onChange}/>
+                                    <label htmlFor={option.name + name} className="ml-2 text-sm font-medium text-gray-900">{option.label}</label>
                                 </>
                             )
                             : (
@@ -48,9 +48,9 @@ const FormField = ({label, name, type, isReadonly, options, onChange, value}) =>
                         </div>
                     ))
                 ) :(
-                    <div className="relative flex-grow">
-                        <input id={name} name={name} type={type} className="form-input flex-grow bg-white border border-black rounded-lg hover:border-black focus:outline-none px-2 py-1" readOnly={isReadonly} onChange={onChange} value={value}/>
-                    </div>
+                    
+                    <input id={name} name={name} type={type} className="form-input w-full bg-white border border-black rounded-lg hover:border-black focus:outline-none px-2 py-1" readOnly={isReadonly} onChange={onChange} value={value}/>
+
                 )}
             </div>
         )}
