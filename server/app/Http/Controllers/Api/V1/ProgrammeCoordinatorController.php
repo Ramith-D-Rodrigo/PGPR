@@ -27,50 +27,13 @@ class ProgrammeCoordinatorController extends Controller
      */
     public function index(Request $request)
     {
-        $filter = new ProgrammeCoordinatorFilter();
 
-        $queryItems = $filter -> transform($request);   //[column, operator, value]
 
         try{
-            $role = $request -> session() -> get('authRole');
 
-            if(in_array($role, ['cqa_director', 'vice_chancellor'])){   //these two can view only their university coordinators
-                //get the facultyid in query items
-                $facultyIdIndex = array_search('faculty_id', array_column($queryItems, 0));
+            $filter = new ProgrammeCoordinatorFilter($request -> session() -> get('authRole'), $request);
 
-                //change the operator to = and value to faculties of the university
-                if($facultyIdIndex !== false){
-                    $queryItems[$facultyIdIndex][1] = '=';
-                    $queryItems[$facultyIdIndex][2] = Auth::user() -> universitySide -> university -> faculties -> pluck('id') -> toArray();
-                }
-                else{
-                    $queryItems[] = ['faculty_id', '=', Auth::user() -> universitySide -> university -> faculties -> pluck('id') -> toArray()];
-                }
-            }
-            else if(in_array($role, ['dean', 'iqau_director'])){ //these two can view only their faculty coordinators
-                //get the facultyid in query items
-                $facultyIdIndex = array_search('faculty_id', array_column($queryItems, 0));
-                $facultyId = null;
-                if($role === 'dean'){
-                    $facultyId = Auth::user() -> universitySide -> academicStaff -> dean -> faculty -> id;
-                }
-                else{
-                    $facultyId = Auth::user() -> universitySide -> qualityAssuranceStaff -> internalQualityAssuranceUnitDirector -> internalQualityAssuranceUnit -> faculty -> id;
-                }
-
-                //change the operator to = and value to faculty of the user
-                if($facultyIdIndex !== false){
-                    $queryItems[$facultyIdIndex][1] = '=';
-                    $queryItems[$facultyIdIndex][2] = $facultyId;
-                }
-                else{
-                    $queryItems[] = ['faculty_id', '=', $facultyId];
-                }
-            }
-            else if(in_array($role, ['qac_officer', 'qac_director', 'reviewer'])){
-                //they have no restrictions
-                //so do nothing
-            }
+            $queryItems = $filter -> getEloQuery();   //[column, operator, value]
 
             $programmeCoordinators = ProgrammeCoordinator::where($queryItems);
 
