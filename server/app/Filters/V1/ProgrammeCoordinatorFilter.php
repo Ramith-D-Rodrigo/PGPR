@@ -83,7 +83,8 @@ class ProgrammeCoordinatorFilter extends ApiFilter{
 
             case 'qac_officer':
             case 'qac_director':
-                //qac officer and qac director can view all programme coordinators (no filtering)
+            case 'reviewer':
+                //qac officer,qac director,reviewer can view all programme coordinators (no filtering)
                 break;
         }
     }

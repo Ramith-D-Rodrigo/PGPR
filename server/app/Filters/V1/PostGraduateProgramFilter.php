@@ -95,6 +95,7 @@ class PostGraduateProgramFilter extends ApiFilter{
             //qac_director, qac_officer can view all the pgps in the system (no restrictions)
             case 'qac_director':
             case 'qac_officer':
+            case 'reviewer':
                 break;
         }
     }

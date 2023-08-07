@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Str;
 
-class DeanResource extends JsonResource
+class InternalQualityAssuranceUnitResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,19 +15,22 @@ class DeanResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $returnArr = [];
         $objProps = $this -> getAttributes();
 
+        $returnArr = [];
         foreach($objProps as $key => $value){
-            if($key === 'created_at' || $key === 'updated_at'){
+            //ignore following keys from the response
+            if(in_array($key, ['created_at', 'updated_at'])){
                 continue;
             }
-            else{
-                $returnArr[Str::camel($key)] = $value;
-            }
-        }
 
-        $returnArr['academicStaff'] = new AcademicStaffResource($this -> whenLoaded('academicStaff'));
+            //decode json data of contact_no and fax_no
+            if(in_array($key, ['contact_no', 'fax_no'])){
+                $value = json_decode($value);
+            }
+
+            $returnArr[Str::camel($key)] = $value;
+        }
 
         return $returnArr;
     }

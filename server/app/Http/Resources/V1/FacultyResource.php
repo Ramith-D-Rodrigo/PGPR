@@ -28,6 +28,8 @@ class FacultyResource extends JsonResource
         }
 
         $returnArr['university'] = new UniversityResource($this -> whenLoaded('university'));
+        $returnArr['internalQualityAssuranceUnit'] = new InternalQualityAssuranceUnitResource($this -> whenLoaded('internalQualityAssuranceUnit'));
+        $returnArr['dean'] = new DeanResource($this -> whenLoaded('dean'));
 
         return $returnArr;
     }

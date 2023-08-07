@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Filters\V1\FacultyFilter;
 use App\Http\Resources\V1\FacultyCollection;
 use App\Http\Resources\V1\FacultyResource;
 use App\Models\Faculty;
@@ -9,6 +10,7 @@ use App\Http\Requests\V1\StoreFacultyRequest;
 use App\Http\Requests\V1\UpdateFacultyRequest;
 use App\Http\Controllers\Controller;
 use App\Models\InternalQualityAssuranceUnit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -17,9 +19,62 @@ class FacultyController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return new FacultyCollection(Faculty::paginate());
+        try{
+            $filter = new FacultyFilter($request -> session() -> get('authRole'), $request);
+
+            $queryItems = $filter -> getEloQuery();   //[column, operator, value]
+
+            $faculties = Faculty::where($queryItems);
+
+            //including related data
+            $university = $request -> query('includeUniversity');
+            if($university){
+                $faculties = $faculties -> with('university');
+            }
+
+            $iqau = $request -> query('includeIQAU');
+            if($iqau){
+                $faculties = $faculties -> with('internalQualityAssuranceUnit');
+            }
+
+            $dean = $request -> query('includeDean');
+            if($dean){
+                $faculties = $faculties -> with('dean');
+
+                //check if academic staff is included
+                $academicStaff = $request -> query('includeAcademicStaff');
+                if($academicStaff){
+                    $faculties = $faculties -> with(['dean' => ['academicStaff']]);
+
+                    //check if university side is included
+                    $universitySide = $request -> query('includeUniversitySide');
+                    if($universitySide){
+                        $faculties = $faculties -> with(['dean' => ['academicStaff' => ['universitySide']]]);
+
+                        //check if user is included
+                        $user = $request -> query('includeUser');
+                        if($user){
+                            $faculties = $faculties -> with(['dean' => [
+                                'academicStaff' => [
+                                    'universitySide' => ['user']
+                                    ]
+                                ]
+                            ]);
+                        }
+                    }
+                }
+            }
+
+            return new FacultyCollection($faculties -> paginate() -> appends($request -> query()));
+        }
+        catch(\Exception $e){
+            return response() -> json([
+                'message' => 'Failed to retrieve the faculties',
+                'error' => $e -> getMessage()
+            ], 500);
+        }
     }
 
     /**
