@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Filters\V1\UniversityFilter;
 use App\Models\University;
 use App\Http\Requests\V1\StoreUniversityRequest;
 use App\Http\Requests\V1\UpdateUniversityRequest;
@@ -19,7 +20,44 @@ class UniversityController extends Controller
      */
     public function index()
     {
-        return new UniversityCollection(University::paginate());
+        try{
+            $filter = new UniversityFilter(request() -> session() -> get('authRole'), request());
+
+            $queryItems = $filter -> getEloQuery();
+
+            $universities = University::where($queryItems);
+
+            //related data
+            $cqa = request() -> query('includeCQA');
+            if($cqa){
+                $universities = $universities -> with('centerForQualityAssurance');
+            }
+
+            $vc = request() -> query('includeViceChancellor');
+            if($vc){
+                $universities = $universities -> with('viceChancellor');
+
+                //check if university side is included
+                $universitySide = request() -> query('includeUniversitySide');
+                if($universitySide){
+                    $universities = $universities -> with(['viceChancellor' => ['universitySide']]);
+
+                    //check if user is included
+                    $user = request() -> query('includeUser');
+                    if($user){
+                        $universities = $universities -> with(['viceChancellor' => ['universitySide' => ['user']]]);
+                    }
+                }
+            }
+
+            return new UniversityCollection($universities -> paginate() -> appends(request() -> query()));
+        }
+        catch(\Exception $e){
+            return response()->json([
+                'message' => 'Something went wrong',
+                'error' => $e -> getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -52,7 +90,39 @@ class UniversityController extends Controller
      */
     public function show(University $university)
     {
-        return new UniversityResource($university);
+        try{
+            //check if cqa is included
+            $cqa = request() -> query('includeCQA');
+            if($cqa){
+                $university = $university -> loadMissing('centerForQualityAssurance');
+            }
+
+            //check if vc is included
+            $vc = request() -> query('includeViceChancellor');
+            if($vc){
+                $university = $university -> loadMissing('viceChancellor');
+
+                //check if university side is included
+                $universitySide = request() -> query('includeUniversitySide');
+                if($universitySide){
+                    $university = $university -> loadMissing(['viceChancellor' => ['universitySide']]);
+
+                    //check if user is included
+                    $user = request() -> query('includeUser');
+                    if($user){
+                        $university = $university -> loadMissing(['viceChancellor' => ['universitySide' => ['user']]]);
+                    }
+                }
+            }
+
+            return new UniversityResource($university);
+        }
+        catch(\Exception $e){
+            return response()->json([
+                'message' => 'Something went wrong',
+                'error' => $e -> getMessage()
+            ], 500);
+        }
     }
 
 
