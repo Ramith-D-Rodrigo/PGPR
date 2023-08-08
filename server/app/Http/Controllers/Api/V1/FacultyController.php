@@ -133,7 +133,54 @@ class FacultyController extends Controller
      */
     public function show(Faculty $faculty)
     {
-        return new FacultyResource($faculty);
+        try{
+            //including related data
+            $university = request() -> query('includeUniversity');
+            if($university){
+                $faculty = $faculty -> loadMissing('university');
+            }
+
+            $iqau = request() -> query('includeIQAU');
+            if($iqau){
+                $faculty = $faculty -> loadMissing('internalQualityAssuranceUnit');
+            }
+
+            $dean = request() -> query('includeDean');
+            if($dean){
+                $faculty = $faculty -> loadMissing('dean');
+
+                //check if academic staff is included
+                $academicStaff = request() -> query('includeAcademicStaff');
+                if($academicStaff){
+                    $faculty = $faculty -> loadMissing(['dean' => ['academicStaff']]);
+
+                    //check if university side is included
+                    $universitySide = request() -> query('includeUniversitySide');
+                    if($universitySide){
+                        $faculty = $faculty -> loadMissing(['dean' => ['academicStaff' => ['universitySide']]]);
+
+                        //check if user is included
+                        $user = request() -> query('includeUser');
+                        if($user){
+                            $faculty = $faculty -> loadMissing(['dean' => [
+                                'academicStaff' => [
+                                    'universitySide' => ['user']
+                                    ]
+                                ]
+                            ]);
+                        }
+                    }
+                }
+            }
+
+            return new FacultyResource($faculty);
+        }
+        catch(\Exception $e){
+            return response() -> json([
+                'message' => 'Failed to retrieve the faculty',
+                'error' => $e -> getMessage()
+            ], 500);
+        }
     }
 
     /**
