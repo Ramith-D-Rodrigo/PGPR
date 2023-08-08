@@ -56,7 +56,48 @@ class PostGraduateProgramController extends Controller
      */
     public function show(PostGraduateProgram $postGraduateProgram)
     {
-        return new PostGraduateProgramResource($postGraduateProgram);
+        try{
+            $faculty = request() -> query('includeFaculty');
+            if($faculty){
+                $postGraduateProgram -> loadMissing('faculty');
+            }
+
+            $currCoordinator = request() -> query('includeCurrentCoordinator');
+            if($currCoordinator){
+                $postGraduateProgram -> loadMissing('currentProgrammeCoordinator');
+
+                //check if academic staff is included
+                $academicStaff = request() -> query('includeAcademicStaff');
+                if($academicStaff){
+                    $postGraduateProgram -> loadMissing(['currentProgrammeCoordinator' => ['academicStaff']]);
+
+                    //check if university side is included
+                    $universitySide = request() -> query('includeUniversitySide');
+                    if($universitySide){
+                        $postGraduateProgram -> loadMissing(['currentProgrammeCoordinator' => [
+                            'academicStaff' => ['universitySide']
+                            ]
+                        ]);
+
+                        //check if user is included
+                        $user = request() -> query('includeUser');
+                        if($user){
+                            $postGraduateProgram -> loadMissing(['currentProgrammeCoordinator' => [
+                                'academicStaff' => [
+                                    'universitySide' => ['user']
+                                    ]
+                                ]
+                            ]);
+                        }
+                    }
+                }
+            }
+
+            return new PostGraduateProgramResource($postGraduateProgram);
+        }
+        catch(\Exception $e){
+            return response() -> json(['message' => $e -> getMessage()], 500);
+        }
     }
 
     /**
