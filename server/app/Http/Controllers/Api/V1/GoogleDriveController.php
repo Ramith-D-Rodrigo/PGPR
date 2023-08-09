@@ -41,4 +41,13 @@ class GoogleDriveController extends Controller
         }
 
     }
+
+    public function isFolder(Request $request){
+        $url = $request -> url;
+        $DriveManager = new DriveManager();
+        $isFolder = $DriveManager -> isFolder($url);
+        return response() -> json([
+            'isFolder' => $isFolder
+        ], 200);
+    }
 }

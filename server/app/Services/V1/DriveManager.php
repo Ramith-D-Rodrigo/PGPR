@@ -64,4 +64,11 @@ class DriveManager {
         return $file; */
 
     }
+
+    public function isFolder($url){
+        $fileId = $this -> getFileId($url);
+        $service = new Drive($this -> client);
+        $file = $service -> files -> get($fileId, array('fields' => 'mimeType'));
+        return $file -> getMimeType() == "application/vnd.google-apps.folder";
+    }
 }

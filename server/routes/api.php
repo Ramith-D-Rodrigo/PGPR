@@ -69,6 +69,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     //route for google drive file info (for now, only the metadata is returned (testing))
     Route::post('driveFileInfo', 'GoogleDriveController@getFileInfo');
     Route::get('downloadFile', 'GoogleDriveController@downloadFile');
+    Route::get('isFolder', 'GoogleDriveController@isFolder');
 
     //other routes for pgpr application
     Route::post('pgprApplications/{pgprApplication}/submit', 'PostGraduateProgramReviewApplicationController@submit') -> middleware('auth');  //submit pgpr application by the dean
