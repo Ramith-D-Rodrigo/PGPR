@@ -10,7 +10,8 @@ const CustomTable = ({ tableData }) => {
   return (
     <div className="mt-6">
       <div className="overflow-x-auto">
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper}>q
+
           <Table sx={{ minWidth: 650 }} aria-label="simple table">
             <TableHead style={{ backgroundColor: "#D8E6FC" }}>
               <TableRow>
@@ -52,7 +53,7 @@ const CustomTable = ({ tableData }) => {
                       color="primary"
                       size="small"
                       component={Link}
-                      to={"/view/" + row.cid}
+                      to={"/edit/" + row.cid}
                     >
                       Edit
                     </Button>

@@ -15,6 +15,7 @@ import AddAccounts from './pages/CQAdirector/AddAccounts';
 import ViewPGPrograms from './pages/CQAdirector/ViewPGPrograms';
 import EditPGProgram from './pages/CQAdirector/EditPGProgram';
 import ViewCoordinators from './pages/CQAdirector/ViewCoordinators';
+import CoordinatorProfile from './pages/CQAdirector/CoordinatorProfile';
 import SubmitIntent from './pages/DeanDirector/SubmitIntent';
 import SubmitConsent from './pages/DeanDirector/SubmitConsent';
 import SetDate from './pages/ReviewerChair/SetDate';
@@ -69,17 +70,21 @@ function App() {
                   </Route>
                 </Route>
 
-                <Route element={<Authenticate allowedRoles={["cqa_director"]}/>}>
-                  <Route path="cqa_director/" >
-                    <Route path="" element={<Dashboard/>}/>
-                    <Route path="dashboard" element={<Dashboard/>}/>
-                    <Route path="AddPGProgramPage" element={<AddPGProgramPage/>} />
-                    <Route path="AddAccounts" element={<AddAccounts/>} />
-                    <Route path="EditPGProgram" element={<EditPGProgram/>} />
-                    <Route path="ViewPGPrograms" element={<ViewPGPrograms/>} />
-                    <Route path="ViewCoordinators" element={<ViewCoordinators/>} />
-                  </Route>
-                </Route>
+                <Route
+          element={<Authenticate allowedRoles={["cqa_director"]} />}
+        >
+          <Route path="cqa_director/">
+            <Route path="" element={<Dashboard />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="AddPGProgramPage" element={<AddPGProgramPage />} />
+            <Route path="AddAccounts" element={<AddAccounts />} />
+            <Route path="EditPGProgram" element={<EditPGProgram />} />
+            <Route path="ViewPGPrograms" element={<ViewPGPrograms />} />
+            <Route path="ViewCoordinators" element={<ViewCoordinators />} />
+            {/* Add the route for the coordinator profile */}
+            <Route path="/view/:cid" element={<CoordinatorProfile />} />
+          </Route>
+        </Route>
 
                 <Route element={<Authenticate allowedRoles={["qac_director"]}/>}>
                   <Route path="qac_director/" >
