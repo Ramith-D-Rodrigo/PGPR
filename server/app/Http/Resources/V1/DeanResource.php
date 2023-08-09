@@ -28,6 +28,7 @@ class DeanResource extends JsonResource
         }
 
         $returnArr['academicStaff'] = new AcademicStaffResource($this -> whenLoaded('academicStaff'));
+        $returnArr['faculty'] = new FacultyResource($this -> whenLoaded('faculty'));
 
         return $returnArr;
     }
