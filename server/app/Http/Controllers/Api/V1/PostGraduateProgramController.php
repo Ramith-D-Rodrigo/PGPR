@@ -113,7 +113,18 @@ class PostGraduateProgramController extends Controller
      */
     public function update(UpdatePostGraduateProgramRequest $request, PostGraduateProgram $postGraduateProgram)
     {
-        //
+        try{
+            //get validated data
+            $validatedData = $request -> validated();
+
+            //add authorized cqa director id to the validated data
+            $validatedData['edited_by_cqa_director_id'] = Auth::user() -> id;
+            $postGraduateProgram -> update($request -> validated());
+            return response() -> json(['message' => 'Post Graduate Program Updated Successfully'], 200);
+        }
+        catch(\Exception $e){
+            return response() -> json(['message' => $e -> getMessage()], 500);
+        }
     }
 
     /**
