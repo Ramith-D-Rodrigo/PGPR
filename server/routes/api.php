@@ -70,6 +70,9 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::post('driveFileInfo', 'GoogleDriveController@getFileInfo');
     Route::get('downloadFile', 'GoogleDriveController@downloadFile');
     Route::get('isFolder', 'GoogleDriveController@isFolder');
+    Route::get('checkPermission', 'GoogleDriveController@checkPermission');
+    Route::post('createFolder', 'GoogleDriveController@createFolder');
+    Route::post('copyContent', 'GoogleDriveController@copyContent');
 
     //other routes for pgpr application
     Route::post('pgprApplications/{pgprApplication}/submit', 'PostGraduateProgramReviewApplicationController@submit') -> middleware('auth');  //submit pgpr application by the dean
