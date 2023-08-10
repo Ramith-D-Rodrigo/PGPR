@@ -46,7 +46,7 @@ const ConductDE = () => {
     let bodyHeight = open ==true? `${80-expand}%` : `calc( ${80-expand}% - 60px )`;
     let tableHeight = expand ==8? {} : {height:'300px'};
 
-    let newHeight = open ==true? `${90-expand}%` : `calc( ${90-expand}% - 40px )`;
+    let newHeight = open ==true? `${80-expand}%` : `calc( ${80-expand}% - 40px )`;
     const handleClick = ()=>{
         if(expand==8)
         {
@@ -139,12 +139,13 @@ const ConductDE = () => {
                     </TableContainer>
                     
                 {/* </ScrollableDiv> */}
-                <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', width: '100%', padding: '20px 0' }}>
-                    <Button variant="contained" size="small" style={{width:"300px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>Update Part A, B, D</Button>
-                    <Button variant="contained" size="small" style={{width:"300px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>View Standards Wise Details of Desk Review</Button>
-                    <Button variant="contained" size="small" style={{width:"300px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>View Summary Details of Criteria Wise</Button>
-                </Box>
+                
             </DiscriptiveDiv>
+            <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', width: '100%', padding: '20px 0' }}>
+                    <Link to = {`../UpdateABC/${uniId}`}><Button variant="contained" size="small" style={{width:"300px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>Update Part A, B, D</Button></Link>
+                    <Link to = {`../Standardwise_details/${uniId}`}><Button variant="contained" size="small" style={{width:"300px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>View Standards Wise Details of Desk Review</Button></Link>
+                    <Link to = {`../Summary_details/${uniId}`}><Button variant="contained" size="small" style={{width:"300px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>View Summary Details of Criteria Wise</Button></Link>
+                </Box>
         </>
     )
 }

@@ -26,6 +26,9 @@ import EditUniversity from './pages/QACDirector/EditUniversity';
 import AddUniversity from './pages/QACDirector/AddUniversity';
 import ViewReviewers from './pages/QACDirector/ViewReviewers'
 import CqaOffices from './pages/QACDirector/CqaOffices'
+import UpdateABC from './pages/Reviewer/UpdateABC';
+import Summary_details from './pages/Reviewer/Summary_details';
+import Standardwise_details from './pages/Reviewer/Standardwise_details';
 import {DrawerStateProvider} from './contexts/DrawerStateProvider';
 import EvaluateDE from './pages/Reviewer/EvaluateDE';
 import "./App.css";
@@ -100,9 +103,12 @@ function App() {
                       <Route path="PG_Assignments/">
                         <Route path="" element={<PGAssignments/>} />
                         <Route path="ViewSer/:uniId" element={<ViewSer/>} />
-                        <Route path="Conduct_DE/:uniId">
-                          <Route path="" element={<ConductDE/>} />
-                          <Route path=":criteriaId" element={<EvaluateDE/>} />
+                        <Route path="Conduct_DE/">
+                          <Route path=":uniId" element={<ConductDE/>} />
+                          <Route path=":uniId/:criteriaId" element={<EvaluateDE/>} />
+                          <Route path="UpdateABC/:uniId" element={<UpdateABC/>} />
+                          <Route path="Standardwise_details/:uniId" element={<Standardwise_details/>} />
+                          <Route path="Summary_details/:uniId" element={<Summary_details/>} />
                         </Route>
                         <Route path="Conduct_PE/" element={<ConductPE/>} >
                           <Route path=":uniId" element={<ConductPE/>} />
