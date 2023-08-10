@@ -41,24 +41,24 @@ class FacultyController extends Controller
 
             $dean = $request -> query('includeDean');
             if($dean){
-                $faculties = $faculties -> with('dean');
+                $faculties = $faculties -> with('dean:id');
 
                 //check if academic staff is included
                 $academicStaff = $request -> query('includeAcademicStaff');
                 if($academicStaff){
-                    $faculties = $faculties -> with(['dean' => ['academicStaff']]);
+                    $faculties = $faculties -> with(['dean:id' => ['academicStaff:id']]);
 
                     //check if university side is included
                     $universitySide = $request -> query('includeUniversitySide');
                     if($universitySide){
-                        $faculties = $faculties -> with(['dean' => ['academicStaff' => ['universitySide']]]);
+                        $faculties = $faculties -> with(['dean:id' => ['academicStaff:id' => ['universitySide:id']]]);
 
                         //check if user is included
                         $user = $request -> query('includeUser');
                         if($user){
-                            $faculties = $faculties -> with(['dean' => [
-                                'academicStaff' => [
-                                    'universitySide' => ['user']
+                            $faculties = $faculties -> with(['dean:id' => [
+                                'academicStaff:id' => [
+                                    'universitySide:id' => ['user:id,initials,surname']
                                     ]
                                 ]
                             ]);
@@ -147,29 +147,32 @@ class FacultyController extends Controller
 
             $dean = request() -> query('includeDean');
             if($dean){
-                $faculty = $faculty -> loadMissing('dean');
-
                 //check if academic staff is included
                 $academicStaff = request() -> query('includeAcademicStaff');
                 if($academicStaff){
-                    $faculty = $faculty -> loadMissing(['dean' => ['academicStaff']]);
-
                     //check if university side is included
                     $universitySide = request() -> query('includeUniversitySide');
                     if($universitySide){
-                        $faculty = $faculty -> loadMissing(['dean' => ['academicStaff' => ['universitySide']]]);
-
                         //check if user is included
                         $user = request() -> query('includeUser');
                         if($user){
-                            $faculty = $faculty -> loadMissing(['dean' => [
-                                'academicStaff' => [
-                                    'universitySide' => ['user']
+                            $faculty = $faculty -> load(['dean:id' => [
+                                'academicStaff:id' => [
+                                    'universitySide:id' => ['user:id,initials,surname']
                                     ]
                                 ]
                             ]);
                         }
+                        else{
+                            $faculty = $faculty -> load(['dean:id' => ['academicStaff:id' => ['universitySide:id']]]);
+                        }
                     }
+                    else{
+                        $faculty = $faculty -> load(['dean:id' => ['academicStaff:id']]);
+                    }
+                }
+                else{
+                    $faculty = $faculty -> loadMissing('dean:id');
                 }
             }
 
