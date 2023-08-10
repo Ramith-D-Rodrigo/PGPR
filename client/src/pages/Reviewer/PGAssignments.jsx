@@ -35,12 +35,11 @@ const pgAssignments = () => {
 
     const [selectedFilterKeys, setSelectedFilterKeys] = useState([{ title: 'In-review' }]);
     const [AcceptClicked, setAcceptClicked] = useState(false);
+    const [acceptAssignment, setAcceptAssignment] = useState(false);
     const [selectedPGPRID, setSelectedPGPRID] = useState(null);
 
-    function handleAcceptAssignment() {
+    function handleSubmitAssignment() {
         console.log("Accept Clicked : ",selectedPGPRID);
-        setAcceptClicked(false);
-        setSelectedPGPRID(null);
     }
 
     function handleRejectAssignment() {
@@ -51,6 +50,7 @@ const pgAssignments = () => {
 
     function handleClickCancel() {
         setAcceptClicked(false);
+        setAcceptAssignment(false);
         setSelectedPGPRID(null);
     }
 
@@ -182,25 +182,46 @@ const pgAssignments = () => {
                     }}
                 >
                     <Typography variant="h5" gutterBottom component="div" style={{marginRight:'20px'}}>
-                            Accept Review Assignment
+                            {acceptAssignment? "Upload the Appointment Letter" : "Accept Chairman Assignment"}
                     </Typography>
-                    <Typography variant="h6" gutterBottom component="div" style={{marginRight:'20px'}}>
-                        Reviever Name: <b>{auth.fullName}</b>
-                    </Typography>
-                    <Typography variant="h6" gutterBottom component="div" style={{marginRight:'20px'}}>
-                        It's happy to inform you that you have been appointed as a reviewer/Chairman for postgraduate programs by QAC. Click below to download the appointment letter.
-                    </Typography>
-                    <Button variant="contained" color="primary" size="large" onClick={handleDownloadLetter}>
-                        Download Appointment Letter
-                    </Button>
-                    <Box sx={{display:'flex',justifyContent:'space-around',width:'100%'}}>
-                        <Button variant="contained" color="primary" size="large" onClick={handleAcceptAssignment}>
-                            Accept Assignment
+                    {!acceptAssignment &&
+                    <>
+                        <Typography variant="h6" gutterBottom component="div" style={{marginRight:'20px'}}>
+                            Reviever Name: <b>{auth.fullName}</b>
+                        </Typography>
+                        <Typography variant="h6" gutterBottom component="div" style={{marginRight:'20px'}}>
+                            It's happy to inform you that you have been appointed as a reviewer/Chairman for postgraduate programs by QAC. Click below to download the appointment letter.
+                        </Typography>
+                        <Button variant="contained" color="primary" size="large" onClick={handleDownloadLetter}>
+                            Download Appointment Letter
                         </Button>
-                        <Button variant="contained" color="primary" size="large" onClick={handleRejectAssignment}>
-                            Reject Assignment
-                        </Button>
-                    </Box>
+                        <Box sx={{display:'flex',justifyContent:'space-around',width:'100%'}}>
+                            <Button variant="contained" color="primary" size="large" onClick={()=>setAcceptAssignment(true)}>
+                                Accept Assignment
+                            </Button>
+                            <Button variant="contained" color="primary" size="large" onClick={handleRejectAssignment}>
+                                Reject Assignment
+                            </Button>
+                        </Box>
+                    </>
+                    }
+                    {acceptAssignment &&
+                    <>
+                        <TextField
+                            sx={{margin:"15px 0",width:"100%",height:"100%"}}
+                            id="letter"
+                            type='file' 
+                        />
+                        <Box sx={{display:'flex',justifyContent:'space-around',width:'100%'}}>
+                            <Button variant="contained" color="primary" size="large" onClick={handleSubmitAssignment}>
+                                Submit
+                            </Button>
+                            <Button variant="contained" color="primary" size="large" onClick={()=> setAcceptAssignment(false)}>
+                                Cancel
+                            </Button>
+                        </Box>
+                    </>
+                    }
                     <IconButton onClick={handleClickCancel} style={{position:"absolute",right:15,top:15}}>
                         <CloseIcon fontSize='large' />
                     </IconButton>
