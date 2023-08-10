@@ -64,32 +64,35 @@ class PostGraduateProgramController extends Controller
 
             $currCoordinator = request() -> query('includeCurrentCoordinator');
             if($currCoordinator){
-                $postGraduateProgram -> loadMissing('currentProgrammeCoordinator');
-
                 //check if academic staff is included
                 $academicStaff = request() -> query('includeAcademicStaff');
                 if($academicStaff){
-                    $postGraduateProgram -> loadMissing(['currentProgrammeCoordinator' => ['academicStaff']]);
-
                     //check if university side is included
                     $universitySide = request() -> query('includeUniversitySide');
                     if($universitySide){
-                        $postGraduateProgram -> loadMissing(['currentProgrammeCoordinator' => [
-                            'academicStaff' => ['universitySide']
-                            ]
-                        ]);
-
                         //check if user is included
                         $user = request() -> query('includeUser');
                         if($user){
-                            $postGraduateProgram -> loadMissing(['currentProgrammeCoordinator' => [
-                                'academicStaff' => [
-                                    'universitySide' => ['user']
+                            $postGraduateProgram -> load(['currentProgrammeCoordinator:id' => [
+                                'academicStaff:id' => [
+                                    'universitySide:id' => ['user:id,initials,surname']
                                     ]
                                 ]
                             ]);
                         }
+                        else{
+                            $postGraduateProgram -> load(['currentProgrammeCoordinator:id' => [
+                                'academicStaff:id' => ['universitySide:id']
+                                ]
+                            ]);
+                        }
                     }
+                    else{
+                        $postGraduateProgram -> load(['currentProgrammeCoordinator:id' => ['academicStaff:id']]);
+                    }
+                }
+                else{
+                    $postGraduateProgram -> loadMissing('currentProgrammeCoordinator:id');
                 }
             }
 
