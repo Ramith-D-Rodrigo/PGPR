@@ -35,17 +35,17 @@ class UniversityController extends Controller
 
             $vc = request() -> query('includeViceChancellor');
             if($vc){
-                $universities = $universities -> with('viceChancellor');
+                $universities = $universities -> with('viceChancellor:id');
 
                 //check if university side is included
                 $universitySide = request() -> query('includeUniversitySide');
                 if($universitySide){
-                    $universities = $universities -> with(['viceChancellor' => ['universitySide']]);
+                    $universities = $universities -> with(['viceChancellor:id' => ['universitySide:id']]);
 
                     //check if user is included
                     $user = request() -> query('includeUser');
                     if($user){
-                        $universities = $universities -> with(['viceChancellor' => ['universitySide' => ['user']]]);
+                        $universities = $universities -> with(['viceChancellor:id' => ['universitySide:id' => ['user:id,initials,surname']]]);
                     }
                 }
             }
@@ -100,18 +100,20 @@ class UniversityController extends Controller
             //check if vc is included
             $vc = request() -> query('includeViceChancellor');
             if($vc){
-                $university = $university -> loadMissing('viceChancellor');
-
                 //check if university side is included
                 $universitySide = request() -> query('includeUniversitySide');
                 if($universitySide){
-                    $university = $university -> loadMissing(['viceChancellor' => ['universitySide']]);
-
                     //check if user is included
                     $user = request() -> query('includeUser');
                     if($user){
-                        $university = $university -> loadMissing(['viceChancellor' => ['universitySide' => ['user']]]);
+                        $university = $university -> load(['viceChancellor:id' => ['universitySide:id' => ['user:id,initials,surname']]]);
                     }
+                    else{
+                        $university = $university -> load(['viceChancellor:id' => ['universitySide:id']]);
+                    }
+                }
+                else{
+                    $university = $university -> loadMissing('viceChancellor:id');
                 }
             }
 
