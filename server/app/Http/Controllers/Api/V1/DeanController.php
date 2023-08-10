@@ -126,18 +126,20 @@ class DeanController extends Controller
             $academicStaff = request() -> query('includeAcademicStaff');
 
             if($academicStaff){
-                $dean = $dean -> loadMissing('academicStaff');
-
                 $uniSide = request() -> query('includeUniversitySide');
 
                 if($uniSide){
-                    $dean = $dean -> loadMissing(['academicStaff' => ['universitySide']]);
-
                     $user = request() -> query('includeUser');
 
                     if($user){
-                        $dean = $dean -> loadMissing(['academicStaff' => ['universitySide' => ['user']]]);
+                        $dean = $dean -> load(['academicStaff' => ['universitySide' => ['user']]]);
                     }
+                    else{
+                        $dean = $dean -> load(['academicStaff' => ['universitySide']]);
+                    }
+                }
+                else{
+                    $dean = $dean -> loadMissing('academicStaff');
                 }
             }
 
