@@ -24,6 +24,10 @@ class FacultyResource extends JsonResource
                 continue;
             }
 
+            if($key == 'contact_no' || $key == 'fax_no'){
+                $value = json_decode($value, true);
+            }
+
             $returnArr[Str::camel($key)] = $value;
         }
 
