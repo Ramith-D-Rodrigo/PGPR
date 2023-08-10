@@ -10,7 +10,7 @@ import { Link } from 'react-router-dom';
 import useDrawerState from '../../hooks/useDrawerState';
 
 const ConductDE = () => {
-    const {id} = useParams();
+    const {uniId} = useParams();
     const open = useDrawerState().drawerState.open;
 
     useSetUserNavigations(
@@ -20,8 +20,8 @@ const ConductDE = () => {
               link: "/PG_Assignments"
             },
             {
-                name: "Conduct DE",
-                link: "/PG_Assignments/Conduct_DE/"+id
+                name: "DE",
+                link: "/PG_Assignments/Conduct_DE/"+uniId
             }
         ]
     );
@@ -81,7 +81,7 @@ const ConductDE = () => {
                 }}>
                     <Box style={headerRowStyle}><div style={headerRowDivStyle}>University :</div><div style={headerRowDivStyle}>University of Colombo</div></Box>
                     <Box style={headerRowStyle}><div style={headerRowDivStyle}>Faculty/Institute :</div><div style={headerRowDivStyle}>University of Colombo School of Computing</div></Box>
-                    <Box style={headerRowStyle}><div style={headerRowDivStyle}>PGPR ID :</div><div style={headerRowDivStyle}>{id}</div></Box>
+                    <Box style={headerRowStyle}><div style={headerRowDivStyle}>PGPR ID :</div><div style={headerRowDivStyle}>{uniId}</div></Box>
                     <Box style={headerRowStyle}><div style={headerRowDivStyle}>PGPR Name :</div><div style={headerRowDivStyle}>MSc</div></Box>
                     <Box style={headerRowStyle}><div style={headerRowDivStyle}>Application Start Date :</div><div style={headerRowDivStyle}>12/12/2020</div></Box>
                     <Box style={headerRowStyle}><div style={headerRowDivStyle}>Submission Date :</div><div style={headerRowDivStyle}>01/01/2021</div></Box>

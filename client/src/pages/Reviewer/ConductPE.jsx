@@ -6,7 +6,7 @@ import DiscriptiveDiv from '../../components/DiscriptiveDiv';
 import { useState } from 'react';
 
 const ConductPE = () => {
-    const {id} = useParams();
+    const {uniId} = useParams();
     useSetUserNavigations(
         [
             {
@@ -14,8 +14,8 @@ const ConductPE = () => {
                 link: "/PG_Assignments"
             },
             {
-                name: "Conduct PE",
-                link: "/PG_Assignments/Conduct_PE/"+id
+                name: "PE",
+                link: "/PG_Assignments/Conduct_PE/"+uniId
             }
         ]
     );
@@ -44,7 +44,7 @@ const ConductPE = () => {
             <DiscriptiveDiv description="Desk Evaluation" width='100%' height={newHeight} backgroundColor="#D9D9D9" >
                 <ScrollableDiv width="100%" height="500px">
                     <div>
-                        conduct PE {id}
+                        conduct PE {uniId}
                     </div>
                 </ScrollableDiv>
             </DiscriptiveDiv>

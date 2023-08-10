@@ -27,6 +27,7 @@ import AddUniversity from './pages/QACDirector/AddUniversity';
 import ViewReviewers from './pages/QACDirector/ViewReviewers'
 import CqaOffices from './pages/QACDirector/CqaOffices'
 import {DrawerStateProvider} from './contexts/DrawerStateProvider';
+import EvaluateDE from './pages/Reviewer/EvaluateDE';
 import "./App.css";
 
 /* 
@@ -98,12 +99,16 @@ function App() {
                       <Route path="dashboard" element={<Dashboard/>}/>
                       <Route path="PG_Assignments/">
                         <Route path="" element={<PGAssignments/>} />
-                        <Route path="ViewSer/:id" element={<ViewSer/>} />
+                        <Route path="ViewSer/:uniId" element={<ViewSer/>} />
                         <Route path="Conduct_DE/:uniId">
                           <Route path="" element={<ConductDE/>} />
-                          <Route path=":criteriaId" element={<ViewSer/>} />
+                          <Route path=":criteriaId" element={<EvaluateDE/>} />
                         </Route>
-                        <Route path="Conduct_PE/:uniId" element={<ConductPE/>} />
+                        <Route path="Conduct_PE/" element={<ConductPE/>} >
+                          <Route path=":uniId" element={<ConductPE/>} />
+                          <Route path="Assigned_criteria/:uniId" element={<ConductPE/>} />
+                          <Route path="Assigned_criteria/:uniId/:criteriaId" element={<EvaluateDE/>} />
+                        </Route>
                       </Route>
                       <Route path="SetDate" element={<SetDate/>} />
                       <Route path="SetCriteria" element={<SetCriteria/>} />
