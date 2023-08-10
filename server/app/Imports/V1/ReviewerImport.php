@@ -90,7 +90,7 @@ class ReviewerImport implements ToModel, WithHeadingRow, WithValidation, WithEve
         $row['cv'] = $cvUrl;
 
         $row['status'] = 'active';
-        $row['password'] = $registeringReviewer['password'];
+        $row['password'] = Hash::make($registeringReviewer['password']);
         $row['roles'] = ['reviewer'];
         $row['reviewer_status'] = 'pending';
 
