@@ -50,4 +50,42 @@ class GoogleDriveController extends Controller
             'isFolder' => $isFolder
         ], 200);
     }
+
+    public function checkPermission(Request $request){
+        $url = $request -> url;
+        $DriveManager = new DriveManager();
+        $fileId = $DriveManager -> getFileId($url);
+        $permission = $DriveManager -> getPermissions($fileId);
+        return response() -> json([
+            'permission' => $permission
+        ], 200);
+    }
+
+    public function createFolder(Request $request){
+        $folderName = $request -> folderName;
+        $DriveManager = new DriveManager();
+        $folderId = $DriveManager -> createFolder($folderName);
+
+        return response() -> json([
+            'folderId' => $folderId
+        ], 200);
+    }
+
+    public function copyContent(Request $request){
+        $url = $request -> url;
+        $DriveManager = new DriveManager();
+        $fileId = $DriveManager -> getFileId($url);
+
+        if($fileId == ""){ //copying content is a folder
+            $fileId = $DriveManager -> getFolderId($url);
+            $newFileId = $DriveManager -> copyFolder($fileId);
+        }
+        else{   //a file
+            $newFileId = $DriveManager -> copyFile($fileId);
+        }
+
+        return response() -> json([
+            'newFileId' => $newFileId,
+        ], 200);
+    }
 }
