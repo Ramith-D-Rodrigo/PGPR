@@ -34,19 +34,25 @@ class PostGraduateProgramReviewApplicationController extends Controller
             $pgpr = request() -> query('includePostGraduateProgram');
 
             if($pgpr){
-                $pgprApplications = $pgprApplications -> with('postGraduateProgram');
+                $pgprApplications = $pgprApplications -> with('postGraduateProgram:id,title');
 
                 //faculty
                 $faculty = request() -> query('includeFaculty');
 
                 if($faculty){
-                    $pgprApplications = $pgprApplications -> with(['postGraduateProgram' => ['faculty']]);
+                    $pgprApplications = $pgprApplications -> with(['postGraduateProgram:id,title,faculty_id' => [
+                        'faculty:id,name'
+                    ]]);
 
                     //university
                     $university = request() -> query('includeUniversity');
 
                     if($university){
-                        $pgprApplications = $pgprApplications -> with(['postGraduateProgram' => ['faculty' => ['university']]]);
+                        $pgprApplications = $pgprApplications -> with(['postGraduateProgram:id,title,faculty_id' => [
+                            'faculty:id,name,university_id' => [
+                                'university:id,name'
+                            ]
+                        ]]);
                     }
                 }
             }
