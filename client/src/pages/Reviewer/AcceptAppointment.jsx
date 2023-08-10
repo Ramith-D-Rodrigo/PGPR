@@ -161,7 +161,7 @@ function AcceptAppointment() {
                                         <Button style={{margin:"0 0 15px"}} type='submit' color='primary' variant="contained"
                                             onClick={()=>setAccepted(false)}
                                             >
-                                                cancle
+                                                cancel
                                         </Button>
                                     </Box>
                                 </form>
