@@ -130,7 +130,29 @@ class ProgrammeCoordinatorController extends Controller
      */
     public function show(ProgrammeCoordinator $programmeCoordinator)
     {
-        //
+        //include the related data
+        $academicStaff = request() -> query('includeAcademicStaff');
+
+        if($academicStaff){
+            //check for university side
+            $universitySide = request() -> query('includeUniversitySide');
+            if($universitySide){
+                //check for user
+                $user = request() -> query('includeUser');
+                if($user){
+                    $programmeCoordinator = $programmeCoordinator -> load(['academicStaff' => [
+                        'universitySide' => ['user']
+                        ]
+                    ]);
+                }
+                else{
+                    $programmeCoordinator = $programmeCoordinator -> load(['academicStaff' => ['universitySide']]);
+                }
+            }
+            else{
+                $programmeCoordinator = $programmeCoordinator -> loadMissing('academicStaff');
+            }
+        }
     }
 
     /**
