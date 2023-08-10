@@ -82,7 +82,7 @@ function App() {
             <Route path="ViewPGPrograms" element={<ViewPGPrograms />} />
             <Route path="ViewCoordinators" element={<ViewCoordinators />} />
             {/* Add the route for the coordinator profile */}
-            <Route path="/view/:cid" element={<CoordinatorProfile />} />
+            <Route path="view/:cid" element={<CoordinatorProfile />} />
           </Route>
         </Route>
 
