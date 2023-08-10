@@ -71,9 +71,7 @@ function Standardwise_details() {
                 onChange= {(e) => setCriteriaId(e.target.value)}
                 label="criteria"
               >
-                <MenuItem value="">
-                  <em>None</em>
-                </MenuItem>
+                
                 {
                     criteriaList.map((criteria,index) => (
                         <MenuItem key={index} value={index+1}>{criteria}</MenuItem>

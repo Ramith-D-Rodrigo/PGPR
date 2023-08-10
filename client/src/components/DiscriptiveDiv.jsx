@@ -9,7 +9,7 @@ const DiscriptiveDiv = ({children, ...otherProps}) => {
         userSelect:expand==1? 'none' : 'inherit',
         overflowX:'hidden',
         overflowY:'auto',
-        padding:'0.9rem 10px',
+        padding:'20px 30px',
         ...sx,
         width: width? width : 'inherit',
         height: height? height:'0px',
