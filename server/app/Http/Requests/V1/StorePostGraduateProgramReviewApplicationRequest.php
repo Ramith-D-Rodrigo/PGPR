@@ -36,14 +36,13 @@ class StorePostGraduateProgramReviewApplicationRequest extends FormRequest
         //compare the dean's faculty id with the faculty id of the post graduate program
 
         //get the post graduate program id from the request
-        $postGraduateProgramFacultyID = $this -> post_graduate_program_id;
+        $pgpID = $this -> post_graduate_program_id;
 
-        //create a new post graduate program object
-        $postGraduateProgram = new PostGraduateProgram();
-        $postGraduateProgram -> id = $postGraduateProgramFacultyID;
+        //find the post graduate program
+        $postGraduateProgram = PostGraduateProgram::find($pgpID);
 
         //get the faculty id of the post graduate program
-        $postGraduateProgramFacultyID = $postGraduateProgram -> faculty -> id;
+        $postGraduateProgramFacultyID = $postGraduateProgram -> faculty -> id ?? null;
 
         if($deanFacultyID !== $postGraduateProgramFacultyID){
             return false;

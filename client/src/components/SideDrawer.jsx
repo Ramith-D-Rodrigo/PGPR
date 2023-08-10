@@ -78,14 +78,16 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
 
     const qacDirectorRoutes = [
       {route:"DashBoard",link: "/qac_director/dashboard"},
-      {route:"Add PG Program" ,link: "/qac_director/AddPGProgramPage"},
-      {route:"Add Accounts" ,link: "/qac_director/AddAccounts"},
+      {route:"Universities",link: "/qac_director/universities"},
+      {route:"CQA Offices",link: "/qac_director/cqa_offices"},
+      {route:"Reviewers",link: "/qac_director/reviewers"},
     ]
 
     const qacOfficerRoutes = [
       {route:"DashBoard",link: "/qac_officer/dashboard"},
       {route:"Universities" ,link: "/qac_officer/universities"},
-      //{route:"Import Reviewers" ,link: "/qac_officer/importreviewers"},
+      {route:"CQA Offices" ,link: "/qac_officer/cqa_offices"},
+      {route:"Reviewers" ,link: "/qac_officer/importreviewers"},
   ]
 
     const cqaDirectorRoutes = [

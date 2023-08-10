@@ -16,7 +16,9 @@ class University extends Model
         'fax_no',
         'website',
         'logo',
-        'center_for_quality_assurance_id'
+        'center_for_quality_assurance_id',
+        'quality_assurance_council_director_id',
+        'vice_chancellor_id',
     ];
     //we do not need to add quality_assurance_council_director_id because they are not mass assignable (not in $fillable)
 

@@ -8,6 +8,7 @@ use App\Http\Resources\V1\PostGraduateProgramResource;
 use App\Models\PostGraduateProgram;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\V1\PostGraduateProgramCollection;
+use Illuminate\Support\Facades\Auth;
 
 class PostGraduateProgramController extends Controller
 {
@@ -32,6 +33,8 @@ class PostGraduateProgramController extends Controller
      */
     public function store(StorePostGraduateProgramRequest $request)
     {
+        //add authorized cqa director id to the request
+        $request['added_by_cqa_director_id'] = Auth::user() -> id;
         return new PostGraduateProgramResource(PostGraduateProgram::create($request->validated()));
     }
 

@@ -16,7 +16,7 @@ class InternalQualityAssuranceUnitDirector extends Model
 
     //internal quality assurance unit director is a quality assurance staff
     public function qualityAssuranceStaff(){
-        return $this -> belongsTo(QualityAssuranceStaff::class);
+        return $this -> belongsTo(QualityAssuranceStaff::class, 'id', 'id');
     }
 
     // An IQAUDirector belongs to an IQAU
