@@ -10,9 +10,6 @@ class CenterForQualityAssuranceDirectorService extends QualityAssuranceStaffServ
     public static function create(array $validatedData) : Model {
         //make sure validated data has status field and the roles field
 
-        //add the authorized qac officer id to the validated data
-        $validatedData['created_by'] = Auth::user()->id;
-
         $qualityAssuranceStaff = parent::create($validatedData); //call the parent create function to create the quality assurance staff model
 
         $CQADirector = new CenterForQualityAssuranceDirector();
