@@ -20,14 +20,18 @@ import SetCriteria from './pages/ReviewerChair/SetCriteria';
 import PGAssignments from './pages/Reviewer/PGAssignments';
 import ConductDE from './pages/Reviewer/ConductDE';
 import ConductPE from './pages/Reviewer/ConductPE';
-import ViewUniversities from './pages/QACDirector/ViewUniversities'
-import ViewUniversity from './pages/QACDirector/ViewUniversity'
+import ViewUniversities from './pages/QACDirector/ViewUniversities';
+import ViewUniversity from './pages/QACDirector/ViewUniversity';
 import EditUniversity from './pages/QACDirector/EditUniversity';
 import AddUniversity from './pages/QACDirector/AddUniversity';
-import ViewReviewers from './pages/QACDirector/ViewReviewers'
-import CqaOffices from './pages/QACDirector/CqaOffices'
+import ViewReviewers from './pages/QACDirector/ViewReviewers';
+import CqaOffices from './pages/QACDirector/CqaOffices';
+import Ser from './pages/ProgrammeCoordinator/Ser';
+import SubmitPGPR from './pages/ProgrammeCoordinator/SubmitPGPR';
+import EditSer from './pages/ProgrammeCoordinator/EditSer';
 import {DrawerStateProvider} from './contexts/DrawerStateProvider';
 import "./App.css";
+
 
 /* 
   important: 
@@ -124,11 +128,16 @@ function App() {
                     <Route path="dashboard" element={<Dashboard/>}/>
                   </Route>
                 </Route>
+                
 
+                 {/* programme_coordinator routes */}
                 <Route element={<Authenticate allowedRoles={["programme_coordinator"]}/>}>
                   <Route path="programme_coordinator/">
                     <Route path="" element={<Dashboard/>}/>
                     <Route path="dashboard" element={<Dashboard/>}/>
+                    <Route path="ser" element={<Ser/>}/>
+                    <Route path="submitpgpr" element={<SubmitPGPR/>}/>
+                    <Route path="editser" element={<EditSer/>}/>
                   </Route>
                 </Route>
 
