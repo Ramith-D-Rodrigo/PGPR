@@ -16,7 +16,8 @@ class PostGraduateProgram extends Model
         'faculty_id',
         'added_by_cqa_director_id',
         'edited_by_cqa_director_id',
-        'programme_coordinator_id'
+        'programme_coordinator_id',
+        'is_professional_pg_programme'
     ];
 
     // PostGraduateProgram is offered by a faculty
@@ -40,7 +41,7 @@ class PostGraduateProgram extends Model
     // post graduate programs have many pgprs
     public function postGraduateProgramReviews()
     {
-        return $this->hasMany(PostGraduateProgramReview::class);
+        return $this->hasMany(PostGraduateProgramReview::class, 'post_graduate_program_id', 'id');
     }
 
     // post graduate programs have many post graduate program review applications

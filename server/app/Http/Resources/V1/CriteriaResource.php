@@ -27,6 +27,8 @@ class CriteriaResource extends JsonResource
             $returnArr[Str::camel($key)] = $value;
         }
 
+        $returnArr['standards'] = new StandardCollection($this -> whenLoaded('standards'));
+
         return $returnArr;
     }
 }

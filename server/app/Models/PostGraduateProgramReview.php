@@ -53,7 +53,7 @@ class PostGraduateProgramReview extends Model
   //pgpr has a self evaluation report
     public function selfEvaluationReport()
     {
-        return $this->hasOne(SelfEvaluationReport::class);
+        return $this->hasOne(SelfEvaluationReport::class, 'post_graduate_program_review_id', 'id');
     }
 
   // every pgpr has a final report
@@ -69,7 +69,7 @@ class PostGraduateProgramReview extends Model
   }
 
   //post graduate program review has many post graduate program review applications
-    public function postGraduateProgramReviewApplications(){
+    public function postGraduateProgramReviewApplication(){
         return $this->belongsTo(PostGraduateProgramReviewApplication::class, 'pgpr_application_id', 'id');
     }
 }

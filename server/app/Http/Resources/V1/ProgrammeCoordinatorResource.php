@@ -28,6 +28,9 @@ class ProgrammeCoordinatorResource extends JsonResource
             }
         }
 
+        //related data
+        $returnArr['AcademicStaff'] = new AcademicStaffResource($this -> whenLoaded('academicStaff'));
+        $returnArr['postGraduateProgram'] = new PostgraduateProgramResource($this -> whenLoaded('postGraduateProgram'));
         return $returnArr;
     }
 }

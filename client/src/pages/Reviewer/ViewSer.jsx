@@ -11,7 +11,7 @@ import useDrawerState from '../../hooks/useDrawerState';
 
 
 const ViewSer = () => {
-    const {id} = useParams();
+    const {uniId} = useParams();
     const open = useDrawerState().drawerState.open;
 
     useSetUserNavigations(
@@ -22,7 +22,7 @@ const ViewSer = () => {
             },
             {
                 name: "View SER",
-                link: "/PG_Assignments/ViewSer/"+id
+                link: "/PG_Assignments/ViewSer/"+uniId
             }
         ]
     );
@@ -31,7 +31,7 @@ const ViewSer = () => {
 
     const [expand, setexpand] = useState(8);
 
-    let bodyHeight = open ==true? `${80-expand}%` : `calc( ${80-expand}% - 60px )`;
+    let bodyHeight = open ==true? `${90-expand}%` : `calc( ${90-expand}% - 60px )`;
     const handleClick = ()=>{
         if(expand==8)
         {
@@ -43,17 +43,9 @@ const ViewSer = () => {
     };
     let tableHeight = expand ==8? {} : {height:'300px'};
 
-    function createData(criteria,submitted_standards, y1,y2,y3,y4,y5, Actions) {
-        Actions = Actions.map((action,index) => {
-            
-            let allow = action.allow? {disabled:false} : {disabled:true};
-            if(action.action === 'View')
-            {
-                return <Link key={index} to={action.allow? 'criteria/'+criteria:''}><Button {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button></Link>
-            }
-            
-        });
-        return {criteria, submitted_standards, y1,y2,y3,y4,y5, Actions };
+    function createData(criteria,submitted_standards, y1,y2,y3,y4,y5) {
+        
+        return {criteria, submitted_standards, y1,y2,y3,y4,y5};
     }
 
     const headerRowStyle = {
@@ -63,13 +55,13 @@ const ViewSer = () => {
     const headerRowDivStyle = {width:'50%',textAlign:'left'};
 
     const rows = [
-        createData("Programme Management",'X1/27', "x11","x12","x12", 'x12','x12', [{action:'View',allow:true}]),
-        createData("P. Design and Development",'X1/27', "x11","x12","x12", 'x12','x12', [{action:'View',allow:true}]),
-        createData("Human Physical Res. & LS",'X1/27', "x11","x12","x12", 'x12','x12', [{action:'View',allow:true}]),
-        createData("Teaching Learning Research",'X1/27', "x11","x12","x12", 'x12','x12', [{action:'View',allow:true}]),
-        createData("Programme Evaluation","X1/27", "x11","x12","x12", 'x12','x12', [{action:'View',allow:true}]),
-        createData("Student Assessment & Awards","X1/27", "x11","x12","x12", 'x12','x12', [{action:'View',allow:true}]),
-        createData("Innovative & Healthy Practices","X1/27", "x11","x12","x12", 'x12','x12', [{action:'View',allow:true}]),
+        createData("Programme Management",'X1/27', "x11","x12","x12", 'x12','x12'),
+        createData("P. Design and Development",'X1/27', "x11","x12","x12", 'x12','x12'),
+        createData("Human Physical Res. & LS",'X1/27', "x11","x12","x12", 'x12','x12'),
+        createData("Teaching Learning Research",'X1/27', "x11","x12","x12", 'x12','x12'),
+        createData("Programme Evaluation","X1/27", "x11","x12","x12", 'x12','x12'),
+        createData("Student Assessment & Awards","X1/27", "x11","x12","x12", 'x12','x12'),
+        createData("Innovative & Healthy Practices","X1/27", "x11","x12","x12", 'x12','x12'),
       ];
 
     return (
@@ -80,7 +72,7 @@ const ViewSer = () => {
                 }}>
                     <Box style={headerRowStyle}><div style={headerRowDivStyle}>University :</div><div style={headerRowDivStyle}>University of Colombo</div></Box>
                     <Box style={headerRowStyle}><div style={headerRowDivStyle}>Faculty/Institute :</div><div style={headerRowDivStyle}>University of Colombo School of Computing</div></Box>
-                    <Box style={headerRowStyle}><div style={headerRowDivStyle}>PGPR ID :</div><div style={headerRowDivStyle}>{id}</div></Box>
+                    <Box style={headerRowStyle}><div style={headerRowDivStyle}>PGPR ID :</div><div style={headerRowDivStyle}>{uniId}</div></Box>
                     <Box style={headerRowStyle}><div style={headerRowDivStyle}>PGPR Name :</div><div style={headerRowDivStyle}>MSc</div></Box>
                     <Box style={headerRowStyle}><div style={headerRowDivStyle}>Application Start Date :</div><div style={headerRowDivStyle}>12/12/2020</div></Box>
                     <Box style={headerRowStyle}><div style={headerRowDivStyle}>Submission Date :</div><div style={headerRowDivStyle}>01/01/2021</div></Box>
@@ -101,7 +93,6 @@ const ViewSer = () => {
                                     <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Evidences</b></TableCell>
                                     <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b></b></TableCell>
                                     <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b></b></TableCell>
-                                    <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Actions</b></TableCell>
                                 </TableRow>
                                 <TableRow>
                                     <TableCell style={{backgroundColor:"#D8E6FC",}} align="left"><b></b></TableCell>
@@ -111,7 +102,6 @@ const ViewSer = () => {
                                     <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Y3</b></TableCell>
                                     <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Y4</b></TableCell>
                                     <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Y5</b></TableCell>
-                                    <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b></b></TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -129,7 +119,6 @@ const ViewSer = () => {
                                         <TableCell align="center">{row.y3}</TableCell>
                                         <TableCell align="center">{row.y4}</TableCell>
                                         <TableCell align="center">{row.y5}</TableCell>
-                                        <TableCell align="center">{row.Actions}</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
@@ -137,11 +126,6 @@ const ViewSer = () => {
                     </TableContainer>
                 
             </ScrollableDiv>
-            <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', width: '100%', padding: '20px 0' }}>
-                <Button variant="contained" size="small" style={{width:"300px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>Update Part A, B, D</Button>
-                <Button variant="contained" size="small" style={{width:"300px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>View Standards Wise Details of Desk Review</Button>
-                <Button variant="contained" size="small" style={{width:"300px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>View Summary Details of Criteria Wise</Button>
-            </Box>
         </>
     )
 }
