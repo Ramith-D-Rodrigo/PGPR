@@ -31,7 +31,7 @@ const ViewSer = () => {
 
     const [expand, setexpand] = useState(8);
 
-    let bodyHeight = open ==true? `${80-expand}%` : `calc( ${80-expand}% - 60px )`;
+    let bodyHeight = open ==true? `${90-expand}%` : `calc( ${90-expand}% - 60px )`;
     const handleClick = ()=>{
         if(expand==8)
         {

@@ -21,7 +21,8 @@ class PostGraduateProgramReviewApplication extends Model
         'year_5',
         'y_end',
         'post_graduate_program_id',
-        'quality_assurance_council_officer_id'
+        'quality_assurance_council_officer_id',
+        'status'
     ];
 
     //dean submits many post graduate program review applications (intent letter)

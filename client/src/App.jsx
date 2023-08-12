@@ -29,6 +29,7 @@ import CqaOffices from "./pages/QACDirector/CqaOffices";
 import UpdateABC from "./pages/Reviewer/UpdateABC";
 import Summary_details from "./pages/Reviewer/Summary_details";
 import Standardwise_details from "./pages/Reviewer/Standardwise_details";
+import AcceptAppointment from "./pages/Reviewer/AcceptAppointment";
 import { DrawerStateProvider } from "./contexts/DrawerStateProvider";
 import EvaluateDE from "./pages/Reviewer/EvaluateDE";
 import "./App.css";
@@ -54,6 +55,7 @@ function App() {
             path="initial-password-reset"
             element={<ResetInitialPassword />}
           />
+          <Route path="accept-appointment" element={<AcceptAppointment />} />
           {/*note: note final*/}
           <Route path="login" element={<Login />} />
           <Route path="/" element={<Login />} />

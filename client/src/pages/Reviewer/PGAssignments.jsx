@@ -177,8 +177,8 @@ const pgAssignments = () => {
                 <Box sx={{
                     position:'absolute',margin:'0 auto',left:0,right:0,bottom:0,top:0,
                     display:'flex',flexDirection:'column',justifyContent:'space-around',alignItems:'center',
-                    width:'50%',height:'90%',marginTop:'20px',backgroundColor:'#D9D9D9',
-                    borderRadius:'10px',padding:'20px',boxShadow:'0 0 5px 0px black',
+                    width:'50%',height:'90%',marginTop:'20px',backgroundColor:'#D8E6FC',
+                    borderRadius:'10px',padding:'60px',boxShadow:'0 0 5px 0px black',
                     }}
                 >
                     <Typography variant="h5" gutterBottom component="div" style={{marginRight:'20px'}}>

@@ -2,6 +2,8 @@
 import { Grid, Paper, Box, Typography, Button, CircularProgress, Snackbar,Alert} from '@mui/material'
 import { styled } from '@mui/material/styles';
 import LockIcon from '@mui/icons-material/Lock';
+import PasswordIcon from '@mui/icons-material/Password';
+import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
@@ -11,12 +13,16 @@ import InputLabel from '@mui/material/InputLabel';
 import InputAdornment from '@mui/material/InputAdornment';
 import FormControl from '@mui/material/FormControl';
 import EmailIcon from '@mui/icons-material/Email';
+import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import IconButton from '@mui/material/IconButton';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
+import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined';
 import React from 'react'
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
+import { purple } from '@mui/material/colors';
 //
 import { useState, useEffect, useContext } from "react";
 
@@ -98,6 +104,7 @@ const Login = () => {
         console.log(error.response);
         let { message, errors } =  error.response?.data || "An unknown error occurred";
         console.log(errors);
+        if(message == 'auth.fail') message = "Invalid Credentials"; //"These credentials do not match our records."
         setErrorMsg(message);
         }
     }
@@ -126,7 +133,19 @@ useEffect(() => {
     color: theme.palette.text.secondary,
   }));
 
-    const paperStyle = {padding:20,height:'70vh',width:'600px',margin:"30px auto",borderRadius:"20px"}
+  const ColorButton = styled(Button)(({ theme }) => ({
+    width:"300px",
+    margin:"0 0 15px",
+    borderRadius: "10px",
+    backgroundColor:"#0E3B81",
+    color: theme.palette.getContrastText("#0E3B81"),
+    '&:hover': {
+      backgroundColor: "#104496",
+      // color: "#0b2349",
+    },
+  }));
+
+    const paperStyle = {padding:"80px 60px",height:'85vh',width:'35rem',margin:"30px auto",borderRadius:"20px"}
 
   return (
     <Box sx={{display:"flex",alignItems:"center",height:"100vh",justifyContent:"center"}}>
@@ -137,8 +156,8 @@ useEffect(() => {
         >
           
         <Grid item xs={7} justifyContent={"center"} alignItems={"center"}>
-            <Typography variant="h4" gutterBottom textAlign={"center"}>
-              Quality Assurance Framework for <br/> <span style={{color:"#3f51b5"}}>Postgraduate</span> Programs
+            <Typography  style={{color:"white"}} variant="h4" gutterBottom textAlign={"center"}>
+              Quality Assurance Framework for <br/> <span>Postgraduate</span> Programs
             </Typography>
             <img style={{height:'60vh',width:'60%',margin:"auto"}} src={"https://assets-global.website-files.com/5e8b3356a5a8f5321855bbe7/648c7d9b38164fd8fc587f8a_img-person-form.png"} alt="temporary" />
         </Grid>
@@ -164,7 +183,7 @@ useEffect(() => {
                               id="input-email"
                               startAdornment={
                                 <InputAdornment style={{margin:"15px 10px 20px 0px"}} position="start">
-                                  <EmailIcon fontSize='large' />
+                                  <MailOutlineIcon fontSize='large' />
                                 </InputAdornment>
                               }
                               autoFocus
@@ -183,7 +202,7 @@ useEffect(() => {
                               id="input-password"
                               startAdornment={
                                 <InputAdornment style={{margin:"15px 10px 20px 0px"}} position="start">
-                                  <LockIcon fontSize='large' />
+                                  <PasswordIcon fontSize='large' />
                                 </InputAdornment>
                               }
                               endAdornment={
@@ -193,7 +212,7 @@ useEffect(() => {
                                     onClick={handleClickShowPassword}
                                     onMouseDown={handleMouseDownPassword}
                                   >
-                                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                                    {showPassword ? <VisibilityOffOutlinedIcon /> : <VisibilityOutlinedIcon />}
                                   </IconButton>
                                 </InputAdornment>
                               }
@@ -210,6 +229,12 @@ useEffect(() => {
                             {/* <InputLabel htmlFor="input-with-icon-adornment">Email</InputLabel> */}
                             <InputLabel id="demo-simple-select-standard-label">Role</InputLabel>
                             <Select
+                            style={{margin:"15px 0",textAlign:"left"}}
+                            startAdornment={
+                              <InputAdornment style={{margin:"15px 10px 20px 0px"}} position="start">
+                                <PersonOutlineIcon fontSize='large' />
+                              </InputAdornment>
+                            }
                               labelId="demo-simple-select-standard-label"
                               id="demo-simple-select-standard"
                               value={role}
@@ -231,10 +256,11 @@ useEffect(() => {
                             <FormControlLabel control={<Checkbox defaultChecked value={rememberMe}/>} label="Remember me" />
                           </FormGroup>
                           {/* show errors */}
-                          <Button style={{margin:"0 0 15px"}} type='submit' color='primary' variant="contained" fullWidth
+                          <ColorButton type='submit' variant="contained"
                           >
-                            {loading ? <CircularProgress thickness={6} color='secondary' size={24} /> : 'Sign In'}
-                          </Button>
+                            {loading? "Signing In" : "Sign In"}
+                            {loading ? <CircularProgress style={{margin:'0 0 0 20px',color:'white'}} thickness={5} size={24} /> : ''}
+                          </ColorButton>
                         </form>
                         <Typography style={{marginTop:"15px"}}>
                           <Link href="#" >
