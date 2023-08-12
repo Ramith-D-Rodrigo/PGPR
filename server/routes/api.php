@@ -32,6 +32,10 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     //for now, the routes for all the controllers are defined
     //later we can remove the routes that are not needed
 
+    //route for reviewer import from excel
+    Route::post('reviewers/import', 'ReviewerController@importReviewers');
+    Route::get('reviewers/downloadExcelFile', 'ReviewerController@downloadExcelFile');
+
     //TODO: Renamed route names should reflect on the method names in the controllers
     Route::apiResource('viceChancellors', 'ViceChancellorController');
     Route::apiResource('users', 'UserController');
@@ -62,9 +66,6 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::apiResource('cqaDirectors', 'CenterForQualityAssuranceDirectorController');
     Route::apiResource('centerForQualityAssurances', 'CenterForQualityAssuranceController');
     Route::apiResource('academicStaffs', 'AcademicStaffController');
-
-    //route for reviewer import from excel
-    Route::post('reviewers/import', 'ReviewerController@importReviewers');
 
     //route for google drive file info (for now, only the metadata is returned (testing))
     Route::post('driveFileInfo', 'GoogleDriveController@getFileInfo');
