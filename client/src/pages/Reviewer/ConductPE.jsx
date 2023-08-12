@@ -72,7 +72,7 @@ const ConductPE = () => {
   const finalButtons = [
     {
       title: "View Assigned Criteria",
-      to: `./Assigned_criteria/${decodedPgprId}`,
+      to: `../Assigned_criteria/${decodedPgprId}`,
     },
   ];
 

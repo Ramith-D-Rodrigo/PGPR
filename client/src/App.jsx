@@ -20,6 +20,7 @@ import SetCriteria from "./pages/ReviewerChair/SetCriteria";
 import PGAssignments from "./pages/Reviewer/PGAssignments";
 import ConductDE from "./pages/Reviewer/ConductDE";
 import ConductPE from "./pages/Reviewer/ConductPE";
+import ViewAssignedCriteria from "./pages/Reviewer/ViewAssignedCriteria";
 import ViewUniversities from "./pages/QACDirector/ViewUniversities";
 import ViewUniversity from "./pages/QACDirector/ViewUniversity";
 import EditUniversity from "./pages/QACDirector/EditUniversity";
@@ -126,7 +127,7 @@ function App() {
                     <Route path=":pgprId" element={<ConductPE />} />
                     <Route
                       path="Assigned_criteria/:pgprId"
-                      element={<ConductPE />}
+                      element={<ViewAssignedCriteria />}
                     />
                     <Route
                       path="Assigned_criteria/:pgprId/:criteriaId"
