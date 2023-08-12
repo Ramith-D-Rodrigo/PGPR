@@ -41,7 +41,7 @@ const MainContent = ({open, drawerWidthInput}) => {
 
     drawerWidth = drawerWidthInput;
     return (
-        <Box sx={{display: 'flex', flexDirection: 'column', width: '100%', position: 'relative', minHeight:'100vh',backgroundColor:"#D8E6FC"}}>  
+        <Box sx={{display: 'flex', flexDirection: 'column', width: '100%', position: 'relative', minHeight:'100vh'}}>  
             <Main open={open} style={{position:'relative'}}>
                 {!open && <DrawerHeader/>}
 
