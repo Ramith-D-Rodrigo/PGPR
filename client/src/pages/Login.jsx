@@ -111,6 +111,7 @@ const Login = () => {
   }
 
   useEffect(() => {
+    document.title = "Login | QAF for Postgraduate Programs";
     //redirect if logged in (auth object is not null)
     let from =
       location.state?.from?.pathname || auth?.authRole[0]
@@ -151,10 +152,11 @@ const Login = () => {
   }));
 
   const paperStyle = {
-    padding: "80px 60px",
-    height: "85vh",
+    backgroundColor: "rgb(197 218 251)",
+    padding: "3rem 2rem",
+    // height: "85vh",
     width: "35rem",
-    margin: "30px auto",
+    margin: "auto",
     borderRadius: "20px",
   };
 
@@ -175,38 +177,61 @@ const Login = () => {
         height: "100vh",
         display: "flex",
         alignItems: "center",
+        justifyContent: "center",
       }}
     >
-      <Container
-        sx={{
-          backgroundColor: "#1E3B81",
+      <div
+        style={{
+          backgroundColor: "white",
           display: "flex",
           alignItems: "center",
           height: "auto",
           justifyContent: "center",
+          borderRadius: "20px",
+          padding: "5px",
+          boxShadow: "0px 0px 10px 5px #1f54a5",
         }}
       >
+        <Box justifyContent={"center"} alignItems={"center"}>
+          <Typography
+            style={{ color: "black",fontFamily: "times new roman, serif",margin:"0 20px"}}
+            variant="h4"
+            gutterBottom
+            fontWeight={"semibold"}
+            textAlign={"center"}
+          >
+            Quality Assurance Framework for <br /> <span style={{color:"darkblue"}}>Postgraduate</span>{" "}
+            Programs
+          </Typography>
+          <img
+            style={{ height: "auto", width: "70%", margin: "auto" }}
+            src={
+              "https://www.amaris.com/wp-content/uploads/2020/08/Quality-Assurance-Quality-Control.png"
+            }
+            alt="temporary"
+          />
+        </Box>
         <Box
           sx={{
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            height:'auto',
           }}
         >
-          <Paper elevation={10} style={paperStyle}>
+          <Paper elevation={4} style={paperStyle}>
             <Box
               sx={{
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                height: "100%",
                 width: "100%",
                 justifyContent: "center",
               }}
             >
               {/* <Avatar style={avatarStyles}><LockIcon fontSize={"large"}/></Avatar> */}
-              <Typography style={{ margin: "20px 0" }} variant="h3">
-                Sign In
+              <Typography style={{ margin: "20px 0",color:"#0E3B81" }} variant="h3">
+                SIGN IN
               </Typography>
 
               <form onSubmit={handleLogin}>
@@ -225,7 +250,7 @@ const Login = () => {
                         style={{ margin: "15px 10px 20px 0px" }}
                         position="start"
                       >
-                        <MailOutlineIcon fontSize="large" />
+                        <MailOutlineIcon style={{color:" #404040"}} fontSize="large" />
                       </InputAdornment>
                     }
                     autoFocus
@@ -252,7 +277,7 @@ const Login = () => {
                         style={{ margin: "15px 10px 20px 0px" }}
                         position="start"
                       >
-                        <LockOutlinedIcon fontSize="large" />
+                        <LockOutlinedIcon style={{color:" #404040"}} fontSize="large" />
                       </InputAdornment>
                     }
                     endAdornment={
@@ -263,9 +288,9 @@ const Login = () => {
                           onMouseDown={handleMouseDownPassword}
                         >
                           {showPassword ? (
-                            <VisibilityOffOutlinedIcon />
+                            <VisibilityOffOutlinedIcon style={{color:" #404040"}} />
                           ) : (
-                            <VisibilityOutlinedIcon />
+                            <VisibilityOutlinedIcon style={{color:" #404040"}} />
                           )}
                         </IconButton>
                       </InputAdornment>
@@ -279,13 +304,13 @@ const Login = () => {
                 </FormControl>
 
                 <FormControl
-                  style={{ margin: "15px 0" }}
+                  style={{ margin: "15px 0"}}
                   variant="standard"
                   fullWidth
                   required
                 >
                   {/* <InputLabel htmlFor="input-with-icon-adornment">Email</InputLabel> */}
-                  <InputLabel id="demo-simple-select-standard-label">
+                  <InputLabel style={{color:" #404040"}} id="demo-simple-select-standard-label">
                     Role
                   </InputLabel>
                   <Select
@@ -295,7 +320,7 @@ const Login = () => {
                         style={{ margin: "15px 10px 20px 0px" }}
                         position="start"
                       >
-                        <PersonOutlineIcon fontSize="large" />
+                        <PersonOutlineIcon style={{color:" #404040"}} fontSize="large" />
                       </InputAdornment>
                     }
                     labelId="demo-simple-select-standard-label"
@@ -356,25 +381,8 @@ const Login = () => {
             </Box>
           </Paper>
         </Box>
-        <Box justifyContent={"center"} alignItems={"center"}>
-          <Typography
-            style={{ color: "white" }}
-            variant="h4"
-            gutterBottom
-            textAlign={"center"}
-          >
-            Quality Assurance Framework for <br /> <span>Postgraduate</span>{" "}
-            Programs
-          </Typography>
-          <img
-            style={{ height: "60vh", width: "60%", margin: "auto" }}
-            src={
-              "https://assets-global.website-files.com/5e8b3356a5a8f5321855bbe7/648c7d9b38164fd8fc587f8a_img-person-form.png"
-            }
-            alt="temporary"
-          />
-        </Box>
-      </Container>
+        
+      </div>
     </Container>
   );
 };
