@@ -20,10 +20,10 @@ import {
   IconButton,
   MenuItem,
   Select,
-  Container
+  Container,
 } from "@mui/material";
 import MailOutlineIcon from "@mui/icons-material/MailOutline";
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
@@ -170,143 +170,211 @@ const Login = () => {
   ];
 
   return (
-    <Container sx={{display:"flex",alignItems:"center",height:"100vh",justifyContent:"space-around"}}>
+    <Container
+      sx={{
+        height: "100vh",
+        display: "flex",
+        alignItems: "center",
+      }}
+    >
+      <Container
+        sx={{
+          backgroundColor: "#1E3B81",
+          display: "flex",
+          alignItems: "center",
+          height: "auto",
+          justifyContent: "center",
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Paper elevation={10} style={paperStyle}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                height: "100%",
+                width: "100%",
+                justifyContent: "center",
+              }}
+            >
+              {/* <Avatar style={avatarStyles}><LockIcon fontSize={"large"}/></Avatar> */}
+              <Typography style={{ margin: "20px 0" }} variant="h3">
+                Sign In
+              </Typography>
 
-      <Box sx={{display:"flex",alignItems:"center",height:"100vh",justifyContent:"center"}}>
-        
-        <Paper elevation={10} style = {paperStyle}>
-          <Box sx={{display:"flex",flexDirection:'column',alignItems:"center",height:"100%",width:"100%",justifyContent:"center"}}>
-            
-                {/* <Avatar style={avatarStyles}><LockIcon fontSize={"large"}/></Avatar> */}
-                <Typography style={{margin:"20px 0"}} variant="h3">Sign In</Typography>
-                
-                
-                  
-                <form onSubmit={handleLogin}>
-                  <FormControl style={{margin:"15px 0"}} variant="standard" fullWidth
-                      required>
-                    {/* <InputLabel htmlFor="input-with-icon-adornment">Email</InputLabel> */}
-                    <Input style={{margin:"15px 0"}}
-                      id="input-email"
-                      startAdornment={
-                        <InputAdornment style={{margin:"15px 10px 20px 0px"}} position="start">
-                          <MailOutlineIcon fontSize='large' />
-                        </InputAdornment>
-                      }
-                      autoFocus
-                      autoComplete="off"
-                      type='email'
-                      placeholder='Email'
-                      value={email}
-                      onChange={(e)=>setEmail(e.target.value)}
-                    />
-                  </FormControl>
-
-                  <FormControl style={{margin:"15px 0"}} variant="standard" fullWidth
-                      required>
-                    {/* <InputLabel htmlFor="input-with-icon-adornment">Password</InputLabel> */}
-                    <Input style={{margin:"15px 0"}}
-                      id="input-password"
-                      startAdornment={
-                        <InputAdornment style={{margin:"15px 10px 20px 0px"}} position="start">
-                          <LockOutlinedIcon fontSize='large' />
-                        </InputAdornment>
-                      }
-                      endAdornment={
-                        <InputAdornment position="end">
-                          <IconButton
-                            aria-label="toggle password visibility"
-                            onClick={handleClickShowPassword}
-                            onMouseDown={handleMouseDownPassword}
-                          >
-                            {showPassword ? <VisibilityOffOutlinedIcon /> : <VisibilityOutlinedIcon />}
-                          </IconButton>
-                        </InputAdornment>
-                      }
-                      placeholder='Password'
-                      type={showPassword ? 'text' : 'password'}
-                      fontSize='large'
-                      value={password}
-                      onChange={(e)=>setPassword(e.target.value)}
-                    />
-                  </FormControl>
-
-                  <FormControl style={{margin:"15px 0"}} variant="standard" fullWidth
-                      required>
-                      {/* <InputLabel htmlFor="input-with-icon-adornment">Email</InputLabel> */}
-                      <InputLabel id="demo-simple-select-standard-label">
-                        Role
-                      </InputLabel>
-                      <Select
-                        style={{ margin: "15px 0", textAlign: "left" }}
-                        startAdornment={
-                          <InputAdornment
-                            style={{ margin: "15px 10px 20px 0px" }}
-                            position="start"
-                          >
-                            <PersonOutlineIcon fontSize="large" />
-                          </InputAdornment>
-                        }
-                        labelId="demo-simple-select-standard-label"
-                        id="demo-simple-select-standard"
-                        value={role}
-                        onChange={handleChange}
-                        label="Role"
+              <form onSubmit={handleLogin}>
+                <FormControl
+                  style={{ margin: "15px 0" }}
+                  variant="standard"
+                  fullWidth
+                  required
+                >
+                  {/* <InputLabel htmlFor="input-with-icon-adornment">Email</InputLabel> */}
+                  <Input
+                    style={{ margin: "15px 0" }}
+                    id="input-email"
+                    startAdornment={
+                      <InputAdornment
+                        style={{ margin: "15px 10px 20px 0px" }}
+                        position="start"
                       >
-                        {allUserTypes.map((userType, index) => (
-                          <MenuItem value={userType} key={index}>
-                            {userType}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                    <FormGroup style={{ margin: "20px 0 0" }}>
-                      <FormControlLabel
-                        control={<Checkbox defaultChecked value={rememberMe} />}
-                        label="Remember me"
-                      />
-                    </FormGroup>
-                    {/* show errors */}
-                    <ColorButton type="submit" variant="contained" fullWidth>
-                      {loading? "Signing In" : "Sign In"}
-                      {loading ? <CircularProgress style={{margin:'0 0 0 20px',color:'white'}} thickness={5} size={24} /> : ''}
-                    </ColorButton>
-                </form>
-                <Typography style={{marginTop:"15px"}}>
-                  <Link href="#" >
-                    Forgot password ?
-                  </Link>
-                </Typography >
-                <Snackbar
-                    open={errorMsg =="" ? false : true}
-                    anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-                    onClose={() => setErrorMsg("")}
-                >
-                    <Alert onClose={() => setErrorMsg("")} severity="error">
-                        {errorMsg}
-                    </Alert>
-                </Snackbar>
-                <Snackbar
-                    open={success}
-                    autoHideDuration={1000}
-                    onClose={() => setSuccess(false)}
-                    anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-                >
-                    <Alert onClose={() => setSuccess(false)} severity="success">
-                        Login Successfull!
-                    </Alert>
-                </Snackbar>
-            
-          </Box>
-        </Paper>
+                        <MailOutlineIcon fontSize="large" />
+                      </InputAdornment>
+                    }
+                    autoFocus
+                    autoComplete="off"
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </FormControl>
 
-      </Box>
-      <Box justifyContent={"center"} alignItems={"center"}>
-          <Typography  style={{color:"white"}} variant="h4" gutterBottom textAlign={"center"}>
-            Quality Assurance Framework for <br/> <span>Postgraduate</span> Programs
+                <FormControl
+                  style={{ margin: "15px 0" }}
+                  variant="standard"
+                  fullWidth
+                  required
+                >
+                  {/* <InputLabel htmlFor="input-with-icon-adornment">Password</InputLabel> */}
+                  <Input
+                    style={{ margin: "15px 0" }}
+                    id="input-password"
+                    startAdornment={
+                      <InputAdornment
+                        style={{ margin: "15px 10px 20px 0px" }}
+                        position="start"
+                      >
+                        <LockOutlinedIcon fontSize="large" />
+                      </InputAdornment>
+                    }
+                    endAdornment={
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={handleClickShowPassword}
+                          onMouseDown={handleMouseDownPassword}
+                        >
+                          {showPassword ? (
+                            <VisibilityOffOutlinedIcon />
+                          ) : (
+                            <VisibilityOutlinedIcon />
+                          )}
+                        </IconButton>
+                      </InputAdornment>
+                    }
+                    placeholder="Password"
+                    type={showPassword ? "text" : "password"}
+                    fontSize="large"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                </FormControl>
+
+                <FormControl
+                  style={{ margin: "15px 0" }}
+                  variant="standard"
+                  fullWidth
+                  required
+                >
+                  {/* <InputLabel htmlFor="input-with-icon-adornment">Email</InputLabel> */}
+                  <InputLabel id="demo-simple-select-standard-label">
+                    Role
+                  </InputLabel>
+                  <Select
+                    style={{ margin: "15px 0", textAlign: "left" }}
+                    startAdornment={
+                      <InputAdornment
+                        style={{ margin: "15px 10px 20px 0px" }}
+                        position="start"
+                      >
+                        <PersonOutlineIcon fontSize="large" />
+                      </InputAdornment>
+                    }
+                    labelId="demo-simple-select-standard-label"
+                    id="demo-simple-select-standard"
+                    value={role}
+                    onChange={handleChange}
+                    label="Role"
+                  >
+                    {allUserTypes.map((userType, index) => (
+                      <MenuItem value={userType} key={index}>
+                        {userType}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <FormGroup style={{ margin: "20px 0 0" }}>
+                  <FormControlLabel
+                    control={<Checkbox defaultChecked value={rememberMe} />}
+                    label="Remember me"
+                  />
+                </FormGroup>
+                {/* show errors */}
+                <ColorButton type="submit" variant="contained" fullWidth>
+                  {loading ? "Signing In" : "Sign In"}
+                  {loading ? (
+                    <CircularProgress
+                      style={{ margin: "0 0 0 20px", color: "white" }}
+                      thickness={5}
+                      size={24}
+                    />
+                  ) : (
+                    ""
+                  )}
+                </ColorButton>
+              </form>
+              <Typography style={{ marginTop: "15px" }}>
+                <Link href="#">Forgot password ?</Link>
+              </Typography>
+              <Snackbar
+                open={errorMsg == "" ? false : true}
+                anchorOrigin={{ vertical: "top", horizontal: "center" }}
+                onClose={() => setErrorMsg("")}
+              >
+                <Alert onClose={() => setErrorMsg("")} severity="error">
+                  {errorMsg}
+                </Alert>
+              </Snackbar>
+              <Snackbar
+                open={success}
+                autoHideDuration={1000}
+                onClose={() => setSuccess(false)}
+                anchorOrigin={{ vertical: "top", horizontal: "center" }}
+              >
+                <Alert onClose={() => setSuccess(false)} severity="success">
+                  Login Successfull!
+                </Alert>
+              </Snackbar>
+            </Box>
+          </Paper>
+        </Box>
+        <Box justifyContent={"center"} alignItems={"center"}>
+          <Typography
+            style={{ color: "white" }}
+            variant="h4"
+            gutterBottom
+            textAlign={"center"}
+          >
+            Quality Assurance Framework for <br /> <span>Postgraduate</span>{" "}
+            Programs
           </Typography>
-          <img style={{height:'60vh',width:'60%',margin:"auto"}} src={"https://assets-global.website-files.com/5e8b3356a5a8f5321855bbe7/648c7d9b38164fd8fc587f8a_img-person-form.png"} alt="temporary" />
-      </Box>
+          <img
+            style={{ height: "60vh", width: "60%", margin: "auto" }}
+            src={
+              "https://assets-global.website-files.com/5e8b3356a5a8f5321855bbe7/648c7d9b38164fd8fc587f8a_img-person-form.png"
+            }
+            alt="temporary"
+          />
+        </Box>
+      </Container>
     </Container>
   );
 };
