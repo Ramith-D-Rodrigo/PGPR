@@ -158,6 +158,17 @@ const Login = () => {
     borderRadius: "20px",
   };
 
+  const allUserTypes = [
+    "reviewer",
+    "programme_coordinator",
+    "iqau_director",
+    "cqa_director",
+    "qac_director",
+    "qac_officer",
+    "dean/director",
+    "vice_chancellor",
+  ];
+
   return (
     <Box
       sx={{
@@ -317,20 +328,11 @@ const Login = () => {
                         onChange={handleChange}
                         label="Role"
                       >
-                        <MenuItem value={"reviewer"}>Reviewer</MenuItem>
-                        <MenuItem value={"programme_coordinator"}>
-                          Programme Coordinator
-                        </MenuItem>
-                        <MenuItem value={"iqau_director"}>
-                          IQAU Director
-                        </MenuItem>
-                        <MenuItem value={"cqa_director"}>CQA Director</MenuItem>
-                        <MenuItem value={"qac_director"}>QAC Director</MenuItem>
-                        <MenuItem value={"qac_officer"}>QAC Officer</MenuItem>
-                        <MenuItem value={"dean"}>Director/Dean</MenuItem>
-                        <MenuItem value={"vice_chancellor"}>
-                          Vice Chancellor
-                        </MenuItem>
+                        {allUserTypes.map((userType, index) => (
+                          <MenuItem value={userType} key={index}>
+                            {userType}
+                          </MenuItem>
+                        ))}
                       </Select>
                     </FormControl>
                     <FormGroup style={{ margin: "20px 0 0" }}>
