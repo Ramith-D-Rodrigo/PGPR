@@ -84,6 +84,8 @@ class GoogleDriveController extends Controller
             $newFileId = $DriveManager -> copyFile($fileId);
         }
 
+        $DriveManager -> removePermissionIdWise($newFileId, 'anyoneWithLink'); //remove public access
+
         return response() -> json([
             'newFileId' => $newFileId,
         ], 200);
