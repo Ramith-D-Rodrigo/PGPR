@@ -158,6 +158,17 @@ const Login = () => {
     borderRadius: "20px",
   };
 
+  const allUserTypes = [
+    "reviewer",
+    "programme_coordinator",
+    "iqau_director",
+    "cqa_director",
+    "qac_director",
+    "qac_officer",
+    "dean/director",
+    "vice_chancellor",
+  ];
+
   return (
     <Container sx={{display:"flex",alignItems:"center",height:"100vh",justifyContent:"space-around"}}>
 
@@ -237,26 +248,44 @@ const Login = () => {
                       onChange={handleChange}
                       label="Role"
                     >
-                      <MenuItem value={"reviewer"}>Reviewer</MenuItem>
-                      <MenuItem value={"programme_coordinator"}>Programme Coordinator</MenuItem>
-                      <MenuItem value={"iqau_director"}>IQAU Director</MenuItem>
-                      <MenuItem value={"cqa_director"}>CQA Director</MenuItem>
-                      <MenuItem value={"qac_director"}>QAC Director</MenuItem>
-                      <MenuItem value={"qac_officer"}>QAC Officer</MenuItem>
-                      <MenuItem value={"dean"}>Director/Dean</MenuItem>
-                      <MenuItem value={"vice_chancellor"}>Vice Chancellor</MenuItem>
-                    </Select>
-
-                  </FormControl>
-                  <FormGroup style={{margin:"20px 0 0"}}>
-                    <FormControlLabel control={<Checkbox defaultChecked value={rememberMe}/>} label="Remember me" />
-                  </FormGroup>
-                  {/* show errors */}
-                  <ColorButton type='submit' variant="contained" fullWidth
-                  >
-                    {loading? "Signing In" : "Sign In"}
-                    {loading ? <CircularProgress style={{margin:'0 0 0 20px',color:'white'}} thickness={5} size={24} /> : ''}
-                  </ColorButton>
+                      {/* <InputLabel htmlFor="input-with-icon-adornment">Email</InputLabel> */}
+                      <InputLabel id="demo-simple-select-standard-label">
+                        Role
+                      </InputLabel>
+                      <Select
+                        style={{ margin: "15px 0", textAlign: "left" }}
+                        startAdornment={
+                          <InputAdornment
+                            style={{ margin: "15px 10px 20px 0px" }}
+                            position="start"
+                          >
+                            <PersonOutlineIcon fontSize="large" />
+                          </InputAdornment>
+                        }
+                        labelId="demo-simple-select-standard-label"
+                        id="demo-simple-select-standard"
+                        value={role}
+                        onChange={handleChange}
+                        label="Role"
+                      >
+                        {allUserTypes.map((userType, index) => (
+                          <MenuItem value={userType} key={index}>
+                            {userType}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                    <FormGroup style={{ margin: "20px 0 0" }}>
+                      <FormControlLabel
+                        control={<Checkbox defaultChecked value={rememberMe} />}
+                        label="Remember me"
+                      />
+                    </FormGroup>
+                    {/* show errors */}
+                    <ColorButton type="submit" variant="contained">
+                      {loading? "Signing In" : "Sign In"}
+                      {loading ? <CircularProgress style={{margin:'0 0 0 20px',color:'white'}} thickness={5} size={24} /> : ''}
+                    </ColorButton>
                 </form>
                 <Typography style={{marginTop:"15px"}}>
                   <Link href="#" >
