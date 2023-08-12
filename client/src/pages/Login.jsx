@@ -189,7 +189,7 @@ const Login = () => {
           justifyContent: "center",
           borderRadius: "20px",
           padding: "5px",
-          boxShadow: "0px 0px 10px 5px #1f54a5",
+          boxShadow: "0px 0px 10px 5px #4c7cca",
         }}
       >
         <Box justifyContent={"center"} alignItems={"center"}>
