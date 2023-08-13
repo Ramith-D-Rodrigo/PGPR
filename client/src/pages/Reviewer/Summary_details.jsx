@@ -49,9 +49,12 @@ function Summary_details() {
   return (
     <>
       <Box sx={{display:'flex',flexDirection:'column',justifyContent:'space-between',maxHeight:'100%',height:'100%',alignItems:'center',margin:'10px'}}>
-        <Box sx={{display:'flex',flexDirection:'column',justifyContent:'center',width:"100%",alignItems:"center",margin:'10px'}}>
+        <Box sx={{display:'flex',flexDirection:'column',justifyContent:'center',width:"100%",alignItems:"center",margin:'2rem 0 0'}}>
             <Typography variant="h5" component="h2" gutterBottom>
                 Criteria Wise Summary Details
+            </Typography>
+            <Typography variant="body2" component="h2" gutterBottom>
+                Desk Evaluation
             </Typography>
             <FormControl style={{margin:"10px 0",width:"50%"}} variant="standard" sx={{ m: 1, minWidth: 120 }}>
               <InputLabel id="select-reviewer">Reviewer</InputLabel>
@@ -70,7 +73,7 @@ function Summary_details() {
               </Select>
             </FormControl>
         </Box>
-        <DiscriptiveDiv description="Desk Evaluation"  width='100%' height="90%" backgroundColor="#D9D9D9" >
+        
           <TableContainer component={Paper} style={{maxHeight:'500%'}}>
               <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table">
                   <TableHead>
@@ -110,7 +113,6 @@ function Summary_details() {
               </Typography>
               <Button variant="contained" color="primary" style={{margin:'0 10px'}}>Submit the Desk Evaluation</Button>
           </Box>
-        </DiscriptiveDiv>
       </Box>
     </>
   )
