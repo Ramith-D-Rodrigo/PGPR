@@ -61,7 +61,6 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
 
     //route for reviewer import from excel
     Route::post('reviewers/import', 'ReviewerController@importReviewers')->middleware('auth');
-
     //ROUTES OF THE REVIEWER ACTOR
     //get the appointment declaration
     Route::get('reviewers/download-declaration', 'ReviewerController@downloadRoleAcceptanceDeclarationLetter')->middleware('auth');
@@ -79,7 +78,10 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::post('reviewers/reject-pgpr-assignment', 'ReviewerController@rejectPGPRAssignment')->middleware('auth');
     //display reviewer profile
     Route::get('reviewers/display-reviewer-profile', 'ReviewerController@displayReviewerProfile')->middleware('auth');
-
+    //display desk evaluations of user
+    Route::get('/reviewers/reviewer-desk-evaluations', 'ReviewerController@reviewerDeskEvaluations')->middleware('auth');
+    //display proper evaluations of user
+    Route::get('/reviewers/reviewer-proper-evaluations', 'ReviewerController@reviewerProperEvaluations')->middleware('auth');
     // api resource => this must come here otherwise the declaration doc will have problems
     Route::apiResource('reviewers', 'ReviewerController')->middleware('auth');
 
