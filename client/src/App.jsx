@@ -27,6 +27,7 @@ import EditUniversity from "./pages/QACDirector/EditUniversity";
 import AddUniversity from "./pages/QACDirector/AddUniversity";
 import ViewReviewers from "./pages/QACDirector/ViewReviewers";
 import CqaOffices from "./pages/QACDirector/CqaOffices";
+import ReviewerDashboard from "./pages/Reviewer/ReviewerDashboard";
 import UpdateABC from "./pages/Reviewer/UpdateABC";
 import Summary_details from "./pages/Reviewer/Summary_details";
 import Standardwise_details from "./pages/Reviewer/Standardwise_details";
@@ -105,8 +106,8 @@ function App() {
 
             <Route element={<Authenticate allowedRoles={["reviewer"]} />}>
               <Route path="reviewer/">
-                <Route path="" element={<Dashboard />} />
-                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="" element={<ReviewerDashboard />} />
+                <Route path="dashboard" element={<ReviewerDashboard />} />
                 <Route path="PG_Assignments/">
                   <Route path="" element={<PGAssignments />} />
                   <Route path="ViewSer/:uniId" element={<ViewSer />} />
