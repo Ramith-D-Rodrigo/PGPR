@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Filters\V1\UniversityFilter;
+use App\Http\Resources\V1\FacultyCollection;
 use App\Models\University;
 use App\Http\Requests\V1\StoreUniversityRequest;
 use App\Http\Requests\V1\UpdateUniversityRequest;
@@ -142,5 +143,20 @@ class UniversityController extends Controller
     public function destroy(University $university)
     {
         //
+    }
+
+    //get faculties of a university
+    public function faculties(University $university)
+    {
+        try{
+            $faculties = $university -> faculties() -> paginate();
+            return new FacultyCollection($faculties);
+        }
+        catch(\Exception $e){
+            return response()->json([
+                'message' => 'Could not get faculties',
+                'error' => $e -> getMessage()
+            ], 500);
+        }
     }
 }

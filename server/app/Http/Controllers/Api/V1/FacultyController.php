@@ -9,6 +9,7 @@ use App\Models\Faculty;
 use App\Http\Requests\V1\StoreFacultyRequest;
 use App\Http\Requests\V1\UpdateFacultyRequest;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\V1\PostGraduateProgramCollection;
 use App\Models\InternalQualityAssuranceUnit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -208,5 +209,22 @@ class FacultyController extends Controller
     public function destroy(Faculty $faculty)
     {
         //
+    }
+
+
+    //get the programmes of a faculty
+    public function postGraduateProgrammes(Faculty $faculty)
+    {
+        try{
+            $postGraduateProgrammes = $faculty -> postGraduatePrograms() -> paginate();
+
+            return new PostGraduateProgramCollection($postGraduateProgrammes);
+        }
+        catch(\Exception $e){
+            return response() -> json([
+                'message' => 'Failed to retrieve the post graduate programmes',
+                'error' => $e -> getMessage()
+            ], 500);
+        }
     }
 }
