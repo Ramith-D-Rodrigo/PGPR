@@ -5,7 +5,7 @@ import ScrollableDiv from '../../components/ScrollableDiv';
 import DiscriptiveDiv from '../../components/DiscriptiveDiv';
 import { useState } from 'react';
 import Button from '@mui/material/Button';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box } from '@mui/material';
+import { Grid,Typography,Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box } from '@mui/material';
 import { Link } from 'react-router-dom';
 import useDrawerState from '../../hooks/useDrawerState';
 
@@ -63,6 +63,19 @@ const ConductDE = () => {
 
     const headerRowDivStyle = {width:'50%',textAlign:'left'};
 
+    const headerInfo = [
+        { label: "University:", value: "University of Colombo" },
+        {
+          label: "Faculty/Institute:",
+          value: "University of Colombo School of Computing",
+        },
+        { label: "PGPR ID:", value: uniId },
+        { label: "PGPR Name:", value: "MSc" },
+        { label: "Application Start Date:", value: "12/12/2020" },
+        { label: "Submission Date:", value: "01/01/2021" },
+        { label: "Program Coordinator:", value: "Mr. Smantha Karunanayake" },
+      ];
+
     const rows = [
         createData("Programme Management",'X1/27', "x11","x12","x12", 'x12','x12', [{action:'Evaluate',allow:true}]),
         createData("P. Design and Development",'X1/27', "x11","x12","x12", 'x12','x12', [{action:'Evaluate',allow:true}]),
@@ -75,7 +88,7 @@ const ConductDE = () => {
 
     return (
         <>
-            <DiscriptiveDiv onClick={handleClick} expand={expand==8? 1:2} description="Reviewer" width='100%' height={`${expand}%`} backgroundColor="#D9D9D9" >
+            {/* <DiscriptiveDiv onClick={handleClick} expand={expand==8? 1:2} description="Reviewer" width='100%' height={`${expand}%`} backgroundColor="#D9D9D9" >
                 <Box sx={{ 
                     display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' 
                 }}>
@@ -87,12 +100,29 @@ const ConductDE = () => {
                     <Box style={headerRowStyle}><div style={headerRowDivStyle}>Submission Date :</div><div style={headerRowDivStyle}>01/01/2021</div></Box>
                     <Box style={headerRowStyle}><div style={headerRowDivStyle}>Program Coordinator :</div><div style={headerRowDivStyle}>Mr. Smantha Karunanayake</div></Box>
                 </Box>
+            </DiscriptiveDiv> */}
+            <DiscriptiveDiv
+                description="chair Reviewer"
+                width="100%"
+                height="auto"
+                backgroundColor="#D8E6FC"
+            >
+                <Grid container spacing={2}>
+                {headerInfo.map((infoItem, index) => (
+                    <Grid item xs={6} sm={3} key={index}>
+                    <Typography align='left' variant="subtitle1">
+                        <b>{infoItem.label}</b>
+                    </Typography>
+                    <Typography align='left'>{infoItem.value}</Typography>
+                    </Grid>
+                ))}
+                </Grid>
             </DiscriptiveDiv>
             
-            <DiscriptiveDiv description="Desk Evaluation" width='100%' height={newHeight} backgroundColor="#D9D9D9" >
+            <DiscriptiveDiv description="Desk Evaluation" width='100%' height="auto" backgroundColor="white" >
                 {/* <ScrollableDiv sx={{marginTop:'10px'}} width='100%' height={bodyHeight} backgroundColor="#D9D9D9" > */}
                     
-                    <TableContainer component={Paper} style={tableHeight}>
+                    <TableContainer component={Paper} style={{height:"auto"}}>
                         <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table">
                             <TableHead>
                                 <TableRow>
@@ -141,11 +171,11 @@ const ConductDE = () => {
                 {/* </ScrollableDiv> */}
                 
             </DiscriptiveDiv>
-            <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', width: '100%', padding: '20px 0' }}>
+            <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', width: '100%', padding: '20px 0',height:"20%" }}>
                     <Link to = {`../UpdateABC/${uniId}`}><Button variant="contained" size="small" style={{width:"300px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>Update Part A, B, D</Button></Link>
                     <Link to = {`../Standardwise_details/${uniId}`}><Button variant="contained" size="small" style={{width:"300px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>View Standards Wise Details of Desk Review</Button></Link>
                     <Link to = {`../Summary_details/${uniId}`}><Button variant="contained" size="small" style={{width:"300px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>View Summary Details of Criteria Wise</Button></Link>
-                </Box>
+            </Box>
         </>
     )
 }
