@@ -1,6 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import Dashboard from "./components/Dashboard";
-import Login from "./components/Login";
+import Login from "./pages/Login";
 import Universities from "./pages/QACOfficer/Universities";
 import ViewSer from "./pages/Reviewer/ViewSer";
 import MainLayout from "./components/MainLayout";

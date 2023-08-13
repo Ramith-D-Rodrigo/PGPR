@@ -8,7 +8,9 @@
 
 #root{
     min-height: 100vh;
-    background-color: #173d7a;
+    background-image: linear-gradient(to right, #6194e7, #adcbfc);
+    /* background-color: #6a98e2; */
+    /* background-color: rgb(197 218 251); */
     /* #041734 */
     /* #D8E6FC */
 }
