@@ -65,7 +65,7 @@ const Popup = () => {
             <br></br>
          <div style={{marginLeft:'80px'}} >   
         <Button variant="contained" color="error" style={{ marginRight: '10px' }}>
-          Submit SER
+          Submit 
         </Button>
             <button onClick={togglePopup} variant="contained" color="error" style={{ marginRight: '10px' }}>Close</button>
             </div>
