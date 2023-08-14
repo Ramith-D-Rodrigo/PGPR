@@ -18,9 +18,11 @@ return new class extends Migration
             $table->json("fax_no") -> nullable();
             $table->string("email")-> nullable() -> unique();
             $table->foreignId('center_for_quality_assurance_director_id') -> nullable();
+            $table->foreignId('university_id') -> nullable();
 
             //foreign keys
             $table -> foreign('center_for_quality_assurance_director_id', 'cqa_cqad') -> references('id') -> on('center_for_quality_assurance_directors');
+            $table -> foreign('university_id' ) -> references('id') -> on('universities');
         });
 
         //alter university table to add foreign key

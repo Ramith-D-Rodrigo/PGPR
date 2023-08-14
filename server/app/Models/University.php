@@ -23,22 +23,36 @@ class University extends Model
     //we do not need to add quality_assurance_council_director_id because they are not mass assignable (not in $fillable)
 
     //university has many university sides
-    public function universitySides(){
-        return $this->hasMany(UniversitySide::class);
+    public function universitySides()
+    {
+        return $this->hasMany(UniversitySide::class, 'university_id', 'id');
     }
 
     //a university has many faculties
-    public function faculties(){
-        return $this->hasMany(Faculty::class);
+    public function faculties()
+    {
+        return $this->hasMany(Faculty::class, 'university_id', 'id');
+    }
+
+    public function viceChancellor()
+    {
+        return $this->hasOne(ViceChancellor::class ,'university_id', 'id')->latestOfMany();
     }
 
     //a university has one center for quality assurance
-    public function centerForQualityAssurance(){
-        return $this->belongsTo(CenterForQualityAssurance::class);
+    public function centerForQualityAssurance()
+    {
+        return $this->hasOne(CenterForQualityAssurance::class);
     }
 
     //a university is created by a quality assurance council director
-    public function createdQACDirector(){
-        return $this->belongsTo(QualityAssuranceCouncilDirector::class);
+    public function createdQACDirector()
+    {
+        return $this->belongsTo(QualityAssuranceCouncilDirector::class, 'quality_assurance_council_director_id', 'id');
     }
+
+    //a university has one vice chancellor
+    // public function viceChancellor(){
+    //     return $this->belongsTo(ViceChancellor::class, 'vice_chancellor_id', 'id');
+    // }
 }

@@ -2,10 +2,11 @@
 
 namespace Database\Factories;
 
+use App\Models\University;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\University>
+ * @extends Factory<University>
  */
 class UniversityFactory extends Factory
 {
@@ -18,6 +19,13 @@ class UniversityFactory extends Factory
     {
         return [
             //
+            'name' => fake()->name(),
+            'address' => fake()->address(),
+            'website' => fake()->url(),
+            'contact_no' => json_encode([fake()->phoneNumber()]),
+            'fax_no' => json_encode([fake()->e164PhoneNumber()]),
+            'center_for_quality_assurance_id' => null, // null for now
+            'quality_assurance_council_director_id' => null, // null for now
         ];
     }
 }

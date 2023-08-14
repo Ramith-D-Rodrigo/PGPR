@@ -41,10 +41,15 @@ class SelfEvaluationReportResource extends JsonResource
         //lazy loaded relations
         $returnArr['postGraduateProgramReview'] = new PostGraduateProgramReviewResource($this -> whenLoaded('postGraduateProgramReview'));
 
-        //find the standards that are applicable to this SER of the pgp
-        $slqf_level = $returnArr['postGraduateProgramReview'] -> postGraduateProgram -> slqf_level;
-        //get all the standards that have this slqf level (or have the 'all' option)
-        $standards = StandardService::getApplicableStandards($slqf_level, false);
+        //get the slqf level of the pgg (we cannot use returnArr['postGraduateProgramReview'] -> postGraduateProgram -> slqf_level because it is not loaded yet)
+        //first get the pgp of this SER
+        $pgp = $this -> postGraduateProgramReview -> postGraduateProgram;
+        $slqf_level = $pgp -> slqf_level;
+        $isProfessionalPGProgramme = $pgp -> is_professional_pg_programme;
+
+        //get the standards that are applicable to this SER
+        $standards = StandardService::getApplicableStandards($slqf_level, $isProfessionalPGProgramme);
+
 
         //load the criteria and standards that is applicable to this SER
         $returnArr['criterias'] = new CriteriaCollection(Criteria::with(['standards' => function($query) use ($standards){

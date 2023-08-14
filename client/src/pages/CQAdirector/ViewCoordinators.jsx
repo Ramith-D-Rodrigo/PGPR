@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import MainContent from "../../components/MainContent";
-import ScrollableDiv from "../../components/ScrollableDiv";
 import useSetUserNavigations from '../../hooks/useSetUserNavigations';
 import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Avatar } from '@mui/material';
 import { Link } from "react-router-dom";
@@ -134,7 +133,6 @@ const Coordinators = () => {
   };
 
   return (
-    <ScrollableDiv height="600px">
       <div className="max-w-6xl mx-auto p-6 bg-white rounded-md mt-6">
         <h2 className="text-2xl font-bold text-center">View Program Coordinators/Dean (IQAU Director) </h2>
         <hr className="border-t-2 border-black my-4 opacity-50" />
@@ -192,7 +190,6 @@ const Coordinators = () => {
           </Button>
         </div>
       </div>
-    </ScrollableDiv>
   );
 };
 

@@ -42,7 +42,7 @@ import AcceptAppointment from "./pages/Reviewer/AcceptAppointment";;
 import { DrawerStateProvider } from "./contexts/DrawerStateProvider";
 import EvaluateDE from "./pages/Reviewer/EvaluateDE";
 import "./App.css";
-
+import CreateAccounts from './pages/QACOfficer/CreateAccounts';
 
 /* 
   important: 
@@ -53,8 +53,10 @@ import "./App.css";
 */
 
 function App() {
+
   return (
     <Routes>
+
       <Route path="/">
         {/* guest routes */}
         <Route path="unauthorized" element={<Unauthorized />}></Route>
@@ -84,6 +86,7 @@ function App() {
                 <Route path="" element={<Dashboard />} />
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="universities" element={<Universities />} />
+                <Route path="createAccounts/" element={<CreateAccounts/>} />
               </Route>
             </Route>
 
@@ -175,6 +178,7 @@ function App() {
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="SubmitIntent" element={<SubmitIntent />} />
                 <Route path="SubmitConsent" element={<SubmitConsent />} />
+                <Route path="pgprApplication" element={<PGPRApplication/>}/>
               </Route>
             </Route>
 

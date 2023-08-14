@@ -1,7 +1,6 @@
 import React from 'react';
 import Form from '../../components/Form';
 import MainContent from '../../components/MainContent';
-import ScrollableDiv from '../../components/ScrollableDiv';
 import useSetUserNavigations from '../../hooks/useSetUserNavigations';
 
 
@@ -30,7 +29,7 @@ const AddAccounts = () => {
 
   return (
    
-      <ScrollableDiv height="600px">
+      
         <Form
           topic="Create Account for Program Coordinator/Director/Dean"
           fields={[
@@ -50,7 +49,6 @@ const AddAccounts = () => {
           onCancel={handleCancel}
           onSubmit={handleSubmit}
         />
-      </ScrollableDiv>
  
   );
 };

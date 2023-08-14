@@ -27,6 +27,9 @@ class PostGraduateProgramReviewApplicationResource extends JsonResource
             $returnArr[Str::camel($key)] = $value;
         }
 
+        //related data
+        $returnArr['postGraduateProgram'] = new PostGraduateProgramResource($this -> whenLoaded('postGraduateProgram'));
+
         return $returnArr;
     }
 }
