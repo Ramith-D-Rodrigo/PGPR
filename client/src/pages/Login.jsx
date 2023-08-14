@@ -161,14 +161,15 @@ const Login = () => {
   };
 
   const allUserTypes = [
-    "reviewer",
-    "programme_coordinator",
-    "iqau_director",
-    "cqa_director",
-    "qac_director",
-    "qac_officer",
-    "dean/director",
-    "vice_chancellor",
+    {name:"Reviewer",value:"reviewer"},
+    {name:"CQA Officer",value:"cqa_officer"},
+    {name:"Programme Coordinator",value:"programme_coordinator"},
+    {name:"IQAU Director",value:"iqau_director"},
+    {name:"CQA Director",value:"cqa_director"},
+    {name:"QAC Director",value:"qac_director"},
+    {name:"QAC Officer",value:"qac_officer"},
+    {name:"Dean/Director",value:"dean"},
+    {name:"Vice Chancellor",value:"vice_chancellor"},
   ];
 
   return (
@@ -330,8 +331,8 @@ const Login = () => {
                     label="Role"
                   >
                     {allUserTypes.map((userType, index) => (
-                      <MenuItem value={userType} key={index}>
-                        {userType}
+                      <MenuItem value={userType.value} key={index}>
+                        {userType.name}
                       </MenuItem>
                     ))}
                   </Select>
