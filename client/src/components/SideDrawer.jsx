@@ -112,6 +112,8 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
 
     const viceChancellorRoutes = [
       {route:"DashBoard",link: "/vice_chancellor/dashboard"},
+      {route:"SelfEvaluationReport",link: "/vice_chancellor/SelfEvaluationReport"},
+      {route:"View",link: "/vice_chancellor/View"},
     ]
 
     //set user routes based on user role

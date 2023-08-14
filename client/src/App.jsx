@@ -24,11 +24,29 @@ import ViewUniversities from './pages/QACDirector/ViewUniversities'
 import ViewUniversity from './pages/QACDirector/ViewUniversity'
 import EditUniversity from './pages/QACDirector/EditUniversity';
 import AddUniversity from './pages/QACDirector/AddUniversity';
+<<<<<<< Updated upstream
 import ViewReviewers from './pages/QACDirector/ViewReviewers'
 import CqaOffices from './pages/QACDirector/CqaOffices'
 import {DrawerStateProvider} from './contexts/DrawerStateProvider';
 import "./App.css";
 
+=======
+import ViewReviewers from './pages/QACDirector/ViewReviewers';
+import CqaOffices from './pages/QACDirector/CqaOffices';
+import Ser from './pages/ProgrammeCoordinator/Ser';
+import SubmitPGPR from './pages/ProgrammeCoordinator/SubmitPGPR';
+import EditSer from './pages/ProgrammeCoordinator/EditSer';
+import AddEvidence from './pages/ProgrammeCoordinator/AddEvidence';
+import UpdateEvidence from './pages/ProgrammeCoordinator/UpdateEvidence';
+import ViewSummary from './pages/ProgrammeCoordinator/ViewSummary';
+import SelfEvaluationReport from './pages/ViceChancellor/SelfEvaluationReport';
+import View from './pages/ViceChancellor/View';
+import {DrawerStateProvider} from './contexts/DrawerStateProvider';
+import "./App.css";
+
+
+
+>>>>>>> Stashed changes
 /* 
   important: 
   please check before merge whether the import paths duplicated
@@ -136,6 +154,8 @@ function App() {
                   <Route path="vice_chancellor/">
                     <Route path="" element={<Dashboard/>}/>
                     <Route path="dashboard" element={<Dashboard/>}/>
+                    <Route path="selfevaluationreport" element={<SelfEvaluationReport/>}/>
+                    <Route path="view" element={<View/>}/>
                   </Route>
                 </Route>
 
