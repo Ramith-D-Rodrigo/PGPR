@@ -30,6 +30,8 @@ import Ser from './pages/ProgrammeCoordinator/Ser';
 import SubmitPGPR from './pages/ProgrammeCoordinator/SubmitPGPR';
 import EditSer from './pages/ProgrammeCoordinator/EditSer';
 import AddEvidence from './pages/ProgrammeCoordinator/AddEvidence';
+import UpdateEvidence from './pages/ProgrammeCoordinator/UpdateEvidence';
+import ViewSummary from './pages/ProgrammeCoordinator/ViewSummary';
 import {DrawerStateProvider} from './contexts/DrawerStateProvider';
 import "./App.css";
 
@@ -140,6 +142,8 @@ function App() {
                     <Route path="submitpgpr" element={<SubmitPGPR/>}/>
                     <Route path="editser" element={<EditSer/>}/>
                     <Route path="addevidence" element={<AddEvidence/>}/>
+                    <Route path="updateevidence" element={<UpdateEvidence/>}/>
+                    <Route path="viewsummary" element={<ViewSummary/>}/>
                   </Route>
                 </Route>
 

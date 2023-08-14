@@ -1,10 +1,10 @@
 import React from 'react';
-import  Popup from '../../components/PopUp';
+import  Popup from '../../components/PopUpAdd';
 
 const AddEvidence = () => {
   return (
     <div>
-      <h1>Popup Example</h1>
+      
       <Popup />
     </div>
   );
