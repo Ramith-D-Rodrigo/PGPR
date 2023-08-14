@@ -31,14 +31,14 @@ function UpdateABC() {
         ]
     );
   return (
-    <DiscriptiveDiv description="Desk Evaluation"  width='100%' height="90%" backgroundColor="#D9D9D9" >
+    <DiscriptiveDiv description="Desk Evaluation"  width='100%' height="auto" backgroundColor="#D8E6FC" >
       <Box sx={{display:'flex',flexDirection:'column',justifyContent:'space-between',maxHeight:'100%',height:'100%',alignItems:'center',margin:'10px'}}>
-        <Box sx={{display:'flex',flexDirection:'column',justifyContent:'center',width:"100%",alignItems:"center",margin:'10px'}}>
+        <Box sx={{display:'flex',flexDirection:'column',justifyContent:'center',width:"100%",alignItems:"center",margin:'2rem'}}>
             <Typography variant="h6" component="h2" gutterBottom>
                 Update Remarks
             </Typography>
         </Box>
-        <Box sx={{display:'flex',justifyContent:'space-between',width:"100%",alignItems:"center",margin:'10px'}}>
+        <Box sx={{display:'flex',justifyContent:'space-between',width:"100%",alignItems:"center",margin:'1.5rem'}}>
           <Box sx={{display:'flex',flexDirection:'column',justifyContent:'flex-start',alignItems:"center",height:'100%',margin:'10px'}}>
             <Typography variant="h6" component="h2" gutterBottom>
                 Section A
@@ -48,7 +48,7 @@ function UpdateABC() {
             <textarea placeholder='Enter Remarks here' style={{width:"50%",height:"100px"}}></textarea>
 
         </Box>
-        <Box sx={{display:'flex',justifyContent:'space-between',width:"100%",alignItems:"center",margin:'10px'}}>
+        <Box sx={{display:'flex',justifyContent:'space-between',width:"100%",alignItems:"center",margin:'1.5rem'}}>
           <Box sx={{display:'flex',flexDirection:'column',justifyContent:'flex-start',alignItems:"center",height:'100%',margin:'10px'}}>
             <Typography variant="h6" component="h2" gutterBottom>
                 Section B
@@ -58,7 +58,7 @@ function UpdateABC() {
             <textarea placeholder='Enter Remarks here' style={{width:"50%",height:"100px"}}></textarea>
 
         </Box>
-        <Box sx={{display:'flex',justifyContent:'space-between',width:"100%",alignItems:"center",margin:'10px'}}>
+        <Box sx={{display:'flex',justifyContent:'space-between',width:"100%",alignItems:"center",margin:'1.5rem'}}>
           <Box sx={{display:'flex',flexDirection:'column',justifyContent:'flex-start',alignItems:"center",height:'100%',margin:'10px'}}>
             <Typography variant="h6" component="h2" gutterBottom>
                 Section C

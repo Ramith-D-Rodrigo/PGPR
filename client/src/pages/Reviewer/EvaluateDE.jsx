@@ -123,7 +123,7 @@ const EvaluateDE = () => {
 
   return (
     <>
-    <DiscriptiveDiv description="Desk Evaluation"  width='100%' height="80%" backgroundColor="#D9D9D9" >
+    <DiscriptiveDiv description="Desk Evaluation"  width='100%' height="80%" backgroundColor="white" >
 
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Criteria : {criteriaId} - {uniId}
@@ -132,7 +132,7 @@ const EvaluateDE = () => {
             Standard {standardID} / {noOfAllStandards}
         </Typography>
 
-        <TableContainer component={Paper} style={{maxHeight:'500%'}}>
+        <TableContainer component={Paper} style={{margin:"2rem 0"}}>
             <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table">
                 <TableHead>
                     <TableRow>
