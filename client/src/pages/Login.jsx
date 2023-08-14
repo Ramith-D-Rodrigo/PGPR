@@ -163,7 +163,6 @@ const Login = () => {
 
   const allUserTypes = [
     {name:"Reviewer",value:"reviewer"},
-    {name:"CQA Officer",value:"cqa_officer"},
     {name:"Programme Coordinator",value:"programme_coordinator"},
     {name:"IQAU Director",value:"iqau_director"},
     {name:"CQA Director",value:"cqa_director"},

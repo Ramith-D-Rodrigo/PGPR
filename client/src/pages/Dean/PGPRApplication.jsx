@@ -33,7 +33,7 @@ const PGPRApplication = () => {
 
 
   return (
-    <ScrollableDiv height="80vh">
+    
         <TestForm
             topic="PGPR Application"
             fields={[
@@ -59,7 +59,6 @@ const PGPRApplication = () => {
             onCancel={() => {}}
             onSubmit={handlePGPRApplicationCreation}
         />
-    </ScrollableDiv>
 
   )
 }
