@@ -10,6 +10,10 @@ import Unauthorized from "./components/Unauthorized";
 import LoginPersist from "./components/LoginPersist.jsx";
 import PGPRApplication from "./pages/Dean/PGPRApplication";
 import ResetInitialPassword from "./components/ResetInitialPassword.jsx";
+import Ser from './pages/ProgrammeCoordinator/Ser';
+import SubmitPGPR from './pages/ProgrammeCoordinator/SubmitPGPR';
+import EditSer from './pages/ProgrammeCoordinator/EditSer';
+import AddEvidence from './pages/ProgrammeCoordinator/AddEvidence';
 import AddPGProgramPage from "./pages/CQAdirector/AddPGProgramPage";
 import AddAccounts from "./pages/CQAdirector/AddAccounts";
 import EditPGProgram from "./pages/CQAdirector/EditPGProgram";
@@ -33,6 +37,7 @@ import AcceptAppointment from "./pages/Reviewer/AcceptAppointment";
 import { DrawerStateProvider } from "./contexts/DrawerStateProvider";
 import EvaluateDE from "./pages/Reviewer/EvaluateDE";
 import "./App.css";
+
 
 /* 
   important: 
@@ -138,6 +143,19 @@ function App() {
                 <Route path="SetCriteria" element={<SetCriteria />} />
               </Route>
             </Route>
+
+             {/* programme_coordinator routes */}
+            <Route element={<Authenticate allowedRoles={["programme_coordinator"]}/>}>
+              <Route path="programme_coordinator/">
+                <Route path="" element={<Dashboard/>}/>
+                <Route path="dashboard" element={<Dashboard/>}/>
+                <Route path="ser" element={<Ser/>}/>
+                <Route path="submitpgpr" element={<SubmitPGPR/>}/>
+                <Route path="editser" element={<EditSer/>}/>
+                <Route path="addevidence" element={<AddEvidence/>}/>
+              </Route>
+            </Route>
+                
 
             {/* dean routes */}
             <Route element={<Authenticate allowedRoles={["dean"]} />}>
