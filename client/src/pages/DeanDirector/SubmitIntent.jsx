@@ -2,8 +2,21 @@ import React from 'react';
 import Form from '../../components/Form';
 import MainContent from '../../components/MainContent';
 import ScrollableDiv from '../../components/ScrollableDiv';
+import useSetUserNavigations from '../../hooks/useSetUserNavigations';
+
+
 
 const SubmitIntent = () => {
+
+  useSetUserNavigations(
+    [
+        {
+          name: "Submit Intent Letter",
+          link: "/SubmitIntent"
+        },
+      
+    ]
+);
   // Define your form submission logic here
   const handleSubmit = (formValues) => {
     // Handle form submission

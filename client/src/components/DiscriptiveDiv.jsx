@@ -9,7 +9,7 @@ const DiscriptiveDiv = ({children, ...otherProps}) => {
         userSelect:expand==1? 'none' : 'inherit',
         overflowX:'hidden',
         overflowY:'auto',
-        padding:'0.9rem 10px',
+        padding:'20px 30px',
         ...sx,
         width: width? width : 'inherit',
         height: height? height:'0px',
@@ -22,11 +22,12 @@ const DiscriptiveDiv = ({children, ...otherProps}) => {
     
     return (
         <>
-        <div style={{position:'relative',display:'flex',flexDirection:'row',justifyContent:'space-between',width:'100%',top:'0.75rem',zIndex:1000,padding:'0px 15px'}}>
+        <div style={{position:'relative',display:'flex',flexDirection:'row',justifyContent:'space-between',width:'100%',top:'0.8rem',zIndex:1000,padding:'0px 15px'}}>
             <div className="description" 
                     style={{
-                        padding:'3px',border:'1px solid',width:'fit-content',textAlign:'center',userSelect:'none',
-                        height:'1.5rem',borderRadius:'5px',backgroundColor:'white',display:'flex',alignItems:'center',justifyContent:'center',
+                        padding:'0.8rem',width:'fit-content',textAlign:'center',userSelect:'none',margin:'auto 0',
+                        height:'1.5rem',borderRadius:'5px',backgroundColor:'#191970',display:'flex',alignItems:'center',justifyContent:'center',
+                        color:'white',fontSize:'1rem',boxShadow:'0px 0px 2px 0px rgba(0,0,0,0.75)'
                     }}
                 >
                     {description}
