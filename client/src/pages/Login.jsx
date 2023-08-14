@@ -82,6 +82,7 @@ const Login = () => {
           officialEmail: email,
           password,
           loginAs: role,
+          remember_me: rememberMe,
         }
       );
       // don't wrap the return value in the backend with the Response()
@@ -339,7 +340,12 @@ const Login = () => {
                 </FormControl>
                 <FormGroup style={{ margin: "20px 0 0" }}>
                   <FormControlLabel
-                    control={<Checkbox defaultChecked value={rememberMe} />}
+                    control={
+                        <Checkbox
+                          value={rememberMe}
+                          onChange={(e) => setRememberMe(e.target.checked)}
+                        />
+                      }
                     label="Remember me"
                   />
                 </FormGroup>

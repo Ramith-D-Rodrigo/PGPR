@@ -23,8 +23,8 @@ const Dashboard = ({contents}) => {
       <ScrollableDiv height="600px">
         <Grid container rowSpacing={6}  justifyContent="start" columnSpacing={{ xs: 1, sm: 2, md: 4 }}>
                     
-                    {contents && contents.map((content) => (
-                        <Grid item>
+                    {contents && contents.map((content,index) => (
+                        <Grid key={index} item>
 
                         <Card
                         title={content.title}     
