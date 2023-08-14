@@ -13,10 +13,11 @@ class SelfEvaluationReport extends Model
         'post_graduate_program_review_id',
         'pgp_coordinator_id',
         'vice_chancellor_id',
-        'dean_id',
         'section_a',
         'section_b',
         'section_d',
+        'final_ser_report',
+        'iqau_dir_id',
         'center_for_quality_assurance_director_id'
     ];
 
@@ -41,16 +42,21 @@ class SelfEvaluationReport extends Model
     //self evaluation report is given approval by internal quality assurance unit director
     public function internalQualityAssuranceUnitDirector()
     {
-        return $this->belongsTo(InternalQualityAssuranceUnitDirector::class);
+        return $this->belongsTo(InternalQualityAssuranceUnitDirector::class, 'iqau_dir_id');
     }
 
     public function evidences()
     {
-        return $this->belongsToMany(Evidence::class, 'ser_evidence_standard', 'ser_id', 'evidence_id')->withPivot('adherence');
+        return $this->belongsToMany(Evidence::class, 'ser_evidence_standard', 'ser_id', 'evidence_id');
     }
 
     public function standards()
     {
-        return $this->belongsToMany(Standard::class, 'ser_evidence_standard', 'ser_id', 'standard_id')->withPivot('adherence');
+        return $this->belongsToMany(Standard::class, 'ser_evidence_standard', 'ser_id', 'standard_id');
+    }
+
+    public function adherenceToStandards()
+    {
+        return $this->belongsToMany(Standard::class, 'ser_standard_adherence', 'ser_id', 'standard_id')->withPivot('adherence');
     }
 }

@@ -86,7 +86,8 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
     const qacOfficerRoutes = [
       {route:"DashBoard",link: "/qac_officer/dashboard"},
       {route:"Universities" ,link: "/qac_officer/universities"},
-      //{route:"Import Reviewers" ,link: "/qac_officer/importreviewers"},
+      {route:"CQA Offices" ,link: "/qac_officer/cqa_offices"},
+      {route:"Reviewers" ,link: "/qac_officer/importreviewers"},
   ]
 
     const cqaDirectorRoutes = [

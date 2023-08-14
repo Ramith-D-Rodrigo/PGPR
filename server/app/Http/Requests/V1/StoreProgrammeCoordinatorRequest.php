@@ -3,6 +3,7 @@
 namespace App\Http\Requests\V1;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class StoreProgrammeCoordinatorRequest extends StoreAcademicStaffRequest
@@ -12,6 +13,17 @@ class StoreProgrammeCoordinatorRequest extends StoreAcademicStaffRequest
      */
     public function authorize(): bool
     {
+        //already authorized as a cqa director from the middleware
+
+        //get the university side of the user
+        $uniSide = Auth::user() -> universitySide ?? null;
+
+        //only can create for his university
+        $universityId = $this -> university_id;
+        if($universityId != $uniSide -> university_id){
+            return false;
+        }
+
         return true;
     }
 
@@ -24,7 +36,10 @@ class StoreProgrammeCoordinatorRequest extends StoreAcademicStaffRequest
     {
         $arr = parent::rules();
 
-        $arr['post_grad_program_id'] = ['required', 'integer', 'exists:post_graduate_programs,id'];
+        //post_grad_program_id should be a pgp that is provided by the same faculty
+        $arr['post_grad_program_id'] = ['required', 'integer', Rule::exists('post_graduate_programs', 'id')->where(function ($query) {
+            $query->where('faculty_id', $this -> faculty_id);
+        })];
         $arr['assigned_date'] = ['required', 'date', 'before_or_equal:today'];
 
         $arr['faculty_id'] = ['required', 'integer', Rule::exists('faculties', 'id')->where(function ($query) {

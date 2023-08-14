@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('evidence_code');
             $table->string('evidence_name');
             $table->json('applicable_years');
-            $table->string('url');
+            $table->longText('url');
             $table->timestamps();
         });
     }

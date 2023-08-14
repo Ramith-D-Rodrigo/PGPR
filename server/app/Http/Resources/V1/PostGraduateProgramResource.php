@@ -4,6 +4,7 @@ namespace App\Http\Resources\V1;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Str;
 
 class PostGraduateProgramResource extends JsonResource
 {
@@ -23,9 +24,12 @@ class PostGraduateProgramResource extends JsonResource
                 continue;
             }
 
-            $returnArr[$key] = $value;
+            $returnArr[Str::camel($key)] = $value;
         }
 
+        $returnArr['faculty'] = new FacultyResource($this -> whenLoaded('faculty'));
+        $returnArr['programmeCoordinator'] = $this -> whenLoaded('currentProgrammeCoordinator');
+        $returnArr['criteria'] = new CriteriaCollection($this -> whenLoaded('criteria'));
         return $returnArr;
     }
 }
