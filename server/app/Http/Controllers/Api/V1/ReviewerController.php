@@ -28,6 +28,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\V1\ReviewerImport;
 use Illuminate\Validation\ValidationException as ValidationValidationException;
@@ -426,5 +427,18 @@ class ReviewerController extends Controller
     public function destroy(Reviewer $reviewer)
     {
         //remove the user's reviewer role
+    }
+
+    public function downloadExcelFile(){
+        try{
+            $file = Storage::download('public/reviewer-sheet.xlsx');
+            return $file;
+        }
+        catch(\Exception $e){
+            return response()->json([
+                'message' => 'Error occurred while downloading reviewer sheet',
+                'error' => $e -> getMessage(),
+            ], 500);
+        }
     }
 }

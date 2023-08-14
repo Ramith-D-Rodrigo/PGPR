@@ -7,6 +7,8 @@ import styled from '@mui/material/styles/styled';
 import IconButton from '@mui/material/IconButton';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import MenuIcon from '@mui/icons-material/Menu';
+import useAuth from '../hooks/useAuth';
+import { Link,useLocation, Navigate } from 'react-router-dom';
 
 let drawerWidth = 240; //default value
 
@@ -33,6 +35,12 @@ const AppBar = styled(MuiAppBar, {
 
 //open and openDrawer are for sidebar (navigation bar is a child of sidebar)
 const NavigationBar = ({open , openDrawer, drawerWidthInput, breadCrumbs}) => {
+  const {auth} = useAuth();
+  const location = useLocation();
+  if(!auth)
+  {
+    return <Navigate to="/login" state={{ from: location }} replace />
+  }
   drawerWidth = drawerWidthInput;
   return (
       <AppBar color='transparent' open={open} position='absolute'>
@@ -50,12 +58,15 @@ const NavigationBar = ({open , openDrawer, drawerWidthInput, breadCrumbs}) => {
               <Stack sx={{ justifyContent: "center", alignItems:"center" }} direction='row' spacing={2}>
                   <NotificationsIcon/>
                   <Typography variant='h6' color='black'>
-                      User&apos;s Name
+                      {auth.fullName}
                   </Typography>
                   <Divider orientation='vertical' flexItem color='black'/>
-                  <Avatar
-                    src='https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=880&q=80'
-                  />
+                  <Link to={`/${auth.authRole[0]}/profile`}>
+                    <Avatar
+                      alt={auth.fullName}
+                      src='https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=880&q=80'
+                    />
+                  </Link>
               </Stack>
           </Toolbar>
       </AppBar>

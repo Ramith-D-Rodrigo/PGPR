@@ -28,6 +28,7 @@ class ViceChancellor extends Model
         return $this->hasMany(SelfEvaluationReport::class, 'vice_chancellor_id');
     }
 
+  //vice chancellor has a university
     public function university()
     {
         return $this->belongsTo(University::class, 'vice_chancellor_id', 'id');

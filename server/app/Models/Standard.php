@@ -28,11 +28,16 @@ class Standard extends Model
 
     public function evidences()
     {
-        return $this->belongsToMany(Evidence::class, 'ser_evidence_standard', 'standard_id', 'evidence_id')->withPivot('adherence');
+        return $this->belongsToMany(Evidence::class, 'ser_evidence_standard', 'standard_id', 'evidence_id');
     }
 
     public function selfEvaluationReport()
     {
-        return $this->belongsToMany(Evidence::class, 'ser_evidence_standard', 'standard_id', 'ser_id')->withPivot('adherence');
+        return $this->belongsToMany(SelfEvaluationReport::class, 'ser_evidence_standard', 'standard_id', 'ser_id');
+    }
+
+    public function selfEvaluationReportAdherences()
+    {
+        return $this->belongsToMany(SelfEvaluationReport::class, 'ser_standard_adherence', 'standard_id', 'ser_id')->withPivot('adherence');
     }
 }

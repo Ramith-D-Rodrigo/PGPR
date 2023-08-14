@@ -17,6 +17,16 @@ import SubmitIntent from './pages/DeanDirector/SubmitIntent';
 import SubmitConsent from './pages/DeanDirector/SubmitConsent';
 import SetDate from './pages/ReviewerChair/SetDate';
 import SetCriteria from './pages/ReviewerChair/SetCriteria';
+import PGAssignments from './pages/Reviewer/PGAssignments';
+import ConductDE from './pages/Reviewer/ConductDE';
+import ConductPE from './pages/Reviewer/ConductPE';
+import ViewUniversities from './pages/QACDirector/ViewUniversities'
+import ViewUniversity from './pages/QACDirector/ViewUniversity'
+import EditUniversity from './pages/QACDirector/EditUniversity';
+import AddUniversity from './pages/QACDirector/AddUniversity';
+import ViewReviewers from './pages/QACDirector/ViewReviewers'
+import CqaOffices from './pages/QACDirector/CqaOffices'
+import {DrawerStateProvider} from './contexts/DrawerStateProvider';
 import "./App.css";
 import ImportReviewers from "./api/QACOfficer/importReviewers.js";
 
@@ -67,7 +77,7 @@ function App() {
              <Route path="login" element={<Login/>}/>
              <Route path="/" element={<Login/>}/>
               
-             <Route element={<MainLayout/>}>
+             <Route element={<DrawerStateProvider><MainLayout/></DrawerStateProvider>}>
                 
                 {/* protected routes */}
 
@@ -93,6 +103,14 @@ function App() {
                   <Route path="qac_director/" >
                       <Route path="" element={<Dashboard/>}/>
                       <Route path="dashboard" element={<Dashboard/>}/>
+                      <Route path="universities/">
+                        <Route path="" element={<ViewUniversities/>} />
+                        <Route path="view/:id" element={<ViewUniversity/>} />
+                        <Route path="edit/:id" element={<EditUniversity/>} />
+                        <Route path="add" element={<AddUniversity/>} />
+                      </Route>
+                      <Route path="cqa_offices" element={<CqaOffices/>}/>
+                      <Route path="reviewers" element={<ViewReviewers/>}/>
                   </Route>
                 </Route>
 
@@ -100,7 +118,12 @@ function App() {
                   <Route path="reviewer/" >
                       <Route path="" element={<Dashboard/>}/>
                       <Route path="dashboard" element={<Dashboard/>}/>
-                      <Route path="PG_Assignment" element={<ViewSer/>} />
+                      <Route path="PG_Assignments/">
+                        <Route path="" element={<PGAssignments/>} />
+                        <Route path="ViewSer/:id" element={<ViewSer/>} />
+                        <Route path="Conduct_DE/:id" element={<ConductDE/>} />
+                        <Route path="Conduct_PE/:id" element={<ConductPE/>} />
+                      </Route>
                       <Route path="SetDate" element={<SetDate/>} />
                       <Route path="SetCriteria" element={<SetCriteria/>} />
                   </Route>

@@ -23,9 +23,16 @@ class UniversityResource extends JsonResource
             if(in_array($key, ['created_at', 'updated_at'])){
                 continue;
             }
+            if($key === 'contact_no' || $key === 'fax_no'){
+                $value = json_decode($value, true);
+            }
 
             $returnArr[Str::camel($key)] = $value;
         }
+
+        //include related data
+        $returnArr['centerForQualtyAssurance'] = new CenterForQualityAssuranceResource($this -> whenLoaded('centerForQualityAssurance'));
+        $returnArr['viceChancellor'] = new ViceChancellorResource($this -> whenLoaded('viceChancellor'));
 
         return $returnArr;
     }
