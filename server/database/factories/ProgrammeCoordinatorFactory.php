@@ -18,6 +18,7 @@ class ProgrammeCoordinatorFactory extends Factory
     {
         return [
             //
+            'assigned_date' => fake()->date(),
         ];
     }
 }

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Http\Requests\StorePostGraduateProgramReviewRequest;
-use App\Http\Requests\UpdatePostGraduateProgramReviewRequest;
+use App\Http\Requests\V1\StorePostGraduateProgramReviewRequest;
+use App\Http\Requests\V1\UpdatePostGraduateProgramReviewRequest;
 use App\Models\PostGraduateProgramReview;
 use App\Http\Controllers\Controller;
 

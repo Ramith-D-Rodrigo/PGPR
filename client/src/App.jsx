@@ -42,6 +42,7 @@ import AcceptAppointment from "./pages/Reviewer/AcceptAppointment";;
 import { DrawerStateProvider } from "./contexts/DrawerStateProvider";
 import EvaluateDE from "./pages/Reviewer/EvaluateDE";
 import "./App.css";
+import ImportReviewers from "./api/QACOfficer/importReviewers.js";
 
 
 /* 
@@ -53,6 +54,7 @@ import "./App.css";
 */
 
 function App() {
+
   return (
     <Routes>
       <Route path="/">
