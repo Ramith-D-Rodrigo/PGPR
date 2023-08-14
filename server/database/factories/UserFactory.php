@@ -2,12 +2,13 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
+ * @extends Factory<User>
  */
 class UserFactory extends Factory
 {
@@ -20,9 +21,8 @@ class UserFactory extends Factory
     {
         return [
             'full_name' => fake()->name(),
-            'initials'=> fake()->randomLetter(),
+            'initials' => fake()->randomLetter(),
             'surname' => fake()->lastName(),
-            'roles' => json_encode(['qac', 'cqa', 'reviewer']),
             'contact_no' => json_encode(['0712345678', '0776543210']),
             'profile_pic' => fake()->imageUrl(),
             'official_telephone_no' => fake()->phoneNumber(),
@@ -43,63 +43,70 @@ class UserFactory extends Factory
      */
     public function unverified(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'email_verified_at' => null,
         ]);
     }
 
-    public function reviewer(): static {
-        return $this->state(fn (array $attributes) => [
+    public function reviewer(): static
+    {
+        return $this->state(fn(array $attributes) => [
             'roles' => json_encode(['reviewer']),
         ]);
     }
 
-    public function cqa_director(): static {
-        return $this->state(fn (array $attributes) => [
+    public function cqa_director(): static
+    {
+        return $this->state(fn(array $attributes) => [
             'roles' => json_encode(['cqa_director']),
         ]);
     }
 
-    public function qac_officer(): static {
-        return $this->state(fn (array $attributes) => [
+    public function qac_officer(): static
+    {
+        return $this->state(fn(array $attributes) => [
             'roles' => json_encode(['qac_officer']),
             'official_email' => 'qacofficer@gmail.com',
             'logins' => 1 //so no need to change password
         ]);
     }
 
-    public function qac_director(): static {
-        return $this->state(fn (array $attributes) => [
+    public function qac_director(): static
+    {
+        return $this->state(fn(array $attributes) => [
             'roles' => json_encode(['qac_director']),
             'official_email' => 'qacdirector@gmail.com',
             'logins' => 1 //so no need to change password
         ]);
     }
 
-    public function vice_chancellor(): static {
-        return $this->state(fn (array $attributes) => [
+    public function vice_chancellor(): static
+    {
+        return $this->state(fn(array $attributes) => [
             'roles' => json_encode(['vice_chancellor']),
         ]);
     }
 
-    public function dean(): Factory {
-        return $this->state(fn (array $attributes) => [
+    public function dean(): Factory
+    {
+        return $this->state(fn(array $attributes) => [
             'roles' => json_encode(['dean']),
         ]);
     }
 
-    public function iqau_director(): Factory {
-        return $this->state(fn (array $attributes) => [
+    public function iqau_director(): Factory
+    {
+        return $this->state(fn(array $attributes) => [
             'roles' => json_encode(['iqau_director']),
         ]);
     }
 
-    public function programme_coordinator(): Factory {
-        return $this->state(fn (array $attributes) => [
+    public function programme_coordinator(): Factory
+    {
+        return $this->state(fn(array $attributes) => [
             'roles' => json_encode(['programme_coordinator']),
         ]);
     }
-
 
 
 }

@@ -18,7 +18,6 @@ class AcademicStaffFactory extends Factory
     public function definition(): array
     {
         return [
-            'id' => UniversitySide::factory(),
             'designation' => fake()->word(),
             'experience_in_industry' => json_encode(['JOB_1', 'JOB_2', 'JOB_3', 'JOB_4']),
             'experience_with_research_funds' => json_encode(['EXP_1', 'EXP_2', 'EXP_3', 'EXP_4']),

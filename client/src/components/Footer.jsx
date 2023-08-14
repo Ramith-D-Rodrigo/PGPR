@@ -21,7 +21,7 @@ const FooterContainer = styled('div', { shouldForwardProp: (prop) => prop !== 'o
             marginLeft: 0,
             width: `100%`
         }),
-        backgroundColor:'black',
+        backgroundColor:'#1a1a1a',
     }),
   );
 

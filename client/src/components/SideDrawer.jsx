@@ -87,6 +87,8 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
       {route:"DashBoard",link: "/qac_officer/dashboard"},
       {route:"Universities" ,link: "/qac_officer/universities"},
       {route:"Create Accounts" ,link: "/qac_officer/createAccounts"},
+      {route:"CQA Offices" ,link: "/qac_officer/cqa_offices"},
+      {route:"Reviewers" ,link: "/qac_officer/importreviewers"},
   ]
 
     const cqaDirectorRoutes = [
@@ -94,6 +96,8 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
       {route:"Add PG Program" ,link: "/cqa_director/AddPGProgramPage"},
       {route:"Add Accounts" ,link: "/cqa_director/AddAccounts"},
       {route:"Edit PG Program" ,link: "/cqa_director/EditPGProgram"},
+      {route:"View PG Programs" ,link: "/cqa_director/ViewPGPrograms"},
+      {route:"View Coordinators" ,link: "/cqa_director/ViewCoordinators"},
     ]
 
     const deanDirectorRoutes = [
@@ -108,6 +112,10 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
 
     const programmeCoordinatorRoutes = [
       {route:"DashBoard",link: "/programme_coordinator/dashboard"},
+      {route:"Ser",link: "/programme_coordinator/Ser"},
+      {route:"Submit PGPR",link: "/programme_coordinator/SubmitPGPR"},
+      {route:"Edit Ser",link: "/programme_coordinator/EditSer"},
+      {route:"Add Evidence",link: "/programme_coordinator/AddEvidence"},
     ]
 
     const viceChancellorRoutes = [

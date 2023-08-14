@@ -9,7 +9,6 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use App\Http\Controllers\Api\V1\UserController;
-// use App\Http\Controllers\api\v1\UserController;
 
 class AuthenticatedSessionController extends Controller
 {
