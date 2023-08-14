@@ -16,7 +16,10 @@ import EditSer from './pages/ProgrammeCoordinator/EditSer';
 import AddEvidence from './pages/ProgrammeCoordinator/AddEvidence';
 import AddPGProgramPage from "./pages/CQAdirector/AddPGProgramPage";
 import AddAccounts from "./pages/CQAdirector/AddAccounts";
+import ViewPGPrograms from './pages/CQAdirector/ViewPGPrograms';
 import EditPGProgram from "./pages/CQAdirector/EditPGProgram";
+import ViewCoordinators from './pages/CQAdirector/ViewCoordinators';
+import CoordinatorProfile from './pages/CQAdirector/CoordinatorProfile';
 import SubmitIntent from "./pages/DeanDirector/SubmitIntent";
 import SubmitConsent from "./pages/DeanDirector/SubmitConsent";
 import SetDate from "./pages/ReviewerChair/SetDate";
@@ -29,13 +32,13 @@ import ViewUniversities from "./pages/QACDirector/ViewUniversities";
 import ViewUniversity from "./pages/QACDirector/ViewUniversity";
 import EditUniversity from "./pages/QACDirector/EditUniversity";
 import AddUniversity from "./pages/QACDirector/AddUniversity";
-import ViewReviewers from "./pages/QACDirector/ViewReviewers";
+import ViewReviewers from "./pages/QACDirector/ViewReviewers";;
 import CqaOffices from "./pages/QACDirector/CqaOffices";
 import ReviewerDashboard from "./pages/Reviewer/ReviewerDashboard";
 import UpdateABC from "./pages/Reviewer/UpdateABC";
 import Summary_details from "./pages/Reviewer/Summary_details";
 import Standardwise_details from "./pages/Reviewer/Standardwise_details";
-import AcceptAppointment from "./pages/Reviewer/AcceptAppointment";
+import AcceptAppointment from "./pages/Reviewer/AcceptAppointment";;
 import { DrawerStateProvider } from "./contexts/DrawerStateProvider";
 import EvaluateDE from "./pages/Reviewer/EvaluateDE";
 import "./App.css";
@@ -84,15 +87,21 @@ function App() {
               </Route>
             </Route>
 
-            <Route element={<Authenticate allowedRoles={["cqa_director"]} />}>
-              <Route path="cqa_director/">
-                <Route path="" element={<Dashboard />} />
-                <Route path="dashboard" element={<Dashboard />} />
-                <Route path="AddPGProgramPage" element={<AddPGProgramPage />} />
-                <Route path="AddAccounts" element={<AddAccounts />} />
-                <Route path="EditPGProgram" element={<EditPGProgram />} />
-              </Route>
-            </Route>
+                <Route
+          element={<Authenticate allowedRoles={["cqa_director"]} />}
+        >
+          <Route path="cqa_director/">
+            <Route path="" element={<Dashboard />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="AddPGProgramPage" element={<AddPGProgramPage />} />
+            <Route path="AddAccounts" element={<AddAccounts />} />
+            <Route path="EditPGProgram" element={<EditPGProgram />} />
+            <Route path="ViewPGPrograms" element={<ViewPGPrograms />} />
+            <Route path="ViewCoordinators" element={<ViewCoordinators />} />
+            {/* Add the route for the coordinator profile */}
+            <Route path="view/:cid" element={<CoordinatorProfile />} />
+          </Route>
+        </Route>
 
             <Route element={<Authenticate allowedRoles={["qac_director"]} />}>
               <Route path="qac_director/">

@@ -95,6 +95,8 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
       {route:"Add PG Program" ,link: "/cqa_director/AddPGProgramPage"},
       {route:"Add Accounts" ,link: "/cqa_director/AddAccounts"},
       {route:"Edit PG Program" ,link: "/cqa_director/EditPGProgram"},
+      {route:"View PG Programs" ,link: "/cqa_director/ViewPGPrograms"},
+      {route:"View Coordinators" ,link: "/cqa_director/ViewCoordinators"},
     ]
 
     const deanDirectorRoutes = [
