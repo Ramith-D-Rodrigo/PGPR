@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\V1;
 
+use App\Models\PostGraduateProgram;
+use App\Rules\V1\ProgrammeCoordinatorExists;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -46,6 +48,8 @@ class StoreProgrammeCoordinatorRequest extends StoreAcademicStaffRequest
             $query->where('university_id', $this -> university_id);
         })];
 
+        $arr['current_programme_coordinator_id'] = ['nullable', 'integer', new ProgrammeCoordinatorExists()]; //this is the current programme coordinator id
+
         return $arr;
     }
 
@@ -69,5 +73,10 @@ class StoreProgrammeCoordinatorRequest extends StoreAcademicStaffRequest
 
     public function prepareForValidation() {
         parent::prepareForValidation();
+
+        $postGraduateProgram = PostGraduateProgram::findOrFail($this -> post_grad_program_id);
+        $this -> merge([
+            'current_programme_coordinator_id' => $postGraduateProgram -> programme_coordinator_id,
+        ]);
     }
 }

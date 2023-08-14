@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Str;
 
-class UniversityResource extends JsonResource
+class InternalQualityAssuranceUnitResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,24 +15,22 @@ class UniversityResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $returnArr = [];
         $objProps = $this -> getAttributes();
 
+        $returnArr = [];
         foreach($objProps as $key => $value){
             //ignore following keys from the response
             if(in_array($key, ['created_at', 'updated_at'])){
                 continue;
             }
-            if($key === 'contact_no' || $key === 'fax_no'){
-                $value = json_decode($value, true);
+
+            //decode json data of contact_no and fax_no
+            if(in_array($key, ['contact_no', 'fax_no'])){
+                $value = json_decode($value);
             }
 
             $returnArr[Str::camel($key)] = $value;
         }
-
-        //include related data
-        $returnArr['centerForQualtyAssurance'] = new CenterForQualityAssuranceResource($this -> whenLoaded('centerForQualityAssurance'));
-        $returnArr['viceChancellor'] = new ViceChancellorResource($this -> whenLoaded('viceChancellor'));
 
         return $returnArr;
     }

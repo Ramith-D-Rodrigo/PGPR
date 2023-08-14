@@ -24,10 +24,16 @@ class FacultyResource extends JsonResource
                 continue;
             }
 
+            if($key == 'contact_no' || $key == 'fax_no'){
+                $value = json_decode($value, true);
+            }
+
             $returnArr[Str::camel($key)] = $value;
         }
 
         $returnArr['university'] = new UniversityResource($this -> whenLoaded('university'));
+        $returnArr['internalQualityAssuranceUnit'] = new InternalQualityAssuranceUnitResource($this -> whenLoaded('internalQualityAssuranceUnit'));
+        $returnArr['dean'] = new DeanResource($this -> whenLoaded('dean'));
 
         return $returnArr;
     }

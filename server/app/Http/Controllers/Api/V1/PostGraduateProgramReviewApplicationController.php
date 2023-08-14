@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Filters\V1\PostGraduateProgramReviewApplicationFilter;
 use App\Http\Resources\V1\PostGraduateProgramReviewApplicationCollection;
 use App\Models\PostGraduateProgramReview;
 use App\Models\PostGraduateProgramReviewApplication;
@@ -22,7 +23,45 @@ class PostGraduateProgramReviewApplicationController extends Controller
      */
     public function index()
     {
-       return new PostGraduateProgramReviewApplicationCollection(PostGraduateProgramReviewApplication::paginate());
+        try{
+            $filter = new PostGraduateProgramReviewApplicationFilter(request() -> session() -> get('authRole'), request());
+
+            $queryItems = $filter -> getEloQuery();
+
+            $pgprApplications = PostGraduateProgramReviewApplication::where($queryItems);
+
+            //related data
+            $pgpr = request() -> query('includePostGraduateProgram');
+
+            if($pgpr){
+                $pgprApplications = $pgprApplications -> with('postGraduateProgram:id,title');
+
+                //faculty
+                $faculty = request() -> query('includeFaculty');
+
+                if($faculty){
+                    $pgprApplications = $pgprApplications -> with(['postGraduateProgram:id,title,faculty_id' => [
+                        'faculty:id,name'
+                    ]]);
+
+                    //university
+                    $university = request() -> query('includeUniversity');
+
+                    if($university){
+                        $pgprApplications = $pgprApplications -> with(['postGraduateProgram:id,title,faculty_id' => [
+                            'faculty:id,name,university_id' => [
+                                'university:id,name'
+                            ]
+                        ]]);
+                    }
+                }
+            }
+
+            return new PostGraduateProgramReviewApplicationCollection($pgprApplications -> paginate() -> appends(request() -> query()));
+        }
+        catch(\Exception $e){
+            return response() -> json(['message' => $e -> getMessage()], 500);
+        }
     }
 
     /**
@@ -46,7 +85,41 @@ class PostGraduateProgramReviewApplicationController extends Controller
      */
     public function show(PostGraduateProgramReviewApplication $pgprApplication)
     {
-        return new PostGraduateProgramReviewApplicationResource($pgprApplication);
+        try{
+            //include the related data
+            $pgpr = request() -> query('includePostGraduateProgram');
+
+            if($pgpr){
+                //faculty
+                $faculty = request() -> query('includeFaculty');
+
+                if($faculty){
+                    //university
+                    $university = request() -> query('includeUniversity');
+
+                    if($university){
+                        $pgprApplication = $pgprApplication -> load(['postGraduateProgram:id,title,faculty_id' => [
+                            'faculty:id,name,university_id' => [
+                                'university:id,name'
+                            ]
+                        ]]);
+                    }
+                    else{
+                        $pgprApplication = $pgprApplication -> load(['postGraduateProgram:id,title,faculty_id' => [
+                            'faculty:id,name'
+                        ]]);
+                    }
+                }
+                else{
+                    $pgprApplication = $pgprApplication -> loadMissing('postGraduateProgram:id,title');
+                }
+            }
+
+            return new PostGraduateProgramReviewApplicationResource($pgprApplication);
+        }
+        catch(\Exception $e){
+            return response() -> json(['message' => $e -> getMessage()], 500);
+        }
     }
 
     /**
@@ -108,7 +181,7 @@ class PostGraduateProgramReviewApplicationController extends Controller
             //check submitting user is the dean of the faculty
             $dean = Auth::user();
             $deanFacultyID = $dean -> universitySide -> academicStaff -> dean -> faculty -> id ?? null;
-            if($deanFacultyID != $pgprApplication -> postGraduatePrograms -> faculty_id){
+            if($deanFacultyID != $pgprApplication -> postGraduateProgram -> faculty_id){
                 return response()->json(['message' => 'You are not authorized to submit this post graduate program review application.'], 403);
             }
 
@@ -139,7 +212,7 @@ class PostGraduateProgramReviewApplicationController extends Controller
             //check submitting user is the cqa director
             $cqaDirector = Auth::user();
             $cqaDirectorID = $cqaDirector -> universitySide -> qualityAssuranceStaff -> centerForQualityAssuranceDirector -> id ?? null;
-            if($cqaDirectorID != $pgprApplication -> postGraduatePrograms -> faculty -> university -> centerForQualityAssurance -> currentQualityAssuranceDirector -> id ?? null){
+            if($cqaDirectorID != $pgprApplication -> postGraduateProgram -> faculty -> university -> centerForQualityAssurance -> currentQualityAssuranceDirector -> id ?? null){
                 return response()->json(['message' => 'You are not authorized to recommend this post graduate program review application.'], 403);
             }
 

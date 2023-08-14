@@ -7,6 +7,7 @@ use App\Models\Reviewer;
 use App\Http\Requests\V1\StoreReviewerRequest;
 use App\Http\Requests\V1\UpdateReviewerRequest;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\V1\ReviewerImport;
 use Illuminate\Validation\ValidationException as ValidationValidationException;
@@ -100,5 +101,18 @@ class ReviewerController extends Controller
     public function destroy(Reviewer $reviewer)
     {
         //
+    }
+
+    public function downloadExcelFile(){
+        try{
+            $file = Storage::download('public/reviewer-sheet.xlsx');
+            return $file;
+        }
+        catch(\Exception $e){
+            return response()->json([
+                'message' => 'Error occurred while downloading reviewer sheet',
+                'error' => $e -> getMessage(),
+            ], 500);
+        }
     }
 }

@@ -4,8 +4,8 @@ namespace App\Filters\V1;
 use Illuminate\Http\Request;
 
 class ApiFilter {
-    protected $safeParams = [];
-    protected $columnMap = [];
+    protected $safeParams = []; //safe params are the params that are allowed to be used in the query for a particular column
+    protected $columnMap = [];  //column map is used to map the column name to the param name
     protected $operatorMap = [
         'eq' => '=',
         'neq' => '!=',
@@ -20,10 +20,9 @@ class ApiFilter {
         'null' => 'is null',
         'nnull' => 'is not null',
     ];
-
+    protected $eloQuery = [];//this will be the query that will be passed to the eloquent query builder
+    
     public function transform(Request $request){
-        $eloQuery = []; //this will be the query that will be passed to the eloquent query builder
-
         foreach($this -> safeParams as $param => $operators){
             $query = $request -> query($param);
 
@@ -35,13 +34,15 @@ class ApiFilter {
 
             foreach($operators as $operator){
                 if(isset($query[$operator])){   //if the operator is set in the query
-                    $eloQuery[] = [$column, $this -> operatorMap[$operator], $query[$operator]];    //add the query to the eloquent query builder
+                    array_push($this -> eloQuery, [$column, $this -> operatorMap[$operator], $query[$operator]]);    //add the query to the eloquent query builder
                 }
             }
         }
 
-        return $eloQuery;
+        return $this -> eloQuery;
     }
 
-
+    public function getEloQuery(){
+        return $this -> eloQuery;
+    }
 }
