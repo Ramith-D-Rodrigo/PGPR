@@ -7,9 +7,6 @@ const getPostGraduateProgrammes = async () => {
     
     return await axios.get(URL, {
         //add the parameters to the URL
-        params: {
-            'role': 'dean'
-        }
     })
     
 }
