@@ -54,12 +54,12 @@ class StoreUserRequest extends FormRequest
 
         $this -> replace($newFieldsWithVals); //replace the fields with snake case fields (the new fields)
 
-        //convert contactNo to json
+/*         //convert contactNo to json
         if($this -> has('contact_no') and $this -> contact_no !== 'null'){ //if contact_no is given and not null
             $this -> merge([
                 'contact_no' => json_encode($this -> contact_no)
             ]);
-        }
+        } */
     }
 
     public function messages() : array{

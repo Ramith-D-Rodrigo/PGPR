@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Str;
 
-class ViceChancellorResource extends JsonResource
+class CenterForQualityAssuranceResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,22 +15,28 @@ class ViceChancellorResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $returnArr = [];
         $objProps = $this -> getAttributes();
+
+        $returnArr = [];
 
         foreach($objProps as $key => $value){
             if($key === 'created_at' || $key === 'updated_at'){
                 continue;
             }
             else{
-                //convert to camel case
+                if($key === 'contact_no' || $key === 'fax_no'){
+                    $value = json_decode($value, true);
+                }
+
                 $returnArr[Str::camel($key)] = $value;
             }
         }
 
         //include related data
-        $returnArr['universitySide'] = new UniversitySideResource($this -> whenLoaded('universitySide'));
+        $returnArr['university'] = new UniversityResource($this -> whenLoaded('university'));
+        $returnArr['director'] = new CenterForQualityAssuranceDirectorResource($this -> whenLoaded('centerForQualityAssuranceDirector'));
 
         return $returnArr;
+
     }
 }

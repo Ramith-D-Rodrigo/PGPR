@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Filters\V1\DeanFilter;
+use App\Http\Resources\V1\DeanCollection;
 use App\Http\Resources\V1\DeanResource;
 use App\Models\Dean;
 use App\Http\Requests\V1\StoreDeanRequest;
@@ -22,7 +24,43 @@ class DeanController extends Controller
      */
     public function index()
     {
-        //
+        try{
+            $filter = new DeanFilter(request() -> session() -> get('authRole'), request());
+
+            $queryItems = $filter -> getEloQuery();
+
+            $deans = Dean::where($queryItems);
+
+            //related data
+
+            $academicStaff = request() -> query('includeAcademicStaff');
+            if($academicStaff){
+                $deans = $deans -> with('academicStaff');
+
+                $uniSide = request() -> query('includeUniversitySide');
+
+                if($uniSide){
+                    $deans = $deans -> with(['academicStaff' => ['universitySide']]);
+
+                    $user = request() -> query('includeUser');
+
+                    if($user){
+                        $deans = $deans -> with(['academicStaff' => ['universitySide' => ['user']]]);
+                    }
+                }
+            }
+
+            $faculty = request() -> query('includeFaculty');
+
+            if($faculty){
+                $deans = $deans -> with('faculty');
+            }
+
+            return new DeanCollection($deans -> paginate() -> appends(request() -> query()));
+        }
+        catch(\Exception $e){
+            return response() -> json(['message' => $e -> getMessage()], 500);
+        }
     }
 
     /**
@@ -83,7 +121,39 @@ class DeanController extends Controller
      */
     public function show(Dean $dean)
     {
-        //
+        try{
+            //include related data
+            $academicStaff = request() -> query('includeAcademicStaff');
+
+            if($academicStaff){
+                $uniSide = request() -> query('includeUniversitySide');
+
+                if($uniSide){
+                    $user = request() -> query('includeUser');
+
+                    if($user){
+                        $dean = $dean -> load(['academicStaff' => ['universitySide' => ['user']]]);
+                    }
+                    else{
+                        $dean = $dean -> load(['academicStaff' => ['universitySide']]);
+                    }
+                }
+                else{
+                    $dean = $dean -> loadMissing('academicStaff');
+                }
+            }
+
+            $faculty = request() -> query('includeFaculty');
+
+            if($faculty){
+                $dean = $dean -> loadMissing('faculty');
+            }
+
+            return new DeanResource($dean);
+        }
+        catch(\Exception $e){
+            return response() -> json(['message' => $e -> getMessage()], 500);
+        }
     }
 
     /**
