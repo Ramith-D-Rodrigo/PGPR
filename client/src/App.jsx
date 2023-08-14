@@ -29,6 +29,7 @@ import CqaOffices from './pages/QACDirector/CqaOffices';
 import Ser from './pages/ProgrammeCoordinator/Ser';
 import SubmitPGPR from './pages/ProgrammeCoordinator/SubmitPGPR';
 import EditSer from './pages/ProgrammeCoordinator/EditSer';
+import AddEvidence from './pages/ProgrammeCoordinator/AddEvidence';
 import {DrawerStateProvider} from './contexts/DrawerStateProvider';
 import "./App.css";
 
@@ -138,6 +139,7 @@ function App() {
                     <Route path="ser" element={<Ser/>}/>
                     <Route path="submitpgpr" element={<SubmitPGPR/>}/>
                     <Route path="editser" element={<EditSer/>}/>
+                    <Route path="addevidence" element={<AddEvidence/>}/>
                   </Route>
                 </Route>
 

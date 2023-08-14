@@ -38,7 +38,7 @@ const EditSer = () => {
          </div>
          <br></br>
          <div className="box" style={{border: '1px solid #000' , padding: '10px' , backgroundColor: '#f0f0f0' , display: 'flex'}}>
-           <input type="text" className="input-field" style={{border: 'none', outline: 'none' , padding: '5px', width: '80px' , height: '50px' , background: 'transparent'}}/> links
+           <input type="text" className="input-field" style={{border: 'none', outline: 'none' , padding: '5px', width: '80px' , height: '50px' , background: 'transparent'}}/>
          </div>
          <br></br>
          <div style={{alignItems: 'center', marginLeft:'300px'}}>

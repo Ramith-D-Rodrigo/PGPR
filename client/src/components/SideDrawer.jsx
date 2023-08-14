@@ -111,6 +111,7 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
       {route:"Ser",link: "/programme_coordinator/Ser"},
       {route:"Submit PGPR",link: "/programme_coordinator/SubmitPGPR"},
       {route:"Edit Ser",link: "/programme_coordinator/EditSer"},
+      {route:"Add Evidence",link: "/programme_coordinator/AddEvidence"},
     ]
 
     const viceChancellorRoutes = [
