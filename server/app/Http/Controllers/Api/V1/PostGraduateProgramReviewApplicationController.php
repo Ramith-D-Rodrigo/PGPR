@@ -27,8 +27,19 @@ class PostGraduateProgramReviewApplicationController extends Controller
             $filter = new PostGraduateProgramReviewApplicationFilter(request() -> session() -> get('authRole'), request());
 
             $queryItems = $filter -> getEloQuery();
+            $whereInQueryItems = $filter -> getWhereInQuery();
+            $whereNotInQueryItems = $filter -> getWhereNotInQuery();
 
             $pgprApplications = PostGraduateProgramReviewApplication::where($queryItems);
+
+            foreach($whereInQueryItems as $whereInQueryItem){
+                $pgprApplications = $pgprApplications -> whereIn($whereInQueryItem[0], $whereInQueryItem[1]);
+            }
+
+            foreach($whereNotInQueryItems as $whereNotInQueryItem){
+                $pgprApplications = $pgprApplications -> whereNotIn($whereNotInQueryItem[0], $whereNotInQueryItem[1]);
+            }
+
 
             //related data
             $pgpr = request() -> query('includePostGraduateProgram');

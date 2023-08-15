@@ -24,8 +24,20 @@ class PostGraduateProgramController extends Controller
 
             $queryItems = $filter -> getEloQuery();   //[column, operator, value]
             //role authorization done in the middleware
-            $pgps = PostGraduateProgram::where($queryItems) -> paginate();
-            return new PostGraduateProgramCollection($pgps -> appends($request -> query()));    //pagination should include the query params
+            $pgps = PostGraduateProgram::where($queryItems);
+
+            //where in and where not in
+            $whereInQuery = $filter -> getWhereInQuery();
+            foreach($whereInQuery as $whereInQueryItem){
+                $pgps = $pgps -> whereIn($whereInQueryItem[0], $whereInQueryItem[1]);
+            }
+
+            $whereNotInQuery = $filter -> getWhereNotInQuery();
+            foreach($whereNotInQuery as $whereNotInQueryItem){
+                $pgps = $pgps -> whereNotIn($whereNotInQueryItem[0], $whereNotInQueryItem[1]);
+            }
+
+            return new PostGraduateProgramCollection($pgps -> paginate() -> appends($request -> query()));    //pagination should include the query params
         }
         catch(\Exception $e){
             return response() -> json(['message' => $e -> getMessage()], 500);
