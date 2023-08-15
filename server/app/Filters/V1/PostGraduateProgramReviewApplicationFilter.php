@@ -45,14 +45,14 @@ class PostGraduateProgramReviewApplicationFilter extends ApiFilter{
                 $this -> safeParams['postGraduateProgramId'] = ['in'];
 
                 //find the index of column post_graduate_program_id in eloquent query
-                $pgpIDColumnIndex = array_search('post_graduate_program_id', array_column($this -> eloQuery, 0));
+                $pgpIDColumnIndex = array_search('post_graduate_program_id', array_column($this -> whereInQuery, 0));
 
                 //set the pgp ids to the eloquent query
                 if($pgpIDColumnIndex !== false){
-                    $this -> eloQuery[$pgpIDColumnIndex] = ['post_graduate_program_id', 'in', $pgpIDs];
+                    $this -> whereInQuery[$pgpIDColumnIndex] = ['post_graduate_program_id', $pgpIDs];
                 }
                 else{
-                    array_push($this -> eloQuery, ['post_graduate_program_id', 'in', $pgpIDs]);
+                    array_push($this -> whereInQuery, ['post_graduate_program_id', $pgpIDs]);
                 }
                 break;
 

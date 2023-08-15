@@ -80,15 +80,15 @@ class PostGraduateProgramFilter extends ApiFilter{
                 $facultyIDs = $user -> universitySide -> universities -> faculties -> pluck('id') -> toArray();
 
                 //find the column faculty_id in query items
-                $facultyIdColumnIndex = array_search('faculty_id', array_column($this -> eloQuery, 0));
+                $facultyIdColumnIndex = array_search('faculty_id', array_column($this -> whereInQuery, 0));
 
                 //if the faculty_id column is not found in the query items, add it
                 if($facultyIdColumnIndex === false){
-                    array_push($this -> eloQuery, ['faculty_id', 'in', $facultyIDs]);
+                    array_push($this -> whereInQuery, ['faculty_id', $facultyIDs]);
                 }
                 //if the faculty_id column is found in the query items then update so that it filters only the university pgps
                 else{
-                    $this -> eloQuery[$facultyIdColumnIndex] = ['faculty_id', 'in', $facultyIDs];
+                    $this -> whereInQuery[$facultyIdColumnIndex] = ['faculty_id', $facultyIDs];
                 }
                 break;
 

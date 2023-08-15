@@ -37,6 +37,19 @@ class ProgrammeCoordinatorController extends Controller
 
             $programmeCoordinators = ProgrammeCoordinator::where($queryItems);
 
+            //where in and where not in query
+            $whereInQueryItems = $filter -> getWhereInQuery();
+
+            foreach($whereInQueryItems as $whereInQueryItem){
+                $programmeCoordinators = $programmeCoordinators -> whereIn($whereInQueryItem[0], $whereInQueryItem[1]);
+            }
+
+            $whereNotInQueryItems = $filter -> getWhereNotInQuery();
+
+            foreach($whereNotInQueryItems as $whereNotInQueryItem){
+                $programmeCoordinators = $programmeCoordinators -> whereNotIn($whereNotInQueryItem[0], $whereNotInQueryItem[1]);
+            }
+
             //check for flag for getting related data
             //related data will be -> academic staff -> university side -> user, post graduate programme
             $academicStaff = $request -> query('includeAcademicStaff');
