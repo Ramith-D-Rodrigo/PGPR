@@ -3,6 +3,7 @@ import { SERVER_API_VERSION, SERVER_URL } from '../../assets/constants';
 import * as React from 'react';
 import ScrollableDiv from '../../components/ScrollableDiv';
 import { styled } from '@mui/material/styles';
+import {CircularProgress, Typography} from '@mui/material';
 import Button from '@mui/material/Button';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -16,7 +17,7 @@ import AddIcon from '@mui/icons-material/Add';
 import IconButton from '@mui/material/IconButton';
 import { Box } from '@mui/material';
 import {Link} from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import axios from '../../api/api.js';
 
 const ViewUniversities = () => {
@@ -28,11 +29,13 @@ const ViewUniversities = () => {
           },
       ]
     );
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         document.title = 'View Universities | QAC'
 
         async function getUniversities() {
+            setLoading(true);
             // await axios.get("/sanctum/csrf-cookie");
             await axios.get('/api/v1/universities')
             .then(res => {
@@ -41,7 +44,7 @@ const ViewUniversities = () => {
             .catch(err => {
                 console.log(err);
             });
-
+            setLoading(false);
         }
 
         getUniversities();
@@ -109,6 +112,18 @@ const ViewUniversities = () => {
 
     return (
         <>
+        {loading &&
+            <div style={{display:"flex",width:"100%",justifyContent:"center",alignItems:"center"}}> 
+                <Typography variant="h6" style={{ margin: "0 0 0 20px" }}>
+                    Loading Data...
+                </Typography>
+                <CircularProgress
+                style={{ margin: "0 0 0 20px", color: "darkblue" }}
+                thickness={5}
+                size={24}
+                />
+            </div>
+        }  
         <Box sx={{
             display:'flex',alignItems:'center',justifyContent:'flex-end',
         }}>
