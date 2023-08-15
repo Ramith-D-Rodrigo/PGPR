@@ -75,8 +75,8 @@ function PGPRApplications() {
             applicationDate: pgprApplication.applicationDate,
             status: pgprApplication.status,
             Actions: [
-                <Link to={`edit/${pgprApplication.id}`}><Button variant="contained" style={{margin:"0 0 0 1rem",boxShadow:'2px 3px 8px 1px #888888'}}>View</Button></Link>,
-                <Button variant="contained" style={{margin:"0 0 0 1rem",boxShadow:'2px 3px 8px 1px #888888'}} onClick={()=>handleClickSubmitPGPRApplication(pgprApplication.id)}>Submit</Button>
+                <Link key={1} to={`edit/${pgprApplication.id}`}><Button variant="contained" style={{margin:"0 0 0 1rem",boxShadow:'2px 3px 8px 1px #888888'}}>View</Button></Link>,
+                <Button key={2} variant="contained" style={{margin:"0 0 0 1rem",boxShadow:'2px 3px 8px 1px #888888'}} onClick={()=>handleClickSubmitPGPRApplication(pgprApplication.id)}>Submit</Button>
             ],
         }
     });

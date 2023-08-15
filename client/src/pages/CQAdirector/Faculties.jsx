@@ -1,7 +1,7 @@
 import { SERVER_API_VERSION, SERVER_URL } from '../../assets/constants';
 import ScrollableDiv from '../../components/ScrollableDiv';
 import { styled } from '@mui/material/styles';
-import {CircularProgress} from '@mui/material';
+import {CircularProgress, Typography} from '@mui/material';
 import Button from '@mui/material/Button';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
