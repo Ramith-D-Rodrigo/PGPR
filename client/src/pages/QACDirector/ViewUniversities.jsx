@@ -1,5 +1,5 @@
 // import axios from 'axios';
-// import { SERVER_API_VERSION, SERVER_URL } from '../../assets/constants';
+import { SERVER_API_VERSION, SERVER_URL } from '../../assets/constants';
 import * as React from 'react';
 import ScrollableDiv from '../../components/ScrollableDiv';
 import { styled } from '@mui/material/styles';
@@ -113,13 +113,11 @@ const ViewUniversities = () => {
             display:'flex',alignItems:'center',justifyContent:'flex-end',
         }}>
             <Link to="add">
-                <IconButton style={{backgroundColor:"#D8E6FC",boxShadow:'2px 3px 8px 1px #888888'}} aria-label="delete" size="large">
-                    <AddIcon style={{width:"50px",height:"50px"}} fontSize="large" />
-                </IconButton>
+                <Button variant="contained" style={{margin:"2rem 0 0",boxShadow:'2px 3px 8px 1px #888888'}}>Add University</Button>
             </Link>
         </Box>
-        <ScrollableDiv height="600px">
-            <TableContainer component={Paper} >
+        
+        <TableContainer style={{margin:"1rem 0"}} component={Paper} >
             <Table sx={{ minWidth: 650 }} aria-label="simple table">
             <TableHead style={{backgroundColor:"#D8E6FC",}}>
                 <TableRow>
@@ -148,7 +146,6 @@ const ViewUniversities = () => {
                 </TableBody>
             </Table>
         </TableContainer>
-      </ScrollableDiv>
       </>
     )
 }
