@@ -30,8 +30,6 @@ class PostGraduateProgramReviewApplicationController extends Controller
             $whereInQueryItems = $filter -> getWhereInQuery();
             $whereNotInQueryItems = $filter -> getWhereNotInQuery();
 
-            //DB::enableQueryLog();
-
             $pgprApplications = PostGraduateProgramReviewApplication::where($queryItems);
 
             foreach($whereInQueryItems as $whereInQueryItem){
