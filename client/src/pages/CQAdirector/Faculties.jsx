@@ -23,8 +23,8 @@ function Faculties() {
     useSetUserNavigations(
         [
             {
-              name: "Universities",
-              link: "/universities"
+              name: "Faculties",
+              link: "/faculties"
             },
         ]
       );
