@@ -70,13 +70,19 @@ function PGPRApplications() {
     }
 
     const rows = PGPRApplications.map((pgprApplication) => {
+        let disableBTN = {disabled:false};
+        if(pgprApplication.status === "approved")
+        {
+            disableBTN = {disabled:true}
+        }
         return {
             id: "PGPRApplic..."+pgprApplication.id,
             applicationDate: pgprApplication.applicationDate,
             status: pgprApplication.status,
             Actions: [
-                <Link key={1} to={`edit/${pgprApplication.id}`}><Button variant="contained" style={{margin:"0 0 0 1rem",boxShadow:'2px 3px 8px 1px #888888'}}>View</Button></Link>,
-                <Button key={2} variant="contained" style={{margin:"0 0 0 1rem",boxShadow:'2px 3px 8px 1px #888888'}} onClick={()=>handleClickSubmitPGPRApplication(pgprApplication.id)}>Submit</Button>
+                <Link key={1} to={`view/${pgprApplication.id}`}><Button variant="contained" style={{margin:"0 0 0 1rem",boxShadow:'2px 3px 8px 1px #888888'}}>View</Button></Link>,
+                <Link key={2} to={`edit/${pgprApplication.id}`}><Button {...disableBTN} variant="contained" style={{margin:"0 0 0 1rem",boxShadow:'2px 3px 8px 1px #888888'}}>Edit</Button></Link>,
+                <Button key={3} {...disableBTN} variant="contained" style={{margin:"0 0 0 1rem",boxShadow:'2px 3px 8px 1px #888888'}} onClick={()=>handleClickSubmitPGPRApplication(pgprApplication.id)}>Submit</Button>
             ],
         }
     });
@@ -84,7 +90,7 @@ function PGPRApplications() {
     return (
         <>
             {loading &&
-                <div style={{display:"flex",width:"100%",justifyContent:"center",alignItems:"center"}}> 
+                <div style={{position:'absolute',left:0,right:0,margin:"0 auto",display:"flex",justifyContent:"center",alignItems:"center"}}> 
                     <Typography variant="h6" style={{ margin: "0 0 0 20px" }}>
                         Loading Data...
                     </Typography>
@@ -108,7 +114,6 @@ function PGPRApplications() {
                     <TableHead style={{backgroundColor:"#D8E6FC",}}>
                         <TableRow>
                         <TableCell><b>PGPR Application ID</b></TableCell>
-                        <TableCell align="center"><b>Application Date</b></TableCell>
                         <TableCell align="center"><b>Status</b></TableCell>
                         <TableCell align="center"><b>Actions</b></TableCell>
                         </TableRow>
@@ -122,7 +127,6 @@ function PGPRApplications() {
                                 <TableCell component="th" scope="row">
                                     {row.id}
                                 </TableCell>
-                                <TableCell align="center">{row.applicationDate}</TableCell>
                                 <TableCell align="center">{row.status}</TableCell>
                                 <TableCell align="center">{row.Actions}</TableCell>
                             </TableRow>
