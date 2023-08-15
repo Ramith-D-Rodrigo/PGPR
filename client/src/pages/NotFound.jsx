@@ -20,19 +20,19 @@ const NotFound = () => {
     <div style={{display:"flex",flexDirection:"column",justifyContent:"center",alignItems:"center",height:"100vh"}}>
       
       <Typography textAlign={"center"} variant="h3" component="div" gutterBottom>
-        <span><strong>404</strong></span> Not Found
+        <span><strong>404</strong></span> Not Found <strong>:(</strong>
         <hr />
       </Typography>
       {/* <Divider variant='middle' color='black' /> */}
       <Typography variant="body1" component="div" gutterBottom>
           <p style={{textAlign:"center"}}>The page you are looking for does not exist...</p>
-          <p style={{textAlign:"center"}}><FindInPageIcon style={{height:"2rem",width:"2rem"}} /> Sorry! We have searched this page in our whole server. But unfortunately we couldn't find it.</p>
+          <p style={{textAlign:"center"}}><FindInPageIcon style={{height:"2rem",width:"2rem"}} /> <strong>Sorry!</strong> We have searched this page in our whole server. But unfortunately we couldn't find it. </p>
       </Typography>
       {/* <Divider variant='middle' color='black' /> */}
       <div style={{display:'flex', justifyContent:'center', alignItems:'center'}}>
         <Button style={{margin:"3rem 0",backgroundColor:"black"}} variant='contained' onClick={goBack}>Go Back</Button>
       </div>
-      <ReportProblemIcon style={{height:"5rem",width:"5rem"}}/>
+      {/* <ReportProblemIcon style={{height:"5rem",width:"5rem"}}/> */}
       
     </div>
   )
