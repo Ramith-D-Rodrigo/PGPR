@@ -30,14 +30,14 @@ class DeanFilter extends ApiFilter {
                 $facultyIDs = $user -> universitySide -> university -> faculties -> pluck('id') -> toArray();
 
                 //find the column faculty_id in query items
-                $facultyIdColumnIndex = array_search('faculty_id', array_column($this -> eloQuery, 0));
+                $facultyIdColumnIndex = array_search('faculty_id', array_column($this -> whereInQuery, 0));
 
                 if($facultyIdColumnIndex !== false){
                     //set the faculty ids
-                    $this -> eloQuery[$facultyIdColumnIndex] = ['faculty_id', 'in', $facultyIDs];
+                    $this -> whereInQuery[$facultyIdColumnIndex] = ['faculty_id', $facultyIDs];
                 }
                 else{
-                    array_push($this -> eloQuery, ['faculty_id', 'in', $facultyIDs]);
+                    array_push($this -> whereInQuery, ['faculty_id', $facultyIDs]);
                 }
 
                 break;
