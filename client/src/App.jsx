@@ -20,6 +20,8 @@ import ViewPGPrograms from './pages/CQAdirector/ViewPGPrograms';
 import EditPGProgram from "./pages/CQAdirector/EditPGProgram";
 import ViewCoordinators from './pages/CQAdirector/ViewCoordinators';
 import CoordinatorProfile from './pages/CQAdirector/CoordinatorProfile';
+import Faculties from "./pages/CQAdirector/Faculties";
+import AddFaculty from "./pages/CQAdirector/AddFaculty";
 import SubmitIntent from "./pages/DeanDirector/SubmitIntent";
 import SubmitConsent from "./pages/DeanDirector/SubmitConsent";
 import SetDate from "./pages/ReviewerChair/SetDate";
@@ -103,6 +105,10 @@ function App() {
             <Route path="ViewCoordinators" element={<ViewCoordinators />} />
             {/* Add the route for the coordinator profile */}
             <Route path="view/:cid" element={<CoordinatorProfile />} />
+            <Route path="faculties/" >
+              <Route path="" element={<Faculties />} />
+              <Route path="Add" element={<AddFaculty />} />
+            </Route>
           </Route>
         </Route>
 
