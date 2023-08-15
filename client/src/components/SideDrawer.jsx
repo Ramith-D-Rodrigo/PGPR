@@ -103,7 +103,6 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
 
     const deanDirectorRoutes = [
       {route:"DashBoard",link: "/dean/dashboard"},
-      {route:"Submit Intent Letter" ,link: "/dean/SubmitIntent"},
       {route:"Submit Consent" ,link: "/dean/SubmitConsent"},
       {route:"PGPR Applications" ,link: "/dean/PGPRApplications"},
     ]
