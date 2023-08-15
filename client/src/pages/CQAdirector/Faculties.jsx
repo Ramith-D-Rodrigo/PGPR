@@ -34,8 +34,9 @@ function Faculties() {
     
     useEffect(() => {
         document.title = "Faculties";
-        setLoading(true);
+        
         async function getFaculties () {
+            setLoading(true);
             await axios.get("/sanctum/csrf-cookie");
             await axios.get(SERVER_URL + SERVER_API_VERSION +'faculties/')
             .then(res => {
@@ -45,8 +46,9 @@ function Faculties() {
             .catch(err => {
                 console.log("error: ",err);
             })
+            setLoading(false);
         }
-        setLoading(false);
+    
         getFaculties();
     }, []);
 
@@ -61,7 +63,18 @@ function Faculties() {
     
     return (
         <>
-            
+            {loading &&
+                <div style={{display:"flex",width:"100%",justifyContent:"center",alignItems:"center"}}> 
+                    <Typography variant="h6" style={{ margin: "0 0 0 20px" }}>
+                        Loading Data...
+                    </Typography>
+                    <CircularProgress
+                    style={{ margin: "0 0 0 20px", color: "darkblue" }}
+                    thickness={5}
+                    size={24}
+                    />
+                </div>
+            }  
             <Box sx={{
                 display:'flex',alignItems:'center',justifyContent:'flex-end',
             }}>
@@ -98,13 +111,6 @@ function Faculties() {
             </Table>
         </TableContainer>
 
-        {loading && 
-                <CircularProgress
-                style={{ margin: "0 0 0 20px", color: "darkblue" }}
-                thickness={5}
-                size={24}
-                />
-        }
       </>
     );
 }
