@@ -204,7 +204,7 @@ const PGPRApplication = () => {
 
             <Box sx={{display:'flex',flexWrap:"wrap",justifyContent:'center',alignItems:'center',width:'100%'}}>
               <Button type="submit" variant="contained" sx={{ margin:"2rem 0.5rem", minWidth: 120,width:"30%" }}>
-                {loading? "Loading " : "Create PGPR Applicatin"}
+                {loading? "Loading " : "Create PGPR Application"}
                 {loading && <CircularProgress style={{color:"white",margin:"0 0.5rem"}} size={24} />}
               </Button>
             </Box>
