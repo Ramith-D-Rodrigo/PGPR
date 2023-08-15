@@ -10,6 +10,7 @@ import Unauthorized from "./components/Unauthorized";
 import LoginPersist from "./components/LoginPersist.jsx";
 import PGPRApplication from "./pages/Dean/PGPRApplication";
 import PGPRApplications from "./pages/Dean/PGPRApplications";
+import EditPGPRApplication from "./pages/Dean/EditPGPRApplication";
 import ResetInitialPassword from "./components/ResetInitialPassword.jsx";
 import Ser from './pages/ProgrammeCoordinator/Ser';
 import SubmitPGPR from './pages/ProgrammeCoordinator/SubmitPGPR';
@@ -189,6 +190,7 @@ function App() {
                 <Route path="pgprApplications">
                   <Route path="" element={<PGPRApplications />} />
                   <Route path="create" element={<PGPRApplication />} />
+                  <Route path="edit/:pgprApplicationID" element={<EditPGPRApplication />} />
                 </Route>
               </Route>
             </Route>
