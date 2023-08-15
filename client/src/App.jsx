@@ -9,6 +9,7 @@ import Authenticate from "./components/Authenticate";
 import Unauthorized from "./components/Unauthorized";
 import LoginPersist from "./components/LoginPersist.jsx";
 import PGPRApplication from "./pages/Dean/PGPRApplication";
+import PGPRApplications from "./pages/Dean/PGPRApplications";
 import ResetInitialPassword from "./components/ResetInitialPassword.jsx";
 import Ser from './pages/ProgrammeCoordinator/Ser';
 import SubmitPGPR from './pages/ProgrammeCoordinator/SubmitPGPR';
@@ -185,6 +186,10 @@ function App() {
                 <Route path="SubmitIntent" element={<SubmitIntent />} />
                 <Route path="SubmitConsent" element={<SubmitConsent />} />
                 <Route path="pgprApplication" element={<PGPRApplication/>}/>
+                <Route path="pgprApplications">
+                  <Route path="" element={<PGPRApplications />} />
+                  <Route path="create" element={<PGPRApplication />} />
+                </Route>
               </Route>
             </Route>
 
