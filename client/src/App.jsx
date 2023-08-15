@@ -9,6 +9,8 @@ import Authenticate from "./components/Authenticate";
 import Unauthorized from "./components/Unauthorized";
 import LoginPersist from "./components/LoginPersist.jsx";
 import PGPRApplication from "./pages/Dean/PGPRApplication";
+import PGPRApplications from "./pages/Dean/PGPRApplications";
+import EditPGPRApplication from "./pages/Dean/EditPGPRApplication";
 import ResetInitialPassword from "./components/ResetInitialPassword.jsx";
 import Ser from './pages/ProgrammeCoordinator/Ser';
 import SubmitPGPR from './pages/ProgrammeCoordinator/SubmitPGPR';
@@ -20,6 +22,8 @@ import ViewPGPrograms from './pages/CQAdirector/ViewPGPrograms';
 import EditPGProgram from "./pages/CQAdirector/EditPGProgram";
 import ViewCoordinators from './pages/CQAdirector/ViewCoordinators';
 import CoordinatorProfile from './pages/CQAdirector/CoordinatorProfile';
+import Faculties from "./pages/CQAdirector/Faculties";
+import AddFaculty from "./pages/CQAdirector/AddFaculty";
 import SubmitIntent from "./pages/DeanDirector/SubmitIntent";
 import SubmitConsent from "./pages/DeanDirector/SubmitConsent";
 import SetDate from "./pages/ReviewerChair/SetDate";
@@ -103,6 +107,10 @@ function App() {
             <Route path="ViewCoordinators" element={<ViewCoordinators />} />
             {/* Add the route for the coordinator profile */}
             <Route path="view/:cid" element={<CoordinatorProfile />} />
+            <Route path="faculties/" >
+              <Route path="" element={<Faculties />} />
+              <Route path="Add" element={<AddFaculty />} />
+            </Route>
           </Route>
         </Route>
 
@@ -179,6 +187,11 @@ function App() {
                 <Route path="SubmitIntent" element={<SubmitIntent />} />
                 <Route path="SubmitConsent" element={<SubmitConsent />} />
                 <Route path="pgprApplication" element={<PGPRApplication/>}/>
+                <Route path="pgprApplications">
+                  <Route path="" element={<PGPRApplications />} />
+                  <Route path="create" element={<PGPRApplication />} />
+                  <Route path="edit/:pgprApplicationID" element={<EditPGPRApplication />} />
+                </Route>
               </Route>
             </Route>
 

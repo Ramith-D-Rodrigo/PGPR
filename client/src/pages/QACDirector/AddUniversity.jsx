@@ -1,3 +1,4 @@
+import { SERVER_API_VERSION, SERVER_URL } from '../../assets/constants';
 import React from 'react'
 import { Button, Checkbox, CircularProgress, FormControl, FormControlLabel, FormGroup, IconButton, Input, InputAdornment, InputLabel, MenuItem, Select,Snackbar,Alert, Box } from '@mui/material'
 import FormHelperText from '@mui/material/FormHelperText';
@@ -231,7 +232,7 @@ function AddUniversity() {
         }
         else{
             await axios.get('/sanctum/csrf-cookie');
-            await axios.post('/api/v1/universities',
+            await axios.post(SERVER_URL+SERVER_API_VERSION+'universities/',
             {
                 name:universityName,
                 address: universityAddress,
