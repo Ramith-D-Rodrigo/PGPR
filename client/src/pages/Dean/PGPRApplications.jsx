@@ -8,7 +8,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import { Box, Button } from '@mui/material';
+import { Box, Button, Alert, Snackbar } from '@mui/material';
 import { Link } from 'react-router-dom';
 import axios from '../../api/api.js';
 import { useEffect, useState } from 'react';
@@ -17,7 +17,7 @@ function PGPRApplications() {
 
     const [loading, setLoading] = useState(false);
     const [PGPRApplications, setPGPRApplications] = useState([]);
-    const [submittedPGPRApplications, setSubmittedPGPRApplications] = useState(false);
+    const [success, setSuccess] = useState(false);
     const [message, setMessage] = useState("");
 
     useSetUserNavigations(
@@ -30,24 +30,24 @@ function PGPRApplications() {
         ]
     );
 
+    async function getPgprApplications () {
+        setLoading(true);
+        setMessage("");
+        await axios.get("/sanctum/csrf-cookie");
+        await axios.get(SERVER_URL + SERVER_API_VERSION +'pgprApplications/')
+        .then(res => {
+            console.log(res.data.data);
+            setPGPRApplications(res?.data?.data);
+        })
+        .catch(err => {
+            console.log("error: ",err);
+            setPGPRApplications([]);
+        })
+        setLoading(false);
+    }
+
     useEffect(() => {
-        document.title = "PGPR Applications";
-        
-        async function getPgprApplications () {
-            setLoading(true);
-            await axios.get("/sanctum/csrf-cookie");
-            await axios.get(SERVER_URL + SERVER_API_VERSION +'pgprApplications/')
-            .then(res => {
-                console.log(res.data.data);
-                setPGPRApplications(res?.data?.data);
-            })
-            .catch(err => {
-                console.log("error: ",err);
-                setPGPRApplications([]);
-            })
-            setLoading(false);
-        }
-        
+        document.title = "PGPR Applications";        
         getPgprApplications();
     }, []);
 
@@ -57,32 +57,50 @@ function PGPRApplications() {
         await axios.post(SERVER_URL + SERVER_API_VERSION +'pgprApplications/'+pgprApplicationID+'/submit')
         .then(res => {
             console.log(res.data.data);
-            setSubmittedPGPRApplications(true);
-            setMessage("PGPR Application submitted successfully.");
+            setSuccess(true);
+            // setMessage("PGPR Application submitted successfully.");
             //should false after message is shown
         })
         .catch(err => {
             console.log("error: ",err);
-            setSubmittedPGPRApplications(false);
-            setMessage("Error in submitting PGPR Application, please try again later.");
+            setSuccess(false);
+            if(err?.response?.status == 400)
+            {
+                setMessage(err?.response?.data?.message);
+            }
+            else{
+                setMessage("Error in submitting PGPR Application, please try again later.");
+            }
         })
         setLoading(false);
+        getPgprApplications();
     }
 
     const rows = PGPRApplications.map((pgprApplication) => {
-        let disableBTN = {disabled:false};
+        let disableBTNs = {};
+        let disableViewBTN = {};
         if(pgprApplication.status === "approved")
         {
-            disableBTN = {disabled:true}
+            disableBTNs = {disabled:true}
+        }
+        else if(pgprApplication.status === "submitted")
+        {
+            disableViewBTN = {disabled:true}
+            disableBTNs = {disabled:true}
+        }
+        else{
+            disableBTNs = {disabled:false}
+            disableViewBTN = {disabled:false}
         }
         return {
             id: "PGPRApplic..."+pgprApplication.id,
             applicationDate: pgprApplication.applicationDate,
             status: pgprApplication.status,
+            intentLetter: pgprApplication.intentLetter==null? "Not Uploaded Yet" : "Uploaded",
             Actions: [
                 <Link key={1} to={`view/${pgprApplication.id}`}><Button variant="contained" style={{margin:"0 0 0 1rem",boxShadow:'2px 3px 8px 1px #888888'}}>View</Button></Link>,
-                <Link key={2} to={`edit/${pgprApplication.id}`}><Button {...disableBTN} variant="contained" style={{margin:"0 0 0 1rem",boxShadow:'2px 3px 8px 1px #888888'}}>Edit</Button></Link>,
-                <Button key={3} {...disableBTN} variant="contained" style={{margin:"0 0 0 1rem",boxShadow:'2px 3px 8px 1px #888888'}} onClick={()=>handleClickSubmitPGPRApplication(pgprApplication.id)}>Submit</Button>
+                <Link key={2} to={`edit/${pgprApplication.id}`}><Button {...disableBTNs} variant="contained" style={{margin:"0 0 0 1rem",boxShadow:'2px 3px 8px 1px #888888'}}>Edit</Button></Link>,
+                <Button key={3} {...disableBTNs} {...disableViewBTN} variant="contained" style={{margin:"0 0 0 1rem",boxShadow:'2px 3px 8px 1px #888888'}} onClick={()=>handleClickSubmitPGPRApplication(pgprApplication.id)}>Submit</Button>
             ],
         }
     });
@@ -114,6 +132,7 @@ function PGPRApplications() {
                     <TableHead style={{backgroundColor:"#D8E6FC",}}>
                         <TableRow>
                         <TableCell><b>PGPR Application ID</b></TableCell>
+                        <TableCell align="center"><b>Intent Letter</b></TableCell>
                         <TableCell align="center"><b>Status</b></TableCell>
                         <TableCell align="center"><b>Actions</b></TableCell>
                         </TableRow>
@@ -127,6 +146,7 @@ function PGPRApplications() {
                                 <TableCell component="th" scope="row">
                                     {row.id}
                                 </TableCell>
+                                <TableCell align="center">{row.intentLetter}</TableCell>
                                 <TableCell align="center">{row.status}</TableCell>
                                 <TableCell align="center">{row.Actions}</TableCell>
                             </TableRow>
@@ -134,6 +154,27 @@ function PGPRApplications() {
                     </TableBody>
                 </Table>
             </TableContainer>
+
+            <Snackbar
+                open={message == "" ? false : true}
+                anchorOrigin={{ vertical: "top", horizontal: "center" }}
+                onClose={() => setMessage("")}
+                >
+                <Alert onClose={() => setMessage("")} severity="error">
+                {message}
+                </Alert>
+            </Snackbar>
+
+            <Snackbar
+                open={success}
+                autoHideDuration={1500}
+                onClose={() => setSuccess(false)}
+                anchorOrigin={{ vertical: "top", horizontal: "center" }}
+                >
+                <Alert onClose={() => setSuccess(false)} severity="success">
+                    Submitted Successfully!
+                </Alert>
+            </Snackbar>
 
         </>
     )
