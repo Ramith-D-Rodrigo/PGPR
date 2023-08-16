@@ -381,7 +381,7 @@ function AddUniversity() {
             </FormControl>
 
             <FormControl sx={{padding:"15px 10px",width:'50%',boxSizing:'border-box'}} {...cqaEmailError.err} variant="standard">
-                <InputLabel htmlFor="cqa-email"><b>QAC Email</b></InputLabel>
+                <InputLabel htmlFor="cqa-email"><b>CQA Email</b></InputLabel>
                 <Input
                 required
                 // autoComplete='off'

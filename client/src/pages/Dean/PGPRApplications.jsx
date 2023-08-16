@@ -127,7 +127,7 @@ function PGPRApplications() {
             intentLetter: pgprApplication.intentLetter==null? "Not Uploaded Yet" : "Uploaded",
             Actions: [
                 <Link key={1} to={`view/${pgprApplication.id}`}><Button variant="contained" style={{margin:"0 0 0 1rem",boxShadow:'2px 3px 8px 1px #888888'}}>View</Button></Link>,
-                <Link key={2} to={`edit/${pgprApplication.id}`}><Button {...disableBTNs} variant="contained" style={{margin:"0 0 0 1rem",boxShadow:'2px 3px 8px 1px #888888'}}>Edit</Button></Link>,
+                <Link key={2} to={disableBTNs.disabled? '':`edit/${pgprApplication.id}`}><Button {...disableBTNs} variant="contained" style={{margin:"0 0 0 1rem",boxShadow:'2px 3px 8px 1px #888888'}}>Edit</Button></Link>,
                 <Button key={3} {...disableBTNs} {...disableViewBTN} variant="contained" style={{margin:"0 0 0 1rem",boxShadow:'2px 3px 8px 1px #888888'}} onClick={()=>handleClickOpen(pgprApplication)}>Submit</Button>
             ],
         }
@@ -185,6 +185,12 @@ function PGPRApplications() {
                     </TableBody>
                 </Table>
             </TableContainer>
+            
+            {rows.length == 0 &&
+                <Typography align='center' variant="body1" gutterBottom component="div" style={{marginRight:'20px'}}>
+                No Data Found
+            </Typography>
+            }
 
             <Snackbar
                 open={message == "" ? false : true}

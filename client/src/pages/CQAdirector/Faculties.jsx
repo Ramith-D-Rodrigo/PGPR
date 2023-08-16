@@ -111,6 +111,12 @@ function Faculties() {
             </Table>
         </TableContainer>
 
+        {rows.length == 0 &&
+                <Typography align='center' variant="body1" gutterBottom component="div" style={{marginRight:'20px'}}>
+                No Data Found
+            </Typography>
+        }
+
       </>
     );
 }
