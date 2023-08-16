@@ -56,8 +56,7 @@ const CreateAccounts = () => {
 
     return (
         <>
-            <ScrollableDiv height="80vh">
-                <form onSubmit={handleSubmit}>
+                <form style={{padding:"20px 40px"}} onSubmit={handleSubmit}>
                     <FormField label={"Account For"} type={"select"} key={"VCCQA"} options={[
                         {name: "vc", value: "vice_chancellor", label: "Vice Chancellor"},
                         {name: "cqa", value: "cqa_director", label: "CQA Director"},
@@ -68,7 +67,6 @@ const CreateAccounts = () => {
                         } 
                     />
                 </form>
-            </ScrollableDiv>
         </>
     )
 }

@@ -98,12 +98,14 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
       {route:"Edit PG Program" ,link: "/cqa_director/EditPGProgram"},
       {route:"View PG Programs" ,link: "/cqa_director/ViewPGPrograms"},
       {route:"View Coordinators" ,link: "/cqa_director/ViewCoordinators"},
+      {route:"Faculties" ,link: "/cqa_director/faculties"},
     ]
 
     const deanDirectorRoutes = [
       {route:"DashBoard",link: "/dean/dashboard"},
       {route:"Submit Intent Letter" ,link: "/dean/SubmitIntent"},
       {route:"Submit Consent" ,link: "/dean/SubmitConsent"},
+      {route:"PGPR Applications" ,link: "/dean/PGPRApplications"},
     ]
 
     const iqauDirectorRoutes = [
