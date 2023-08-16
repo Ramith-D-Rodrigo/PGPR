@@ -119,7 +119,7 @@ const ConductDE = () => {
                 </Grid>
             </DiscriptiveDiv>
 
-            <Divider style={{margin:"2rem 0 1rem"}} textAlign="left">Desk Evaluation</Divider>
+            <Divider style={{margin:"2rem 0 1rem"}} textAlign="center">Desk Evaluation</Divider>
     
             <TableContainer component={Paper} style={{height:"auto"}}>
                 <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table">

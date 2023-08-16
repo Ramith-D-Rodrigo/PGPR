@@ -12,13 +12,24 @@ import { Box, Button, Alert, Snackbar } from '@mui/material';
 import { Link } from 'react-router-dom';
 import axios from '../../api/api.js';
 import { useEffect, useState } from 'react';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 
 function PGPRApplications() {
 
+    const theme = useTheme();
+    const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
     const [loading, setLoading] = useState(false);
     const [PGPRApplications, setPGPRApplications] = useState([]);
     const [success, setSuccess] = useState(false);
     const [message, setMessage] = useState("");
+    const [open, setOpen] = useState(false);
+    const [pgprApplication, setPGPRApplication] = useState({});
 
     useSetUserNavigations(
         [
@@ -30,6 +41,20 @@ function PGPRApplications() {
         ]
     );
 
+    const handleClickOpen = (pgprAppli) => {
+        if(pgprAppli.intentLetter==null){
+            setMessage("Please upload the intent letter before submitting the application.");
+        }
+        else{
+            setPGPRApplication(pgprAppli.id);
+            setOpen(true);
+        }
+      };
+
+    const handleClose = () => {
+        setOpen(false);
+    };
+    // handleClickSubmitPGPRApplication(pgprApplication.id)
     async function getPgprApplications () {
         setLoading(true);
         setMessage("");
@@ -52,12 +77,14 @@ function PGPRApplications() {
     }, []);
 
     const handleClickSubmitPGPRApplication = async(pgprApplicationID) => {
+        setOpen(false);
         setLoading(true);
         await axios.get("/sanctum/csrf-cookie");
         await axios.post(SERVER_URL + SERVER_API_VERSION +'pgprApplications/'+pgprApplicationID+'/submit')
         .then(res => {
             console.log(res.data.data);
             setSuccess(true);
+            getPgprApplications();
             // setMessage("PGPR Application submitted successfully.");
             //should false after message is shown
         })
@@ -67,13 +94,14 @@ function PGPRApplications() {
             if(err?.response?.status == 400)
             {
                 setMessage(err?.response?.data?.message);
+                console.log(err?.response?.data?.message);
             }
             else{
                 setMessage("Error in submitting PGPR Application, please try again later.");
             }
         })
         setLoading(false);
-        getPgprApplications();
+        
     }
 
     const rows = PGPRApplications.map((pgprApplication) => {
@@ -100,7 +128,7 @@ function PGPRApplications() {
             Actions: [
                 <Link key={1} to={`view/${pgprApplication.id}`}><Button variant="contained" style={{margin:"0 0 0 1rem",boxShadow:'2px 3px 8px 1px #888888'}}>View</Button></Link>,
                 <Link key={2} to={`edit/${pgprApplication.id}`}><Button {...disableBTNs} variant="contained" style={{margin:"0 0 0 1rem",boxShadow:'2px 3px 8px 1px #888888'}}>Edit</Button></Link>,
-                <Button key={3} {...disableBTNs} {...disableViewBTN} variant="contained" style={{margin:"0 0 0 1rem",boxShadow:'2px 3px 8px 1px #888888'}} onClick={()=>handleClickSubmitPGPRApplication(pgprApplication.id)}>Submit</Button>
+                <Button key={3} {...disableBTNs} {...disableViewBTN} variant="contained" style={{margin:"0 0 0 1rem",boxShadow:'2px 3px 8px 1px #888888'}} onClick={()=>handleClickOpen(pgprApplication)}>Submit</Button>
             ],
         }
     });
@@ -108,7 +136,7 @@ function PGPRApplications() {
     return (
         <>
             {loading &&
-                <div style={{position:'absolute',left:0,right:0,margin:"0 auto",display:"flex",justifyContent:"center",alignItems:"center"}}> 
+                <div style={{position:'absolute',left:0,margin:"0 auto",display:"flex",justifyContent:"center",alignItems:"center"}}> 
                     <Typography variant="h6" style={{ margin: "0 0 0 20px" }}>
                         Loading Data...
                     </Typography>
@@ -119,6 +147,9 @@ function PGPRApplications() {
                     />
                 </div>
             }
+            <Typography align='center' fontWeight={600} variant="h5" gutterBottom component="div" style={{marginRight:'20px'}}>
+                Postgraduate programme review Applications
+            </Typography>
             <Box sx={{
                 display:'flex',alignItems:'center',justifyContent:'flex-end',
             }}>
@@ -175,6 +206,30 @@ function PGPRApplications() {
                     Submitted Successfully!
                 </Alert>
             </Snackbar>
+
+            <Dialog
+                fullScreen={fullScreen}
+                open={open}
+                onClose={handleClose}
+                aria-labelledby="submit-application"
+            >
+                <DialogTitle id="submit-applicationID">
+                {"Are you sure that you want to submit this application?"}
+                </DialogTitle>
+                <DialogContent>
+                <DialogContentText>
+                    Once you submit this application, you will not be able to edit it again.
+                </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                <Button autoFocus onClick={handleClose}>
+                    cancel
+                </Button>
+                <Button onClick={()=>handleClickSubmitPGPRApplication(pgprApplication)} autoFocus>
+                    submit
+                </Button>
+                </DialogActions>
+            </Dialog>
 
         </>
     )

@@ -59,10 +59,10 @@ function Standardwise_details() {
       <>
       <Box sx={{display:'flex',flexDirection:'column',justifyContent:'space-between',maxHeight:'100%',height:'100%',alignItems:'center',margin:'10px'}}>
         <Box sx={{display:'flex',flexDirection:'column',justifyContent:'center',width:"100%",alignItems:"center",margin:'10px'}}>
-            <Typography variant="h5" component="h2" gutterBottom>
-                Standard Wise Details
+            <Typography align='center' fontWeight={600} variant="h6" gutterBottom component="div" style={{marginRight:'20px'}}>
+                Standard Wise Details of Postgraduate programme review
             </Typography>
-            <FormControl style={{margin:"10px 0",width:"50%"}} variant="standard" sx={{ m: 1, minWidth: 120 }}>
+            <FormControl style={{margin:"3rem 0 2rem",width:"50%"}} variant="standard" sx={{ m: 1, minWidth: 120 }}>
               <InputLabel id="select-criteria">Criteria</InputLabel>
               <Select
                 labelId="select-criteria"

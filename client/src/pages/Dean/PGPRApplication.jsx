@@ -126,8 +126,11 @@ const PGPRApplication = () => {
   return (
     <>
 
-        <Typography align='center' margin={2}  variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          PGPR Application
+        {/* <Typography align='center' margin={2}  variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          Request for Postgraduate Programme Review
+        </Typography> */}
+        <Typography align='center' margin="1rem 0 2rem" fontWeight={600} variant="h5" gutterBottom component="div" style={{marginRight:'20px'}}>
+          Request for Postgraduate Programme Review
         </Typography>
         <form onSubmit={handleSubmitApplication} style={{display:"flex",flexDirection:"column",flexWrap:'wrap',width:'100%',justifyContent:'center',alignItems:'center'}}>
             
