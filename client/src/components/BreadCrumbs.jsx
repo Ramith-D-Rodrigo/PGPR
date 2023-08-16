@@ -17,7 +17,7 @@ const BreadCrumbs = () => {
         {userNavigations.map((location, index) => {
           if (drawerState.open && index===0) {
             return (
-              index==0 && <Link style={{display: 'flex', alignItems: 'center'}} to={location.link}><HomeIcon key={index} titleAccess={location.name} sx={{ mr: 1 }} fontSize="medium" /></Link>
+              index==0 && <Link key={index} style={{display: 'flex', alignItems: 'center'}} to={location.link}><HomeIcon titleAccess={location.name} sx={{ mr: 1 }} fontSize="medium" /></Link>
             )
           } else {
               return (

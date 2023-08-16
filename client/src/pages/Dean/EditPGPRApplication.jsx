@@ -213,6 +213,12 @@ function EditPGPRApplication() {
                 // Add any necessary attributes for file upload
                 />
             </div>
+            {
+                selectedPGP.intentLetter &&
+                <div className="flex justify-center items-center mt-4">
+                    <a href={SERVER_URL.slice(0,-1) +selectedPGP.intentLetter} target="_blank" rel="noreferrer" className="form-input mt-1 ml-0.5">click here to view current Letter of Intent</a>
+                </div>
+            }
 
             <Box sx={{display:'flex',flexWrap:"wrap",justifyContent:'center',alignItems:'center',width:'100%'}}>
               <Button type="submit" variant="contained" sx={{ margin:"2rem 0.5rem", minWidth: 120,width:"30%" }}>

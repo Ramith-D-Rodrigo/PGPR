@@ -216,7 +216,10 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
                       Log Out
                     </Typography>
                   : 
-                    <CircularProgress size={30}/>
+                    <Typography gutterBottom variant='body1' component='div'>
+                      Logging Out
+                      <CircularProgress size={15} sx={{marginLeft:"5px"}}/>
+                    </Typography>
                 }
             </Box>
           </Link>
