@@ -8,6 +8,7 @@ use App\Models\Dean;
 use App\Models\Faculty;
 use App\Models\PostGraduateProgramReviewApplication;
 use App\Models\ProgrammeCoordinator;
+use App\Models\QualityAssuranceCouncilOfficer;
 use App\Models\Reviewer;
 use App\Models\ReviewTeam;
 use App\Models\University;
@@ -29,6 +30,9 @@ class DatabaseSeeder extends Seeder
         User::factory()->iqau_director()->hasUniversitySide()->create();
         User::factory()->vice_chancellor()->hasUniversitySide()->create();
 
+        User::factory()->qac_officer()->hasQualityAssuranceCouncilOfficer()->create();
+        QualityAssuranceCouncilOfficer::factory()->for(User::factory()->qac_director())->hasQualityAssuranceCouncilDirector()->create();
+
         /*//run reviewer seeder
         $this->call([ReviewerSeeder::class]);
         $this->call([ReviewerSeeder::class]);
@@ -39,7 +43,7 @@ class DatabaseSeeder extends Seeder
         //run university seeder
         $this->call([FacultySeeder::class]);*/
 
-        $this->call([PostGraduateProgramSeeder::class]);
+        //$this->call([PostGraduateProgramSeeder::class]);
 
         //run criteria seeder
         $this->call([CriteriaSeeder::class]);
