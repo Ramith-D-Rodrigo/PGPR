@@ -80,9 +80,10 @@ function App() {
             <Route path="AddAccounts" element={<AddAccounts />} />
             <Route path="EditPGProgram" element={<EditPGProgram />} />
             <Route path="ViewPGPrograms" element={<ViewPGPrograms />} />
-            <Route path="ViewCoordinators" element={<ViewCoordinators />} />
-            {/* Add the route for the coordinator profile */}
-            <Route path="view/:cid" element={<CoordinatorProfile />} />
+            <Route path="ViewCoordinators/">
+              <Route path="" element={<ViewCoordinators/>} />
+              <Route path="CoordinatorProfile/:id" element={<CoordinatorProfile/>} />
+          </Route>
           </Route>
         </Route>
 
