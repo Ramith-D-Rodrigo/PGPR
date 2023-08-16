@@ -3,7 +3,8 @@ import {useContext, useEffect, useRef, useState} from "react";
 import AuthContext from "../contexts/AuthProvider.jsx";
 import {useLocation, useNavigate} from "react-router-dom";
 import useRefreshLogin from "../hooks/useRefreshLogin.js";
-
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { Grid, Paper,Avatar, Box, Typography, Button, CircularProgress, Snackbar,Alert } from '@mui/material'
 import LockIcon from '@mui/icons-material/Lock';
 import Input from '@mui/material/Input';
@@ -34,8 +35,6 @@ const InitialPasswordRest = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const from = location.state?.from?.pathname || "/"; // where the use got here
-
-    console.log(auth);
 
     const handleClickShowPassword = () => {
         setShowPassword((show) => !show);
@@ -78,8 +77,36 @@ const InitialPasswordRest = () => {
 
     async function handlePasswordReset(event) {
         event.preventDefault();
-        setLoading(true);
+        //validations
+        /*
+        if (password !== confirmPassword) {
+            setErrorMsg("Passwords do not match");
+            return;
+        }
+        if (password.length < 8) {
+            setErrorMsg("Password must be at least 8 characters");
+            return;
+        }
+        if (!password.match(/[a-z]/)) {
+            setErrorMsg("Password must contain at least one lowercase character");
+            return;
+        }
+        if (!password.match(/[A-Z]/)) {
+            setErrorMsg("Password must contain at least one uppercase character");
+            return;
+        }
+        if (!password.match(/[0-9]/)) {
+            setErrorMsg("Password must contain at least one number");
+            return;
+        }
+        if (!specialCharacters.some((char) => password.includes(char))) {
+            setErrorMsg("Password must contain at least one special character");
+            return;
+        }
+        */
+        
         try {
+            setLoading(true);
             // get the CSRF-cookie
             await axios.get("/sanctum/csrf-cookie");
             await axios.post(
@@ -113,7 +140,10 @@ const InitialPasswordRest = () => {
         
     }
 
+    const specialCharacters = ["!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "-", "_", "=", "+", "[", "]", "{", "}", ";", ":", "'", '"', ",", "<", ".", ">", "/", "?", "|", "\\", "`", "~"];
+
     useEffect(() => {
+        console.log("auth : ",auth);
         let from = location.state?.from?.pathname || auth?.authRole[0]? "/"+auth?.authRole[0] : "/login";
         !auth?.initialLogin && navigate(from, { replace: false });
     }, []);
@@ -252,6 +282,29 @@ const InitialPasswordRest = () => {
                                             >
                                                 {loading ? <CircularProgress thickness={6} color='secondary' size={24} /> : 'Change Password'}
                                             </Button>
+                                            <Typography align="left" style={{color:"black",fontSize:"1rem"}} variant="h6">Your password must have : </Typography>
+                                            <Box sx={{margin:"1rem 0",width:"100%",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap"}}>
+                                                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",width:"45%",margin:"0.3rem 0"}}>
+                                                    <Typography variant="body">one lowercase character</Typography>
+                                                    {password.match(/[a-z]/) ? <CheckCircleIcon sx={{color:"green"}}/> : <CheckCircleOutlineIcon sx={{color:"lightgreen"}}/>}
+                                                </div>
+                                                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",width:"45%",margin:"0.3rem 0"}}>
+                                                    <Typography variant="body">one uppercase character</Typography>
+                                                    {password.match(/[A-Z]/) ? <CheckCircleIcon sx={{color:"green"}}/> : <CheckCircleOutlineIcon sx={{color:"lightgreen"}}/>}
+                                                </div>
+                                                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",width:"45%",margin:"0.3rem 0"}}>
+                                                    <Typography variant="body">one special character</Typography>
+                                                    {specialCharacters.some((char) => password.includes(char)) ? <CheckCircleIcon sx={{color:"green"}}/> : <CheckCircleOutlineIcon sx={{color:"lightgreen"}}/>}
+                                                </div>
+                                                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",width:"45%",margin:"0.3rem 0"}}>
+                                                    <Typography variant="body">one number</Typography>
+                                                    {password.match(/[0-9]/) ? <CheckCircleIcon sx={{color:"green"}}/> : <CheckCircleOutlineIcon sx={{color:"lightgreen"}}/>}
+                                                </div>
+                                                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",width:"45%",margin:"0.3rem 0"}}>
+                                                    <Typography variant="body">at least 8 characters</Typography>
+                                                    {password.length >= 8 ? <CheckCircleIcon sx={{color:"green"}}/> : <CheckCircleOutlineIcon sx={{color:"lightgreen"}}/>}
+                                                </div>                                                
+                                            </Box>
                                         </form>
                                         {/* success message */}
                                         <Snackbar
