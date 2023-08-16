@@ -112,8 +112,11 @@ const pgAssignments = () => {
 
     return (
         <>
+            <Typography align='center' fontWeight={600} variant="h5" gutterBottom component="div" style={{marginRight:'20px'}}>
+                Postgraduate programme review Assignments
+            </Typography>
             <Box sx={{
-                display:'flex',alignItems:'center',justifyContent:'center',width:'100%'
+                display:'flex',alignItems:'center',justifyContent:'center',width:'100%',marginTop:'20px',
             }}>
                 <Autocomplete
                     sx={{width:'50%',marginBottom:'20px',}}
