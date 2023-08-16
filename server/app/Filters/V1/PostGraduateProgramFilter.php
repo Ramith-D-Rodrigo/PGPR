@@ -77,7 +77,7 @@ class PostGraduateProgramFilter extends ApiFilter{
                 //set the eloquent query to filter only the university pgps
                 //get the university id of the user
                 $user = Auth::user();
-                $facultyIDs = $user -> universitySide -> universities -> faculties -> pluck('id') -> toArray();
+                $facultyIDs = $user -> universitySide -> university -> faculties -> pluck('id') -> toArray();
 
                 //find the column faculty_id in query items
                 $facultyIdColumnIndex = array_search('faculty_id', array_column($this -> whereInQuery, 0));
