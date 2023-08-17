@@ -14,37 +14,7 @@ class StorePostGraduateProgramRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        //only cqa director can create post graduate programs
-        $uniSide = Auth::user() -> universitySide ?? null;
-
-        if($uniSide === null){
-            return false;
-        }
-
-        $qaStaff = $uniSide -> qualityAssuranceStaff ?? null;
-        if($qaStaff === null){
-            return false;
-        }
-
-        $cqaDirector = $qaStaff -> centerForQualityAssuranceDirector ?? null;
-
-        //only can create for his university
-
-        //use faculty id to get the university id
-        $facultyId = $this -> faculty_id;
-        $faculty = Faculty::find($facultyId);
-
-        if($faculty === null){  //if faculty not found
-            return false;
-        }
-
-        $universityId = $faculty -> university_id;
-
-        if($universityId !== $uniSide -> university_id){
-            return false;
-        }
-
-        return $cqaDirector !== null;
+        return true;
     }
 
     /**

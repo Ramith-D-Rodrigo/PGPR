@@ -47,7 +47,12 @@ class PostGraduateProgramPolicy
         $faculty = Faculty::find(request() -> faculty_id);
 
         //compare the univeristy of the faculty with the university of the cqa director
-        if($faculty -> university_id != $user -> universitySide -> university_id){
+        if($faculty -> university_id != $user -> universitySide
+                                            -> qualityAssuranceStaff
+                                            -> centerForQualityAssuranceDirector
+                                            -> centerForQualityAssurance
+                                            -> university
+                                            -> id){
             return Response::deny('You do not belong to the same university as the faculty you are trying to create a post graduate program for');
         }
 
@@ -73,7 +78,12 @@ class PostGraduateProgramPolicy
         //check if cqa director's university is the same as the university of the post graduate program
 
         //check the university of the post graduate program
-        if($postGraduateProgram -> faculty -> university_id != $user -> universitySide -> university_id){
+        if($postGraduateProgram -> faculty -> university_id != $user -> universitySide
+                                                                    -> qualityAssuranceStaff
+                                                                    -> centerForQualityAssuranceDirector
+                                                                    -> centerForQualityAssurance
+                                                                    -> university
+                                                                    -> id){
             return Response::deny('You do not belong to the same university as the post graduate program you are trying to update');
         }
 
