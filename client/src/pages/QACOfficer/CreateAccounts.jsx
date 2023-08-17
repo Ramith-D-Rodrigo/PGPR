@@ -4,13 +4,19 @@ import FormField from '../../components/FormField';
 import CQADirectorForm from './CQADirectorForm';
 import ViceChancellorForm from './ViceChancellorForm';
 import UserDetailsForm from './UserDetailsForm';
-import { Divider } from '@mui/material';
+import { Divider, Typography } from '@mui/material';
 import { SERVER_API_VERSION, SERVER_URL } from '../../assets/constants';
+import { Snackbar, Alert, CircularProgress, Button, Box } from '@mui/material';
 import axios from '../../api/api.js';
+import { useNavigate } from 'react-router-dom';
 
 const CreateAccounts = () => {
 
+    const navigate = useNavigate();
     const [role, setRole] = React.useState("vice_chancellor");
+    const [errorMsg, setErrorMsg] = React.useState("");
+    const [success, setSuccess] = React.useState(false);
+    const [Loading, setLoading] = React.useState(false);
 
     let formData = null;
 
@@ -18,19 +24,42 @@ const CreateAccounts = () => {
         setRole(e.target.value);
     }
 
-    const handleVCSubmit = (e) => {
+    const handleVCSubmit = async(e) => {
+        errorMsg && setErrorMsg("");
+        setLoading(true);
         axios.post(SERVER_URL + SERVER_API_VERSION + "viceChancellors", formData)
             .then(res => {
                 console.log(res.data);
+                setLoading(false);
+                setSuccess(true);
+                setTimeout(() => {
+                    navigate("../");
+                }, 1500);
             }
-        )
+        ).catch(err => {
+            console.log(err);
+            setErrorMsg(err?.response?.data?.message);
+            setLoading(false);
+        })
     }
 
-    const handleCQASubmit = (e) => {
+    const handleCQASubmit = async(e) => {
+        errorMsg && setErrorMsg("");
+        setLoading(true);
         axios.post(SERVER_URL + SERVER_API_VERSION + "cqaDirectors", formData)
             .then(res => {
                 console.log(res.data);
+                setLoading(false);
+                setSuccess(true);
+                setTimeout(() => {
+                    navigate("../");
+                }, 1500);
             }
+        ).catch(err => {
+            console.log(err);
+            setErrorMsg(err?.response?.data?.message);
+            setLoading(false);
+        }
         )
     }
 
@@ -66,7 +95,32 @@ const CreateAccounts = () => {
                             <ViceChancellorForm/> : <CQADirectorForm/>    
                         } 
                     />
+                    <Box sx={{margin:"0.5rem 0",display:'flex',flexWrap:"wrap",justifyContent:'center',alignItems:'center',width:'100%'}}>
+                        {Loading? "Processing " : ""}
+                        {Loading && <CircularProgress style={{margin:"0 0.5rem"}} color="primary" size={24} />}
+                    </Box>
                 </form>
+
+                <Snackbar
+                    open={errorMsg == "" ? false : true}
+                    anchorOrigin={{ vertical: "top", horizontal: "center" }}
+                    onClose={() => setErrorMsg("")}
+                >
+                    <Alert onClose={() => setErrorMsg("")} severity="error">
+                        {errorMsg}
+                    </Alert>
+                </Snackbar>
+
+                <Snackbar
+                    open={success}
+                    autoHideDuration={1500}
+                    onClose={() => setSuccess(false)}
+                    anchorOrigin={{ vertical: "top", horizontal: "center" }}
+                >
+                    <Alert onClose={() => setSuccess(false)} severity="success">
+                        Created Successfully!
+                    </Alert>
+                </Snackbar>
         </>
     )
 }
