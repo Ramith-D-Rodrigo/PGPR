@@ -165,6 +165,40 @@ class PostGraduateProgramReviewApplicationPolicy
         return Response::allow();
     }
 
+    public function submitAuthorize(User $user, PostGraduateProgramReviewApplication $postGraduateProgramReviewApplication): Response
+    {
+        //only dean can submit the application, but only if it is not submitted and he should be the same person who created the application
+        $currUserRole = request() -> session() -> get('authRole');
+
+        if ($currUserRole != 'dean') {
+            return Response::deny('You are not allowed to submit this application');
+        }
+
+        //dean can only submit applications for pgps in his/her faculty
+        $deanFaculty = $user -> universitySide -> academicStaff -> dean -> faculty -> id;
+
+        //get the faculty of the application
+        $applicationFaculty = $postGraduateProgramReviewApplication -> postGraduateProgram -> faculty_id;
+
+        if ($deanFaculty != $applicationFaculty) {
+            return Response::deny('You are not allowed to submit this application');
+        }
+
+        //dean can only submit applications that have status of 'creating'
+        if ($postGraduateProgramReviewApplication -> status != 'creating') {
+            return Response::deny('You are not allowed to submit this application');
+        }
+
+        //dean can only submit applications that he created
+        $deanId = $user -> id;
+
+        if($postGraduateProgramReviewApplication -> dean_id != $deanId){
+            return Response::deny('You are not allowed to submit this application');
+        }
+
+        return Response::allow();
+    }
+
 
     public function cqaDirectorRecommendationAuthorize(User $user, PostGraduateProgramReviewApplication $postGraduateProgramReviewApplication): Response
     {
@@ -210,8 +244,7 @@ class PostGraduateProgramReviewApplicationPolicy
         //since qac director is also a qac officer, we need to exclude him/her
 
         if ($currUserRole != 'qac_director' || $currUserRole != 'qac_officer') {
-            echo $currUserRole;
-            return Response::deny('You are not allowed to approve this application');
+            return Response::deny('You are not allowed to approve or reject this application');
         }
 
         //only approves the applications that are applied
@@ -219,7 +252,7 @@ class PostGraduateProgramReviewApplicationPolicy
             return Response::allow();
         }
 
-        return Response::deny('You are not allowed to approve this application');
+        return Response::deny('You are not allowed to approve or reject this application');
     }
 
     /**
