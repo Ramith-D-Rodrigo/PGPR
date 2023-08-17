@@ -18,6 +18,9 @@ class PostGraduateProgramFactory extends Factory
     {
         return [
             //
+            'title' => fake()->title(),
+            'slqf_level' => fake()->numberBetween(1, 12),
+            'commencement_year' => fake()->year(),
         ];
     }
 }

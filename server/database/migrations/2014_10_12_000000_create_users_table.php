@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -18,7 +17,7 @@ return new class extends Migration
             $table->string('surname');
             $table->json('roles')->nullable();
             $table->json('contact_no');
-            $table->string('profile_pic') -> nullable();
+            $table->string('profile_pic')->nullable();
             $table->string('official_telephone_no');
             $table->string('nic')->unique();
             $table->enum('gender', ['m', 'f']);
@@ -33,7 +32,7 @@ return new class extends Migration
             $table->timestamps();
 
             //foreign key
-            $table -> foreign('created_by') -> references('id') -> on('users');
+            $table->foreign('created_by')->references('id')->on('users');
         });
     }
 

@@ -31,6 +31,18 @@ class DeanController extends Controller
 
             $deans = Dean::where($queryItems);
 
+            //where in and where not in query items
+
+            $whereInQueryItems = $filter -> getWhereInQuery();
+            foreach($whereInQueryItems as $whereInQueryItem){
+                $deans = $deans -> whereIn($whereInQueryItem[0], $whereInQueryItem[1]);
+            }
+
+            $whereNotInQueryItems = $filter -> getWhereNotInQuery();
+            foreach($whereNotInQueryItems as $whereNotInQueryItem){
+                $deans = $deans -> whereNotIn($whereNotInQueryItem[0], $whereNotInQueryItem[1]);
+            }
+
             //related data
 
             $academicStaff = request() -> query('includeAcademicStaff');

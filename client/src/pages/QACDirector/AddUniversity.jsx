@@ -1,3 +1,4 @@
+import { SERVER_API_VERSION, SERVER_URL } from '../../assets/constants';
 import React from 'react'
 import { Button, Checkbox, CircularProgress, FormControl, FormControlLabel, FormGroup, IconButton, Input, InputAdornment, InputLabel, MenuItem, Select,Snackbar,Alert, Box } from '@mui/material'
 import FormHelperText from '@mui/material/FormHelperText';
@@ -231,7 +232,7 @@ function AddUniversity() {
         }
         else{
             await axios.get('/sanctum/csrf-cookie');
-            await axios.post('/api/v1/universities',
+            await axios.post(SERVER_URL+SERVER_API_VERSION+'universities/',
             {
                 name:universityName,
                 address: universityAddress,
@@ -380,7 +381,7 @@ function AddUniversity() {
             </FormControl>
 
             <FormControl sx={{padding:"15px 10px",width:'50%',boxSizing:'border-box'}} {...cqaEmailError.err} variant="standard">
-                <InputLabel htmlFor="cqa-email"><b>QAC Email</b></InputLabel>
+                <InputLabel htmlFor="cqa-email"><b>CQA Email</b></InputLabel>
                 <Input
                 required
                 // autoComplete='off'
@@ -417,8 +418,8 @@ function AddUniversity() {
                             {uniContactNumbers.errMsgs[index].err.error && <FormHelperText id="uni-contact-no">{uniContactNumbers.errMsgs[index].msg}</FormHelperText>}
                             
                         </FormControl>
-                        {uniContactNumbers.numbers.length === index+1 && index!==0 && <RemoveCircleOutlineIcon onClick={() => handleRemoveUniContactNumber(index)} style={{cursor:'pointer',color:'red',margin:'0 0 0 10px'}} />}
-                        {uniContactNumbers.numbers.length === index+1 && <AddCircleOutlineIcon onClick={() => handleAddUniContactNumber(index+1)} style={{cursor:'pointer',color:'green',margin:'0 0 0 10px'}} />}
+                        {index!==0 && <RemoveCircleOutlineIcon onClick={() => handleRemoveUniContactNumber(index)} style={{cursor:'pointer',color:'red',margin:'0 0 0 10px'}} />}
+                        {index===0 && <AddCircleOutlineIcon onClick={() => handleAddUniContactNumber(index+1)} style={{cursor:'pointer',color:'green',margin:'0 0 0 10px'}} />}
                         </div>
                     )
                     })
@@ -451,8 +452,8 @@ function AddUniversity() {
                             {uniFaxNumbers.errMsgs[index].err.error && <FormHelperText id="uni-fax-no">{uniFaxNumbers.errMsgs[index].msg}</FormHelperText>}
                             
                         </FormControl>
-                        {uniFaxNumbers.numbers.length === index+1 && index!==0 && <RemoveCircleOutlineIcon onClick={() => handleRemoveUniFaxNumber(index)} style={{cursor:'pointer',color:'red',margin:'0 0 0 10px'}} />}
-                        {uniFaxNumbers.numbers.length === index+1 && <AddCircleOutlineIcon onClick={() => handleAddUniFaxNumber(index+1)} style={{cursor:'pointer',color:'green',margin:'0 0 0 10px'}} />}
+                        {index !== 0 && index!==0 && <RemoveCircleOutlineIcon onClick={() => handleRemoveUniFaxNumber(index)} style={{cursor:'pointer',color:'red',margin:'0 0 0 10px'}} />}
+                        {index === 0 && <AddCircleOutlineIcon onClick={() => handleAddUniFaxNumber(index+1)} style={{cursor:'pointer',color:'green',margin:'0 0 0 10px'}} />}
                         </div>
                     )
                     })
@@ -485,8 +486,8 @@ function AddUniversity() {
                             {cqaContactNumbers.errMsgs[index].err.error && <FormHelperText id="cqa-contact-no">{cqaContactNumbers.errMsgs[index].msg}</FormHelperText>}
                             
                         </FormControl>
-                        {cqaContactNumbers.numbers.length === index+1 && index!==0 && <RemoveCircleOutlineIcon onClick={() => handleRemoveCqaContactNumber(index)} style={{cursor:'pointer',color:'red',margin:'0 0 0 10px'}} />}
-                        {cqaContactNumbers.numbers.length === index+1 && <AddCircleOutlineIcon onClick={() => handleAddCqaContactNumber(index+1)} style={{cursor:'pointer',color:'green',margin:'0 0 0 10px'}} />}
+                        {index !== 0 && index!==0 && <RemoveCircleOutlineIcon onClick={() => handleRemoveCqaContactNumber(index)} style={{cursor:'pointer',color:'red',margin:'0 0 0 10px'}} />}
+                        {index === 0 && <AddCircleOutlineIcon onClick={() => handleAddCqaContactNumber(index+1)} style={{cursor:'pointer',color:'green',margin:'0 0 0 10px'}} />}
                         </div>
                     )
                     })
@@ -519,8 +520,8 @@ function AddUniversity() {
                             {cqaFaxNumbers.errMsgs[index].err.error && <FormHelperText id="cqa-fax-no">{cqaFaxNumbers.errMsgs[index].msg}</FormHelperText>}
                             
                         </FormControl>
-                        {cqaFaxNumbers.numbers.length === index+1 && index!==0 && <RemoveCircleOutlineIcon onClick={() => handleRemoveCqaFaxNumber(index)} style={{cursor:'pointer',color:'red',margin:'0 0 0 10px'}} />}
-                        {cqaFaxNumbers.numbers.length === index+1 && <AddCircleOutlineIcon onClick={() => handleAddCqaFaxNumber(index+1)} style={{cursor:'pointer',color:'green',margin:'0 0 0 10px'}} />}
+                        {index !== 0 && index!==0 && <RemoveCircleOutlineIcon onClick={() => handleRemoveCqaFaxNumber(index)} style={{cursor:'pointer',color:'red',margin:'0 0 0 10px'}} />}
+                        {index === 0 && <AddCircleOutlineIcon onClick={() => handleAddCqaFaxNumber(index+1)} style={{cursor:'pointer',color:'green',margin:'0 0 0 10px'}} />}
                         </div>
                     )
                     })

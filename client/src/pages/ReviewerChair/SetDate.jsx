@@ -86,7 +86,7 @@ const SetDate = () => {
   );
 
   return (
-    <ScrollableDiv height="600px">
+    <div height="auto">
       <div className="max-w-6xl mx-auto p-6 bg-white rounded-md">
         <Form
           topic="Set Dates for Desk Evaluation and Proper Evaluation"
@@ -98,7 +98,7 @@ const SetDate = () => {
           onSubmit={handleSubmit}
         />
       </div>
-    </ScrollableDiv>
+    </div>
   );
 };
 
