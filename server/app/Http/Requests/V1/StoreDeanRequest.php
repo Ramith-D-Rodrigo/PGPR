@@ -79,6 +79,11 @@ class StoreDeanRequest extends StoreAcademicStaffRequest
     public function prepareForValidation(){
         parent::prepareForValidation();
 
+        //merge university id from current logged in cqa director's university id
+        $this -> merge([
+            'university_id' => Auth::user() -> universitySide -> university_id
+        ]);
+
         $this -> merge([
             'curr_dean' => Faculty::findOrFail($this -> faculty_id) -> dean_id //get the current dean of the faculty
         ]);
