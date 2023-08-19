@@ -30,6 +30,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\V1\ReviewerImport;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Validation\ValidationException as ValidationValidationException;
 use Maatwebsite\Excel\Validators\ValidationException;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -49,6 +50,9 @@ class ReviewerController extends Controller
     public function importReviewers(): JsonResponse
     {
         try {
+            //authorize the action
+            $this -> authorize('create', Reviewer::class);
+
             Excel::import(new ReviewerImport, request()->file('file'));
             //$arr = Excel::toArray(new ReviewerImport, request()->file('file'));
 
@@ -56,7 +60,13 @@ class ReviewerController extends Controller
             return response()->json([
                 'message' => 'Reviewers imported successfully'
             ], 200);
-        } catch (\Google\Service\Exception $e) { //google drive error
+        }
+        catch(AuthorizationException $e){
+            return response() -> json([
+                'message' => $e -> getMessage(),
+            ], 403);
+        }
+        catch (\Google\Service\Exception $e) { //google drive error
             return response()->json([
                 'message' => 'Error occurred while importing reviewers',
                 'error' => $e->getErrors(),
