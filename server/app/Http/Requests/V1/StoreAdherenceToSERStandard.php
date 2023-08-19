@@ -15,18 +15,7 @@ class StoreAdherenceToSERStandard extends FormRequest
      */
     public function authorize(): bool
     {
-        //only allow programme coordinator to store adherence to standard (role is checked from the middleware)
-        //only need to check whether these roles belong to the particular post graduate program review
-        $user = Auth::user();
-
-        //get the ser from the request
-        $SER = $this->route('selfEvaluationReport');
-
-        //check the pgp coordinator id
-        if ($user->id == $SER -> pgp_coordinator_id ?? null) {
-            return true;
-        }
-        return false;
+        return true;
     }
 
     /**
@@ -38,7 +27,7 @@ class StoreAdherenceToSERStandard extends FormRequest
     {
         //standard id is required and that standard must be applicable to the slqf level of the post graduate program review
         $applicableSLQFLevels = StandardService::getApplicableSLQFLevels(Standard::findOrFail($this->standard_id));
-        
+
         return [
             'standard_id' => ['required', 'exists:standards,id'],
             'slqf_level' => ['required', 'in:'.implode(',', $applicableSLQFLevels)],
