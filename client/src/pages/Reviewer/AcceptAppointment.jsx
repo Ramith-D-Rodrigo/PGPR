@@ -12,6 +12,8 @@ import FormControl from '@mui/material/FormControl';
 import IconButton from '@mui/material/IconButton';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import { SERVER_API_VERSION, SERVER_URL } from "../../assets/constants.js";
+import { Link } from "react-router-dom";
 import React from 'react';
 
 function AcceptAppointment() {
@@ -19,11 +21,17 @@ function AcceptAppointment() {
     const navigate = useNavigate();
     const location = useLocation();
     const [accepted, setAccepted] = useState(false);
+    const [appointmentLetter, setAppointmentLetter] = useState(null);
+    const [success, setSuccess] = useState(false);
+    const [errorMsg, setErrorMsg] = useState("");
+    const [Loading, setLoading] = useState(false);
 
     useEffect(() => {
         document.title = "Reviewer | Accept Appointment";
         const root = document.querySelector('#root');
         root.style.backgroundImage = "linear-gradient(to right, #6194e7, #adcbfc)";
+
+        //TODO: redirect if already accepted
     }, []);
 
     const handleLogOut = async() => {
@@ -50,12 +58,52 @@ function AcceptAppointment() {
         //navigate to login
     }
 
-    const handleDownloadLetter = async() => {
-        //download letter
-    }
-
-    const handleSubmitAppointmentLetter = async() => {
+    const handleSubmitAppointmentLetter = async(evt) => {
+        evt.preventDefault();
+        if(appointmentLetter == null) {
+            setErrorMsg("Please upload the appointment letter");
+            return;
+        }
+        const formdata = new FormData();
+        formdata.append("file", appointmentLetter);
         //call api
+        try {
+            setLoading(true);
+            axios.get("/sanctum/csrf-cookie");
+            let response = await axios.post(
+                SERVER_URL+SERVER_API_VERSION+"reviewers/accept-appointment",
+                formdata, 
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                } 
+            );
+            console.log(response?.status);
+            if(response?.status == 200) {
+                setSuccess(true);
+                setTimeout(()=>handleLogOut(), 2000);
+            }
+            else if(response?.status == 401) {
+                setErrorMsg("You are not authorized to perform this action");
+                setTimeout(()=>handleLogOut(), 2000);
+            }
+            else if(response?.status == 201){
+                setSuccess(true);
+                setTimeout(()=>handleLogOut(), 2000);
+            }
+            setAccepted(true);
+            setLoading(false);
+        }
+        catch (error) {
+            if (!error?.response) {
+                setErrorMsg("No Server Response");
+            } else {
+                console.log(error);
+                setErrorMsg(error?.response?.data?.message);
+            }
+            setLoading(false);   
+        }
         //navigate to login
     }
 
@@ -104,10 +152,11 @@ function AcceptAppointment() {
                                         
                                             {/* show errors */}
                                             {/* <p style={{color:'red'}} ref={errorRef}>{errorMsg}</p> */}
-                                            <Button style={{margin:"0 0 15px"}} onClick={handleDownloadLetter} type='submit' color='primary' variant="contained" fullWidth
-                                            >
-                                                Download Appoinment Letter
-                                            </Button>
+                                            <Link to= {SERVER_URL+SERVER_API_VERSION+"reviewers/download-declaration"}>
+                                                <Button style={{margin:"0 0 15px"}} type='submit' color='primary' variant="contained" fullWidth>
+                                                    Download Appoinment Letter
+                                                </Button>
+                                            </Link>
                                         {/* success message */}
                                         {/* <Snackbar
                                             open={errorMsg =="" ? false : true}
@@ -153,7 +202,10 @@ function AcceptAppointment() {
                                         <TextField
                                             sx={{margin:"15px 0",width:"100%",height:"100%"}}
                                             id="letter"
-                                            type='file' 
+                                            type='file'
+                                            required
+                                            accepted=".pdf"
+                                            onChange={(e)=>setAppointmentLetter(e.target.files[0])}
                                         />
                                                 
                                     </Box>
@@ -162,7 +214,8 @@ function AcceptAppointment() {
                                         <Button style={{margin:"0 0 15px"}} type='submit' color='primary' variant="contained"
                                             onClick={handleSubmitAppointmentLetter}
                                             >
-                                                Submit
+                                                {Loading ? "Submitting " : "Submit "}
+                                                {Loading ? <CircularProgress style={{color:"white",marginLeft:"0.5rem"}} size={24} /> : ""}
                                         </Button>
                                         <Button style={{margin:"0 0 15px"}} type='submit' color='primary' variant="contained"
                                             onClick={()=>setAccepted(false)}
@@ -183,6 +236,28 @@ function AcceptAppointment() {
                         Log Out
                 </Button>
             </Box>
+
+            <Snackbar
+                open={errorMsg == "" ? false : true}
+                autoHideDuration={1500}
+                anchorOrigin={{ vertical: "top", horizontal: "center" }}
+                onClose={() => setErrorMsg("")}
+            >
+                <Alert onClose={() => setErrorMsg("")} severity="error">
+                    {errorMsg}
+                </Alert>
+            </Snackbar>
+
+            <Snackbar
+                open={success}
+                autoHideDuration={2000}
+                onClose={() => setSuccess(false)}
+                anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            >
+                <Alert onClose={() => setSuccess(false)} severity="success">
+                    Saved Successfully!
+                </Alert>
+            </Snackbar>
         </>
   )
 }
