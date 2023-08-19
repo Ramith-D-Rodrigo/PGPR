@@ -9,14 +9,20 @@ import LockIcon from '@mui/icons-material/Lock';
 import Input from '@mui/material/Input';
 import InputAdornment from '@mui/material/InputAdornment';
 import FormControl from '@mui/material/FormControl';
-import IconButton from '@mui/material/IconButton';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 import { SERVER_API_VERSION, SERVER_URL } from "../../assets/constants.js";
 import { Link } from "react-router-dom";
 import React from 'react';
 
 function AcceptAppointment() {
+    const theme = useTheme();
+    const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
     const {auth, setAuth} = useContext(AuthContext);
     const navigate = useNavigate();
     const location = useLocation();
@@ -25,6 +31,9 @@ function AcceptAppointment() {
     const [success, setSuccess] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
     const [Loading, setLoading] = useState(false);
+    const [open, setOpen] = useState(false);
+
+    const disableBTNs = Loading? {disabled:true} : {disabled:false};
 
     useEffect(() => {
         document.title = "Reviewer | Accept Appointment";
@@ -55,6 +64,10 @@ function AcceptAppointment() {
 
     const handleRejectAppointment = async() => {
         //call api
+        setOpen(false);
+        setLoading(true);
+        setErrorMsg("You have rejected the appointment");
+        setTimeout(()=>handleLogOut(), 2000);
         //navigate to login
     }
 
@@ -153,7 +166,7 @@ function AcceptAppointment() {
                                             {/* show errors */}
                                             {/* <p style={{color:'red'}} ref={errorRef}>{errorMsg}</p> */}
                                             <Link to= {SERVER_URL+SERVER_API_VERSION+"reviewers/download-declaration"}>
-                                                <Button style={{margin:"0 0 15px"}} type='submit' color='primary' variant="contained" fullWidth>
+                                                <Button {...disableBTNs} style={{margin:"0 0 15px"}} type='submit' color='primary' variant="contained" fullWidth>
                                                     Download Appoinment Letter
                                                 </Button>
                                             </Link>
@@ -179,15 +192,16 @@ function AcceptAppointment() {
                                 </Box>
                                 <Box sx={{display:"flex",alignItems:"center",justifyContent:'space-between'}}>
 
-                                    <Button style={{margin:"0 0 15px"}} type='submit' color='primary' variant="contained"
+                                    <Button {...disableBTNs} style={{margin:"0 0 15px"}} type='submit' color='primary' variant="contained"
                                         onClick={()=>setAccepted(true)}
                                         >
                                             Accept the Appointment
                                     </Button>
-                                    <Button style={{margin:"0 0 15px"}} type='submit' color='primary' variant="contained"
-                                        onClick={handleRejectAppointment}
+                                    <Button {...disableBTNs} style={{margin:"0 0 15px"}} type='submit' color='primary' variant="contained"
+                                        onClick={()=>setOpen(true)}
                                         >
-                                            Reject the Appointment
+                                            {Loading ? "Rejecting " : "Reject the Appointment "}
+                                            {Loading ? <CircularProgress style={{marginLeft:"0.5rem"}} size={24} /> : ""}
                                     </Button>
                                 </Box>
                             </Paper>}
@@ -211,13 +225,13 @@ function AcceptAppointment() {
                                     </Box>
                                     <Box sx={{display:"flex",alignItems:"center",justifyContent:'space-between'}}>
 
-                                        <Button style={{margin:"0 0 15px"}} type='submit' color='primary' variant="contained"
+                                        <Button {...disableBTNs} style={{margin:"0 0 15px"}} type='submit' color='primary' variant="contained"
                                             onClick={handleSubmitAppointmentLetter}
                                             >
                                                 {Loading ? "Submitting " : "Submit "}
-                                                {Loading ? <CircularProgress style={{color:"white",marginLeft:"0.5rem"}} size={24} /> : ""}
+                                                {Loading ? <CircularProgress style={{marginLeft:"0.5rem"}} size={24} /> : ""}
                                         </Button>
-                                        <Button style={{margin:"0 0 15px"}} type='submit' color='primary' variant="contained"
+                                        <Button {...disableBTNs} style={{margin:"0 0 15px"}} type='submit' color='primary' variant="contained"
                                             onClick={()=>setAccepted(false)}
                                             >
                                                 cancel
@@ -229,7 +243,7 @@ function AcceptAppointment() {
                 </Grid>
             </Box>
             <Box sx={{position:'absolute',margin:'0 20px',right:0,bottom:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
-                <Button style={{margin:"0 0 15px"}} type='submit' color='primary' variant="contained"
+                <Button {...disableBTNs} style={{margin:"0 0 15px"}} type='submit' color='primary' variant="contained"
 
                     onClick={handleLogOut}
                     >
@@ -258,6 +272,30 @@ function AcceptAppointment() {
                     Saved Successfully!
                 </Alert>
             </Snackbar>
+
+            <Dialog
+                fullScreen={fullScreen}
+                open={open}
+                onClose={()=>setOpen(false)}
+                aria-labelledby="submit-appointment"
+            >
+                <DialogTitle id="submit-appointmentID">
+                {"Are you sure that you want to Reject this appointment?"}
+                </DialogTitle>
+                <DialogContent>
+                <DialogContentText>
+                    If you reject this appointment, you will be logged out from the system.
+                </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                <Button autoFocus onClick={()=>setOpen(false)}>
+                    cancel
+                </Button>
+                <Button onClick={()=>handleRejectAppointment()} autoFocus>
+                    Reject
+                </Button>
+                </DialogActions>
+            </Dialog>
         </>
   )
 }
