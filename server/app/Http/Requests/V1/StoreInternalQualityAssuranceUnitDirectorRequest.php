@@ -14,18 +14,6 @@ class StoreInternalQualityAssuranceUnitDirectorRequest extends StoreQualityAssur
      */
     public function authorize(): bool
     {
-        //only cqa director can store iqau director (role is already authorized from the middleware)
-        //check for same university side
-        $uniSide = Auth::user() -> universitySide ?? null;
-
-        if($uniSide === null){
-            return false;
-        }
-
-        if($uniSide -> university_id != $this -> university_id) {
-            return false;
-        }
-
         return true;
     }
 
@@ -61,6 +49,7 @@ class StoreInternalQualityAssuranceUnitDirectorRequest extends StoreQualityAssur
         //add the iqau id by finding the iqau of the faculty id
         $faculty = Faculty::findOrFail($this -> faculty_id);
         $this -> merge([
+            'university_id' => $faculty -> university_id, //this is the university id of the faculty
             'iqau_id' => $faculty -> internalQualityAssuranceUnit -> id,
             'iqau_dir_id' => $faculty -> internalQualityAssuranceUnit -> iqau_dir_id //this is the current iqau director id
         ]);
