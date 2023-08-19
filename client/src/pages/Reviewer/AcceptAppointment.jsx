@@ -20,6 +20,12 @@ function AcceptAppointment() {
     const location = useLocation();
     const [accepted, setAccepted] = useState(false);
 
+    useEffect(() => {
+        document.title = "Reviewer | Accept Appointment";
+        const root = document.querySelector('#root');
+        root.style.backgroundImage = "linear-gradient(to right, #6194e7, #adcbfc)";
+    }, []);
+
     const handleLogOut = async() => {
         try {
             axios.get("/sanctum/csrf-cookie");

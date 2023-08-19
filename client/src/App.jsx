@@ -11,7 +11,7 @@ import LoginPersist from "./components/LoginPersist.jsx";
 import PGPRApplication from "./pages/Dean/PGPRApplication";
 import PGPRApplications from "./pages/Dean/PGPRApplications";
 import EditPGPRApplication from "./pages/Dean/EditPGPRApplication";
-import ResetInitialPassword from "./components/ResetInitialPassword.jsx";
+import ResetInitialPassword from "./pages/ResetInitialPassword.jsx";
 import Ser from './pages/ProgrammeCoordinator/Ser';
 import SubmitPGPR from './pages/ProgrammeCoordinator/SubmitPGPR';
 import EditSer from './pages/ProgrammeCoordinator/EditSer';

@@ -143,6 +143,9 @@ const InitialPasswordRest = () => {
     const specialCharacters = ["!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "-", "_", "=", "+", "[", "]", "{", "}", ";", ":", "'", '"', ",", "<", ".", ">", "/", "?", "|", "\\", "`", "~"];
 
     useEffect(() => {
+        document.title = "Initial Password Reset";
+        const root = document.querySelector("#root");
+        root.style.backgroundImage = "linear-gradient(to right, #6194e7, #adcbfc)";
         console.log("auth : ",auth);
         let from = location.state?.from?.pathname || auth?.authRole[0]? "/"+auth?.authRole[0] : "/login";
         !auth?.initialLogin && navigate(from, { replace: false });
