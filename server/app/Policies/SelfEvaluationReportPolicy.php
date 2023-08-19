@@ -26,8 +26,9 @@ class SelfEvaluationReportPolicy
 
         $currRole = request() -> session() -> get('authRole');
 
+
         if($currRole == 'qac_officer' || $currRole == 'qac_director' || $currRole == 'reviewer'){
-            if($selfEvaluationReport -> postGraduateProgramReview -> status == 'PLANNING'){
+            if($selfEvaluationReport -> postGraduateProgramReview -> status_of_pgpr == 'PLANNING'){
                 return Response::deny('You cannot view this self evaluation report because the PGPR is in PLANNING stage');
             }
         }
@@ -38,7 +39,7 @@ class SelfEvaluationReportPolicy
     public function addAdherenceToStandardsAuthorize(User $user, SelfEvaluationReport $selfEvaluationReport): Response
     {
         //check whether self evaluation report is in PLANNING stage
-        if($selfEvaluationReport -> postGraduateProgramReview -> status != 'PLANNING'){
+        if($selfEvaluationReport -> postGraduateProgramReview -> status_of_pgpr != 'PLANNING'){
             return Response::deny('You cannot add adherence to standards because the PGPR is not in PLANNING stage');
         }
 
@@ -83,7 +84,7 @@ class SelfEvaluationReportPolicy
         $currRole = request() -> session() -> get('authRole');
 
         if($currRole == 'qac_officer' || $currRole == 'qac_director' || $currRole == 'reviewer'){
-            if($selfEvaluationReport -> postGraduateProgramReview -> status == 'PLANNING'){
+            if($selfEvaluationReport -> postGraduateProgramReview -> status_of_pgpr == 'PLANNING'){
                 return Response::deny('You cannot get standard evidences and adherence because the PGPR is in PLANNING stage');
             }
         }
@@ -94,7 +95,7 @@ class SelfEvaluationReportPolicy
     public function submitSelfEvaluationReportAuthorize(User $user, SelfEvaluationReport $selfEvaluationReport): Response
     {
         //check whether self evaluation report is in PLANNING stage
-        if($selfEvaluationReport -> postGraduateProgramReview -> status != 'PLANNING'){
+        if($selfEvaluationReport -> postGraduateProgramReview -> status_of_pgpr != 'PLANNING'){
             return Response::deny('You cannot submit self evaluation report because the PGPR is not in PLANNING stage');
         }
 
@@ -118,7 +119,7 @@ class SelfEvaluationReportPolicy
     public function recommendSelfEvaluationReportAuthorize(User $user, SelfEvaluationReport $selfEvaluationReport): Response
     {
         //check whether self evaluation report is in PLANNING stage
-        if($selfEvaluationReport -> postGraduateProgramReview -> status != 'PLANNING'){
+        if($selfEvaluationReport -> postGraduateProgramReview -> status_of_pgpr != 'PLANNING'){
             return Response::deny('You cannot recommend self evaluation report because the PGPR is not in PLANNING stage');
         }
 

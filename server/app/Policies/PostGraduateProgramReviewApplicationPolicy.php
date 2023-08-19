@@ -248,7 +248,7 @@ class PostGraduateProgramReviewApplicationPolicy
 
         //since qac director is also a qac officer, we need to exclude him/her
 
-        if ($currUserRole != 'qac_director' || $currUserRole != 'qac_officer') {
+        if ($currUserRole != 'qac_director' && $currUserRole != 'qac_officer') {
             return Response::deny('You are not allowed to approve or reject this application');
         }
 

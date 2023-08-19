@@ -52,6 +52,17 @@ class SelfEvaluationReportController extends Controller
      */
     public function show(SelfEvaluationReport $selfEvaluationReport)
     {
+
+        //authorize the request
+        try{
+            $this -> authorize('view', $selfEvaluationReport);
+        }
+        catch(AuthorizationException $e){
+            return response() -> json([
+                'message' => $e -> getMessage()
+            ], 403);
+        }
+
         //needed details
         //university name and faculty name
         //pgpr id
@@ -123,7 +134,7 @@ class SelfEvaluationReportController extends Controller
     {
         try{
             //authorize the request
-            $this -> authorize('getStandardEvidencesAndAdherence', $selfEvaluationReport);
+            $this -> authorize('addAdherenceToStandardsAuthorize', $selfEvaluationReport);
 
             $validatedData = $request->validated();
 
