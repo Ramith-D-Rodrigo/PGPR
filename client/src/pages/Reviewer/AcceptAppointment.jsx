@@ -242,14 +242,6 @@ function AcceptAppointment() {
                         </Grid>
                 </Grid>
             </Box>
-            <Box sx={{position:'absolute',margin:'0 20px',right:0,bottom:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
-                <Button {...disableBTNs} style={{margin:"0 0 15px"}} type='submit' color='primary' variant="contained"
-
-                    onClick={handleLogOut}
-                    >
-                        Log Out
-                </Button>
-            </Box>
 
             <Snackbar
                 open={errorMsg == "" ? false : true}
