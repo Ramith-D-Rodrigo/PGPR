@@ -96,8 +96,13 @@ class PostGraduateProgramReviewApplicationPolicy
                 return Response::deny('You are not allowed to view this application');
             }
         }
+        //qac_officer and qac_director can only the applied applications (cannot view creating and submitted applications)
+        else if($currUserRole == 'qac_officer' || $currUserRole == 'qac_director'){
+            if(in_array($postGraduateProgramReviewApplication -> status, ['creating', 'submitted'])){
+                return Response::deny('You are not allowed to view this application');
+            }
+        }
 
-        //qac_officer and qac_director can view all applications
         return Response::allow();
     }
 
