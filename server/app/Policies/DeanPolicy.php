@@ -40,7 +40,7 @@ class DeanPolicy
 
         //cqa director can only create dean account to faculty that is belong to the university of the cqa director
 
-        $cqaUniversity = Auth::user() -> universitySide -> university_id;
+        $cqaUniversity = $user -> universitySide -> university_id;
 
         $deanFaculty = request() -> faculty_id;
 
