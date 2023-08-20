@@ -6,6 +6,11 @@
     box-sizing: border-box;
 }
 
+input::-webkit-file-upload-button {
+  visibility: hidden;
+  display: none;
+}
+
 #root{
     min-height: 100vh;
     max-height: 100vh;
