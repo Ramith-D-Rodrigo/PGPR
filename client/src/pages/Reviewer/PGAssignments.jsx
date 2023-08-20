@@ -15,7 +15,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { Alert, Snackbar } from '@mui/material';
-import { Box } from '@mui/material';
+import { Box, CircularProgress } from '@mui/material';
 import {Link} from 'react-router-dom';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
@@ -52,15 +52,52 @@ const pgAssignments = () => {
     const [errorMsg, setErrorMsg] = useState("");
     const [success, setSuccess] = useState(false);
 
-    function handleSubmitAssignment() {
+    async function handleSubmitAssignment() {
         console.log("Accept Clicked : ",selectedPGPRID);
+        if(appointmentLetter === null)
+        {
+            setErrorMsg("Please upload the appointment letter");
+            return;
+        }
+        setAcceptAssignment(false);
+        setAcceptClicked(false);
+        setLoading(true);
+        setErrorMsg("");
+        const formData = new FormData();
+        formData.append('pgprID',selectedPGPRID);
+        formData.append('file',appointmentLetter);
+        axios.post(`${SERVER_URL}${SERVER_API_VERSION}reviewers/accept-pgpr-assignment`,formData,{
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        }).then((response) => {
+            console.log("Response : ",response);
+            setLoading(false);
+            setSuccess(true);
+            setErrorMsg("Accepted Successfully!");
+            //TODO : reload current assignment data
+        }).catch((error) => {
+            if(error.response.status === 401)
+            {
+                setErrorMsg(error.response.data.message);
+                
+            }
+            else if(error.response.status === 404)
+            {
+                setErrorMsg(error.response.data.message);
+            }
+            else{
+                console.log("Error : ",error);
+                setErrorMsg(error.response.data.message);
+            }
+            setLoading(false);
+        });
     }
 
     async function handleRejectAssignment() {
         //http://localhost:8000/api/v1/reviewers/reject-pgpr-assignment
         setOpen(false);
         setAcceptClicked(false);
-        setSelectedPGPRID(null);
         try{
             setLoading(true);
             setErrorMsg("");
@@ -72,7 +109,7 @@ const pgAssignments = () => {
             console.log("Response : ",response);
             setLoading(false);
             setSuccess(true);
-            setErrorMsg("Rejected! Successfully");
+            setErrorMsg("Rejected Successfully!");
             //TODO : reload current assignment data
         }
         catch(error){
@@ -115,6 +152,7 @@ const pgAssignments = () => {
         Actions = Actions.map((action,index) => {
             
             let allow = action.allow? {disabled:false} : {disabled:true};
+            allow = loading? {disabled:true} : allow;
             if(action.action === 'View')
             {
                 return <Link key={index} to={action.allow? 'ViewSer/'+pgprID:''}><Button {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button></Link>
@@ -159,6 +197,18 @@ const pgAssignments = () => {
 
     return (
         <>
+            {loading &&
+                <div style={{position:'absolute',left:0,margin:"0 auto",display:"flex",justifyContent:"center",alignItems:"center"}}> 
+                    <Typography variant="h6" style={{ margin: "0 0 0 20px" }}>
+                        Loading ...
+                    </Typography>
+                    <CircularProgress
+                    style={{ margin: "0 0 0 20px", color: "darkblue" }}
+                    thickness={5}
+                    size={24}
+                    />
+                </div>
+            }
             <Typography align='center' fontWeight={600} variant="h5" gutterBottom component="div" style={{marginRight:'20px'}}>
                 Postgraduate programme review Assignments
             </Typography>
@@ -282,7 +332,6 @@ const pgAssignments = () => {
 
             <Snackbar
                 open={errorMsg == "" || success ? false : true}
-                autoHideDuration={1500}
                 anchorOrigin={{ vertical: "top", horizontal: "center" }}
                 onClose={() => setErrorMsg("")}
             >
