@@ -66,9 +66,45 @@ function AcceptAppointment() {
         //call api
         setOpen(false);
         setLoading(true);
-        setErrorMsg("You have rejected the appointment");
-        setTimeout(()=>handleLogOut(), 2000);
-        //navigate to login
+        setErrorMsg("");
+        try {
+            axios.get("/sanctum/csrf-cookie");
+            let response = await axios.post(
+                SERVER_URL+SERVER_API_VERSION+"reviewers/reject-appointment",
+                {
+                    reasonForRejecting: "Tempory answer",
+                },
+                {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+            console.log(response?.status);
+            if(response?.status == 200) {
+                setSuccess(true);
+                setTimeout(()=>handleLogOut(), 1500);
+            }
+            else if(response?.status == 201){
+                setSuccess(true);
+                setTimeout(()=>handleLogOut(), 1500);
+            }
+            setAccepted(true);
+            setLoading(false);
+        }
+        catch (error) {
+            if (!error?.response) {
+                setErrorMsg("No Server Response");
+            }
+            else if(error?.response?.status == 401) {
+                setErrorMsg("You are not authorized to perform this action");
+            }
+            else {
+                console.log(error);
+                setErrorMsg(error?.response?.data?.message);
+            }
+            setLoading(false);
+        }
     }
 
     const handleSubmitAppointmentLetter = async(evt) => {
@@ -95,15 +131,15 @@ function AcceptAppointment() {
             console.log(response?.status);
             if(response?.status == 200) {
                 setSuccess(true);
-                setTimeout(()=>handleLogOut(), 2000);
+                setTimeout(()=>handleLogOut(), 1500);
             }
             else if(response?.status == 401) {
                 setErrorMsg("You are not authorized to perform this action");
-                setTimeout(()=>handleLogOut(), 2000);
+                setTimeout(()=>handleLogOut(), 1500);
             }
             else if(response?.status == 201){
                 setSuccess(true);
-                setTimeout(()=>handleLogOut(), 2000);
+                setTimeout(()=>handleLogOut(), 1500);
             }
             setAccepted(true);
             setLoading(false);
@@ -181,7 +217,7 @@ function AcceptAppointment() {
                                         </Snackbar>
                                         <Snackbar
                                             open={success}
-                                            autoHideDuration={2000}
+                                            autoHideDuration={1500}
                                             onClose={() => setSuccess(false)}
                                             anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                                         >
@@ -256,7 +292,7 @@ function AcceptAppointment() {
 
             <Snackbar
                 open={success}
-                autoHideDuration={2000}
+                autoHideDuration={1500}
                 onClose={() => setSuccess(false)}
                 anchorOrigin={{ vertical: "top", horizontal: "center" }}
             >
