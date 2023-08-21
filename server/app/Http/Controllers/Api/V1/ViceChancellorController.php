@@ -9,6 +9,7 @@ use App\Http\Requests\V1\StoreViceChancellorRequest;
 use App\Http\Requests\V1\UpdateViceChancellorRequest;
 use App\Http\Controllers\Controller;
 use App\Services\V1\ViceChancellorService;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -36,22 +37,25 @@ class ViceChancellorController extends Controller
      */
     public function store(StoreViceChancellorRequest $request)
     {
-        $validatedData = $request->validated();
-
-        //insert additional data to validated data
-        $validatedData['status'] = 'pending';
-        $validatedData['roles'] = ['vice_chancellor'];
-        $validatedData['vc_status'] = 'ACTIVE';
-        //term date is appointed date + 5 years
-        $validatedData['term_date'] = date('Y-m-d', strtotime('+5 years', strtotime($validatedData['appointed_date'])));
-
-        //create a random password
-        $password = Str::random(8);
-
-        //hash the password
-        $validatedData['password'] = Hash::make($password);
-
         try{
+            //authorize the request
+            $this->authorize('create', ViceChancellor::class);
+
+            $validatedData = $request->validated();
+
+            //insert additional data to validated data
+            $validatedData['status'] = 'pending';
+            $validatedData['roles'] = ['vice_chancellor'];
+            $validatedData['vc_status'] = 'ACTIVE';
+            //term date is appointed date + 5 years
+            $validatedData['term_date'] = date('Y-m-d', strtotime('+5 years', strtotime($validatedData['appointed_date'])));
+
+            //create a random password
+            $password = Str::random(8);
+
+            //hash the password
+            $validatedData['password'] = Hash::make($password);
+
             DB::beginTransaction();
 
             //store the files( profile picture)
@@ -71,7 +75,12 @@ class ViceChancellorController extends Controller
             DB::commit();
             return new ViceChancellorResource($viceChancellor);
         }
-        catch(\Exception $e){
+        catch(AuthorizationException $e){
+            return response() -> json([
+                'message' => $e -> getMessage()
+            ], 403);
+        }
+       catch(\Exception $e){
             DB::rollBack();
             return response() -> json([
                 'message' => 'Failed to create vice chancellor',

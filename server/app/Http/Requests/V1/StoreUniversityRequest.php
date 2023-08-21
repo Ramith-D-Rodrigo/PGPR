@@ -13,15 +13,7 @@ class StoreUniversityRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        //only qac director is authorized to create a university
-        $qacOfficer = Auth::user() -> qualityAssuranceCouncilOfficer ?? null;
-        if($qacOfficer === null){
-            return false;
-        }
-
-        $qacDirector = $qacOfficer -> qualityAssuranceCouncilDirector ?? null;
-
-        return $qacDirector !== null;
+        return true;
     }
 
     /**

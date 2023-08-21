@@ -16,40 +16,6 @@ class UpdatePostGraduateProgramReviewApplicationRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        $user = Auth::user();
-        if(!$user){
-            return false;
-        }
-
-        //a user is logged in
-
-        //only dean can create a post graduate program review application
-        $dean = $user -> universitySide -> academicStaff -> dean ?? null;
-
-        if(!$dean){
-            return false;
-        }
-
-        //a dean is logged in
-        //check if the dean is adding the post graduate program review application for his faculty
-        $deanFacultyID = $dean -> faculty -> id;
-
-        //compare the dean's faculty id with the faculty id of the post graduate program
-
-        //get the post graduate program review application
-        $pgprApplication = $this -> route('pgprApplication');
-
-        //find the postgraduate program
-        $postGraduateProgram = PostGraduateProgram::find($pgprApplication -> post_graduate_program_id);
-
-        //get the faculty id of the post graduate program
-        $postGraduateProgramFacultyID = $postGraduateProgram -> faculty -> id;
-
-        if($deanFacultyID !== $postGraduateProgramFacultyID){
-            return false;
-        }
-
-        //the dean is adding the post graduate program review application for his faculty
         return true;
     }
 

@@ -14,9 +14,7 @@ class StoreViceChancellorRequest extends StoreUniversitySideRequest
      */
     public function authorize(): bool
     {
-        //only qac officer can create vice chancellor
-        $qacOfficer = Auth::user() -> qualityAssuranceCouncilOfficer ?? null;
-        return $qacOfficer !== null;
+        return true;
     }
 
     /**

@@ -15,10 +15,7 @@ class StoreCenterForQualityAssuranceDirectorRequest extends StoreQualityAssuranc
      */
     public function authorize(): bool
     {
-        //only qac officer can create center for quality assurance director
-        $qacOfficer = Auth::user() -> qualityAssuranceCouncilOfficer ?? null;
-
-        return $qacOfficer !== null;
+        return true;
     }
 
     /**

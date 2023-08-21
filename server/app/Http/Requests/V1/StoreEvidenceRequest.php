@@ -16,20 +16,7 @@ class StoreEvidenceRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        //only allow programme coordinator to store evidence to standard (role is checked from the middleware)
-        //only need to check whether these roles belong to the particular post graduate program review
-        $user = Auth::user();
-
-        //get the ser id from the request
-        $SERid = $this -> self_evaluation_report_id;
-        $ser = SelfEvaluationReport::findOrFail($SERid);
-
-        //check the pgp coordinator id
-        if ($user -> id == $ser -> pgp_coordinator_id ?? null) {
-            return true;
-        }
-        return false;
-
+        return true;
     }
 
     /**
