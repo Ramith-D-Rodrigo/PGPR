@@ -93,7 +93,7 @@ const CreateAccounts = () => {
                         ]} onChange={selectRole}/>
                     </Box>
                     <Divider sx={{marginTop: "1rem", marginBottom: "1rem"}}/>
-                    <Box sx={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap"}}>
+                    <Box sx={{display:"flex",justifyContent:"center",alignItems:"center",flexWrap:"wrap"}}>
                         <UserDetailsForm Loading={Loading} roleFieldsComponent={role === "vice_chancellor" ? 
                                 <ViceChancellorForm/> : <CQADirectorForm/>    
                             } 

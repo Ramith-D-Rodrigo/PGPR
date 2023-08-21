@@ -39,12 +39,14 @@ const UserDetailsForm = ({Loading,roleFieldsComponent}) => {
 
   return (
     <>
-        {formFields.map((field, index) => (
-            <FormField required={field.required} key={index} label={field.label} type={field.type} name={field.name} options={field.options} isReadonly={field.isReadOnly}/>
-        ))}
-        <FormField required={true} label="University" type="select" name="universityId" options={universities.map((university) => ({label: university.name, value: university.id, name: university.name}))}/>
-        {roleFieldsComponent}
-        <Button variant="contained" color="primary" sx={{width: "100%"}} type="submit">
+        <Box sx={{display:"flex",flexWrap:"wrap",justifyContent:"space-between",alignItems:"center",minHeight:"60vh"}}>
+            {formFields.map((field, index) => (
+                <FormField required={field.required} key={index} label={field.label} type={field.type} name={field.name} options={field.options} isReadonly={field.isReadOnly}/>
+            ))}
+            <FormField required={true} label="University" type="select" name="universityId" options={universities.map((university) => ({label: university.name, value: university.id, name: university.name}))}/>
+            {roleFieldsComponent}
+        </Box>
+        <Button variant="contained" color="primary" sx={{width: "100%",margin:"1rem 0 0"}} type="submit">
             {Loading ? "Creating Account..." : "Create Account"}
             {Loading ? <CircularProgress style={{color:"white",margin:"0 0.5rem"}} size={24}/> : <></>}
         </Button>
