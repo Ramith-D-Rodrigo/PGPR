@@ -18,6 +18,7 @@ class ReviewTeamFactory extends Factory
     {
         return [
             //
+            'status' => 'PENDING'
         ];
     }
 }

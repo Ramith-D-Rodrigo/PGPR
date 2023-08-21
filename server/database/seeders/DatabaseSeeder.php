@@ -2,13 +2,19 @@
 
 namespace Database\Seeders;
 
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Models\AcademicStaff;
-use App\Models\QualityAssuranceCouncilDirector;
+use App\Models\CenterForQualityAssurance;
+use App\Models\Dean;
+use App\Models\Faculty;
+use App\Models\PostGraduateProgramReviewApplication;
+use App\Models\ProgrammeCoordinator;
 use App\Models\QualityAssuranceCouncilOfficer;
-use App\Models\QualityAssuranceStaff;
+use App\Models\Reviewer;
+use App\Models\ReviewTeam;
+use App\Models\University;
 use App\Models\UniversitySide;
 use App\Models\ViceChancellor;
+use Database\Factories\PostGraduateProgramReviewApplicationFactory;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 
@@ -19,36 +25,30 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // \App\Models\User::factory(10)->create();
-
-        //User::factory()->count(5)->hasUniversitySide()->create();
-        User::factory()->dean()->hasUniversitySide()->create();
         User::factory()->programme_coordinator()->hasUniversitySide()->create();
         User::factory()->cqa_director()->hasUniversitySide()->create();
-        User::factory()->reviewer()->hasUniversitySide()->create();
         User::factory()->iqau_director()->hasUniversitySide()->create();
         User::factory()->vice_chancellor()->hasUniversitySide()->create();
 
         User::factory()->qac_officer()->hasQualityAssuranceCouncilOfficer()->create();
         QualityAssuranceCouncilOfficer::factory()->for(User::factory()->qac_director())->hasQualityAssuranceCouncilDirector()->create();
-        //User::factory()->qac_director()->hasQualityAssuranceStaff()->create();
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
 
-        // UniversitySide::factory()->count(10)->create();
-        // AcademicStaff::factory()->count(10)->create();
-        // ViceChancellor::factory()->count(10)->create();
-        // QualityAssuranceStaff::factory()->count(10)->create();
+        /*//run reviewer seeder
+        $this->call([ReviewerSeeder::class]);
+        $this->call([ReviewerSeeder::class]);
 
-        /*User::factory()->count(10)->hasUniversitySide()->create();
-        UniversitySide::factory()->hasViceChancellor()->create();*/
+        //run review team seeder
+        $this->call([ReviewerSeeder::class]);
+
+        //run university seeder
+        $this->call([FacultySeeder::class]);*/
+
+        //$this->call([PostGraduateProgramSeeder::class]);
 
         //run criteria seeder
-        $this -> call([CriteriaSeeder::class]);
+        $this->call([CriteriaSeeder::class]);
 
         //run standard seeder
-        $this -> call([StandardSeeder::class]);
+        $this->call([StandardSeeder::class]);
     }
 }

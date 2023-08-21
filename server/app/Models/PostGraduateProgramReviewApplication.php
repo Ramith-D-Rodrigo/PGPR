@@ -34,8 +34,8 @@ class PostGraduateProgramReviewApplication extends Model
         return $this->belongsTo(QualityAssuranceCouncilOfficer::class);
     }
 
-    //review application has many post graduate programs and post graduate programs belong to many review applications
-    public function postGraduatePrograms(){
+    //review application has a post graduate program and post graduate programs belong to many review applications
+    public function postGraduateProgram(){
         return $this->belongsTo(PostGraduateProgram::class, 'post_graduate_program_id');
     }
 

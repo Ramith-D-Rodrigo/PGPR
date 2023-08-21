@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\V1;
 
+use App\Models\Faculty;
+use App\Rules\V1\DeanExists;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -55,6 +57,8 @@ class StoreDeanRequest extends StoreAcademicStaffRequest
             $query->where('university_id', $this -> university_id);
         })];
 
+        $rules['curr_dean'] = ['nullable', 'integer', new DeanExists()];
+
         return $rules;
     }
 
@@ -74,5 +78,9 @@ class StoreDeanRequest extends StoreAcademicStaffRequest
 
     public function prepareForValidation(){
         parent::prepareForValidation();
+
+        $this -> merge([
+            'curr_dean' => Faculty::findOrFail($this -> faculty_id) -> dean_id //get the current dean of the faculty
+        ]);
     }
 }

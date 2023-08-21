@@ -16,8 +16,8 @@ return new class extends Migration
           $table->foreignId('pgpr_id');
           $table->date('start_date');
           $table->date('end_date');
+          $table->enum("status", ['ONGOING', 'COMPLETED'])->default('ONGOING');
           $table->timestamps();
-
 
           // indices
           $table->index('pgpr_id');

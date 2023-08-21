@@ -17,7 +17,14 @@ class PostGraduateProgramReviewApplicationFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'intent_letter' => fake()->words(1, true),
+            'request_date' => fake()->date(),
+            "year_1" => fake()->word(),
+            "year_2" => fake()->word(),
+            "year_3" => fake()->word(),
+            "year_4" => fake()->word(),
+            "year_5" => fake()->word(),
+            "y_end" => fake()->date()
         ];
     }
 }

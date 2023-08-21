@@ -3,9 +3,8 @@ import ScrollableDiv from '../../components/ScrollableDiv';
 import { Typography } from '@mui/material';
 import { useState } from 'react';
 import useSetUserNavigations from '../../hooks/useSetUserNavigations';
-
-// import axios from 'axios';
-// import { SERVER_API_VERSION, SERVER_URL } from '../../assets/constants';
+import axios from '../../api/api';
+import { SERVER_API_VERSION, SERVER_URL } from '../../assets/constants';
 import IconButton from '@mui/material/IconButton';
 import Button from '@mui/material/Button';
 import Table from '@mui/material/Table';
@@ -15,12 +14,20 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import { Box } from '@mui/material';
+import { Alert, Snackbar } from '@mui/material';
+import { Box, CircularProgress } from '@mui/material';
 import {Link} from 'react-router-dom';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import useAuth from "../../hooks/useAuth.js";
 import CloseIcon from '@mui/icons-material/Close';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 
 const pgAssignments = () => {
     const {auth} = useAuth();
@@ -32,25 +39,102 @@ const pgAssignments = () => {
             }
         ]
     );
-
+    
+    const theme = useTheme();
+    const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
     const [selectedFilterKeys, setSelectedFilterKeys] = useState([{ title: 'In-review' }]);
     const [AcceptClicked, setAcceptClicked] = useState(false);
+    const [acceptAssignment, setAcceptAssignment] = useState(false);
     const [selectedPGPRID, setSelectedPGPRID] = useState(null);
+    const [appointmentLetter, setAppointmentLetter] = useState(null);
+    const [open, setOpen] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [errorMsg, setErrorMsg] = useState("");
+    const [success, setSuccess] = useState(false);
 
-    function handleAcceptAssignment() {
+    async function handleSubmitAssignment() {
         console.log("Accept Clicked : ",selectedPGPRID);
+        if(appointmentLetter === null)
+        {
+            setErrorMsg("Please upload the appointment letter");
+            return;
+        }
+        setAcceptAssignment(false);
         setAcceptClicked(false);
-        setSelectedPGPRID(null);
+        setLoading(true);
+        setErrorMsg("");
+        const formData = new FormData();
+        formData.append('pgprID',selectedPGPRID);
+        formData.append('file',appointmentLetter);
+        axios.post(`${SERVER_URL}${SERVER_API_VERSION}reviewers/accept-pgpr-assignment`,formData,{
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        }).then((response) => {
+            console.log("Response : ",response);
+            setLoading(false);
+            setSuccess(true);
+            setErrorMsg("Accepted Successfully!");
+            //TODO : reload current assignment data
+        }).catch((error) => {
+            if(error.response.status === 401)
+            {
+                setErrorMsg(error.response.data.message);
+                
+            }
+            else if(error.response.status === 404)
+            {
+                setErrorMsg(error.response.data.message);
+            }
+            else{
+                console.log("Error : ",error);
+                setErrorMsg(error.response.data.message);
+            }
+            setLoading(false);
+        });
     }
 
-    function handleRejectAssignment() {
-        console.log("Reject Clicked : ",selectedPGPRID);
+    async function handleRejectAssignment() {
+        //http://localhost:8000/api/v1/reviewers/reject-pgpr-assignment
+        setOpen(false);
         setAcceptClicked(false);
-        setSelectedPGPRID(null);
+        try{
+            setLoading(true);
+            setErrorMsg("");
+            await axios.get("/sanctum/csrf-cookie");
+            const response = await axios.post(`${SERVER_URL}${SERVER_API_VERSION}reviewers/reject-pgpr-assignment`,{
+                pgprID: selectedPGPRID,
+                comment: `Rejected PGPR ${selectedPGPRID} by ${auth.fullName}`,
+            });
+            console.log("Response : ",response);
+            setLoading(false);
+            setSuccess(true);
+            setErrorMsg("Rejected Successfully!");
+            //TODO : reload current assignment data
+        }
+        catch(error){
+            if(error.response.status === 401)
+            {
+                setErrorMsg(error.response.data.message);
+                
+            }
+            else if(error.response.status === 404)
+            {
+                setErrorMsg(error.response.data.message);
+            }
+            else{
+                console.log("Error : ",error);
+                setErrorMsg(error.response.data.message);
+            }
+            setLoading(false);
+            
+        }
+
     }
 
     function handleClickCancel() {
         setAcceptClicked(false);
+        setAcceptAssignment(false);
         setSelectedPGPRID(null);
     }
 
@@ -68,6 +152,7 @@ const pgAssignments = () => {
         Actions = Actions.map((action,index) => {
             
             let allow = action.allow? {disabled:false} : {disabled:true};
+            allow = loading? {disabled:true} : allow;
             if(action.action === 'View')
             {
                 return <Link key={index} to={action.allow? 'ViewSer/'+pgprID:''}><Button {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button></Link>
@@ -112,8 +197,23 @@ const pgAssignments = () => {
 
     return (
         <>
+            {loading &&
+                <div style={{position:'absolute',left:0,margin:"0 auto",display:"flex",justifyContent:"center",alignItems:"center"}}> 
+                    <Typography variant="h6" style={{ margin: "0 0 0 20px" }}>
+                        Loading ...
+                    </Typography>
+                    <CircularProgress
+                    style={{ margin: "0 0 0 20px", color: "darkblue" }}
+                    thickness={5}
+                    size={24}
+                    />
+                </div>
+            }
+            <Typography align='center' fontWeight={600} variant="h5" gutterBottom component="div" style={{marginRight:'20px'}}>
+                Postgraduate programme review Assignments
+            </Typography>
             <Box sx={{
-                display:'flex',alignItems:'center',justifyContent:'center',width:'100%'
+                display:'flex',alignItems:'center',justifyContent:'center',width:'100%',marginTop:'20px',
             }}>
                 <Autocomplete
                     sx={{width:'50%',marginBottom:'20px',}}
@@ -177,35 +277,104 @@ const pgAssignments = () => {
                 <Box sx={{
                     position:'absolute',margin:'0 auto',left:0,right:0,bottom:0,top:0,
                     display:'flex',flexDirection:'column',justifyContent:'space-around',alignItems:'center',
-                    width:'50%',height:'90%',marginTop:'20px',backgroundColor:'#D9D9D9',
-                    borderRadius:'10px',padding:'20px',boxShadow:'0 0 5px 0px black',
+                    width:'50%',height:'90%',marginTop:'20px',backgroundColor:'#D8E6FC',
+                    borderRadius:'10px',padding:'60px',boxShadow:'0 0 5px 0px black',
                     }}
                 >
                     <Typography variant="h5" gutterBottom component="div" style={{marginRight:'20px'}}>
-                            Accept Review Assignment
+                            {acceptAssignment? "Upload the Appointment Letter" : "Accept Review Assignment"}
                     </Typography>
-                    <Typography variant="h6" gutterBottom component="div" style={{marginRight:'20px'}}>
-                        Reviever Name: <b>{auth.fullName}</b>
-                    </Typography>
-                    <Typography variant="h6" gutterBottom component="div" style={{marginRight:'20px'}}>
-                        It's happy to inform you that you have been appointed as a reviewer/Chairman for postgraduate programs by QAC. Click below to download the appointment letter.
-                    </Typography>
-                    <Button variant="contained" color="primary" size="large" onClick={handleDownloadLetter}>
-                        Download Appointment Letter
-                    </Button>
-                    <Box sx={{display:'flex',justifyContent:'space-around',width:'100%'}}>
-                        <Button variant="contained" color="primary" size="large" onClick={handleAcceptAssignment}>
-                            Accept Assignment
+                    {!acceptAssignment &&
+                    <>
+                        <Typography variant="h6" gutterBottom component="div" style={{marginRight:'20px'}}>
+                            Reviever Name: <b>{auth.fullName}</b>
+                        </Typography>
+                        <Typography variant="h6" gutterBottom component="div" style={{marginRight:'20px'}}>
+                            It's happy to inform you that you have been appointed as a reviewer/Chairman for postgraduate programs by QAC. Click below to download the appointment letter.
+                        </Typography>
+                        <Button variant="contained" color="primary" size="large" onClick={handleDownloadLetter}>
+                            Download Appointment Letter
                         </Button>
-                        <Button variant="contained" color="primary" size="large" onClick={handleRejectAssignment}>
-                            Reject Assignment
-                        </Button>
-                    </Box>
+                        <Box sx={{display:'flex',justifyContent:'space-around',width:'100%'}}>
+                            <Button variant="contained" color="primary" size="large" onClick={()=>setAcceptAssignment(true)}>
+                                Accept Assignment
+                            </Button>
+                            <Button variant="contained" color="primary" size="large" onClick={()=>setOpen(true)}>
+                                Reject Assignment
+                            </Button>
+                        </Box>
+                    </>
+                    }
+                    {acceptAssignment &&
+                    <>
+                        <TextField
+                            sx={{margin:"15px 0",width:"100%",height:"100%"}}
+                            id="letter"
+                            type='file'
+                            required
+                            onChange={(e)=>{setAppointmentLetter(e.target.files[0])}}
+                        />
+                        <Box sx={{display:'flex',justifyContent:'space-around',width:'100%'}}>
+                            <Button variant="contained" color="primary" size="large" onClick={handleSubmitAssignment}>
+                                Submit
+                            </Button>
+                            <Button variant="contained" color="primary" size="large" onClick={()=> setAcceptAssignment(false)}>
+                                Cancel
+                            </Button>
+                        </Box>
+                    </>
+                    }
                     <IconButton onClick={handleClickCancel} style={{position:"absolute",right:15,top:15}}>
                         <CloseIcon fontSize='large' />
                     </IconButton>
                 </Box>
             }
+
+            <Snackbar
+                open={errorMsg == "" || success ? false : true}
+                anchorOrigin={{ vertical: "top", horizontal: "center" }}
+                onClose={() => setErrorMsg("")}
+            >
+                <Alert onClose={() => setErrorMsg("")} severity="error">
+                    {errorMsg}
+                </Alert>
+            </Snackbar>
+
+            <Snackbar
+                open={success}
+                autoHideDuration={1500}
+                onClose={() => setSuccess(false)}
+                anchorOrigin={{ vertical: "top", horizontal: "center" }}
+                >
+                <Alert onClose={() => setSuccess(false)} severity="success">
+                    {errorMsg}  //on success
+                </Alert>
+            </Snackbar>
+            
+            <Dialog
+                fullScreen={fullScreen}
+                open={open}
+                onClose={()=>setOpen(false)}
+                aria-labelledby="submit-assignment"
+            >
+                <DialogTitle id="submit-assignmentID">
+                {"Are you sure that you want to Reject this postgraduate programme review assignment?"}
+                </DialogTitle>
+                <DialogContent>
+                <DialogContentText>
+                    Once you reject this assignment, you can't undo this action.
+                </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                <Button autoFocus onClick={()=>setOpen(false)}>
+                    cancel
+                </Button>
+                <Button onClick={()=>handleRejectAssignment()} autoFocus>
+                    Reject
+                </Button>
+                </DialogActions>
+            </Dialog>
+
         </>
     )
 }

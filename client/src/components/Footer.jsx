@@ -21,7 +21,7 @@ const FooterContainer = styled('div', { shouldForwardProp: (prop) => prop !== 'o
             marginLeft: 0,
             width: `100%`
         }),
-        backgroundColor:'black',
+        backgroundColor:'#1a1a1a',
     }),
   );
 
@@ -29,7 +29,7 @@ function Copyright() {
   return (
     <Typography variant="body2" color="white">
       {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
+      <Link color="inherit" href="https://mui.com/material-ui/getting-started/">
         Postgraduate Programme Review
       </Link>{' '}
       {new Date().getFullYear()}

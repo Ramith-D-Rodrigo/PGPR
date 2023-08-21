@@ -100,5 +100,10 @@ class StoreFacultyRequest extends FormRequest
                 'iqau_fax_no' => json_encode($this -> iqau_fax_no)
             ]);
         }
+
+        //add current logged in cqa_director's university to university_id
+        $this -> merge([
+            'university_id' => Auth::user() -> universitySide -> university_id ?? null
+        ]);
     }
 }
