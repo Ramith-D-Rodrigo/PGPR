@@ -6,6 +6,8 @@ use App\Filters\V1\PostGraduateProgramFilter;
 use App\Http\Requests\V1\StorePostGraduateProgramRequest;
 use App\Http\Requests\V1\UpdatePostGraduateProgramRequest;
 use App\Http\Resources\V1\PostGraduateProgramResource;
+use App\Http\Resources\V1\PostGraduateProgramReviewCollection;
+use App\Http\Resources\V1\PostGraduateProgramReviewResource;
 use App\Models\PostGraduateProgram;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\V1\PostGraduateProgramCollection;
@@ -217,30 +219,23 @@ class PostGraduateProgramController extends Controller
         try{
             $reviews = $postGraduateProgram -> postGraduateProgramReviews;
 
-            //check if academic staff is included
-            $academicStaff = request() -> query('includeAcademicStaff');
-            if($academicStaff){
-                //check if university side is included
-                $universitySide = request() -> query('includeUniversitySide');
-                if($universitySide){
-                    //check if user is included
-                    $user = request() -> query('includeUser');
-                    if($user){
-                        $reviews -> load(['academicStaff:id' => [
-                            'universitySide:id' => ['user:id,initials,surname']
-                            ]
-                        ]);
-                    }
-                    else{
-                        $reviews -> load(['academicStaff:id' => ['universitySide:id']]);
-                    }
+            //check if faculty is included
+            $faculty = request() -> query('includeFaculty');
+            if($faculty){
+                //check if university is included
+                $university = request() -> query('includeUniversity');
+                if($university){
+                    $reviews -> with(['postGraduateProgram:id,faculty_id' => [
+                        'faculty:id,name,university_id' => ['university:id,name']
+                        ]
+                    ]);
                 }
                 else{
-                    $reviews -> loadMissing('academicStaff:id');
+                    $reviews -> with(['postGraduateProgram:id,faculty_id' => ['faculty:id,name']]);
                 }
             }
 
-            return response() -> json(['reviews' => $reviews], 200);
+            return response() -> json(['reviews' => new PostGraduateProgramReviewCollection($reviews)], 200);
         }
         catch(\Exception $e){
             return response() -> json(['message' => $e -> getMessage()], 500);
