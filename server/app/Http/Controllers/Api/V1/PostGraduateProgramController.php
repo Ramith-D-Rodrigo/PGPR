@@ -9,6 +9,7 @@ use App\Http\Resources\V1\PostGraduateProgramResource;
 use App\Models\PostGraduateProgram;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\V1\PostGraduateProgramCollection;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -59,14 +60,25 @@ class PostGraduateProgramController extends Controller
     public function store(StorePostGraduateProgramRequest $request)
     {
         //add authorized cqa director id to the request
-        $validatedData = $request -> validated();
-        $validatedData['added_by_cqa_director_id'] = Auth::user() -> id;
-        $pgp = PostGraduateProgram::create($validatedData);
+        try{
+            //authorize the request
+            $this -> authorize('store', PostGraduateProgram::class);
 
-        return response() -> json([
-            'message' => 'Post Graduate Program Created Successfully',
-            'data' => new PostGraduateProgramResource($pgp)
-        ], 201);
+            //get validated data
+            $validatedData = $request -> validated();
+            $validatedData['added_by_cqa_director_id'] = Auth::user() -> id;
+            PostGraduateProgram::create($validatedData);
+
+            return response() -> json(['message' => 'Post Graduate Program created successfully'], 201);
+        }
+        catch(AuthorizationException $e){
+            return response() -> json(['message' => $e -> getMessage()], 403);
+        }
+        catch(\Exception $e){
+            return response() -> json(['message' => 'Failed to create the postgraduate programme',
+                    'error' => $e -> getMessage()
+                ], 500);
+        }
     }
 
     /**
@@ -135,6 +147,9 @@ class PostGraduateProgramController extends Controller
     public function update(UpdatePostGraduateProgramRequest $request, PostGraduateProgram $postGraduateProgram)
     {
         try{
+            //authorize the request
+            $this -> authorize('update', $postGraduateProgram);
+
             //get validated data
             $validatedData = $request -> validated();
 
@@ -143,8 +158,14 @@ class PostGraduateProgramController extends Controller
             $postGraduateProgram -> update($validatedData);
             return response() -> json(['message' => 'Post Graduate Program Updated Successfully'], 200);
         }
+        catch(AuthorizationException $e){
+            return response() -> json(['message' => $e -> getMessage()], 403);
+        }
+
         catch(\Exception $e){
-            return response() -> json(['message' => $e -> getMessage()], 500);
+            return response() -> json(['message' => 'Failed to update the postgraduate programme',
+                'error' => $e -> getMessage()
+            ], 500);
         }
     }
 

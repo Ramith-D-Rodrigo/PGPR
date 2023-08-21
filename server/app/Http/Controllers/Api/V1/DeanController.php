@@ -13,6 +13,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\sendPassword;
 use App\Models\Faculty;
 use App\Services\V1\DeanService;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -89,21 +90,23 @@ class DeanController extends Controller
      */
     public function store(StoreDeanRequest $request)
     {
-        //set needed additional fields
-
-        $validatedData = $request -> validated(); //get the validated data
-
-        $validatedData['status'] = 'Pending'; //set the status (user account status)
-        $validatedData['current_status'] = 'Active';   //set the current status (dean status)
-        $validatedData['roles'] = ['dean']; //set the roles (dean role)
-
-
-        $password = Str::random(8);  //generate a random password
-        //hash the password using Hash facade
-
-        $validatedData['password'] = Hash::make($password); //set the password
-
         try{
+            $this -> authorize('create', Dean::class);
+
+            //set needed additional fields
+
+            $validatedData = $request -> validated(); //get the validated data
+
+            $validatedData['status'] = 'Pending'; //set the status (user account status)
+            $validatedData['current_status'] = 'Active';   //set the current status (dean status)
+            $validatedData['roles'] = ['dean']; //set the roles (dean role)
+
+
+            $password = Str::random(8);  //generate a random password
+            //hash the password using Hash facade
+
+            $validatedData['password'] = Hash::make($password); //set the password
+
             DB::beginTransaction();
 
             //store the files
@@ -127,6 +130,9 @@ class DeanController extends Controller
                 'data' => new DeanResource($dean)
             ], 201);
 
+        }
+        catch(AuthorizationException $e){
+            return response() -> json(['message' => $e -> getMessage()], 403);
         }
         catch(\Exception $e){
             DB::rollBack();

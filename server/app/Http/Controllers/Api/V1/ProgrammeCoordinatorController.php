@@ -14,6 +14,7 @@ use App\Http\Controllers\Controller;
 use App\Models\PostGraduateProgram;
 use App\Services\V1\ProgrammeCoordinatorService;
 use Exception;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -100,18 +101,23 @@ class ProgrammeCoordinatorController extends Controller
      */
     public function store(StoreProgrammeCoordinatorRequest $request)
     {
-        $validatedData = $request -> validated();
-
-        //store the other required data
-        $validatedData['status'] = 'Pending';
-        $validatedData['current_status'] = 'Active';
-        $validatedData['roles'] = ['programme_coordinator'];
-
-        $password = Str::random(8);
-
-        $validatedData['password'] = Hash::make($password);
-
         try{
+            //authorize the action
+            $this -> authorize('create', ProgrammeCoordinator::class);
+
+
+            $validatedData = $request -> validated();
+
+            //store the other required data
+            $validatedData['status'] = 'Pending';
+            $validatedData['current_status'] = 'Active';
+            $validatedData['roles'] = ['programme_coordinator'];
+
+            $password = Str::random(8);
+
+            $validatedData['password'] = Hash::make($password);
+
+
             DB::beginTransaction();
 
             //store the files
@@ -129,6 +135,11 @@ class ProgrammeCoordinatorController extends Controller
             ProgrammeCoordinatorService::sendAccountCreateMail($validatedDataWithStoredFiles, $password);
             DB::commit();   //commit the changes if all of them were successful
             return new ProgrammeCoordinatorResource($programmeCoordinator);
+        }
+        catch(AuthorizationException $e){
+            return response() -> json([
+                'message' => $e -> getMessage(),
+            ], 403);
         }
         catch(Exception $e){
             DB::rollBack(); //discard the changes if any of them failed

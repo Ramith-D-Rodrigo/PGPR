@@ -13,6 +13,7 @@ use App\Http\Resources\V1\UniversityCollection;
 use App\Http\Resources\V1\ViceChancellorResource;
 use App\Models\CenterForQualityAssurance;
 use App\Services\V1\UniversityService;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 
 class UniversityController extends Controller
@@ -67,19 +68,26 @@ class UniversityController extends Controller
      */
     public function store(StoreUniversityRequest $request)
     {
-        $validatedData = $request -> validated();
-
         try{
+            //authorize request
+            $this -> authorize('create', University::class);
+
+            $validatedData = $request -> validated();
             //begin db transaction
             DB::beginTransaction();
             $university = UniversityService::create($validatedData);
             //commit db transactions
             DB::commit();
 
-            return response() -> json([
+            return response()->json([
                 'message' => 'University created successfully',
                 'data' => new UniversityResource($university)
             ], 201);
+        }
+        catch(AuthorizationException $e){
+            return response()->json([
+                'message' => $e -> getMessage()
+            ], 403);
         }
         catch(\Exception $e){
             //rollback db transactions

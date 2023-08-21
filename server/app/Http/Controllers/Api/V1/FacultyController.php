@@ -12,6 +12,7 @@ use App\Http\Requests\V1\UpdateFacultyRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\V1\DeanResource;
 use App\Models\InternalQualityAssuranceUnit;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -80,19 +81,14 @@ class FacultyController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(StoreFacultyRequest $request)
     {
         try{
+            //authorize request
+            $this -> authorize('create', Faculty::class);
+
             $validatedData = $request->validated();
 
             DB::beginTransaction();
@@ -122,6 +118,12 @@ class FacultyController extends Controller
                 'message' => 'Faculty created successfully',
                 'data' => new FacultyResource($faculty)
             ], 201);
+
+        }
+        catch(AuthorizationException $e){
+            return response()->json([
+                'message' => $e->getMessage()
+            ], 403);
         }
         catch(\Exception $e){
             DB::rollBack();
