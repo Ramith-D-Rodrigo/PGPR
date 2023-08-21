@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Filters\V1\ProgrammeCoordinatorFilter;
+use App\Http\Resources\V1\PostGraduateProgramResource;
 use App\Http\Resources\V1\ProgrammeCoordinatorCollection;
 use App\Http\Resources\V1\ProgrammeCoordinatorResource;
 use App\Mail\sendPassword;
@@ -190,5 +191,20 @@ class ProgrammeCoordinatorController extends Controller
     public function destroy(ProgrammeCoordinator $programmeCoordinator)
     {
         //
+    }
+
+    //get the post graduate program of the programme coordinator
+    public function postGraduateProgram(ProgrammeCoordinator $programmeCoordinator){
+        try{
+            $pgp = $programmeCoordinator -> postGraduateProgram;
+
+            return new PostGraduateProgramResource($pgp);
+        }
+        catch(Exception $e){
+            return response() -> json([
+                'message' => 'Failed to retrieve the post graduate programme',
+                'error' => $e -> getMessage()
+            ], 500);
+        }
     }
 }

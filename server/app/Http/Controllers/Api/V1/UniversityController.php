@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Filters\V1\UniversityFilter;
+use App\Http\Resources\V1\FacultyCollection;
 use App\Models\University;
 use App\Http\Requests\V1\StoreUniversityRequest;
 use App\Http\Requests\V1\UpdateUniversityRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\V1\UniversityResource;
 use App\Http\Resources\V1\UniversityCollection;
+use App\Http\Resources\V1\ViceChancellorResource;
 use App\Models\CenterForQualityAssurance;
 use App\Services\V1\UniversityService;
 use Illuminate\Support\Facades\DB;
@@ -73,7 +75,11 @@ class UniversityController extends Controller
             $university = UniversityService::create($validatedData);
             //commit db transactions
             DB::commit();
-            return new UniversityResource($university);
+
+            return response() -> json([
+                'message' => 'University created successfully',
+                'data' => new UniversityResource($university)
+            ], 201);
         }
         catch(\Exception $e){
             //rollback db transactions
@@ -142,5 +148,56 @@ class UniversityController extends Controller
     public function destroy(University $university)
     {
         //
+    }
+
+
+    //get all faculties of a university
+    public function faculties(University $university)
+    {
+        try{
+            $faculties = $university -> faculties;
+            return new FacultyCollection($faculties);
+        }
+        catch(\Exception $e){
+            return response()->json([
+                'message' => 'Something went wrong',
+                'error' => $e -> getMessage()
+            ], 500);
+        }
+    }
+
+    //get current vice chancellor of a university
+    public function currentViceChancellor(University $university)
+    {
+        try{
+            $viceChancellor = $university -> viceChancellor;
+
+            if($viceChancellor){
+                //related data
+                $universitySide = request() -> query('includeUniversitySide');
+                if($universitySide){
+                    //user data
+                    $user = request() -> query('includeUser');
+                    if($user){
+                        $viceChancellor = $viceChancellor -> loadMissing(['universitySide:id' => ['user:id,initials,surname']]);
+                    }
+                    else{
+                        $viceChancellor = $viceChancellor -> loadMissing('universitySide:id');
+                    }
+                }
+                return new ViceChancellorResource($viceChancellor);
+            }
+            else{
+                return response()->json([
+                    'message' => 'No vice chancellor found for this university'
+                ], 404);
+            }
+        }
+        catch(\Exception $e){
+            return response()->json([
+                'message' => 'Something went wrong',
+                'error' => $e -> getMessage()
+            ], 500);
+        }
     }
 }

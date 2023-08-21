@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Api\V1;
 use App\Filters\V1\FacultyFilter;
 use App\Http\Resources\V1\FacultyCollection;
 use App\Http\Resources\V1\FacultyResource;
+use App\Http\Resources\V1\PostGraduateProgramCollection;
 use App\Models\Faculty;
 use App\Http\Requests\V1\StoreFacultyRequest;
 use App\Http\Requests\V1\UpdateFacultyRequest;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\V1\DeanResource;
 use App\Models\InternalQualityAssuranceUnit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -115,7 +117,11 @@ class FacultyController extends Controller
             //create the iqau
             InternalQualityAssuranceUnit::create($iqauDetails);
             DB::commit();
-            return new FacultyResource($faculty);
+
+            return response()->json([
+                'message' => 'Faculty created successfully',
+                'data' => new FacultyResource($faculty)
+            ], 201);
         }
         catch(\Exception $e){
             DB::rollBack();
@@ -208,5 +214,62 @@ class FacultyController extends Controller
     public function destroy(Faculty $faculty)
     {
         //
+    }
+
+    //get all post graduate programs of a faculty
+    public function postGraduatePrograms(Faculty $faculty){
+        try{
+            return new PostGraduateProgramCollection($faculty -> postGraduatePrograms);
+        }
+        catch(\Exception $e){
+            return response() -> json([
+                'message' => 'Failed to retrieve the post graduate programs',
+                'error' => $e -> getMessage()
+            ], 500);
+        }
+    }
+
+    //get current dean of a faculty
+    public function currentDean(Faculty $faculty){
+        try{
+            $dean = $faculty -> currentDean;
+
+            if($dean){
+                //related data
+                $academicStaff = request() -> query('includeAcademicStaff');
+                if($academicStaff){
+                    //check if university side is included
+                    $universitySide = request() -> query('includeUniversitySide');
+                    if($universitySide){
+                        //check if user is included
+                        $user = request() -> query('includeUser');
+                        if($user){
+                            $dean = $dean -> load(['academicStaff:id' => [
+                                'universitySide:id' => ['user:id,initials,surname']
+                                ]
+                            ]);
+                        }
+                        else{
+                            $dean = $dean -> load(['academicStaff:id' => ['universitySide:id']]);
+                        }
+                    }
+                    else{
+                        $dean = $dean -> loadMissing('academicStaff:id');
+                    }
+                }
+                return new DeanResource($dean);
+            }
+            else{
+                return response() -> json([
+                    'message' => 'The faculty does not have a dean'
+                ], 404);
+            }
+        }
+        catch(\Exception $e){
+            return response() -> json([
+                'message' => 'Failed to retrieve the dean',
+                'error' => $e -> getMessage()
+            ], 500);
+        }
     }
 }

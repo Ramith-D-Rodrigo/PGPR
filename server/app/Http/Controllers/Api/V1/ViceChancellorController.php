@@ -69,7 +69,11 @@ class ViceChancellorController extends Controller
             //send mail
             ViceChancellorService::sendAccountCreateMail($validatedData, $password);
             DB::commit();
-            return new ViceChancellorResource($viceChancellor);
+
+            return response() -> json([
+                'message' => 'Vice chancellor created successfully',
+                'data' => new ViceChancellorResource($viceChancellor)
+            ], 201);
         }
         catch(\Exception $e){
             DB::rollBack();

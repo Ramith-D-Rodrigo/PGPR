@@ -59,8 +59,14 @@ class PostGraduateProgramController extends Controller
     public function store(StorePostGraduateProgramRequest $request)
     {
         //add authorized cqa director id to the request
-        $request['added_by_cqa_director_id'] = Auth::user() -> id;
-        return new PostGraduateProgramResource(PostGraduateProgram::create($request->validated()));
+        $validatedData = $request -> validated();
+        $validatedData['added_by_cqa_director_id'] = Auth::user() -> id;
+        $pgp = PostGraduateProgram::create($validatedData);
+
+        return response() -> json([
+            'message' => 'Post Graduate Program Created Successfully',
+            'data' => new PostGraduateProgramResource($pgp)
+        ], 201);
     }
 
     /**
@@ -134,7 +140,7 @@ class PostGraduateProgramController extends Controller
 
             //add authorized cqa director id to the validated data
             $validatedData['edited_by_cqa_director_id'] = Auth::user() -> id;
-            $postGraduateProgram -> update($request -> validated());
+            $postGraduateProgram -> update($validatedData);
             return response() -> json(['message' => 'Post Graduate Program Updated Successfully'], 200);
         }
         catch(\Exception $e){
@@ -148,5 +154,75 @@ class PostGraduateProgramController extends Controller
     public function destroy(PostGraduateProgram $postGraduateProgram)
     {
         //
+    }
+
+    //get the current coordinator of the post graduate program
+    public function currentCoordinator(PostGraduateProgram $postGraduateProgram){
+        try{
+            $programmeCoordinator = $postGraduateProgram -> currentProgrammeCoordinator;
+
+            if($programmeCoordinator){
+                //check if academic staff is included
+                $academicStaff = request() -> query('includeAcademicStaff');
+                if($academicStaff){
+                    //check if university side is included
+                    $universitySide = request() -> query('includeUniversitySide');
+                    if($universitySide){
+                        //check if user is included
+                        $user = request() -> query('includeUser');
+                        if($user){
+                            $programmeCoordinator -> load(['academicStaff:id' => [
+                                'universitySide:id' => ['user:id,initials,surname']
+                                ]
+                            ]);
+                        }
+                        else{
+                            $programmeCoordinator -> load(['academicStaff:id' => ['universitySide:id']]);
+                        }
+                    }
+                    else{
+                        $programmeCoordinator -> loadMissing('academicStaff:id');
+                    }
+                }
+            }
+        }
+        catch(\Exception $e){
+            return response() -> json(['message' => $e -> getMessage()], 500);
+        }
+    }
+
+    //get all postgraduate program reviews
+    public function reviews(PostGraduateProgram $postGraduateProgram){
+        try{
+            $reviews = $postGraduateProgram -> postGraduateProgramReviews;
+
+            //check if academic staff is included
+            $academicStaff = request() -> query('includeAcademicStaff');
+            if($academicStaff){
+                //check if university side is included
+                $universitySide = request() -> query('includeUniversitySide');
+                if($universitySide){
+                    //check if user is included
+                    $user = request() -> query('includeUser');
+                    if($user){
+                        $reviews -> load(['academicStaff:id' => [
+                            'universitySide:id' => ['user:id,initials,surname']
+                            ]
+                        ]);
+                    }
+                    else{
+                        $reviews -> load(['academicStaff:id' => ['universitySide:id']]);
+                    }
+                }
+                else{
+                    $reviews -> loadMissing('academicStaff:id');
+                }
+            }
+
+            return response() -> json(['reviews' => $reviews], 200);
+        }
+        catch(\Exception $e){
+            return response() -> json(['message' => $e -> getMessage()], 500);
+        }
     }
 }

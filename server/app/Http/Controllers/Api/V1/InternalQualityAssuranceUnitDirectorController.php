@@ -65,7 +65,11 @@ class InternalQualityAssuranceUnitDirectorController extends Controller
             InternalQualityAssuranceUnitDirectorService::sendAccountCreateMail($validatedDataWithFiles, $password);
 
             DB::commit();
-            return new InternalQualityAssuranceUnitDirectorResource($iqauDirector);
+
+            return response()->json([
+                'message' => 'Successfully created the internal quality assurance unit director',
+                'data' => new InternalQualityAssuranceUnitDirectorResource($iqauDirector)
+            ], 201);
         }
         catch(\Exception $e){
             DB::rollBack();

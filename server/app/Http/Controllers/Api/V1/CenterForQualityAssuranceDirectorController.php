@@ -61,7 +61,11 @@ class CenterForQualityAssuranceDirectorController extends Controller
             CenterForQualityAssuranceDirectorService::sendAccountCreateMail($validatedDataWithFiles, $password);
 
             DB::commit();
-            return new CenterForQualityAssuranceDirectorResource($cqaDirector);
+
+            return response()->json([
+                'message' => 'CQA director account created successfully',
+                'data' => new CenterForQualityAssuranceDirectorResource($cqaDirector)
+            ], 201);
         }
         catch(\Exception $e){
             DB::rollBack();

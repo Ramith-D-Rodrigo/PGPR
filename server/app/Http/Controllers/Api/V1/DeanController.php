@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Filters\V1\DeanFilter;
 use App\Http\Resources\V1\DeanCollection;
 use App\Http\Resources\V1\DeanResource;
+use App\Http\Resources\V1\FacultyResource;
 use App\Models\Dean;
 use App\Http\Requests\V1\StoreDeanRequest;
 use App\Http\Requests\V1\UpdateDeanRequest;
@@ -120,7 +121,12 @@ class DeanController extends Controller
             //send the email
             DeanService::sendAccountCreateMail($validatedData, $password);
             DB::commit();   //commit the changes if all of them were successful
-            return new DeanResource($dean);
+
+            return response() -> json([
+                'message' => 'Dean created successfully',
+                'data' => new DeanResource($dean)
+            ], 201);
+
         }
         catch(\Exception $e){
             DB::rollBack();
@@ -190,5 +196,20 @@ class DeanController extends Controller
     public function destroy(Dean $dean)
     {
         //
+    }
+
+
+    //get the faculty of the dean
+    public function faculty(Dean $dean){
+        try{
+            $faculty = $dean -> faculty;
+
+            if($faculty){
+                return new FacultyResource($faculty);
+            }
+        }
+        catch(\Exception $e){
+            return response() -> json(['message' => 'Failed to get the faculty of the dean', 'error' => $e -> getMessage()], 500);
+        }
     }
 }
