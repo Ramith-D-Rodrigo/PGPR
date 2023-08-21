@@ -6,6 +6,7 @@ use App\Filters\V1\FacultyFilter;
 use App\Http\Resources\V1\FacultyCollection;
 use App\Http\Resources\V1\FacultyResource;
 use App\Http\Resources\V1\PostGraduateProgramCollection;
+use App\Http\Resources\V1\UniversityResource;
 use App\Models\Faculty;
 use App\Http\Requests\V1\StoreFacultyRequest;
 use App\Http\Requests\V1\UpdateFacultyRequest;
@@ -270,6 +271,29 @@ class FacultyController extends Controller
         catch(\Exception $e){
             return response() -> json([
                 'message' => 'Failed to retrieve the dean',
+                'error' => $e -> getMessage()
+            ], 500);
+        }
+    }
+
+    //get the university of a faculty
+    public function university(Faculty $faculty){
+        try{
+            $university = $faculty -> university;
+
+            if($university){
+                //related data
+                return new UniversityResource($university);
+            }
+            else{
+                return response() -> json([
+                    'message' => 'The faculty does not have a university'
+                ], 404);
+            }
+        }
+        catch(\Exception $e){
+            return response() -> json([
+                'message' => 'Failed to retrieve the university',
                 'error' => $e -> getMessage()
             ], 500);
         }

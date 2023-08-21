@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Api\V1;
 use App\Filters\V1\PostGraduateProgramFilter;
 use App\Http\Requests\V1\StorePostGraduateProgramRequest;
 use App\Http\Requests\V1\UpdatePostGraduateProgramRequest;
+use App\Http\Resources\V1\FacultyResource;
 use App\Http\Resources\V1\PostGraduateProgramResource;
 use App\Http\Resources\V1\PostGraduateProgramReviewCollection;
 use App\Http\Resources\V1\PostGraduateProgramReviewResource;
 use App\Models\PostGraduateProgram;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\V1\PostGraduateProgramCollection;
+use App\Http\Resources\V1\ProgrammeCoordinatorResource;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -179,6 +181,17 @@ class PostGraduateProgramController extends Controller
         //
     }
 
+    //get the faculty of the post graduate program
+    public function faculty(PostGraduateProgram $postGraduateProgram){
+        try{
+            $faculty = $postGraduateProgram -> faculty;
+            return new FacultyResource($faculty);
+        }
+        catch(\Exception $e){
+            return response() -> json(['message' => $e -> getMessage()], 500);
+        }
+    }
+
     //get the current coordinator of the post graduate program
     public function currentCoordinator(PostGraduateProgram $postGraduateProgram){
         try{
@@ -208,6 +221,8 @@ class PostGraduateProgramController extends Controller
                     }
                 }
             }
+
+            return new ProgrammeCoordinatorResource($programmeCoordinator);
         }
         catch(\Exception $e){
             return response() -> json(['message' => $e -> getMessage()], 500);
@@ -238,7 +253,7 @@ class PostGraduateProgramController extends Controller
                 }
             }
 
-            return response() -> json(['reviews' => new PostGraduateProgramReviewCollection($reviews)], 200);
+            return new PostGraduateProgramReviewCollection($reviews);
         }
         catch(\Exception $e){
             return response() -> json(['message' => $e -> getMessage()], 500);
