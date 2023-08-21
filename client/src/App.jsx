@@ -8,6 +8,25 @@ import NotFound from "./pages/NotFound";
 import Authenticate from "./components/Authenticate";
 import Unauthorized from "./components/Unauthorized";
 import LoginPersist from "./components/LoginPersist.jsx";
+import PGPRApplication from './pages/Dean/PGPRApplication';
+import ResetInitialPassword from "./components/ResetInitialPassword.jsx";
+import AddPGProgramPage from './pages/CQAdirector/AddPGProgramPage';
+import AddAccounts from './pages/CQAdirector/AddAccounts';
+import EditPGProgram from './pages/CQAdirector/EditPGProgram';
+import SubmitIntent from './pages/DeanDirector/SubmitIntent';
+import SubmitConsent from './pages/DeanDirector/SubmitConsent';
+import SetDate from './pages/ReviewerChair/SetDate';
+import SetCriteria from './pages/ReviewerChair/SetCriteria';
+import PGAssignments from './pages/Reviewer/PGAssignments';
+import ConductDE from './pages/Reviewer/ConductDE';
+import ConductPE from './pages/Reviewer/ConductPE';
+import ViewUniversities from './pages/QACDirector/ViewUniversities'
+import ViewUniversity from './pages/QACDirector/ViewUniversity'
+import EditUniversity from './pages/QACDirector/EditUniversity';
+import AddUniversity from './pages/QACDirector/AddUniversity';
+import ViewReviewers from './pages/QACDirector/ViewReviewers'
+import CqaOffices from './pages/QACDirector/CqaOffices'
+import {DrawerStateProvider} from './contexts/DrawerStateProvider';
 import PGPRApplication from "./pages/Dean/PGPRApplication";
 import PGPRApplications from "./pages/Dean/PGPRApplications";
 import EditPGPRApplication from "./pages/Dean/EditPGPRApplication";
@@ -45,8 +64,20 @@ import Standardwise_details from "./pages/Reviewer/Standardwise_details";
 import AcceptAppointment from "./pages/Reviewer/AcceptAppointment";;
 import { DrawerStateProvider } from "./contexts/DrawerStateProvider";
 import EvaluateDE from "./pages/Reviewer/EvaluateDE";
-import "./App.css";
 import CreateAccounts from './pages/QACOfficer/CreateAccounts';
+import ViewReviewers from './pages/QACDirector/ViewReviewers';
+import CqaOffices from './pages/QACDirector/CqaOffices';
+import Ser from './pages/ProgrammeCoordinator/Ser';
+import SubmitPGPR from './pages/ProgrammeCoordinator/SubmitPGPR';
+import EditSer from './pages/ProgrammeCoordinator/EditSer';
+import AddEvidence from './pages/ProgrammeCoordinator/AddEvidence';
+import UpdateEvidence from './pages/ProgrammeCoordinator/UpdateEvidence';
+import ViewSummary from './pages/ProgrammeCoordinator/ViewSummary';
+import SelfEvaluationReport from './pages/ViceChancellor/SelfEvaluationReport';
+import View from './pages/ViceChancellor/View';
+import {DrawerStateProvider} from './contexts/DrawerStateProvider';
+import "./App.css";
+
 
 /* 
   important: 
@@ -194,6 +225,15 @@ function App() {
               </Route>
             </Route>
 
+            <Route element={<Authenticate allowedRoles={["vice_chancellor"]}/>}>
+              <Route path="vice_chancellor/">
+                <Route path="" element={<Dashboard/>}/>
+                <Route path="dashboard" element={<Dashboard/>}/>
+                <Route path="selfevaluationreport" element={<SelfEvaluationReport/>}/>
+                <Route path="view" element={<View/>}/>
+              </Route>
+            </Route>
+
             {/* iqau routes */}
             <Route element={<Authenticate allowedRoles={["iqau_director"]} />}>
               <Route path="iqau_director/">
@@ -213,14 +253,6 @@ function App() {
               </Route>
             </Route>
 
-            <Route
-              element={<Authenticate allowedRoles={["vice_chancellor"]} />}
-            >
-              <Route path="vice_chancellor/">
-                <Route path="" element={<Dashboard />} />
-                <Route path="dashboard" element={<Dashboard />} />
-              </Route>
-            </Route>
           </Route>
         </Route>
         {/* 404 page & UnAuth ... */}
