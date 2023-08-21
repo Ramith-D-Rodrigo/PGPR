@@ -63,4 +63,66 @@ class PostGraduateProgramReviewPolicy
     {
         //
     }
+
+
+    public function authorizeReviews(User $user, PostGraduateProgramReview $postGraduateProgramReview): Response
+    {
+        //get curr logged in role from session
+        $currRole = request() -> session() -> get('authRole');
+
+        //programme_coordinator can only view reviews of the postgraduate programme they are coordinating
+        //dean can only view reviews of the postgraduate programme of the faculty they are dean of
+        //vice chancellor can view all reviews of all postgraduate programmes of their university
+        //reviewer cannot use this endpoint
+        //cqa_director can view all reviews of all postgraduate programmes of their university
+        //iqau_director can view all reviews of all postgraduate programmes of their university
+        //qac_director and qac_officer can view all the reviews
+
+        switch($currRole){
+            case 'programme_coordinator':
+                $coordinatorPGPId = $user -> universitySide -> academicStaff -> programmeCoordinator -> postGraduateProgram -> id;
+                if($coordinatorPGPId !== $postGraduateProgramReview -> postGraduateProgram -> id){
+                    return Response::deny('You can only view reviews of the postgraduate programme you are coordinating');
+                }
+                break;
+            case 'dean':
+                $deanFacultyId = $user -> universitySide -> academicStaff -> dean -> faculty -> id;
+                if($deanFacultyId !== $postGraduateProgramReview -> postGraduateProgram -> faculty -> id){
+                    return Response::deny('You can only view reviews of the postgraduate programme of the faculty you are dean of');
+                }
+                break;
+            case 'vice_chancellor':
+                $vcUniId = $user -> universitySide -> viceChancellor -> university -> id;
+                if($vcUniId !== $postGraduateProgramReview -> postGraduateProgram -> faculty -> university ->  id){
+                    return Response::deny('You can only view reviews of the postgraduate programme of your university');
+                }
+                break;
+            case 'cqa_director':
+                $cqaUniId = $user -> universitySide
+                                -> qualityAssuranceStaff -> centerForQualityAssuranceDirector
+                                -> centerForQualityAssurance -> university -> id;
+
+                if($cqaUniId !== $postGraduateProgramReview -> postGraduateProgram -> university -> id){
+                    return Response::deny('You can only view reviews of the postgraduate programme of your university');
+                }
+                break;
+            case 'iqau_director':
+                $iqauFacultyId = $user -> universitySide
+                                -> qualityAssuranceStaff -> internalQualityAssuranceUnitDirector
+                                -> internalQualityAssuranceUnit -> faculty -> id;
+                if($iqauFacultyId !== $postGraduateProgramReview -> postGraduateProgram -> faculty -> id){
+                    return Response::deny('You can only view reviews of the postgraduate programme of your faculty');
+                }
+                break;
+            case 'qac_director':
+            case 'qac_officer':
+                return Response::allow();
+                break;
+
+            default:
+                return Response::deny('You are not authorized to view reviews of postgraduate programmes');
+        }
+
+        return Response::allow();
+    }
 }

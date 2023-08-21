@@ -217,6 +217,9 @@ class PostGraduateProgramController extends Controller
     //get all postgraduate program reviews
     public function reviews(PostGraduateProgram $postGraduateProgram){
         try{
+            //authorize the action
+            $this -> authorize('authorizeReviews', $postGraduateProgram);
+
             $reviews = $postGraduateProgram -> postGraduateProgramReviews;
 
             //check if faculty is included
