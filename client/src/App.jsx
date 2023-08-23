@@ -81,10 +81,10 @@ function App() {
             <Route path="EditPGProgram" element={<EditPGProgram />} />
             <Route path="ViewPGPrograms" element={<ViewPGPrograms />} />
             <Route path="ViewCoordinators/">
-              <Route path="" element={<ViewCoordinators/>} />
-              <Route path="CoordinatorProfile/:id" element={<CoordinatorProfile/>} />
-          </Route>
-          </Route>
+    <Route path="" element={<ViewCoordinators />} />
+    <Route path="CoordinatorProfile/:id" element={<CoordinatorProfile />} />
+  </Route>
+</Route>
         </Route>
 
                 <Route element={<Authenticate allowedRoles={["qac_director"]}/>}>

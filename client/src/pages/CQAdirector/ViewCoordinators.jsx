@@ -42,7 +42,7 @@ const CustomTable = ({ tableData }) => {
                       color="primary"
                       size="small"
                       component={Link}
-                      to={"/view/" + row.cid}
+                      to={"CoordinatorProfile/" + row.cid}
                     >
                       View
                     </Button>
