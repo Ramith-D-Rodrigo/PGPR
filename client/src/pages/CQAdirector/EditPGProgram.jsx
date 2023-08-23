@@ -1,7 +1,6 @@
 import React from 'react';
 import Form from '../../components/Form';
 import MainContent from '../../components/MainContent';
-import ScrollableDiv from '../../components/ScrollableDiv';
 import useSetUserNavigations from '../../hooks/useSetUserNavigations';
 
 const EditPGProgram = () => {
@@ -29,7 +28,6 @@ const EditPGProgram = () => {
   };
 
   return (
-    <ScrollableDiv height="600px">
       <Form
         topic="Edit PG Program Application Details"
         fields={[
@@ -53,8 +51,6 @@ const EditPGProgram = () => {
         onCancel={handleCancel}
         onSubmit={handleSubmit}
       />
-      
-    </ScrollableDiv>
   );
 };
 

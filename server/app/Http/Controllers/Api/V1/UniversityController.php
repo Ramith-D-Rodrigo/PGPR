@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Filters\V1\UniversityFilter;
 use App\Models\University;
 use App\Http\Requests\V1\StoreUniversityRequest;
 use App\Http\Requests\V1\UpdateUniversityRequest;
@@ -10,6 +11,7 @@ use App\Http\Resources\V1\UniversityResource;
 use App\Http\Resources\V1\UniversityCollection;
 use App\Models\CenterForQualityAssurance;
 use App\Services\V1\UniversityService;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 
 class UniversityController extends Controller
@@ -19,7 +21,44 @@ class UniversityController extends Controller
      */
     public function index()
     {
-        return new UniversityCollection(University::paginate());
+        try{
+            $filter = new UniversityFilter(request() -> session() -> get('authRole'), request());
+
+            $queryItems = $filter -> getEloQuery();
+
+            $universities = University::where($queryItems);
+
+            //related data
+            $cqa = request() -> query('includeCQA');
+            if($cqa){
+                $universities = $universities -> with('centerForQualityAssurance');
+            }
+
+            $vc = request() -> query('includeViceChancellor');
+            if($vc){
+                $universities = $universities -> with('viceChancellor:id');
+
+                //check if university side is included
+                $universitySide = request() -> query('includeUniversitySide');
+                if($universitySide){
+                    $universities = $universities -> with(['viceChancellor:id' => ['universitySide:id']]);
+
+                    //check if user is included
+                    $user = request() -> query('includeUser');
+                    if($user){
+                        $universities = $universities -> with(['viceChancellor:id' => ['universitySide:id' => ['user:id,initials,surname']]]);
+                    }
+                }
+            }
+
+            return new UniversityCollection($universities -> paginate() -> appends(request() -> query()));
+        }
+        catch(\Exception $e){
+            return response()->json([
+                'message' => 'Something went wrong',
+                'error' => $e -> getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -27,15 +66,25 @@ class UniversityController extends Controller
      */
     public function store(StoreUniversityRequest $request)
     {
-        $validatedData = $request -> validated();
-
         try{
+            //authorize request
+            $this -> authorize('create', University::class);
+
+            $validatedData = $request -> validated();
             //begin db transaction
             DB::beginTransaction();
             $university = UniversityService::create($validatedData);
             //commit db transactions
             DB::commit();
-            return new UniversityResource($university);
+
+            return response()->json([
+                'message' => 'University created successfully'
+            ], 201);
+        }
+        catch(AuthorizationException $e){
+            return response()->json([
+                'message' => $e -> getMessage()
+            ], 403);
         }
         catch(\Exception $e){
             //rollback db transactions
@@ -52,7 +101,41 @@ class UniversityController extends Controller
      */
     public function show(University $university)
     {
-        return new UniversityResource($university);
+        try{
+            //check if cqa is included
+            $cqa = request() -> query('includeCQA');
+            if($cqa){
+                $university = $university -> loadMissing('centerForQualityAssurance');
+            }
+
+            //check if vc is included
+            $vc = request() -> query('includeViceChancellor');
+            if($vc){
+                //check if university side is included
+                $universitySide = request() -> query('includeUniversitySide');
+                if($universitySide){
+                    //check if user is included
+                    $user = request() -> query('includeUser');
+                    if($user){
+                        $university = $university -> load(['viceChancellor:id' => ['universitySide:id' => ['user:id,initials,surname']]]);
+                    }
+                    else{
+                        $university = $university -> load(['viceChancellor:id' => ['universitySide:id']]);
+                    }
+                }
+                else{
+                    $university = $university -> loadMissing('viceChancellor:id');
+                }
+            }
+
+            return new UniversityResource($university);
+        }
+        catch(\Exception $e){
+            return response()->json([
+                'message' => 'Something went wrong',
+                'error' => $e -> getMessage()
+            ], 500);
+        }
     }
 
 

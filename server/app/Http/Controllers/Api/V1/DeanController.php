@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Filters\V1\DeanFilter;
+use App\Http\Resources\V1\DeanCollection;
 use App\Http\Resources\V1\DeanResource;
 use App\Models\Dean;
 use App\Http\Requests\V1\StoreDeanRequest;
@@ -10,6 +12,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\sendPassword;
 use App\Models\Faculty;
 use App\Services\V1\DeanService;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -22,7 +25,55 @@ class DeanController extends Controller
      */
     public function index()
     {
-        //
+        try{
+            $filter = new DeanFilter(request() -> session() -> get('authRole'), request());
+
+            $queryItems = $filter -> getEloQuery();
+
+            $deans = Dean::where($queryItems);
+
+            //where in and where not in query items
+
+            $whereInQueryItems = $filter -> getWhereInQuery();
+            foreach($whereInQueryItems as $whereInQueryItem){
+                $deans = $deans -> whereIn($whereInQueryItem[0], $whereInQueryItem[1]);
+            }
+
+            $whereNotInQueryItems = $filter -> getWhereNotInQuery();
+            foreach($whereNotInQueryItems as $whereNotInQueryItem){
+                $deans = $deans -> whereNotIn($whereNotInQueryItem[0], $whereNotInQueryItem[1]);
+            }
+
+            //related data
+
+            $academicStaff = request() -> query('includeAcademicStaff');
+            if($academicStaff){
+                $deans = $deans -> with('academicStaff');
+
+                $uniSide = request() -> query('includeUniversitySide');
+
+                if($uniSide){
+                    $deans = $deans -> with(['academicStaff' => ['universitySide']]);
+
+                    $user = request() -> query('includeUser');
+
+                    if($user){
+                        $deans = $deans -> with(['academicStaff' => ['universitySide' => ['user']]]);
+                    }
+                }
+            }
+
+            $faculty = request() -> query('includeFaculty');
+
+            if($faculty){
+                $deans = $deans -> with('faculty');
+            }
+
+            return new DeanCollection($deans -> paginate() -> appends(request() -> query()));
+        }
+        catch(\Exception $e){
+            return response() -> json(['message' => $e -> getMessage()], 500);
+        }
     }
 
     /**
@@ -38,21 +89,23 @@ class DeanController extends Controller
      */
     public function store(StoreDeanRequest $request)
     {
-        //set needed additional fields
-
-        $validatedData = $request -> validated(); //get the validated data
-
-        $validatedData['status'] = 'Pending'; //set the status (user account status)
-        $validatedData['current_status'] = 'Active';   //set the current status (dean status)
-        $validatedData['roles'] = ['dean']; //set the roles (dean role)
-
-
-        $password = Str::random(8);  //generate a random password
-        //hash the password using Hash facade
-
-        $validatedData['password'] = Hash::make($password); //set the password
-
         try{
+            $this -> authorize('create', Dean::class);
+
+            //set needed additional fields
+
+            $validatedData = $request -> validated(); //get the validated data
+
+            $validatedData['status'] = 'Pending'; //set the status (user account status)
+            $validatedData['current_status'] = 'Active';   //set the current status (dean status)
+            $validatedData['roles'] = ['dean']; //set the roles (dean role)
+
+
+            $password = Str::random(8);  //generate a random password
+            //hash the password using Hash facade
+
+            $validatedData['password'] = Hash::make($password); //set the password
+
             DB::beginTransaction();
 
             //store the files
@@ -72,6 +125,9 @@ class DeanController extends Controller
             DB::commit();   //commit the changes if all of them were successful
             return new DeanResource($dean);
         }
+        catch(AuthorizationException $e){
+            return response() -> json(['message' => $e -> getMessage()], 403);
+        }
         catch(\Exception $e){
             DB::rollBack();
             return response() -> json(['message' => 'Failed to create dean', 'error' => $e -> getMessage()], 500);
@@ -83,7 +139,39 @@ class DeanController extends Controller
      */
     public function show(Dean $dean)
     {
-        //
+        try{
+            //include related data
+            $academicStaff = request() -> query('includeAcademicStaff');
+
+            if($academicStaff){
+                $uniSide = request() -> query('includeUniversitySide');
+
+                if($uniSide){
+                    $user = request() -> query('includeUser');
+
+                    if($user){
+                        $dean = $dean -> load(['academicStaff' => ['universitySide' => ['user']]]);
+                    }
+                    else{
+                        $dean = $dean -> load(['academicStaff' => ['universitySide']]);
+                    }
+                }
+                else{
+                    $dean = $dean -> loadMissing('academicStaff');
+                }
+            }
+
+            $faculty = request() -> query('includeFaculty');
+
+            if($faculty){
+                $dean = $dean -> loadMissing('faculty');
+            }
+
+            return new DeanResource($dean);
+        }
+        catch(\Exception $e){
+            return response() -> json(['message' => $e -> getMessage()], 500);
+        }
     }
 
     /**

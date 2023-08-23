@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('post_graduate_program_reviews', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('post_graduate_program_id');
+            $table->foreignId('post_graduate_program_id')->nullable();
             $table->foreignId('qac_dir_id')->nullable()->default(NULL);
-            $table->enum('status_of_pgpr', ['APPROVED', 'REJECTED', 'PENDING'])->default('PENDING');
+            $table->enum('status_of_pgpr', ['PLANNING', 'SUBMITTED', 'DE', 'PE1', 'PE2', 'SUSPENDED', 'FINAL', 'COMPLETED'])->default('PLANNING');
             $table->string("payment_voucher") -> nullable(); // link of the voucher
 
             // $table->foreignId('final_report_id')->nullable()->default(NULL);

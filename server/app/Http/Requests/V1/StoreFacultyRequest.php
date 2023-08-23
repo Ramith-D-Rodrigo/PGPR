@@ -14,29 +14,7 @@ class StoreFacultyRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        //only cqa director can add a faculty
-        $uniSide = Auth::user() -> universitySide ?? null;
-
-        if($uniSide === null){
-            return false;
-        }
-
-        $qaStaff = $uniSide -> qualityAssuranceStaff ?? null;
-        if($qaStaff === null){
-            return false;
-        }
-
-        $cqaDirector = $qaStaff -> centerForQualityAssuranceDirector ?? null;
-
-        //only can create for his university
-
-        $universityId = $this -> university_id;
-
-        if($universityId !== $uniSide -> university_id){
-            return false;
-        }
-
-        return $cqaDirector !== null;
+        return true;
     }
 
     /**
@@ -100,5 +78,10 @@ class StoreFacultyRequest extends FormRequest
                 'iqau_fax_no' => json_encode($this -> iqau_fax_no)
             ]);
         }
+
+        //add current logged in cqa_director's university to university_id
+        $this -> merge([
+            'university_id' => Auth::user() -> universitySide -> university_id ?? null
+        ]);
     }
 }

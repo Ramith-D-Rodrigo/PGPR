@@ -13,7 +13,8 @@ class UniversityPolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        //anyone can view a university
+        return true;
     }
 
     /**
@@ -21,23 +22,41 @@ class UniversityPolicy
      */
     public function view(User $user, University $university): bool
     {
-        //
+        //anyone can view a university
+        return true;
     }
 
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user): bool
+    public function create(User $user): Response
     {
-        //
+        //only current logged in qac director can create a university
+        //get the authRole in the request session
+        $authRole = request() -> session() -> get('authRole');
+
+        if($authRole == 'qac_director'){
+            return Response::allow();
+        }
+
+        return Response::deny('You are not authorized to create a university.');
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, University $university): bool
+    public function update(User $user, University $university): Response
     {
-        //
+        //only current logged in qac director can update a university
+
+        //get the authRole in the request session
+        $authRole = request() -> session() -> get('authRole');
+
+        if($authRole == 'qac_director'){
+            return Response::allow();
+        }
+
+        return Response::deny('You are not authorized to update this university.');
     }
 
     /**

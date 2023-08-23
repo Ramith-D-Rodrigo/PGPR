@@ -16,12 +16,13 @@ return new class extends Migration
             $table->string('title');
             $table->integer('slqf_level');
             $table->year('commencement_year');
+            $table->boolean('is_professional_pg_programme')->default(true);
 
-            $table->foreignId('faculty_id');
+            $table->foreignId('faculty_id')->nullable();
             //nullable for now
-            $table->foreignId('added_by_cqa_director_id') -> nullable();
-            $table->foreignId('edited_by_cqa_director_id') -> nullable();
-            $table->foreignId('programme_coordinator_id') -> nullable();
+            $table->foreignId('added_by_cqa_director_id')->nullable();
+            $table->foreignId('edited_by_cqa_director_id')->nullable();
+            $table->foreignId('programme_coordinator_id')->nullable();
             $table->timestamps();
 
             // indices

@@ -36,15 +36,19 @@ class CenterForQualityAssuranceDirectorController extends Controller
      */
     public function store(StoreCenterForQualityAssuranceDirectorRequest $request)
     {
-        $validatedData = $request->validated();
-        $validatedData['status'] = 'pending'; //set the status to pending
-        $validatedData['roles'] = ['cqa_director']; //set the roles to cqa director
-
-        //random password
-        $password = Str::random(8);
-        $validatedData['password'] = Hash::make($password); //hash the password
-
         try{
+            //authorize the action
+            $this -> authorize('create', CenterForQualityAssuranceDirector::class);
+
+
+            $validatedData = $request->validated();
+            $validatedData['status'] = 'pending'; //set the status to pending
+            $validatedData['roles'] = ['cqa_director']; //set the roles to cqa director
+
+            //random password
+            $password = Str::random(8);
+            $validatedData['password'] = Hash::make($password); //hash the password
+
             DB::beginTransaction();
 
             //store the files (profile pic)

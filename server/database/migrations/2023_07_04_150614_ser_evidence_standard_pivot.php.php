@@ -17,7 +17,6 @@ return new class extends Migration
             $table->foreignId('ser_id');
             $table->foreignId('standard_id');
             $table->foreignId('evidence_id');
-            $table->string('adherence'); // to store the url
             $table->timestamps();
 
             $table->index('ser_id');

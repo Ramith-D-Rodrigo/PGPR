@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Filters\V1\FacultyFilter;
 use App\Http\Resources\V1\FacultyCollection;
 use App\Http\Resources\V1\FacultyResource;
 use App\Models\Faculty;
@@ -9,6 +10,8 @@ use App\Http\Requests\V1\StoreFacultyRequest;
 use App\Http\Requests\V1\UpdateFacultyRequest;
 use App\Http\Controllers\Controller;
 use App\Models\InternalQualityAssuranceUnit;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -17,17 +20,62 @@ class FacultyController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return new FacultyCollection(Faculty::paginate());
-    }
+        try{
+            $filter = new FacultyFilter($request -> session() -> get('authRole'), $request);
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+            $queryItems = $filter -> getEloQuery();   //[column, operator, value]
+
+            $faculties = Faculty::where($queryItems);
+
+            //including related data
+            $university = $request -> query('includeUniversity');
+            if($university){
+                $faculties = $faculties -> with('university');
+            }
+
+            $iqau = $request -> query('includeIQAU');
+            if($iqau){
+                $faculties = $faculties -> with('internalQualityAssuranceUnit');
+            }
+
+            $dean = $request -> query('includeDean');
+            if($dean){
+                $faculties = $faculties -> with('dean:id');
+
+                //check if academic staff is included
+                $academicStaff = $request -> query('includeAcademicStaff');
+                if($academicStaff){
+                    $faculties = $faculties -> with(['dean:id' => ['academicStaff:id']]);
+
+                    //check if university side is included
+                    $universitySide = $request -> query('includeUniversitySide');
+                    if($universitySide){
+                        $faculties = $faculties -> with(['dean:id' => ['academicStaff:id' => ['universitySide:id']]]);
+
+                        //check if user is included
+                        $user = $request -> query('includeUser');
+                        if($user){
+                            $faculties = $faculties -> with(['dean:id' => [
+                                'academicStaff:id' => [
+                                    'universitySide:id' => ['user:id,initials,surname']
+                                    ]
+                                ]
+                            ]);
+                        }
+                    }
+                }
+            }
+
+            return new FacultyCollection($faculties -> paginate() -> appends($request -> query()));
+        }
+        catch(\Exception $e){
+            return response() -> json([
+                'message' => 'Failed to retrieve the faculties',
+                'error' => $e -> getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -36,6 +84,9 @@ class FacultyController extends Controller
     public function store(StoreFacultyRequest $request)
     {
         try{
+            //authorize request
+            $this -> authorize('create', Faculty::class);
+
             $validatedData = $request->validated();
 
             DB::beginTransaction();
@@ -60,7 +111,16 @@ class FacultyController extends Controller
             //create the iqau
             InternalQualityAssuranceUnit::create($iqauDetails);
             DB::commit();
-            return new FacultyResource($faculty);
+
+            return response()->json([
+                'message' => 'Faculty created successfully',
+            ], 201);
+
+        }
+        catch(AuthorizationException $e){
+            return response()->json([
+                'message' => $e->getMessage()
+            ], 403);
         }
         catch(\Exception $e){
             DB::rollBack();
@@ -78,7 +138,57 @@ class FacultyController extends Controller
      */
     public function show(Faculty $faculty)
     {
-        return new FacultyResource($faculty);
+        try{
+            //including related data
+            $university = request() -> query('includeUniversity');
+            if($university){
+                $faculty = $faculty -> loadMissing('university');
+            }
+
+            $iqau = request() -> query('includeIQAU');
+            if($iqau){
+                $faculty = $faculty -> loadMissing('internalQualityAssuranceUnit');
+            }
+
+            $dean = request() -> query('includeDean');
+            if($dean){
+                //check if academic staff is included
+                $academicStaff = request() -> query('includeAcademicStaff');
+                if($academicStaff){
+                    //check if university side is included
+                    $universitySide = request() -> query('includeUniversitySide');
+                    if($universitySide){
+                        //check if user is included
+                        $user = request() -> query('includeUser');
+                        if($user){
+                            $faculty = $faculty -> load(['dean:id' => [
+                                'academicStaff:id' => [
+                                    'universitySide:id' => ['user:id,initials,surname']
+                                    ]
+                                ]
+                            ]);
+                        }
+                        else{
+                            $faculty = $faculty -> load(['dean:id' => ['academicStaff:id' => ['universitySide:id']]]);
+                        }
+                    }
+                    else{
+                        $faculty = $faculty -> load(['dean:id' => ['academicStaff:id']]);
+                    }
+                }
+                else{
+                    $faculty = $faculty -> loadMissing('dean:id');
+                }
+            }
+
+            return new FacultyResource($faculty);
+        }
+        catch(\Exception $e){
+            return response() -> json([
+                'message' => 'Failed to retrieve the faculty',
+                'error' => $e -> getMessage()
+            ], 500);
+        }
     }
 
     /**

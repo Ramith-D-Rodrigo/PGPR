@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('programme_coordinators', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('faculty_id');
-            $table->foreignId('post_grad_program_id');
+            $table->foreignId('faculty_id')->nullable();
+            $table->foreignId('post_grad_program_id')->nullable();
             $table->date('assigned_date');
             $table->enum('current_status', ['ACTIVE', 'INACTIVE']); //active or inactive for being a coordinator
             $table->timestamps();

@@ -86,7 +86,9 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
     const qacOfficerRoutes = [
       {route:"DashBoard",link: "/qac_officer/dashboard"},
       {route:"Universities" ,link: "/qac_officer/universities"},
-      //{route:"Import Reviewers" ,link: "/qac_officer/importreviewers"},
+      {route:"Create Accounts" ,link: "/qac_officer/createAccounts"},
+      {route:"CQA Offices" ,link: "/qac_officer/cqa_offices"},
+      {route:"Reviewers" ,link: "/qac_officer/importreviewers"},
   ]
 
     const cqaDirectorRoutes = [
@@ -96,13 +98,13 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
       {route:"Edit PG Program" ,link: "/cqa_director/EditPGProgram"},
       {route:"View PG Programs" ,link: "/cqa_director/ViewPGPrograms"},
       {route:"View Coordinators" ,link: "/cqa_director/ViewCoordinators"},
-     
+      {route:"Faculties" ,link: "/cqa_director/faculties"},
     ]
 
     const deanDirectorRoutes = [
       {route:"DashBoard",link: "/dean/dashboard"},
-      {route:"Submit Intent Letter" ,link: "/dean/SubmitIntent"},
       {route:"Submit Consent" ,link: "/dean/SubmitConsent"},
+      {route:"PGPR Applications" ,link: "/dean/PGPRApplications"},
     ]
 
     const iqauDirectorRoutes = [
@@ -111,6 +113,10 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
 
     const programmeCoordinatorRoutes = [
       {route:"DashBoard",link: "/programme_coordinator/dashboard"},
+      {route:"Ser",link: "/programme_coordinator/Ser"},
+      {route:"Submit PGPR",link: "/programme_coordinator/SubmitPGPR"},
+      {route:"Edit Ser",link: "/programme_coordinator/EditSer"},
+      {route:"Add Evidence",link: "/programme_coordinator/AddEvidence"},
     ]
 
     const viceChancellorRoutes = [
@@ -210,7 +216,10 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
                       Log Out
                     </Typography>
                   : 
-                    <CircularProgress size={30}/>
+                    <Typography gutterBottom variant='body1' component='div'>
+                      Logging Out
+                      <CircularProgress size={15} sx={{marginLeft:"5px"}}/>
+                    </Typography>
                 }
             </Box>
           </Link>

@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Models\Faculty;
 use App\Models\PostGraduateProgram;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
@@ -13,7 +14,7 @@ class PostGraduateProgramPolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -21,23 +22,73 @@ class PostGraduateProgramPolicy
      */
     public function view(User $user, PostGraduateProgram $postGraduateProgram): bool
     {
-        //
+        return true;
     }
 
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user): bool
+    public function create(User $user): Response
     {
-        //
+        //only cqa director of a univeristy can create
+
+        //get auth role from the from the request session
+        $authRole = request() -> session() -> get('authRole');
+
+        //check if the auth role is cqa director
+        if($authRole != 'cqa_director'){
+            return Response::deny('You are not authorized to create a post graduate program');
+        }
+
+        //check if cqa director's university is the same as the university of the post graduate program
+
+        //request has the faculty id
+        //have to find the faculty from the faculty id
+        $faculty = Faculty::find(request() -> faculty_id);
+
+        //compare the univeristy of the faculty with the university of the cqa director
+        if($faculty -> university_id != $user -> universitySide
+                                            -> qualityAssuranceStaff
+                                            -> centerForQualityAssuranceDirector
+                                            -> centerForQualityAssurance
+                                            -> university
+                                            -> id){
+            return Response::deny('You do not belong to the same university as the faculty you are trying to create a post graduate program for');
+        }
+
+        //authorized
+        return Response::allow();
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, PostGraduateProgram $postGraduateProgram): bool
+    public function update(User $user, PostGraduateProgram $postGraduateProgram): Response
     {
-        //
+        //only cqa director of a univeristy can update
+
+        //get auth role from the from the request session
+        $authRole = request() -> session() -> get('authRole');
+
+        //check if the auth role is cqa director
+        if($authRole != 'cqa_director'){
+            return Response::deny('You are not authorized to update a post graduate program');
+        }
+
+        //check if cqa director's university is the same as the university of the post graduate program
+
+        //check the university of the post graduate program
+        if($postGraduateProgram -> faculty -> university_id != $user -> universitySide
+                                                                    -> qualityAssuranceStaff
+                                                                    -> centerForQualityAssuranceDirector
+                                                                    -> centerForQualityAssurance
+                                                                    -> university
+                                                                    -> id){
+            return Response::deny('You do not belong to the same university as the post graduate program you are trying to update');
+        }
+
+        //authorized
+        return Response::allow();
     }
 
     /**

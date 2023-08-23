@@ -2,7 +2,10 @@
 
 namespace App\Http\Requests\V1;
 
+use App\Models\Faculty;
+use App\Rules\V1\IQAUDirectorExists;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class StoreInternalQualityAssuranceUnitDirectorRequest extends StoreQualityAssuranceStaffRequest
 {
@@ -24,6 +27,7 @@ class StoreInternalQualityAssuranceUnitDirectorRequest extends StoreQualityAssur
         $parentRules = parent::rules();
 
         $parentRules['iqau_id'] = ['required', 'exists:internal_quality_assurance_units,id'];
+        $parentRules['iqau_dir_id'] = ['nullable', new IQAUDirectorExists()];
 
         return $parentRules;
     }
@@ -37,6 +41,18 @@ class StoreInternalQualityAssuranceUnitDirectorRequest extends StoreQualityAssur
         ];
 
         return array_merge($parentMsgs, $currMessages);
+    }
+
+    public function prepareForValidation() {
+        parent::prepareForValidation();
+
+        //add the iqau id by finding the iqau of the faculty id
+        $faculty = Faculty::findOrFail($this -> faculty_id);
+        $this -> merge([
+            'university_id' => $faculty -> university_id, //this is the university id of the faculty
+            'iqau_id' => $faculty -> internalQualityAssuranceUnit -> id,
+            'iqau_dir_id' => $faculty -> internalQualityAssuranceUnit -> iqau_dir_id //this is the current iqau director id
+        ]);
     }
 
 }

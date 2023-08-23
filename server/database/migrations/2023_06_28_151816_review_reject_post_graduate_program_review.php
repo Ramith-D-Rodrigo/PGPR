@@ -34,6 +34,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('reviewer_reject_post_graduate_program_review');
     }
 };
