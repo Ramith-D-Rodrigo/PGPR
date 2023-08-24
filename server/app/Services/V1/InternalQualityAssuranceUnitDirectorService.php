@@ -21,4 +21,19 @@ class InternalQualityAssuranceUnitDirectorService extends QualityAssuranceStaffS
 
         return $internalQualityAssuranceUnitDirector; //return the internal quality assurance unit director object
     }
+
+    public static function removeRole(InternalQualityAssuranceUnitDirector $iqauDirector) : bool{
+        $user = $iqauDirector -> qualityAssuranceStaff -> universitySide -> user;
+
+        //remove the role
+        $roles = json_decode($user -> roles);
+        $roles = array_diff($roles, ['iqau_director']);
+        $user -> update(['roles' => json_encode(array_values($roles))]);
+
+        //update the internal quality assurance unit director id in the internal quality assurance unit table (set it to null)
+        $iqau = $iqauDirector -> internalQualityAssuranceUnit;
+        $iqau -> update(['iqau_dir_id' => null]);
+
+        return true;
+    }
 }

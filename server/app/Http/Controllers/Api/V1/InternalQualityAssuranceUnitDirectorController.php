@@ -119,4 +119,31 @@ class InternalQualityAssuranceUnitDirectorController extends Controller
     {
         //
     }
+
+    public function removeRole(InternalQualityAssuranceUnitDirector $internalQualityAssuranceUnitDirector){
+        try{
+            //authorize the action
+            $this -> authorize('removeRole', $internalQualityAssuranceUnitDirector);
+
+            DB::beginTransaction();
+
+            $result = InternalQualityAssuranceUnitDirectorService::removeRole($internalQualityAssuranceUnitDirector);
+
+            DB::commit();
+
+            return response() -> json([
+                'message' => 'Internal quality assurance unit director role removed successfully',
+            ], 200);
+        }
+        catch(AuthorizationException $e){
+            return response() -> json(['message' => $e -> getMessage()], 403);
+        }
+        catch(\Exception $e){
+            DB::rollBack();
+            return response() -> json(['message' => 'Failed to remove internal quality assurance unit director role',
+            'error' => $e -> getMessage()]
+            , 500);
+        }
+
+    }
 }

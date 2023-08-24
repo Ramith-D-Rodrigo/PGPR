@@ -82,4 +82,25 @@ class InternalQualityAssuranceUnitDirectorPolicy
     {
         //
     }
+
+    public function removeRole(User $user, InternalQualityAssuranceUnitDirector $internalQualityAssuranceUnitDirector): Response
+    {
+        //only cqa director of the university can remove the role of an internal quality assurance unit director
+        $currRole = request()->session()->get('authRole');
+
+        if ($currRole != 'cqa_director') {
+            return Response::deny('You are not allowed to remove the role of an internal quality assurance unit director');
+        }
+
+        //check if the internal quality assurance unit id belongs to the university of the cqa director
+        $iqauDirUni = $internalQualityAssuranceUnitDirector -> internalQualityAssuranceUnit -> faculty -> university_id;
+
+        $cqaUniId = $user -> universitySide -> university_id;
+
+        if ($iqauDirUni != $cqaUniId) {
+            return Response::deny('You are not allowed to remove the role of an internal quality assurance unit director for a faculty that does not belong to your university');
+        }
+
+        return Response::allow();
+    }
 }
