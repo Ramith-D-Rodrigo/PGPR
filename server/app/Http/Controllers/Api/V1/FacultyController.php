@@ -10,6 +10,7 @@ use App\Http\Requests\V1\StoreFacultyRequest;
 use App\Http\Requests\V1\UpdateFacultyRequest;
 use App\Http\Controllers\Controller;
 use App\Models\InternalQualityAssuranceUnit;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -78,19 +79,14 @@ class FacultyController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(StoreFacultyRequest $request)
     {
         try{
+            //authorize request
+            $this -> authorize('create', Faculty::class);
+
             $validatedData = $request->validated();
 
             DB::beginTransaction();
@@ -115,7 +111,16 @@ class FacultyController extends Controller
             //create the iqau
             InternalQualityAssuranceUnit::create($iqauDetails);
             DB::commit();
-            return new FacultyResource($faculty);
+
+            return response()->json([
+                'message' => 'Faculty created successfully',
+            ], 201);
+
+        }
+        catch(AuthorizationException $e){
+            return response()->json([
+                'message' => $e->getMessage()
+            ], 403);
         }
         catch(\Exception $e){
             DB::rollBack();
