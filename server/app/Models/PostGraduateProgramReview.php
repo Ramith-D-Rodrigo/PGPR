@@ -33,22 +33,33 @@ class PostGraduateProgramReview extends Model
     return $this->hasOne(ProperEvaluation::class, 'pe_id', 'id');
   }*/
 
-  // pgpr sentIntentLetter relation
-  public function deans()
-  {
-      return $this->belongsTo(Dean::class, 'dean_id', 'id');
-  }
+    // pgpr sentIntentLetter relation
+    public function deans()
+    {
+        return $this->belongsTo(Dean::class, 'dean_id', 'id');
+    }
 
-/*  // pgpr has a review team associated with itself
-  public function reviewTeams()
-  {
-      return $this->hasOne(PostGraduateProgramReview::class, 'review_team_id');
-  }*/
+    // pgpr has review teams associated with itself
+    public function reviewTeams()
+    {
+        return $this->hasMany(PostGraduateProgramReview::class, 'pgpr_id');
+    }
 
-  public function postGraduateProgram()
-  {
-      return $this->belongsTo(PostGraduateProgram::class, 'post_graduate_program_id', 'id');
-  }
+    //pgpr has only one review team that is accepted by the dean
+    public function acceptedReviewTeam()
+    {
+        $reviewTeams = $this -> reviewTeams() -> where('status', 'ACCEPTED');
+        if($reviewTeams -> count() > 0){
+            return $reviewTeams -> first();
+        }
+        return null;
+    }
+
+
+    public function postGraduateProgram()
+    {
+        return $this->belongsTo(PostGraduateProgram::class, 'post_graduate_program_id', 'id');
+    }
 
   //pgpr has a self evaluation report
     public function selfEvaluationReport()
@@ -56,17 +67,17 @@ class PostGraduateProgramReview extends Model
         return $this->hasOne(SelfEvaluationReport::class, 'post_graduate_program_review_id', 'id');
     }
 
-  // every pgpr has a final report
-  public function finalReports()
-  {
-      return $this->hasOne(FinalReport::class, 'final_report_id');
-  }
+    // every pgpr has a final report
+    public function finalReports()
+    {
+        return $this->hasOne(FinalReport::class, 'final_report_id');
+    }
 
-  // pgprs may be rejected by the QACDiretor
-  public function qualityAssuranceCouncilDirectors()
-  {
-      return $this->belongsTo(QualityAssuranceCouncilDirector::class, 'qac_dir_id', 'id');
-  }
+    // pgprs may be rejected by the QACDiretor
+    public function qualityAssuranceCouncilDirectors()
+    {
+        return $this->belongsTo(QualityAssuranceCouncilDirector::class, 'qac_dir_id', 'id');
+    }
 
   //post graduate program review has many post graduate program review applications
     public function postGraduateProgramReviewApplication(){
