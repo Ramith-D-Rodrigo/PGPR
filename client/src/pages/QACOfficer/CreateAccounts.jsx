@@ -86,19 +86,23 @@ const CreateAccounts = () => {
     return (
         <>
                 <form style={{padding:"20px 40px"}} onSubmit={handleSubmit}>
-                    <FormField label={"Account For"} type={"select"} key={"VCCQA"} options={[
-                        {name: "vc", value: "vice_chancellor", label: "Vice Chancellor"},
-                        {name: "cqa", value: "cqa_director", label: "CQA Director"},
-                    ]} onChange={selectRole}/>
+                    <Box sx={{display:"flex",justifyContent:"center",alignItems:"center",flexWrap:"wrap"}}>
+                        <FormField required={true} label={"Account For"} type={"select"} key={"VCCQA"} options={[
+                            {name: "vc", value: "vice_chancellor", label: "Vice Chancellor"},
+                            {name: "cqa", value: "cqa_director", label: "CQA Director"},
+                        ]} onChange={selectRole}/>
+                    </Box>
                     <Divider sx={{marginTop: "1rem", marginBottom: "1rem"}}/>
-                    <UserDetailsForm roleFieldsComponent={role === "vice_chancellor" ? 
-                            <ViceChancellorForm/> : <CQADirectorForm/>    
-                        } 
-                    />
-                    <Box sx={{margin:"0.5rem 0",display:'flex',flexWrap:"wrap",justifyContent:'center',alignItems:'center',width:'100%'}}>
+                    <Box sx={{display:"flex",justifyContent:"center",alignItems:"center",flexWrap:"wrap"}}>
+                        <UserDetailsForm Loading={Loading} roleFieldsComponent={role === "vice_chancellor" ? 
+                                <ViceChancellorForm/> : <CQADirectorForm/>    
+                            } 
+                        />
+                    </Box>
+                    {/* <Box sx={{margin:"0.5rem 0",display:'flex',flexWrap:"wrap",justifyContent:'center',alignItems:'center',width:'100%'}}>
                         {Loading? "Processing " : ""}
                         {Loading && <CircularProgress style={{margin:"0 0.5rem"}} color="primary" size={24} />}
-                    </Box>
+                    </Box> */}
                 </form>
 
                 <Snackbar

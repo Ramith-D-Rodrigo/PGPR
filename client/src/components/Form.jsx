@@ -1,4 +1,5 @@
 import React from 'react';
+import Button from '@mui/material/Button';
 
 const Form = ({ topic, fields, cancelButtonText, submitButtonText, onCancel, onSubmit, additionalContent  }) => {
   const handleSubmit = (event) => {
@@ -98,19 +99,21 @@ const Form = ({ topic, fields, cancelButtonText, submitButtonText, onCancel, onS
         {/* Additional Content */}
         {additionalContent}
         <div className="flex justify-end">
-          <button
-            type="button"
-            className="btn btn-secondary mr-2 bg-red-500 hover:bg-red-600 rounded-lg py-2 px-6 text-base font-bold border border-red-700"
+          <Button
+            variant="contained"
+            color="secondary"
             onClick={handleCancel}
+            style={{ marginRight: '16px' }}
           >
             {cancelButtonText}
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
-            className="btn btn-primary bg-green-500 hover:bg-green-600 rounded-lg py-2 px-6 text-base font-bold border border-green-700"
+            variant="contained"
+            color="primary"
           >
             {submitButtonText}
-          </button>
+          </Button>
         </div>
       </form>
     </div>

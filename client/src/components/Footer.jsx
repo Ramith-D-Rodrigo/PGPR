@@ -29,7 +29,7 @@ function Copyright() {
   return (
     <Typography variant="body2" color="white">
       {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
+      <Link color="inherit" href="https://mui.com/material-ui/getting-started/">
         Postgraduate Programme Review
       </Link>{' '}
       {new Date().getFullYear()}

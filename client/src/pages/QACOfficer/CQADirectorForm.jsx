@@ -5,7 +5,7 @@ import FormField from '../../components/FormField'
 const CQADirectorForm = () => {
   return (
     <>
-        <FormField label={"Assigned Date"} type={"date"} name={"assignedDate"}/>
+        <FormField required={true} label={"Assigned Date"} type={"date"} name={"assignedDate"}/>
     </>
   )
 }
