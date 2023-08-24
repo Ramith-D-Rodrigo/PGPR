@@ -9,6 +9,7 @@ use App\Http\Requests\V1\StoreCenterForQualityAssuranceDirectorRequest;
 use App\Http\Requests\V1\UpdateCenterForQualityAssuranceDirectorRequest;
 use App\Http\Controllers\Controller;
 use App\Services\V1\CenterForQualityAssuranceDirectorService;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -108,5 +109,34 @@ class CenterForQualityAssuranceDirectorController extends Controller
     public function destroy(CenterForQualityAssuranceDirector $centerForQualityAssuranceDirector)
     {
         //
+    }
+
+    public function removeRole(CenterForQualityAssuranceDirector $centerForQualityAssuranceDirector) {
+        try{
+            //authorize the action
+            $this -> authorize('removeRole', $centerForQualityAssuranceDirector);
+
+            DB::beginTransaction();
+
+            $result = CenterForQualityAssuranceDirectorService::removeRole($centerForQualityAssuranceDirector);
+
+            DB::commit();
+
+            return response() -> json([
+                'message' => 'Role removed successfully',
+            ], 200);
+        }
+        catch(AuthorizationException $e){
+            return response() -> json([
+                'message' => $e -> getMessage()
+            ], 403);
+        }
+        catch(\Exception $e){
+            DB::rollBack();
+            return response() -> json([
+                'message' => 'Failed to remove Center For Quality Assurance Director role',
+                'error' => $e -> getMessage()
+            ], 500);
+        }
     }
 }
