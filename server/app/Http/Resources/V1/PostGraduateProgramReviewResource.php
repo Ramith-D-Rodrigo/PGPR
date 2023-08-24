@@ -25,9 +25,9 @@ class PostGraduateProgramReviewResource extends JsonResource
             if(in_array($key, ['created_at', 'updated_at'])){
                 continue;
             }
-            if($key == 'id'){
+/*             if($key == 'id'){
                 $value = "PGPR-{$value}";
-            }
+            } */
 
             $returnArr[Str::camel($key)] = $value;
         }

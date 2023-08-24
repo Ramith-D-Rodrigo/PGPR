@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Requests\V1\StorePostGraduateProgramReviewRequest;
 use App\Http\Requests\V1\UpdatePostGraduateProgramReviewRequest;
+use App\Http\Resources\V1\PostGraduateProgramReviewCollection;
+use App\Http\Resources\V1\PostGraduateProgramReviewResource;
 use App\Models\PostGraduateProgramReview;
 use App\Http\Controllers\Controller;
+use Illuminate\Auth\Access\AuthorizationException;
 
 class PostGraduateProgramReviewController extends Controller
 {
@@ -14,7 +17,36 @@ class PostGraduateProgramReviewController extends Controller
      */
     public function index()
     {
-        //
+        try{
+            $this -> authorize('viewAny', PostGraduateProgramReview::class);
+
+            //load related data
+            $pgprs = PostGraduateProgramReview::with(['postGraduateProgram' => [
+                'faculty' => [
+                    'university'
+                ],
+                'currentProgrammeCoordinator' => [
+                    'academicStaff' => [
+                        'universitySide' => [
+                            'user:id,initials,surname,profile_pic'
+                        ]
+                    ]
+                ]
+            ]]);
+
+            return new PostGraduateProgramReviewCollection($pgprs);
+
+        }
+        catch(AuthorizationException $e){
+            return response()->json([
+                'message' => $e -> getMessage()
+            ], 403);
+        }
+        catch(\Exception $e){
+            return response()->json([
+                'message' => 'An error occured while trying to fetch post graduate program reviews'
+            ], 500);
+        }
     }
 
     /**
@@ -38,7 +70,31 @@ class PostGraduateProgramReviewController extends Controller
      */
     public function show(PostGraduateProgramReview $postGraduateProgramReview)
     {
-        //
+        try{
+            $this -> authorize('view', $postGraduateProgramReview);
+
+            //load related data
+            $pgpr = $postGraduateProgramReview -> load(['postGraduateProgram' => [
+                'faculty' => [
+                    'university'
+                ],
+                'currentProgrammeCoordinator' => [
+                    'academicStaff' => [
+                        'universitySide' => [
+                            'user:id,initials,surname,profile_pic'
+                        ]
+                    ]
+                ]
+            ]]);
+
+            return new PostGraduateProgramReviewResource($pgpr);
+
+        }
+        catch(AuthorizationException $e){
+            return response()->json([
+                'message' => $e -> getMessage()
+            ], 403);
+        }
     }
 
     /**

@@ -11,17 +11,52 @@ class PostGraduateProgramReviewPolicy
     /**
      * Determine whether the user can view any models.
      */
-    public function viewAny(User $user): bool
+    public function viewAny(User $user): Response
     {
-        //
+        //only qac_director and qac_officer has access to this endpoint
+        $currRole = request() -> session() -> get('authRole');
+
+        switch($currRole){
+            case 'qac_director':
+            case 'qac_officer':
+                return Response::allow();
+                break;
+            default:
+                return Response::deny('You are not authorized to view postgraduate programme reviews');
+        }
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, PostGraduateProgramReview $postGraduateProgramReview): bool
+    public function view(User $user, PostGraduateProgramReview $postGraduateProgramReview): Response
     {
-        //
+        //only qac_director and qac_officer, reviewer who is part of the accepted review team of pgpr has access to this endpoint
+        $currRole = request() -> session() -> get('authRole');
+
+        switch($currRole){
+            case 'qac_director':
+            case 'qac_officer':
+                return Response::allow();
+                break;
+
+            case 'reviewer':
+                $reviewerId = $user -> id;
+                $acceptedReviewTeam = $postGraduateProgramReview -> acceptedReviewTeam();
+                if($acceptedReviewTeam !== null){
+                    $reviewers = $acceptedReviewTeam -> reviewers;
+                    foreach($reviewers as $reviewer){
+                        if($reviewer -> id === $reviewerId){
+                            return Response::allow();
+                        }
+                    }
+                }
+                return Response::deny('You are not authorized to view this postgraduate programme review');
+                break;
+                
+            default:
+                return Response::deny('You are not authorized to view this postgraduate programme review');
+        }
     }
 
     /**
