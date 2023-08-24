@@ -19,39 +19,39 @@ import SetCriteria from './pages/ReviewerChair/SetCriteria';
 import PGAssignments from './pages/Reviewer/PGAssignments';
 import ConductDE from './pages/Reviewer/ConductDE';
 import ConductPE from './pages/Reviewer/ConductPE';
-import ViewUniversities from './pages/QACDirector/ViewUniversities'
-import ViewUniversity from './pages/QACDirector/ViewUniversity'
-import EditUniversity from './pages/QACDirector/EditUniversity';
-import AddUniversity from './pages/QACDirector/AddUniversity';
-import ViewReviewers from './pages/QACDirector/ViewReviewers'
-import {DrawerStateProvider} from './contexts/DrawerStateProvider';
+import { DrawerStateProvider } from './contexts/DrawerStateProvider';
 import PGPRApplication from "./pages/Dean/PGPRApplication";
 import PGPRApplications from "./pages/Dean/PGPRApplications";
 import EditPGPRApplication from "./pages/Dean/EditPGPRApplication";
-import ResetInitialPassword from "./pages/ResetInitialPassword.jsx";
-import EditSer from './pages/ProgrammeCoordinator/EditSer';
-import AddEvidence from './pages/ProgrammeCoordinator/AddEvidence';
-import ViewPGPrograms from './pages/CQAdirector/ViewPGPrograms';
-import ViewCoordinators from './pages/CQAdirector/ViewCoordinators';
-import CoordinatorProfile from './pages/CQAdirector/CoordinatorProfile';
+import ResetInitialPassword from "./components/ResetInitialPassword.jsx";
+import AcceptAppointment from "./pages/Reviewer/AcceptAppointment";
+import CreateAccounts from "./pages/QACOfficer/CreateAccounts";
+import EvaluateDE from "./pages/Reviewer/EvaluateDE";
+import Ser from "./pages/ProgrammeCoordinator/Ser";
+import SubmitPGPR from "./pages/ProgrammeCoordinator/SubmitPGPR";
+import EditSer from "./pages/ProgrammeCoordinator/EditSer";
+import AddEvidence from "./pages/ProgrammeCoordinator/AddEvidence";
+import ViewPGPrograms from "./pages/CQAdirector/ViewPGPrograms";
+import PGPrograms from "./pages/CQAdirector/PGPrograms";
+import ViewCoordinators from "./pages/CQAdirector/ViewCoordinators";
+import CoordinatorProfile from "./pages/CQAdirector/CoordinatorProfile";
 import Faculties from "./pages/CQAdirector/Faculties";
 import AddFaculty from "./pages/CQAdirector/AddFaculty";
 import ViewAssignedCriteria from "./pages/Reviewer/ViewAssignedCriteria";
+import ViewUniversities from "./pages/QACDirector/ViewUniversities";
+import ViewUniversity from "./pages/QACDirector/ViewUniversity";
+import EditUniversity from "./pages/QACDirector/EditUniversity";
+import AddUniversity from "./pages/QACDirector/AddUniversity";
+import ViewReviewers from "./pages/QACDirector/ViewReviewers";
 import ReviewerDashboard from "./pages/Reviewer/ReviewerDashboard";
 import Standardwise_details from "./pages/Reviewer/Standardwise_details";
-import EvaluateDE from "./pages/Reviewer/EvaluateDE";
-import CreateAccounts from './pages/QACOfficer/CreateAccounts';
-import Ser from './pages/ProgrammeCoordinator/Ser';
-import SubmitPGPR from './pages/ProgrammeCoordinator/SubmitPGPR';
-import AcceptAppointment from './pages/Reviewer/AcceptAppointment';
-import UpdateABC from './pages/Reviewer/UpdateABC';
-import Summary_details from './pages/Reviewer/Summary_details';
-// import UpdateEvidence from './pages/ProgrammeCoordinator/UpdateEvidence';
-// import ViewSummary from './pages/ProgrammeCoordinator/ViewSummary';
-import SelfEvaluationReport from './pages/ViceChancellor/SelfEvaluationReport';
+import AcceptAppointmentReviewer from "./pages/Reviewer/AcceptAppointment"; // Change the import name
+import UpdateABC from "./pages/Reviewer/UpdateABC";
+import Summary_details from "./pages/Reviewer/Summary_details";
+import SelfEvaluationReport from "./pages/ViceChancellor/SelfEvaluationReport";
+import ViewViceChancellor from "./pages/ViceChancellor/View"; // Change the import name
 import View from './pages/ViceChancellor/View';
 import "./App.css";
-
 
 /* 
   important: 
@@ -62,10 +62,8 @@ import "./App.css";
 */
 
 function App() {
-
   return (
     <Routes>
-
       <Route path="/">
         {/* guest routes */}
         <Route path="unauthorized" element={<Unauthorized />}></Route>
@@ -95,29 +93,40 @@ function App() {
                 <Route path="" element={<Dashboard />} />
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="universities" element={<Universities />} />
-                <Route path="createAccounts/" element={<CreateAccounts/>} />
+                <Route path="createAccounts/" element={<CreateAccounts />} />
               </Route>
             </Route>
 
+            <Route element={<Authenticate allowedRoles={["cqa_director"]} />}>
+              <Route path="cqa_director/">
+                <Route path="" element={<Dashboard />} />
+                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="AddPGProgramPage" element={<AddPGProgramPage />} />
+                <Route path="AddAccounts" element={<AddAccounts />} />
+                <Route path="EditPGProgram" element={<EditPGProgram />} />
+                <Route path="ViewPGPrograms/">
+                <Route path="" element={<ViewPGPrograms />} />
                 <Route
-          element={<Authenticate allowedRoles={["cqa_director"]} />}
-        >
-          <Route path="cqa_director/">
-            <Route path="" element={<Dashboard />} />
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="AddPGProgramPage" element={<AddPGProgramPage />} />
-            <Route path="AddAccounts" element={<AddAccounts />} />
-            <Route path="EditPGProgram" element={<EditPGProgram />} />
-            <Route path="ViewPGPrograms" element={<ViewPGPrograms />} />
-            <Route path="ViewCoordinators" element={<ViewCoordinators />} />
-            {/* Add the route for the coordinator profile */}
-            <Route path="view/:cid" element={<CoordinatorProfile />} />
-            <Route path="faculties/" >
-              <Route path="" element={<Faculties />} />
-              <Route path="Add" element={<AddFaculty />} />
+                    path="PGPrograms/:id"
+                    element={<PGPrograms />}
+                  />
+</Route>
+
+                <Route path="ViewCoordinators/">
+                  <Route path="" element={<ViewCoordinators />} />
+                  <Route
+                    path="CoordinatorProfile/:id"
+                    element={<CoordinatorProfile />}
+                  />
+
+</Route>
+                  <Route path="faculties/">
+                    <Route path="" element={<Faculties />} />
+                    <Route path="Add" element={<AddFaculty />} />
+                  </Route>
+                
             </Route>
           </Route>
-        </Route>
 
             <Route element={<Authenticate allowedRoles={["qac_director"]} />}>
               <Route path="qac_director/">
@@ -171,18 +180,21 @@ function App() {
               </Route>
             </Route>
 
-             {/* programme_coordinator routes */}
-            <Route element={<Authenticate allowedRoles={["programme_coordinator"]}/>}>
+            {/* programme_coordinator routes */}
+            <Route
+              element={
+                <Authenticate allowedRoles={["programme_coordinator"]} />
+              }
+            >
               <Route path="programme_coordinator/">
-                <Route path="" element={<Dashboard/>}/>
-                <Route path="dashboard" element={<Dashboard/>}/>
-                <Route path="ser" element={<Ser/>}/>
-                <Route path="submitpgpr" element={<SubmitPGPR/>}/>
-                <Route path="editser" element={<EditSer/>}/>
-                <Route path="addevidence" element={<AddEvidence/>}/>
+                <Route path="" element={<Dashboard />} />
+                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="ser" element={<Ser />} />
+                <Route path="submitpgpr" element={<SubmitPGPR />} />
+                <Route path="editser" element={<EditSer />} />
+                <Route path="addevidence" element={<AddEvidence />} />
               </Route>
             </Route>
-                
 
             {/* dean routes */}
             <Route element={<Authenticate allowedRoles={["dean"]} />}>
@@ -190,11 +202,14 @@ function App() {
                 <Route path="" element={<Dashboard />} />
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="SubmitConsent" element={<SubmitConsent />} />
-                <Route path="pgprApplication" element={<PGPRApplication/>}/>
+                <Route path="pgprApplication" element={<PGPRApplication />} />
                 <Route path="pgprApplications">
                   <Route path="" element={<PGPRApplications />} />
                   <Route path="create" element={<PGPRApplication />} />
-                  <Route path="edit/:pgprApplicationID" element={<EditPGPRApplication />} />
+                  <Route
+                    path="edit/:pgprApplicationID"
+                    element={<EditPGPRApplication />}
+                  />
                 </Route>
               </Route>
             </Route>
