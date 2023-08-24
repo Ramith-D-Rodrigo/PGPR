@@ -120,14 +120,14 @@ class InternalQualityAssuranceUnitDirectorController extends Controller
         //
     }
 
-    public function removeRole(InternalQualityAssuranceUnitDirector $internalQualityAssuranceUnitDirector){
+    public function removeRole(InternalQualityAssuranceUnitDirector $iqauDirector){
         try{
             //authorize the action
-            $this -> authorize('removeRole', $internalQualityAssuranceUnitDirector);
+            $this -> authorize('removeRole', $iqauDirector);
 
             DB::beginTransaction();
 
-            $result = InternalQualityAssuranceUnitDirectorService::removeRole($internalQualityAssuranceUnitDirector);
+            $result = InternalQualityAssuranceUnitDirectorService::removeRole($iqauDirector);
 
             DB::commit();
 

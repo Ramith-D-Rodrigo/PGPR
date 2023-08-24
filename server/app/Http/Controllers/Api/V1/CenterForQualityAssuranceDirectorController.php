@@ -111,14 +111,14 @@ class CenterForQualityAssuranceDirectorController extends Controller
         //
     }
 
-    public function removeRole(CenterForQualityAssuranceDirector $centerForQualityAssuranceDirector) {
+    public function removeRole(CenterForQualityAssuranceDirector $cqaDirector) {
         try{
             //authorize the action
-            $this -> authorize('removeRole', $centerForQualityAssuranceDirector);
+            $this -> authorize('removeRole', $cqaDirector);
 
             DB::beginTransaction();
 
-            $result = CenterForQualityAssuranceDirectorService::removeRole($centerForQualityAssuranceDirector);
+            $result = CenterForQualityAssuranceDirectorService::removeRole($cqaDirector);
 
             DB::commit();
 
