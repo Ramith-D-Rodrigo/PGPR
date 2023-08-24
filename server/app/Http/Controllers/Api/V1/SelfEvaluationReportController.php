@@ -13,6 +13,7 @@ use App\Http\Requests\V1\UpdateSelfEvaluationReportRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\V1\StandardResource;
 use App\Models\Standard;
+use App\Services\V1\PostGraduateProgramReviewService;
 use App\Services\V1\StandardService;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -395,10 +396,43 @@ class SelfEvaluationReportController extends Controller
                     'updated_at' => now(),
                 ]);
 
-                //TODO: we have to extract the files from evidences urls and store them in system's google drive
-            }
+                //commit the transaction of recommending the self evaluation report
+                DB::commit();
 
-            DB::commit();
+                //check if reviewer team has been assigned to the postgraduate programme review
+                $pgpr = $selfEvaluationReport -> postGraduateProgramReview;
+                $reviewTeam = $pgpr -> acceptedReviewTeam;
+
+                if($reviewTeam){   //has an accepted review team
+                    //store the files in relevant folders
+                    $flag = PostGraduateProgramReviewService::StoreEvidencesInSystemDrive($pgpr);
+
+                    if($flag){  //successfully stored the evidences in system drive
+                        return response()->json([
+                            'message' => 'Self evaluation report recommended successfully',
+                        ], 200);
+                    }
+
+                    //if failed to store the evidences in system drive
+                    return response()->json([
+                        'message' => 'Self evaluation report recommended successfully. But failed to store the evidences in system drive',
+                    ], 200);
+                }
+                else{
+                    //if no review team is assigned to the postgraduate programme review
+                    return response()->json([
+                        'message' => 'Self evaluation report recommended successfully. But no review team is assigned to the postgraduate programme review',
+                    ], 200);
+                }
+            }
+            else{
+                //commit the transaction of recommending the self evaluation report
+                DB::commit();
+
+                return response()->json([
+                    'message' => 'Self evaluation report recommended successfully',
+                ], 200);
+            }
         }
         catch(AuthorizationException $e){
             return response()->json([
@@ -409,7 +443,7 @@ class SelfEvaluationReportController extends Controller
             DB::rollBack();
             return response()->json([
                 'message' => 'Error occurred while recommending the self evaluation report',
-                'error' => $e -> getTrace()
+                'error' => $e -> getMessage()
             ], 500);
         }
     }
