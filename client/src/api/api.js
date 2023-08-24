@@ -4,6 +4,7 @@ import axios from "axios";
 axios.defaults.headers.common['Accept'] = 'application/json';
 
 export default axios.create({
-  baseURL: "http://localhost:8000",
+  // baseURL: "http://localhost:8000",
+  baseURL: "http://13.232.29.5:8000",
   withCredentials: true,
 });
