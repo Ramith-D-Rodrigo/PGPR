@@ -111,7 +111,7 @@ class DriveManager {
         return $file -> getMimeType() == "application/vnd.google-apps.folder";
     }
 
-    public function createFolder($folderName, $parentID = null, Permission $permission = null){
+    public function createFolder($folderName, $parentID = null, Permission $permission = null, $returnFields = "id,webViewLink"){
         //set the scope of the client
         $this -> client -> setScopes([Drive::DRIVE]);
 
@@ -129,7 +129,7 @@ class DriveManager {
         ));
 
         $file = $service -> files -> create($fileMetadata, array(
-            'fields' => 'id'
+            'fields' => 'id,webViewLink'
         ));
 
         return $file; //return the id of the created folder
@@ -157,11 +157,11 @@ class DriveManager {
             return true;
         }
         catch(\Exception $e){
-            return $e -> getMessage();
+            throw $e;
         }
     }
 
-    public function copyFile($fileId, $pasteLocationId = null){
+    public function copyFile($fileId, $pasteLocationId = null, $returnFields = "id,webViewLink"){
         //set the scope of the client
         $this -> client -> setScopes([Drive::DRIVE]);
 
@@ -177,12 +177,14 @@ class DriveManager {
         ));
 
         //copy the content of the given file or folder to the given location
-        $file = $service -> files -> copy($fileId, $pastingFile);
+        $file = $service -> files -> copy($fileId, $pastingFile, array(
+            'fields' => $returnFields
+        ));
 
-        return $file -> getId(); //return the id of the copied file or folder
+        return $file; //return the file
     }
 
-    public function copyFolder($folderId, $pasteLocationId = null){
+    public function copyFolder($folderId, $pasteLocationId = null, $returnFields = "id,webViewLink"){
         //set the scope of the client
         $this -> client -> setScopes([Drive::DRIVE]);
 
@@ -195,7 +197,7 @@ class DriveManager {
         //since we cannot copy a folder directly, we need to copy the content of the folder to the given location
         //first create a new folder with the same name as the folder we want to copy
         $folderName = $service -> files -> get($folderId, array('fields' => 'name')) -> getName();
-        $file = $this -> createFolder($folderName, $pasteLocationId);
+        $file = $this -> createFolder($folderName, $pasteLocationId, null, $returnFields);
 
         //now get all the files and folders inside the folder we want to copy
         //do not include trashed files
@@ -212,11 +214,11 @@ class DriveManager {
                 $this -> copyFolder($child -> getId(), $pasteLocationId);
             }
             else{
-                $this -> copyFile($child -> getId(), $pasteLocationId);
+                $newFile = $this -> copyFile($child -> getId(), $pasteLocationId);
             }
         }
 
-        return $file -> getId(); //return the id of the copied file or folder
+        return $file; //return the folder
     }
 
     public function removePermissionEmailWise($fileId, $email){
@@ -249,5 +251,15 @@ class DriveManager {
 
         //delete the permission with the given id
         return $service -> permissions -> delete($fileId, $permissionId);
+    }
+
+    public function deleteFile($fileId){
+        //set the scope of the client
+        $this -> client -> setScopes([Drive::DRIVE]);
+
+        $service = new Drive($this -> client);
+
+        //delete the file or folder with the given id
+        return $service -> files -> delete($fileId);
     }
 }
