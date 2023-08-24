@@ -218,4 +218,27 @@ class DeanController extends Controller
             return response() -> json(['message' => 'Failed to get the faculty of the dean', 'error' => $e -> getMessage()], 500);
         }
     }
+
+    public function removeRole(Dean $dean){
+        try{
+            $this -> authorize('removeRole', $dean);
+
+            DB::beginTransaction();
+
+            $result = DeanService::removeRole($dean);
+
+            DB::commit();
+
+            return response() -> json([
+                'message' => 'Dean role removed successfully',
+            ], 200);
+        }
+        catch(AuthorizationException $e){
+            return response() -> json(['message' => $e -> getMessage()], 403);
+        }
+        catch(\Exception $e){
+            DB::rollBack();
+            return response() -> json(['message' => 'Failed to remove dean role', 'error' => $e -> getMessage()], 500);
+        }
+    }
 }
