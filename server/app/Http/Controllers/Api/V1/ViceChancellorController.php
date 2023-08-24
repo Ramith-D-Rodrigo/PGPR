@@ -124,4 +124,42 @@ class ViceChancellorController extends Controller
     {
         //
     }
+
+    //function to remove the role of vice chancellor (after the term date or if the vice chancellor has ended the term)
+    public function removeRole(ViceChancellor $viceChancellor)
+    {
+        try{
+            $this -> authorize('removeRole', $viceChancellor);
+
+            //update the vc status to inactive
+
+            //get the term date from the request
+            $termDate = request() -> termDate ?? null;
+
+            //if termdate is null, that means uses the term date from the database
+            //else use the term date from the request
+
+            DB::beginTransaction();
+
+            $result = ViceChancellorService::removeRole($viceChancellor, $termDate);
+
+            DB::commit();
+
+            return response() -> json([
+                'message' => 'Vice chancellor role removed successfully',
+            ], 200);
+        }
+        catch(AuthorizationException $e){
+            return response() -> json([
+                'message' => $e -> getMessage()
+            ], 403);
+        }
+        catch(\Exception $e){
+            DB::rollBack();
+            return response() -> json([
+                'message' => 'Failed to remove vice chancellor role',
+                'error' => $e -> getMessage()
+            ], 500);
+        }
+    }
 }
