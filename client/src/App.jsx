@@ -45,12 +45,12 @@ import AddUniversity from "./pages/QACDirector/AddUniversity";
 import ViewReviewers from "./pages/QACDirector/ViewReviewers";
 import ReviewerDashboard from "./pages/Reviewer/ReviewerDashboard";
 import Standardwise_details from "./pages/Reviewer/Standardwise_details";
-import AcceptAppointmentReviewer from "./pages/Reviewer/AcceptAppointment"; // Change the import name
 import UpdateABC from "./pages/Reviewer/UpdateABC";
 import Summary_details from "./pages/Reviewer/Summary_details";
 import SelfEvaluationReport from "./pages/ViceChancellor/SelfEvaluationReport";
-import ViewViceChancellor from "./pages/ViceChancellor/View"; // Change the import name
 import View from './pages/ViceChancellor/View';
+// import UpdateEvidence from './pages/ProgrammeCoordinator/UpdateEvidence';
+// import ViewSummary from './pages/ProgrammeCoordinator/ViewSummary';
 import "./App.css";
 
 /* 
