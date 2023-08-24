@@ -102,36 +102,38 @@ const CustomTable = ({ tableData, openEditDialog }) => {
 };
 
 const Coordinators = () => {
-
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  
-  const [tableData, setTableData] = useState([ {
-    cid: "C-100",
-    name: "Dr. Manju",
-    faculty: "Science",
-    status: "Approved",
-    pgCount: 3,
-    profilePhoto: "https://randomuser.me/api/portraits/men/1.jpg", // Professional profile photo of a gentleman
-  },
-  {
-    cid: "C-101",
-    name: "Dr. Pasindu",
-    faculty: "Arts",
-    status: "Confirmed",
-    pgCount: 2,
-    profilePhoto: "https://randomuser.me/api/portraits/men/2.jpg", // Professional profile photo of a gentleman
-  },
-  {
-    cid: "C-102",
-    name: "Dr. Thilini",
-    faculty: "Management",
-    status: "Canceled",
-    pgCount: 5,
-    profilePhoto: "https://randomuser.me/api/portraits/women/1.jpg", // Professional profile photo of a lady
-  },
-]);
 
-const [selectedCoordinatorForEdit, setSelectedCoordinatorForEdit] = useState(tableData[0]);
+  const [tableData, setTableData] = useState([
+    {
+      cid: "C-100",
+      name: "Dr. Manju",
+      faculty: "Science",
+      status: "Approved",
+      pgCount: 3,
+      profilePhoto: "https://randomuser.me/api/portraits/men/1.jpg", // Professional profile photo of a gentleman
+    },
+    {
+      cid: "C-101",
+      name: "Dr. Pasindu",
+      faculty: "Arts",
+      status: "Confirmed",
+      pgCount: 2,
+      profilePhoto: "https://randomuser.me/api/portraits/men/2.jpg", // Professional profile photo of a gentleman
+    },
+    {
+      cid: "C-102",
+      name: "Dr. Thilini",
+      faculty: "Management",
+      status: "Canceled",
+      pgCount: 5,
+      profilePhoto: "https://randomuser.me/api/portraits/women/1.jpg", // Professional profile photo of a lady
+    },
+  ]);
+
+  const [selectedCoordinatorForEdit, setSelectedCoordinatorForEdit] = useState(
+    tableData[0]
+  );
 
   // Define openEditPopup function within the Coordinators component
   const handleOpenEditDialog = (coordinator) => {
@@ -147,7 +149,7 @@ const [selectedCoordinatorForEdit, setSelectedCoordinatorForEdit] = useState(tab
           ? selectedCoordinatorForEdit
           : coordinator
       );
-  
+
       setTableData(updatedTableData);
       handleCloseEditDialog();
     }
@@ -172,9 +174,6 @@ const [selectedCoordinatorForEdit, setSelectedCoordinatorForEdit] = useState(tab
     setSearchedUniversity(universityName);
     setSearchedDirector(directorName);
   };
-
-
-   
 
   const handleNavigateBefore = () => {
     // Handle the navigate before action here
@@ -255,94 +254,133 @@ const [selectedCoordinatorForEdit, setSelectedCoordinatorForEdit] = useState(tab
         openEditDialog={handleOpenEditDialog}
       />
 
-      <Dialog open={isEditDialogOpen} onClose={handleCloseEditDialog}>
-        <DialogTitle>Edit Coordinator</DialogTitle>
-        <DialogContent>
-        <form className="dialog-form">
-        <div className="form-group">
-            <label htmlFor="cid">C-ID:</label>
-            <input
-              type="text"
-              id="cid"
-              value={selectedCoordinatorForEdit.cid}
-              // Add an onChange handler to update selectedCoordinatorForEdit.cid
-              onChange={(e) =>
-                setSelectedCoordinatorForEdit((prevState) => ({
-                  ...prevState,
-                  cid: e.target.value,
-                }))
-              }
-            />
+<Dialog
+  open={isEditDialogOpen}
+  onClose={handleCloseEditDialog}
+  maxWidth="md" // Adjust the width as needed
+  fullWidth // Take up the full width
+>
+  <DialogTitle style={{ fontSize: '24px', fontWeight: 'bold' }}>
+    Edit Coordinator Details
+  </DialogTitle>
+        <DialogContent className="w-full">
+          <form className="dialog-form space-y-4">
+            <div className="flex flex-col">
+              <label
+                htmlFor="cid"
+                className="text-sm font-medium text-gray-700"
+              >
+                C-ID:
+              </label>
+              <input
+                type="text"
+                id="cid"
+                className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={selectedCoordinatorForEdit.cid}
+                // Add an onChange handler to update selectedCoordinatorForEdit.cid
+                onChange={(e) =>
+                  setSelectedCoordinatorForEdit((prevState) => ({
+                    ...prevState,
+                    cid: e.target.value,
+                  }))
+                }
+              />
             </div>
 
-            <div className="form-group">
-            <label htmlFor="name">Name:</label>
-            <input
-              type="text"
-              id="name"
-              value={selectedCoordinatorForEdit.name}
-              // Add an onChange handler to update selectedCoordinatorForEdit.name
-              onChange={(e) =>
-                setSelectedCoordinatorForEdit((prevState) => ({
-                  ...prevState,
-                  name: e.target.value,
-                }))
-              }
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="faculty">Faculty:</label>
-            <input
-              type="text"
-              id="faculty"
-              value={selectedCoordinatorForEdit.faculty}
-              // Add an onChange handler to update selectedCoordinatorForEdit.faculty
-              onChange={(e) =>
-                setSelectedCoordinatorForEdit((prevState) => ({
-                  ...prevState,
-                  faculty: e.target.value,
-                }))
-              }
-            />
+            <div className="flex flex-col">
+              <label
+                htmlFor="name"
+                className="text-sm font-medium text-gray-700"
+              >
+                Name:
+              </label>
+              <input
+                type="text"
+                id="name"
+                className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={selectedCoordinatorForEdit.name}
+                // Add an onChange handler to update selectedCoordinatorForEdit.name
+                onChange={(e) =>
+                  setSelectedCoordinatorForEdit((prevState) => ({
+                    ...prevState,
+                    name: e.target.value,
+                  }))
+                }
+              />
             </div>
 
-            <div className="form-group">
-            <label htmlFor="status">Status:</label>
-            <input
-              type="text"
-              id="status"
-              value={selectedCoordinatorForEdit.status}
-              // Add an onChange handler to update selectedCoordinatorForEdit.pgCount
-              onChange={(e) =>
-                setSelectedCoordinatorForEdit((prevState) => ({
-                  ...prevState,
-                  status: e.target.value,
-                }))
-              }
-            />
-          </div>
+            <div className="flex flex-col">
+              <label
+                htmlFor="faculty"
+                className="text-sm font-medium text-gray-700"
+              >
+                Faculty:
+              </label>
+              <input
+                type="text"
+                id="faculty"
+                className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={selectedCoordinatorForEdit.faculty}
+                // Add an onChange handler to update selectedCoordinatorForEdit.faculty
+                onChange={(e) =>
+                  setSelectedCoordinatorForEdit((prevState) => ({
+                    ...prevState,
+                    faculty: e.target.value,
+                  }))
+                }
+              />
+            </div>
 
-            <div className="form-group">
-            <label htmlFor="pgCount">No. of PG Programs:</label>
-            <input
-              type="number"
-              id="pgCount"
-              value={selectedCoordinatorForEdit.pgCount}
-              // Add an onChange handler to update selectedCoordinatorForEdit.pgCount
-              onChange={(e) =>
-                setSelectedCoordinatorForEdit((prevState) => ({
-                  ...prevState,
-                  pgCount: e.target.value,
-                }))
-              }
-            />
+            <div className="flex flex-col">
+              <label
+                htmlFor="status"
+                className="text-sm font-medium text-gray-700"
+              >
+                Status:
+              </label>
+              <input
+                type="text"
+                id="status"
+                className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={selectedCoordinatorForEdit.status}
+                // Add an onChange handler to update selectedCoordinatorForEdit.pgCount
+                onChange={(e) =>
+                  setSelectedCoordinatorForEdit((prevState) => ({
+                    ...prevState,
+                    status: e.target.value,
+                  }))
+                }
+              />
+            </div>
+
+            <div className="flex flex-col">
+              <label
+                htmlFor="pgCount"
+                className="text-sm font-medium text-gray-700"
+              >
+                No. of PG Programs:
+              </label>
+              <input
+                type="number"
+                id="pgCount"
+                className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={selectedCoordinatorForEdit.pgCount}
+                // Add an onChange handler to update selectedCoordinatorForEdit.pgCount
+                onChange={(e) =>
+                  setSelectedCoordinatorForEdit((prevState) => ({
+                    ...prevState,
+                    pgCount: e.target.value,
+                  }))
+                }
+              />
             </div>
           </form>
         </DialogContent>
-        <DialogActions>
+        <DialogActions className="mt-4 space-x-2">
           <Button onClick={handleCloseEditDialog}>Cancel</Button>
-          <Button onClick={handleSaveEdit}>Save</Button>
+          <Button onClick={handleSaveEdit} color="primary">
+            Save
+          </Button>
         </DialogActions>
       </Dialog>
 
