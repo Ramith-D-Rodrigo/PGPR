@@ -19,25 +19,20 @@ import SetCriteria from './pages/ReviewerChair/SetCriteria';
 import PGAssignments from './pages/Reviewer/PGAssignments';
 import ConductDE from './pages/Reviewer/ConductDE';
 import ConductPE from './pages/Reviewer/ConductPE';
-import ViewUniversities from './pages/QACDirector/ViewUniversities'
-import ViewUniversity from './pages/QACDirector/ViewUniversity'
-import EditUniversity from './pages/QACDirector/EditUniversity';
-import AddUniversity from './pages/QACDirector/AddUniversity';
-import ViewReviewers from './pages/QACDirector/ViewReviewers'
-import {DrawerStateProvider} from './contexts/DrawerStateProvider';
+import { DrawerStateProvider } from './contexts/DrawerStateProvider';
 import PGPRApplication from "./pages/Dean/PGPRApplication";
 import PGPRApplications from "./pages/Dean/PGPRApplications";
 import EditPGPRApplication from "./pages/Dean/EditPGPRApplication";
 import ResetInitialPassword from "./components/ResetInitialPassword.jsx";
+import AcceptAppointment from "./pages/Reviewer/AcceptAppointment";
+import CreateAccounts from "./pages/QACOfficer/CreateAccounts";
+import EvaluateDE from "./pages/Reviewer/EvaluateDE";
 import Ser from "./pages/ProgrammeCoordinator/Ser";
 import SubmitPGPR from "./pages/ProgrammeCoordinator/SubmitPGPR";
 import EditSer from "./pages/ProgrammeCoordinator/EditSer";
 import AddEvidence from "./pages/ProgrammeCoordinator/AddEvidence";
-import AddPGProgramPage from "./pages/CQAdirector/AddPGProgramPage";
-import AddAccounts from "./pages/CQAdirector/AddAccounts";
 import ViewPGPrograms from "./pages/CQAdirector/ViewPGPrograms";
 import PGPrograms from "./pages/CQAdirector/PGPrograms";
-import EditPGProgram from "./pages/CQAdirector/EditPGProgram";
 import ViewCoordinators from "./pages/CQAdirector/ViewCoordinators";
 import CoordinatorProfile from "./pages/CQAdirector/CoordinatorProfile";
 import Faculties from "./pages/CQAdirector/Faculties";
@@ -48,24 +43,15 @@ import ViewUniversity from "./pages/QACDirector/ViewUniversity";
 import EditUniversity from "./pages/QACDirector/EditUniversity";
 import AddUniversity from "./pages/QACDirector/AddUniversity";
 import ViewReviewers from "./pages/QACDirector/ViewReviewers";
-import CqaOffices from "./pages/QACDirector/CqaOffices";
 import ReviewerDashboard from "./pages/Reviewer/ReviewerDashboard";
 import Standardwise_details from "./pages/Reviewer/Standardwise_details";
-import AcceptAppointment from "./pages/Reviewer/AcceptAppointment";
-import { DrawerStateProvider } from "./contexts/DrawerStateProvider";
-import EvaluateDE from "./pages/Reviewer/EvaluateDE";
-import CreateAccounts from "./pages/QACOfficer/CreateAccounts";
-import Ser from './pages/ProgrammeCoordinator/Ser';
-import SubmitPGPR from './pages/ProgrammeCoordinator/SubmitPGPR';
-import AcceptAppointment from './pages/Reviewer/AcceptAppointment';
-import UpdateABC from './pages/Reviewer/UpdateABC';
-import Summary_details from './pages/Reviewer/Summary_details';
-// import UpdateEvidence from './pages/ProgrammeCoordinator/UpdateEvidence';
-// import ViewSummary from './pages/ProgrammeCoordinator/ViewSummary';
-import SelfEvaluationReport from './pages/ViceChancellor/SelfEvaluationReport';
+import AcceptAppointmentReviewer from "./pages/Reviewer/AcceptAppointment"; // Change the import name
+import UpdateABC from "./pages/Reviewer/UpdateABC";
+import Summary_details from "./pages/Reviewer/Summary_details";
+import SelfEvaluationReport from "./pages/ViceChancellor/SelfEvaluationReport";
+import ViewViceChancellor from "./pages/ViceChancellor/View"; // Change the import name
 import View from './pages/ViceChancellor/View';
 import "./App.css";
-
 
 /* 
   important: 
