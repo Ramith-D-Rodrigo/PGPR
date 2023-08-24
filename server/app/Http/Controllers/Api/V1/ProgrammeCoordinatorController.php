@@ -218,4 +218,34 @@ class ProgrammeCoordinatorController extends Controller
             ], 500);
         }
     }
+
+    //function to remove the role of programme coordinator (after the term date or if the programme coordinator has ended the term)
+    public function removeRole(ProgrammeCoordinator $programmeCoordinator){
+        try{
+            //authorize the action
+            $this -> authorize('removeRole', $programmeCoordinator);
+
+            DB::beginTransaction();
+
+            $result = ProgrammeCoordinatorService::removeRole($programmeCoordinator);
+
+            DB::commit();
+
+            return response() -> json([
+                'message' => 'Programme coordinator role removed successfully',
+            ], 200);
+        }
+        catch(AuthorizationException $e){
+            return response() -> json([
+                'message' => $e -> getMessage()
+            ], 403);
+        }
+        catch(Exception $e){
+            DB::rollBack();
+            return response() -> json([
+                'message' => 'Failed to remove programme coordinator role',
+                'error' => $e -> getMessage()
+            ], 500);
+        }
+    }
 }

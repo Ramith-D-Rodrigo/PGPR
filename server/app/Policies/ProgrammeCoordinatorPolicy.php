@@ -85,4 +85,26 @@ class ProgrammeCoordinatorPolicy
     {
         //
     }
+
+    public function removeRole(User $user, ProgrammeCoordinator $programmeCoordinator): Response
+    {
+        //only cqa director of the university can remove a programme coordinator
+
+        $currRole = request() -> session() -> get('authRole');
+
+        if($currRole != 'cqa_director'){
+            return Response::deny('You are not allowed to remove a programme coordinator role');
+        }
+
+
+        $pgpUniId =  $programmeCoordinator -> postGraduateProgram -> faculty -> university_id;
+
+        $cqaDirectorUniId = $user -> universitySide -> university_id;
+
+        if($pgpUniId != $cqaDirectorUniId){
+            return Response::deny('You are not allowed to remove a programme coordinator role for a postgraduate programme that does not belong to your university');
+        }
+
+        return Response::allow();
+    }
 }
