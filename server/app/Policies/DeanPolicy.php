@@ -84,4 +84,27 @@ class DeanPolicy
     {
         //
     }
+
+    //function to remove the role of dean (after the term date or if the dean has ended the term)
+    public function removeRole(User $user, Dean $dean): Response
+    {
+        //only cqa director can remove the role of dean
+        $currentRole = request() -> session() -> get('AuthRole');
+
+        if($currentRole != 'cqa director'){
+            return Response::deny('You are not allowed to remove the role of dean');
+        }
+
+        //cqa director can only remove the role of dean from faculty that is belong to the university of the cqa director
+
+        $cqaUniversity = $user -> universitySide -> university_id;
+
+        $deanUniversity = $dean -> faculty -> university_id;
+
+        if($cqaUniversity != $deanUniversity){
+            return Response::deny('You are not allowed to remove the role of dean from this faculty');
+        }
+
+        return Response::allow();
+    }
 }

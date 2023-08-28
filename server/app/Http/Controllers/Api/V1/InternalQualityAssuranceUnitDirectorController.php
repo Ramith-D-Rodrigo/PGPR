@@ -70,7 +70,11 @@ class InternalQualityAssuranceUnitDirectorController extends Controller
             InternalQualityAssuranceUnitDirectorService::sendAccountCreateMail($validatedDataWithFiles, $password);
 
             DB::commit();
-            return new InternalQualityAssuranceUnitDirectorResource($iqauDirector);
+
+            return response()->json([
+                'message' => 'Successfully created the internal quality assurance unit director',
+                'data' => new InternalQualityAssuranceUnitDirectorResource($iqauDirector)
+            ], 201);
         }
         catch(AuthorizationException $e){
             return response()->json(['message' => $e->getMessage()], 403);
@@ -114,5 +118,32 @@ class InternalQualityAssuranceUnitDirectorController extends Controller
     public function destroy(InternalQualityAssuranceUnitDirector $internalQualityAssuranceUnitDirector)
     {
         //
+    }
+
+    public function removeRole(InternalQualityAssuranceUnitDirector $iqauDirector){
+        try{
+            //authorize the action
+            $this -> authorize('removeRole', $iqauDirector);
+
+            DB::beginTransaction();
+
+            $result = InternalQualityAssuranceUnitDirectorService::removeRole($iqauDirector);
+
+            DB::commit();
+
+            return response() -> json([
+                'message' => 'Internal quality assurance unit director role removed successfully',
+            ], 200);
+        }
+        catch(AuthorizationException $e){
+            return response() -> json(['message' => $e -> getMessage()], 403);
+        }
+        catch(\Exception $e){
+            DB::rollBack();
+            return response() -> json(['message' => 'Failed to remove internal quality assurance unit director role',
+            'error' => $e -> getMessage()]
+            , 500);
+        }
+
     }
 }

@@ -72,4 +72,18 @@ class CenterForQualityAssuranceDirectorPolicy
     {
         //
     }
+
+    public function removeRole(User $user, CenterForQualityAssuranceDirector $centerForQualityAssuranceDirector): Response
+    {
+        //only qac_officer can remove the role of vice chancellor
+        //since qac_director is also a qac_officer, both roles are authorized
+
+        $authRole = request() -> session() -> get('authRole');
+
+        if($authRole == 'qac_officer' || $authRole == 'qac_director'){
+            return Response::allow();
+        }
+
+        return Response::deny('You are not authorized to remove the role of a vice chancellor.');
+    }
 }

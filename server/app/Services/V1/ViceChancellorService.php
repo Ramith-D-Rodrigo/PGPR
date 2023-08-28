@@ -22,4 +22,29 @@ class ViceChancellorService extends UniversitySideService {
         return $viceChancellor; //return the vice chancellor object and the password (password for sending the email)
 
     }
+
+    public static function removeRole(ViceChancellor $vc, $termDate) : bool{
+        if($termDate == null){
+            $vc -> update(['vc_status' => 'INACTIVE']);
+        }
+        else{
+            $vc -> update(['vc_status' => 'INACTIVE', 'term_date' => $termDate]);
+        }
+
+        //remove the vice_chanellor_id from the university table (ignore this step)
+
+        //remove the vice_chancellor role from the user table
+        $user = $vc -> universitySide -> user;
+
+        //get the roles json column
+        $roles = json_decode($user -> roles);
+
+        //remove the vice_chancellor role from the roles array
+        $roles = array_diff($roles, ['vice_chancellor']);
+
+        //update the roles column
+        $user -> update(['roles' => json_encode($roles)]);
+
+        return true;
+    }
 }
