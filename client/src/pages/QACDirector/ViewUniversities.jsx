@@ -17,7 +17,6 @@ import IconButton from '@mui/material/IconButton';
 import { Box } from '@mui/material';
 import {Link} from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import axios from '../../api/api.js';
 import getAllUniversities from '../../api/University/getAllUniversities';
 
 const ViewUniversities = () => {
@@ -41,11 +40,10 @@ const ViewUniversities = () => {
 
             try{
                 const result = await getAllUniversities();
-
-                setUniversities(result.data);
+                setUniversities(result.data.data);
             }
             catch(err){
-                console.log(err);
+                console.log(err.response.data);
             }
 
             setLoading(false);
@@ -100,19 +98,17 @@ const ViewUniversities = () => {
         return {id, University_Name, No_of_Faculties, District, Type, Actions };
     }
 
-    const rows = [
-        createData(1,'University of Colombo', 9, 'Colombo', 'Yes', [{action:'View',allow:true}, {action:'Edit',allow:false}, {action:'Delete',allow:false}]),
-        createData(2,'University of Peradeniya', 12, 'Peradeniya', 'No', [{action:'View',allow:true}, {action:'Edit',allow:true}, {action:'Delete',allow:false}]),
-        createData(3,'University of Ruhuna', 9, 'Ruhuna', 'Yes', [{action:'View',allow:true}, {action:'Edit',allow:false}, {action:'Delete',allow:true}]),
-        createData(4,'University of Moratuwa', 5, 'Moratuwa', 'No', [{action:'View',allow:true}, {action:'Edit',allow:false}, {action:'Delete',allow:false}]),
-        createData(5,'NSBM', 5, 'Colombo', 'Yes', [{action:'View',allow:true}, {action:'Edit',allow:true}, {action:'Delete',allow:true}]),
-      ];
-
     // const tableData = [
     //     { id: 1, column1Data: 'Data 1', column2Data: 'Data 2' },
     //     { id: 2, column1Data: 'Data 3', column2Data: 'Data 4' },
     // ];
     // console.log(rows);
+
+    const actions = [
+        {action:'View',allow:true},
+        {action:'Edit',allow:true},
+        {action:'Delete',allow:true},
+    ]
 
     return (
         <>
@@ -141,25 +137,30 @@ const ViewUniversities = () => {
             <TableHead style={{backgroundColor:"#D8E6FC",}}>
                 <TableRow>
                 <TableCell><b>University Name</b></TableCell>
-                <TableCell align="center"><b>No of Faculties/Institutions</b></TableCell>
-                <TableCell align="center"><b>District</b></TableCell>
-                <TableCell align="center"><b>Type</b></TableCell>
+                <TableCell align="center"><b>Address</b></TableCell>
+                <TableCell align="center"><b>Website</b></TableCell>
                 <TableCell align="center"><b>Actions</b></TableCell>
                 </TableRow>
             </TableHead>
                 <TableBody>
-                    {rows.map((row) => (
+                    {universities.map((row) => (
                         <TableRow
-                        key={row.University_Name}
+                        key={row.name}
                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                         >
                             <TableCell component="th" scope="row">
-                                {row.University_Name}
+                                {row.name}
                             </TableCell>
-                            <TableCell align="center">{row.No_of_Faculties}</TableCell>
-                            <TableCell align="center">{row.District}</TableCell>
-                            <TableCell align="center">{row.Type}</TableCell>
-                            <TableCell align="center">{row.Actions}</TableCell>
+                            <TableCell align="center">{row.address}</TableCell>
+                            <TableCell align="center">{row.website}</TableCell>
+                            <TableCell align="center">
+                                <Link key={row.name + 'view'} to={'view/'+row.id}>
+                                    <Button style={{margin:"0 8px"}} variant="contained" color="primary" size="small">View</Button>
+                                </Link>
+                                <Link key={row.name + 'edit'} to={'edit/'+row.id}>
+                                    <Button style={{margin:"0 8px"}} variant="contained" color="primary" size="small">Edit</Button>
+                                </Link>
+                            </TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
