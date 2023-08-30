@@ -291,6 +291,30 @@ class PostGraduateProgramReviewApplicationController extends Controller
      */
     public function destroy(PostGraduateProgramReviewApplication $postGraduateProgramReviewApplication)
     {
-        //
+        try{
+            //authorize the action
+            $this -> authorize('delete', $postGraduateProgramReviewApplication);
+
+            //get the intent letter path
+            $intentLetter = $postGraduateProgramReviewApplication -> intent_letter;
+
+            //remove the intent letter from the storage if it exists
+            if($intentLetter){
+                $intentLetterPath = str_replace('/storage', 'public', $intentLetter);
+                Storage::delete($intentLetterPath);
+            }
+
+            $postGraduateProgramReviewApplication -> delete();
+
+            return response()->json(['message' => 'Post graduate program review application deleted successfully.'], 200);
+        }
+        catch(AuthorizationException $e){
+            return response()->json(['message' => $e -> getMessage()], 403);
+        }
+        catch(\Exception $e){
+            return response()->json(['message' => 'Error deleting post graduate program review application.',
+                'error' => $e->getMessage()]
+            , 400);
+        }
     }
 }
