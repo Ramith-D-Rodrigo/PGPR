@@ -148,7 +148,36 @@ class UniversityController extends Controller
      */
     public function update(UpdateUniversityRequest $request, University $university)
     {
-        //
+        try{
+            //authorize request
+            $this -> authorize('update', $university);
+
+            $validatedData = $request -> validated();
+
+            //begin db transaction
+            DB::beginTransaction();
+            $university = UniversityService::update($validatedData, $university);
+            //commit db transactions
+            DB::commit();
+
+            return response()->json([
+                'message' => 'University updated successfully',
+                'data' => new UniversityResource($university)
+            ], 200);
+        }
+        catch(AuthorizationException $e){
+            return response()->json([
+                'message' => $e -> getMessage()
+            ], 403);
+        }
+        catch(\Exception $e){
+            //rollback db transactions
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Something went wrong',
+                'error' => $e -> getMessage()
+            ], 500);
+        }
     }
 
     /**
