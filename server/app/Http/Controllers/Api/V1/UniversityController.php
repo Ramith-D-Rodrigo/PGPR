@@ -54,7 +54,7 @@ class UniversityController extends Controller
                 }
             }
 
-            return new UniversityCollection($universities -> paginate() -> appends(request() -> query()));
+            return new UniversityCollection($universities);
         }
         catch(\Exception $e){
             return response()->json([

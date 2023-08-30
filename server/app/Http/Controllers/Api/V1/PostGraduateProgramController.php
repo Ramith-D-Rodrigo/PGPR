@@ -42,7 +42,7 @@ class PostGraduateProgramController extends Controller
                 $pgps = $pgps -> whereNotIn($whereNotInQueryItem[0], $whereNotInQueryItem[1]);
             }
 
-            return new PostGraduateProgramCollection($pgps -> paginate() -> appends($request -> query()));    //pagination should include the query params
+            return new PostGraduateProgramCollection($pgps);    //pagination should include the query params
         }
         catch(\Exception $e){
             return response() -> json(['message' => $e -> getMessage()], 500);

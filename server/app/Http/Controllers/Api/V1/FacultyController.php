@@ -71,7 +71,7 @@ class FacultyController extends Controller
                 }
             }
 
-            return new FacultyCollection($faculties -> paginate() -> appends($request -> query()));
+            return new FacultyCollection($faculties);
         }
         catch(\Exception $e){
             return response() -> json([

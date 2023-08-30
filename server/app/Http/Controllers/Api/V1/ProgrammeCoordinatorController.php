@@ -78,7 +78,7 @@ class ProgrammeCoordinatorController extends Controller
                 $programmeCoordinators = $programmeCoordinators -> with('postGraduateProgram');
             }
 
-            return new ProgrammeCoordinatorCollection($programmeCoordinators -> paginate() -> appends($request -> query()));
+            return new ProgrammeCoordinatorCollection($programmeCoordinators);
         }
         catch(Exception $e){
             return response() -> json([

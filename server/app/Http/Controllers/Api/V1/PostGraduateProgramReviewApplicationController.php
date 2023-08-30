@@ -72,7 +72,7 @@ class PostGraduateProgramReviewApplicationController extends Controller
                 }
             }
 
-            return new PostGraduateProgramReviewApplicationCollection($pgprApplications -> paginate() -> appends(request() -> query()));
+            return new PostGraduateProgramReviewApplicationCollection($pgprApplications);
         }
         catch(AuthorizationException $e){
             return response() -> json(['message' => $e -> getMessage()], 403);
