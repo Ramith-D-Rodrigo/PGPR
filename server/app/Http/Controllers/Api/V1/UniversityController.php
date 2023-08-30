@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Filters\V1\UniversityFilter;
 use App\Http\Resources\V1\FacultyCollection;
+use App\Http\Resources\V1\PostGraduateProgramCollection;
 use App\Models\University;
 use App\Http\Requests\V1\StoreUniversityRequest;
 use App\Http\Requests\V1\UpdateUniversityRequest;
@@ -165,6 +166,28 @@ class UniversityController extends Controller
         try{
             $faculties = $university -> faculties;
             return new FacultyCollection($faculties);
+        }
+        catch(\Exception $e){
+            return response()->json([
+                'message' => 'Something went wrong',
+                'error' => $e -> getMessage()
+            ], 500);
+        }
+    }
+
+    //get all postgraduate programs of a university
+    public function postgraduatePrograms(University $university){
+        try{
+            //get all faculties of a university
+            $faculties = $university -> faculties;
+
+            //get all postgraduate programs of a university
+            $postgraduatePrograms = [];
+            foreach($faculties as $faculty){
+                $postgraduatePrograms = array_merge($postgraduatePrograms, $faculty -> postGraduatePrograms -> toArray());
+            }
+
+            return new PostGraduateProgramCollection($postgraduatePrograms);
         }
         catch(\Exception $e){
             return response()->json([
