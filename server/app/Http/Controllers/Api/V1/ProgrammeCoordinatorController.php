@@ -78,7 +78,7 @@ class ProgrammeCoordinatorController extends Controller
                 $programmeCoordinators = $programmeCoordinators -> with('postGraduateProgram');
             }
 
-            return new ProgrammeCoordinatorCollection($programmeCoordinators);
+            return new ProgrammeCoordinatorCollection($programmeCoordinators -> get());
         }
         catch(Exception $e){
             return response() -> json([

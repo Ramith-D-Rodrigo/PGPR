@@ -35,6 +35,7 @@ class CenterForQualityAssuranceResource extends JsonResource
         //include related data
         $returnArr['university'] = new UniversityResource($this -> whenLoaded('university'));
         $returnArr['director'] = new CenterForQualityAssuranceDirectorResource($this -> whenLoaded('centerForQualityAssuranceDirector'));
+        $returnArr['currentCQADirector'] = new CenterForQualityAssuranceDirectorResource($this -> whenLoaded('currentQualityAssuranceDirector'));
 
         return $returnArr;
 

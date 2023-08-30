@@ -71,7 +71,7 @@ class FacultyController extends Controller
                 }
             }
 
-            return new FacultyCollection($faculties);
+            return new FacultyCollection($faculties -> get());
         }
         catch(\Exception $e){
             return response() -> json([
