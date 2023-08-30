@@ -113,6 +113,8 @@ const Login = () => {
 
   useEffect(() => {
     document.title = "Login | QAF for Postgraduate Programs";
+    const root = document.querySelector("#root");
+    root.style.backgroundImage = "linear-gradient(to right, #6194e7, #adcbfc)";
     //redirect if logged in (auth object is not null)
     let from =
       location.state?.from?.pathname || auth?.authRole[0]
