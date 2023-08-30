@@ -8,6 +8,7 @@ import axios from "../api.js";
 const deletePGPRApplication = async (pgprApplicationId) => {
     let URL = SERVER_URL + SERVER_API_VERSION + 'pgprApplications/' + pgprApplicationId;
 
+    await axios.get("/sanctum/csrf-cookie"); //csrf-cookie is required for delete requests
     return await axios.delete(URL);
 }
 

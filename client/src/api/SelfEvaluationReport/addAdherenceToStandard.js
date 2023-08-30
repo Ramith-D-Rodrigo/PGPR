@@ -8,6 +8,8 @@ import axios from "../api.js";
 const addAdherenceToStandard = async (selfEvaluationReportId, adherenceToStandard) => {
     let URL = SERVER_URL + SERVER_API_VERSION + 'selfEvaluationReports/' + selfEvaluationReportId + '/addAdherenceToStandards';
 
+    await axios.get("/sanctum/csrf-cookie"); //csrf-cookie is required for post requests
+
     return await axios.post(URL, adherenceToStandard);
 }
 

@@ -8,6 +8,8 @@ let URL = SERVER_URL + SERVER_API_VERSION + 'deans/';
 
 const removeDeanRole = async (deanId) => {
     URL = URL + deanId + '/removeRole';
+
+    axios.get("/sanctum/csrf-cookie"); //csrf-cookie is required for delete requests
     return await axios.delete(URL);
 }
 

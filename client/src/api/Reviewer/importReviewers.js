@@ -11,6 +11,8 @@ const importReviewers = async (file) => {
 
     let URL = SERVER_URL + SERVER_API_VERSION + 'reviewers/import/';
 
+    await axios.get("/sanctum/csrf-cookie"); //csrf-cookie is required for post requests
+
     return await axios.post(URL, formData, {
         headers: {
             'Content-Type': 'multipart/form-data'

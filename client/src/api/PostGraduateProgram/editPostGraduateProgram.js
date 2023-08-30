@@ -9,6 +9,8 @@ let URL = SERVER_URL + SERVER_API_VERSION + 'postGraduatePrograms/';
 
 const editPostGraduateProgram = async (postGraduateProgramId, postGraduateProgramData) => {
     URL = URL + postGraduateProgramId;
+
+    await axios.get("/sanctum/csrf-cookie"); //csrf-cookie is required for patch requests
     return await axios.patch(URL, postGraduateProgramData);
 }
 

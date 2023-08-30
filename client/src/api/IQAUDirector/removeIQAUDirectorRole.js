@@ -8,6 +8,8 @@ let URL = SERVER_URL + SERVER_API_VERSION + 'iqauDirectors/'; // endpoint should
 
 const removeIQAUDirectorRole = async (iqauDirectorId) => {
     URL = URL + iqauDirectorId + "/removeRole";
+
+    axios.get("/sanctum/csrf-cookie"); //csrf-cookie is required for delete requests
     return await axios.delete(URL);
 }
 

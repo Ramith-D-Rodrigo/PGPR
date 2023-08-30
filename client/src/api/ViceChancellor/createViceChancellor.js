@@ -8,6 +8,8 @@ import axios from "../api.js";
 const createViceChancellor = async (viceChancellor) => {
     let URL = SERVER_URL + SERVER_API_VERSION + 'viceChancellors/';
 
+    await axios.get("/sanctum/csrf-cookie"); //csrf-cookie is required for post requests
+
     return await axios.post(URL, viceChancellor);
 }
 

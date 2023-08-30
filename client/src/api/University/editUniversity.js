@@ -7,7 +7,10 @@ let URL = SERVER_URL + SERVER_API_VERSION + 'universities/';
 
 const editUniversity = async (universityId, universityData) => {
     URL = URL + universityId;
-    return await axios.put(URL, universityData);
+
+    await axios.get("/sanctum/csrf-cookie"); //csrf-cookie is required for patch requests
+
+    return await axios.patch(URL, universityData);
 }
 
 export default editUniversity;

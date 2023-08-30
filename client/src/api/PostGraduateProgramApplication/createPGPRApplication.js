@@ -8,6 +8,7 @@ import axios from "../api.js";
 const createPGPRApplication = async (pgprApplicationData) => {
     let URL = SERVER_URL + SERVER_API_VERSION + 'pgprApplications/';
 
+    await axios.get("/sanctum/csrf-cookie"); //csrf-cookie is required for post requests
     return await axios.post(URL, pgprApplicationData);
 }
 
