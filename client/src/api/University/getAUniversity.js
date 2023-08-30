@@ -3,7 +3,6 @@ import axios from "../api.js";
 
 //role of this function: get a university
 
-let URL = SERVER_URL + SERVER_API_VERSION + 'universities/'; //get a university (universities/{universityId})
 
 //possible query params:
 //1 - includeCQA (boolean -> true if you want to include the CQA for each university)
@@ -12,6 +11,7 @@ let URL = SERVER_URL + SERVER_API_VERSION + 'universities/'; //get a university 
 //4 - includeUser (boolean -> true if you want to include the user of vice chancellor for each university) (must include includeUniversitySide = true)
 
 const getAUniversity = async (universityId, queryParams = null) => {
+    let URL = SERVER_URL + SERVER_API_VERSION + 'universities/'; //get a university (universities/{universityId})
     URL = URL + universityId;
 
     if(queryParams) {
