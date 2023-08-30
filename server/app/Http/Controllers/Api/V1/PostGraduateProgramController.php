@@ -42,7 +42,47 @@ class PostGraduateProgramController extends Controller
                 $pgps = $pgps -> whereNotIn($whereNotInQueryItem[0], $whereNotInQueryItem[1]);
             }
 
-            return new PostGraduateProgramCollection($pgps);    //pagination should include the query params
+            //include related data
+            $faculty = request() -> query('includeFaculty');
+            if($faculty){
+                $pgps -> with('faculty');
+            }
+
+            $currCoordinator = request() -> query('includeCurrentCoordinator');
+            if($currCoordinator){
+                //check if academic staff is included
+                $academicStaff = request() -> query('includeAcademicStaff');
+                if($academicStaff){
+                    //check if university side is included
+                    $universitySide = request() -> query('includeUniversitySide');
+                    if($universitySide){
+                        //check if user is included
+                        $user = request() -> query('includeUser');
+                        if($user){
+                            $pgps -> with(['currentProgrammeCoordinator:id' => [
+                                'academicStaff:id' => [
+                                    'universitySide:id' => ['user:id,initials,surname']
+                                    ]
+                                ]
+                            ]);
+                        }
+                        else{
+                            $pgps -> with(['currentProgrammeCoordinator:id' => [
+                                'academicStaff:id' => ['universitySide:id']
+                                ]
+                            ]);
+                        }
+                    }
+                    else{
+                        $pgps -> with(['currentProgrammeCoordinator:id' => ['academicStaff:id']]);
+                    }
+                }
+                else{
+                    $pgps -> with('currentProgrammeCoordinator:id');
+                }
+            }
+
+            return new PostGraduateProgramCollection($pgps);
         }
         catch(\Exception $e){
             return response() -> json(['message' => $e -> getMessage()], 500);
