@@ -49,7 +49,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::apiResource('viceChancellors', 'ViceChancellorController');
     //other routes of vice chancellor
         //remove role of vice chancellor
-        Route::post('viceChancellors/{viceChancellor}/removeRole', 'ViceChancellorController@removeRole') -> middleware('auth');
+        Route::delete('viceChancellors/{viceChancellor}/removeRole', 'ViceChancellorController@removeRole') -> middleware('auth');
 
     Route::apiResource('users', 'UserController');
     Route::apiResource('universitySides', 'UniversitySideController');
@@ -72,7 +72,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
         //get the post graduate program of the programme coordinator
         Route::get('programmeCoordinators/{programmeCoordinator}/postGraduateProgram', 'ProgrammeCoordinatorController@postGraduateProgram') -> middleware('auth');
         //remove role of programme coordinator
-        Route::post('programmeCoordinators/{programmeCoordinator}/removeRole', 'ProgrammeCoordinatorController@removeRole') -> middleware('auth');
+        Route::delete('programmeCoordinators/{programmeCoordinator}/removeRole', 'ProgrammeCoordinatorController@removeRole') -> middleware('auth');
 
     Route::apiResource('postGraduateProgramReviews', 'PostGraduateProgramReviewController');
 
@@ -80,7 +80,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::apiResource('iqauDirectors', 'InternalQualityAssuranceUnitDirectorController') -> middleware('auth');
     //other routes of the iqauDirectors
         //remove role of iqau director
-        Route::post('iqauDirectors/{iqauDirector}/removeRole', 'InternalQualityAssuranceUnitDirectorController@removeRole') -> middleware('auth');
+        Route::delete('iqauDirectors/{iqauDirector}/removeRole', 'InternalQualityAssuranceUnitDirectorController@removeRole') -> middleware('auth');
 
     Route::apiResource('iqaUnits', 'InternalQualityAssuranceUnitController');
     Route::apiResource('faculties', 'FacultyController') -> middleware('auth');
@@ -100,12 +100,12 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
         //get the faculty of the dean
         Route::get('deans/{dean}/faculty', 'DeanController@faculty') -> middleware('auth');
         //remove role of dean
-        Route::post('deans/{dean}/removeRole', 'DeanController@removeRole') -> middleware('auth');
+        Route::delete('deans/{dean}/removeRole', 'DeanController@removeRole') -> middleware('auth');
 
     Route::apiResource('criterias', 'CriteriaController');
     Route::apiResource('cqaDirectors', 'CenterForQualityAssuranceDirectorController');
     //other routes of the cqa directors
-        Route::post('cqaDirectors/{cqaDirector}/removeRole', 'CenterForQualityAssuranceDirectorController@removeRole') -> middleware('auth');
+        Route::delete('cqaDirectors/{cqaDirector}/removeRole', 'CenterForQualityAssuranceDirectorController@removeRole') -> middleware('auth');
 
     Route::apiResource('centerForQualityAssurances', 'CenterForQualityAssuranceController');
     Route::apiResource('academicStaffs', 'AcademicStaffController');

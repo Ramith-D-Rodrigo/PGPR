@@ -71,7 +71,7 @@ class FacultyController extends Controller
                 }
             }
 
-            return new FacultyCollection($faculties -> paginate() -> appends($request -> query()));
+            return new FacultyCollection($faculties);
         }
         catch(\Exception $e){
             return response() -> json([
@@ -195,20 +195,54 @@ class FacultyController extends Controller
         }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Faculty $faculty)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
      */
     public function update(UpdateFacultyRequest $request, Faculty $faculty)
     {
-        //
+        try{
+            //authorize the request
+            $this -> authorize('update', $faculty);
+
+            $validatedData = $request -> validated();
+
+            //get the iqau data from the validated data (prefix with iqau_)
+            $iqauDetails = [];
+
+            foreach ($validatedData as $key => $value) {
+                if (Str::startsWith($key, 'iqau_')) {
+                    $iqauDetails[Str::after($key, 'iqau_')] = $value;
+                }
+            }
+
+            DB::beginTransaction();
+
+            //update the faculty
+            $faculty -> update($validatedData);
+
+            //update the iqau
+            $faculty -> internalQualityAssuranceUnit -> update($iqauDetails);
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Faculty updated successfully',
+                'data' => new FacultyResource($faculty)
+            ], 200);
+        }
+        catch(AuthorizationException $e){
+            return response()->json([
+                'message' => $e->getMessage()
+            ], 403);
+        }
+        catch(\Exception $e){
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**

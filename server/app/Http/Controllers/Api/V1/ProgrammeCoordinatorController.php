@@ -67,7 +67,7 @@ class ProgrammeCoordinatorController extends Controller
                     $user = $request -> query('includeUser');
                     if($user){
                         $programmeCoordinators = $programmeCoordinators -> with(['academicStaff' => [
-                            'universitySide' => ['user']
+                            'universitySide' => ['user:id,intials,surname,profile_pic']
                             ]
                         ]);
                     }
@@ -78,7 +78,7 @@ class ProgrammeCoordinatorController extends Controller
                 $programmeCoordinators = $programmeCoordinators -> with('postGraduateProgram');
             }
 
-            return new ProgrammeCoordinatorCollection($programmeCoordinators -> paginate() -> appends($request -> query()));
+            return new ProgrammeCoordinatorCollection($programmeCoordinators);
         }
         catch(Exception $e){
             return response() -> json([
@@ -166,7 +166,7 @@ class ProgrammeCoordinatorController extends Controller
                 $user = request() -> query('includeUser');
                 if($user){
                     $programmeCoordinator = $programmeCoordinator -> load(['academicStaff' => [
-                        'universitySide' => ['user']
+                        'universitySide' => ['user:id,surname,initials,profile_pic']
                         ]
                     ]);
                 }

@@ -72,7 +72,7 @@ class PostGraduateProgramReviewApplicationController extends Controller
                 }
             }
 
-            return new PostGraduateProgramReviewApplicationCollection($pgprApplications -> paginate() -> appends(request() -> query()));
+            return new PostGraduateProgramReviewApplicationCollection($pgprApplications);
         }
         catch(AuthorizationException $e){
             return response() -> json(['message' => $e -> getMessage()], 403);
@@ -253,6 +253,10 @@ class PostGraduateProgramReviewApplicationController extends Controller
             //authorize the qac officer
             $this -> authorize('qacOfficerApprovalAuthorize', $pgprApplication);
 
+            if($request -> status != 'approved' && $request -> status != 'rejected'){
+                return response()->json(['message' => 'Invalid status.'], 400);
+            }
+
             DB::beginTransaction();
 
             $pgprApplication -> update(['quality_assurance_council_officer_id' => Auth::user() -> id, 'status' => $request -> status]);
@@ -291,6 +295,30 @@ class PostGraduateProgramReviewApplicationController extends Controller
      */
     public function destroy(PostGraduateProgramReviewApplication $postGraduateProgramReviewApplication)
     {
-        //
+        try{
+            //authorize the action
+            $this -> authorize('delete', $postGraduateProgramReviewApplication);
+
+            //get the intent letter path
+            $intentLetter = $postGraduateProgramReviewApplication -> intent_letter;
+
+            //remove the intent letter from the storage if it exists
+            if($intentLetter){
+                $intentLetterPath = str_replace('/storage', 'public', $intentLetter);
+                Storage::delete($intentLetterPath);
+            }
+
+            $postGraduateProgramReviewApplication -> delete();
+
+            return response()->json(['message' => 'Post graduate program review application deleted successfully.'], 200);
+        }
+        catch(AuthorizationException $e){
+            return response()->json(['message' => $e -> getMessage()], 403);
+        }
+        catch(\Exception $e){
+            return response()->json(['message' => 'Error deleting post graduate program review application.',
+                'error' => $e->getMessage()]
+            , 400);
+        }
     }
 }

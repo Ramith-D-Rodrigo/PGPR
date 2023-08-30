@@ -70,7 +70,7 @@ class DeanController extends Controller
                 $deans = $deans -> with('faculty');
             }
 
-            return new DeanCollection($deans -> paginate() -> appends(request() -> query()));
+            return new DeanCollection($deans);
         }
         catch(\Exception $e){
             return response() -> json(['message' => $e -> getMessage()], 500);

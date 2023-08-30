@@ -263,9 +263,26 @@ class PostGraduateProgramReviewApplicationPolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, PostGraduateProgramReviewApplication $postGraduateProgramReviewApplication): bool
+    public function delete(User $user, PostGraduateProgramReviewApplication $postGraduateProgramReviewApplication): Response
     {
-        //
+        //only dean can delete the application, but only if it is not submitted and he should be the same person who created the application
+        $currUserRole = request() -> session() -> get('authRole');
+
+        if ($currUserRole != 'dean') {
+            return Response::deny('You are not allowed to delete this application');
+        }
+
+        //dean can only delete applications for pgps in his/her faculty (can be checked by dean_id as well)
+        if($user -> id != $postGraduateProgramReviewApplication -> dean_id){
+            return Response::deny('You are not allowed to delete this application');
+        }
+
+        //check the application status
+        if($postGraduateProgramReviewApplication -> status == 'creating'){
+            return Response::allow();
+        }
+
+        return Response::deny('You are not allowed to delete this application');
     }
 
     /**
