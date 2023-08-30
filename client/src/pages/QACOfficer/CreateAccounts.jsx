@@ -5,10 +5,10 @@ import CQADirectorForm from './CQADirectorForm';
 import ViceChancellorForm from './ViceChancellorForm';
 import UserDetailsForm from './UserDetailsForm';
 import { Divider, Typography } from '@mui/material';
-import { SERVER_API_VERSION, SERVER_URL } from '../../assets/constants';
 import { Snackbar, Alert, CircularProgress, Button, Box } from '@mui/material';
-import axios from '../../api/api.js';
 import { useNavigate } from 'react-router-dom';
+import createViceChancellor from '../../api/viceChancellor/createViceChancellor.js';
+import createCQADirector from '../../api/cqaDirector/createCQADirector.js';
 
 const CreateAccounts = () => {
 
@@ -27,40 +27,45 @@ const CreateAccounts = () => {
     const handleVCSubmit = async(e) => {
         errorMsg && setErrorMsg("");
         setLoading(true);
-        axios.post(SERVER_URL + SERVER_API_VERSION + "viceChancellors", formData)
-            .then(res => {
-                console.log(res.data);
-                setLoading(false);
-                setSuccess(true);
-                setTimeout(() => {
-                    navigate("../");
-                }, 1500);
-            }
-        ).catch(err => {
+
+        try{
+            const vcCreationResult = await createViceChancellor(formData);
+
+            console.log(vcCreationResult.data);
+
+            setLoading(false);
+            setSuccess(true);
+            setTimeout(() => {
+                navigate("../");
+            }, 1500);
+        }
+        catch(err){
             console.log(err);
             setErrorMsg(err?.response?.data?.message);
             setLoading(false);
-        })
+        }
     }
 
     const handleCQASubmit = async(e) => {
         errorMsg && setErrorMsg("");
         setLoading(true);
-        axios.post(SERVER_URL + SERVER_API_VERSION + "cqaDirectors", formData)
-            .then(res => {
-                console.log(res.data);
-                setLoading(false);
-                setSuccess(true);
-                setTimeout(() => {
-                    navigate("../");
-                }, 1500);
-            }
-        ).catch(err => {
+
+        try{
+            const cqaCreationResult = await createCQADirector(formData);
+
+            console.log(cqaCreationResult.data);
+            setLoading(false);
+            setSuccess(true);
+            setTimeout(() => {
+                navigate("../");
+            }, 1500);
+        }
+        catch(err){
             console.log(err);
             setErrorMsg(err?.response?.data?.message);
             setLoading(false);
         }
-        )
+        
     }
 
     const handleSubmit = (e) => {

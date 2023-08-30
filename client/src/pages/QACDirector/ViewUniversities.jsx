@@ -1,5 +1,4 @@
 // import axios from 'axios';
-import { SERVER_API_VERSION, SERVER_URL } from '../../assets/constants';
 import * as React from 'react';
 import ScrollableDiv from '../../components/ScrollableDiv';
 import { styled } from '@mui/material/styles';
@@ -19,6 +18,7 @@ import { Box } from '@mui/material';
 import {Link} from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import axios from '../../api/api.js';
+import getAllUniversities from '../../api/University/getAllUniversities';
 
 const ViewUniversities = () => {
     useSetUserNavigations(
@@ -31,19 +31,23 @@ const ViewUniversities = () => {
     );
     const [loading, setLoading] = useState(false);
 
+    const [universities, setUniversities] = useState([]);
+
     useEffect(() => {
         document.title = 'View Universities | QAC'
 
         async function getUniversities() {
             setLoading(true);
-            // await axios.get("/sanctum/csrf-cookie");
-            await axios.get('/api/v1/universities')
-            .then(res => {
-                console.log(res.data);
-            })
-            .catch(err => {
+
+            try{
+                const result = await getAllUniversities();
+
+                setUniversities(result.data);
+            }
+            catch(err){
                 console.log(err);
-            });
+            }
+
             setLoading(false);
         }
 
