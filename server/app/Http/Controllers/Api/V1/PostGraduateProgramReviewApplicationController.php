@@ -253,6 +253,10 @@ class PostGraduateProgramReviewApplicationController extends Controller
             //authorize the qac officer
             $this -> authorize('qacOfficerApprovalAuthorize', $pgprApplication);
 
+            if($request -> status != 'approved' && $request -> status != 'rejected'){
+                return response()->json(['message' => 'Invalid status.'], 400);
+            }
+
             DB::beginTransaction();
 
             $pgprApplication -> update(['quality_assurance_council_officer_id' => Auth::user() -> id, 'status' => $request -> status]);
