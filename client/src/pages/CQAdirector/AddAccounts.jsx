@@ -1,4 +1,4 @@
-import React from 'react';
+import {useState, useEffect} from 'react';
 import useSetUserNavigations from '../../hooks/useSetUserNavigations';
 import PropTypes from 'prop-types';
 import Tabs from '@mui/material/Tabs';
@@ -12,6 +12,9 @@ import { Snackbar,Alert } from '@mui/material';
 import createDean from '../../api/Dean/createDean';
 import createProgrammeCoordinator from '../../api/ProgrammeCoordinator/createProgrammeCoordinator';
 import createIQAUDirector from '../../api/IQAUDirector/createIQAUDirector';
+import getCQADirectorUniversity from '../../api/CQADirector/getCQADirectorUniversity';
+import useAuth from '../../hooks/useAuth';
+import { Navigate } from 'react-router-dom';
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -44,11 +47,34 @@ function a11yProps(index) {
 
 const AddAccounts = () => {
 
-  const [value, setValue] = React.useState(0);
-  const [msg, setMsg] = React.useState('');
-  const [success, setSuccess] = React.useState(false);
-  const [error, setError] = React.useState(false);
-  const [loading, setLoading] = React.useState(false);
+  const {auth} = useAuth();
+  const [value, setValue] = useState(0);
+  const [msg, setMsg] = useState('');
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [uniId,setUniId] = useState('');
+
+  useEffect(()=>{
+    const getCQAUniiD = async()=>{
+        setLoading(true);
+        try{
+          const result = await getCQADirectorUniversity(auth?.id);
+          console.log("CQA university :",result?.data?.data);
+          setUniId(result?.data?.data?.id);
+          setLoading(false);
+        }
+        catch(err)
+        {
+          console.log(err);
+          //navigate to error page
+          setLoading(false);
+        }
+    }
+
+    getCQAUniiD();
+      
+  },[]);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);

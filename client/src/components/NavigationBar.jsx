@@ -42,6 +42,7 @@ const NavigationBar = ({open , openDrawer, drawerWidthInput, breadCrumbs}) => {
   {
     return <Navigate to="/login" state={{ from: location }} replace />
   }
+  console.log("Auth :",auth);
   drawerWidth = drawerWidthInput;
   return (
       <AppBar color='transparent' open={open} position='absolute'>
