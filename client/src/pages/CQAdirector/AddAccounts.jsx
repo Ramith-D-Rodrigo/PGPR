@@ -74,8 +74,8 @@ const AddAccounts = () => {
 
   return (
     <Box sx={{ width: '100%' }}>
-      <Box sx={{ borderBottom: 1, borderColor: 'divider',marginBottom: 5,display:"flex",justifyContent:"center" }}>
-        <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
+      <Box sx={{marginBottom: 5,display:"flex",justifyContent:"center",backgroundColor:'lightgreen' }}>
+        <Tabs value={value} onChange={handleChange} aria-label="account add tabs">
           <Tab label="Add a Dean/Director" {...a11yProps(0)} />
           <Tab label="Add a Programme Coordinator" {...a11yProps(1)} />
           <Tab label="Add a IQAU director" {...a11yProps(2)} />

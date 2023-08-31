@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import InputLabel from '@mui/material/InputLabel';
@@ -15,18 +15,34 @@ const TextFieldStyle = {
     margin:"20px 0"
 }
 
+const handleSubmit = (evt) => {
+    evt.preventDefault();
+
+    const form = evt.target;
+    let formData = new FormData(form);
+
+    console.log(formData);
+
+    for (const [key,value] of formData.entries()){
+        console.log(`Key: ${key}, Value: ${value}`);
+    }
+}
+
 const AddDean = () => {
 
-    const [gender, setGender] = React.useState('');
-    const [designation,serDesignation] = React.useState('');
-    const [faculty,setFaculty] = React.useState('');
+    const [destination,setDestination] = useState('');
+    const [faculty,setFaculty] = useState('');
+    const [gender,setGender]=useState('');
+    const [profilePicture,setProfilePicture] = useState(null);
+    const [cv,setCV] = useState(null);
+    const [assignedDate, setAssignedDate] = useState(new Date().getFullYear().toString()+"-01-01");
 
     const handleChange = (event) => {
         setGender(event.target.value);
       };    
 
   return (
-    <form onSubmit={(e)=>e.preventDefault()} >
+    <form onSubmit={handleSubmit} >
 
         <Divider variant="middle" >
             Official Details
@@ -38,9 +54,10 @@ const AddDean = () => {
                 <Select
                     labelId="designationLabel"
                     id="designationSelect"
-                    value={designation}
                     label="designation*"
-                    onChange={handleChange}
+                    value = {destination}
+                    name="designation"
+                    onChange={(e)=>setDestination(e.target.value)}
                     required
                 >
                 <MenuItem value={"Director"}>Director</MenuItem>
@@ -53,9 +70,10 @@ const AddDean = () => {
                 <Select
                     labelId="facultyLabel"
                     id="facultySelect"
-                    value={faculty}
                     label="faculty*"
-                    onChange={handleChange}
+                    name="facultyid"
+                    value={faculty}
+                    onChange={(e)=>setFaculty(e.target.value)}
                     required
                 >
                     {/* {get data of all faculties and map to menues} */}
@@ -68,8 +86,10 @@ const AddDean = () => {
                 type="date"
                 style={TextFieldStyle}
                 id = "assignedDateId"
-                value={"1990-01-01"}
+                name="assignedDate"
+                value={assignedDate}
                 label = "Assigned Date*"
+                onChange= {(e)=> setAssignedDate(e.target.value)}
                 helperText = "select a date"
             />
 
@@ -77,6 +97,7 @@ const AddDean = () => {
                 style={TextFieldStyle}
                 id="officialTelephone"
                 label="Official Telephone Number"
+                name="officialTelephoneNo"
                 helperText="ex: 0111234567"
                 required
             />
@@ -85,6 +106,7 @@ const AddDean = () => {
                 type="email"
                 style={TextFieldStyle}
                 id="officialEmail"
+                name="officialEmail"
                 label="Official Email"
                 helperText="ex: JohnDoeofficial@example.com"
                 required
@@ -94,6 +116,7 @@ const AddDean = () => {
                 type="url"
                 style={TextFieldStyle}
                 id= "googleScholarLinkID"
+                name="googleScholarLink"
                 label="Google Scholar Link"
                 helperText="ex: https://googleScholar/perera.s.d.s.d/profile"
                 required
@@ -105,6 +128,8 @@ const AddDean = () => {
                     
                     id="cv"
                     type="file"
+                    name="cv"
+                    onChange={(e)=>setCV(e.target.files[0])}
                     label="cv"
                     // required
                 />
@@ -114,6 +139,7 @@ const AddDean = () => {
                 multiline
                 maxRows={4}
                 style={TextFieldStyle}
+                name="experienceInIndustry"
                 id="industryexperiences"
                 label="Experiences in Industry"
                 helperText = "briefly explain. remaining:400 words"
@@ -130,6 +156,7 @@ const AddDean = () => {
                 id="surname"
                 label="Surname"
                 helperText="ex: John"
+                name="surname"
                 required
             />
 
@@ -138,6 +165,7 @@ const AddDean = () => {
                 id="initials"
                 label="Initials"
                 helperText="ex: A.B.C"
+                name="initials"
                 required
             />
 
@@ -146,6 +174,7 @@ const AddDean = () => {
                 id="fullname"
                 label="Full Name"
                 helperText="ex: John Doe"
+                name="fullName"
                 required
             />
 
@@ -154,6 +183,7 @@ const AddDean = () => {
                 id="contact"
                 label="Contact Number"
                 helperText="ex: 0712345678"
+                name="contactNo"
                 required
             />
 
@@ -162,6 +192,7 @@ const AddDean = () => {
                 id="personalEmail"
                 label="Personal Email"
                 helperText="ex: JohnDoe@example.com"
+                name="personalEmail"
                 required
             />
 
@@ -170,6 +201,7 @@ const AddDean = () => {
                 id="NIC"
                 label="National Identity Card Number"
                 helperText="ex: 123456789V / 123456789123"
+                name="nic"
                 required
             />
             
@@ -178,9 +210,10 @@ const AddDean = () => {
                 <Select
                     labelId="genderLabel"
                     id="genderSelect"
-                    value={gender}
                     label="gender*"
-                    onChange={handleChange}
+                    name="gender"
+                    value={gender}
+                    onChange={(e)=>setGender(e.target.value)}
                     required
                 >
                 <MenuItem value={"m"}>Male</MenuItem>
@@ -204,7 +237,9 @@ const AddDean = () => {
                     
                     id="profilePicture"
                     type="file"
+                    name="profilePic"
                     label="Profile Picture"
+                    onChange={(e)=>setProfilePicture(e.target.files[0])}
                     required
                 />
             </FormControl>
@@ -216,10 +251,15 @@ const AddDean = () => {
         </Divider>
         <Box style={{display:"flex",flexWrap:"wrap",alignItems:"start",justifyContent:"space-between",width:"100%",padding:"0 2rem",margin:"3rem 0"}}>
 
+            <Box style={{display:"flex",width:"100%",justifyContent:"flex-start"}}>
+                <p><strong>Note: </strong>Here refer to the department that Dean / Director has been assigned</p>
+            </Box>
+
             <TextField
                 style={TextFieldStyle}
                 id = "departmentName"
                 label = "Department Name"
+                name="departmentName"
                 helperText = "ex: Department of Computer Science"
             />
 
@@ -227,6 +267,7 @@ const AddDean = () => {
                 style={TextFieldStyle}
                 id = "depHeadName"
                 label = "Department Head Name"
+                name="departmentHeadName"
                 helperText = "ex: Dr.Hans dopez"
             />
 
@@ -234,6 +275,7 @@ const AddDean = () => {
                 style={TextFieldStyle}
                 id = "depHeadEmail"
                 label = "Department Head Email"
+                name="departmentHeadEmail"
                 helperText = "hansdopez@example.com"
             />
 
@@ -241,6 +283,7 @@ const AddDean = () => {
                 style={TextFieldStyle}
                 id = "depPostalAddress"
                 label = "Department Postal Address"
+                name="departmentPostalAddress"
                 helperText = "ex: Department of Computer Science, University of Colombo, Colombo 07"
             />
         
@@ -250,27 +293,81 @@ const AddDean = () => {
             Qualifications
         </Divider>
         <Box style={{display:"flex",flexWrap:"wrap",alignItems:"start",justifyContent:"space-between",width:"100%",padding:"0 2rem",margin:"3rem 0"}}>
-            <Box sx={{display:'flex',width:"100%",justifyContent:"flex-end"}} >
-                <Button variant='outlined' color="success">
-                add more qualifications
-                </Button>
-            </Box> 
             
-            {/* map from all requested qualification. min:1 */}
+            <Box style={{display:"flex",width:"100%",justifyContent:"flex-start"}}>
+                <p><strong>Note: </strong>First two qualifications are required. fill the later two if neccesary.</p>
+            </Box>
+
             <Box style={TextFieldStyle}>
                 <TextField
+                    style={{width:"100%",marginBottom:"1rem"}}
+                    id="Qualification 1"
+                    label="Qualification 1*"
+                    name="qualification_1"
+                    helperText = "degree/post degree/deploma/ certificate"
+                    required
+                />
+                <TextField
                     style={{width:"100%"}}
+                    id="slqfLevelId"
+                    label="SLQF level*"
+                    name="qualification_1SlqfLevel"
+                    helperText = "SLQF level of above mentioned qualification"
+                    required
+                />
+            </Box>
+
+            <Box style={TextFieldStyle}>
+                <TextField
+                    style={{width:"100%",marginBottom:"1rem"}}
                     id="Qualification"
-                    label="Qualification"
+                    label="Qualification 2*"
+                    name="qualification_2"
+                    helperText = "degree/post degree/deploma/ certificate"
+                    required
+                />
+                <TextField
+                    style={{width:"100%"}}
+                    id="slqfLevelId"
+                    label="SLQF level*"
+                    name="qualification_2SlqfLevelnation"
+                    helperText = "SLQF level of above mentioned qualification"
+                    required
+                />
+            </Box>
+
+            <Box style={TextFieldStyle}>
+                <TextField
+                    style={{width:"100%",marginBottom:"1rem"}}
+                    id="Qualification"
+                    label="Qualification 3"
+                    name="qualification_3"
                     helperText = "degree/post degree/deploma/ certificate"
                 />
                 <TextField
                     style={{width:"100%"}}
                     id="slqfLevelId"
                     label="SLQF level"
+                    name="qualification_3SlqfLevel"
                     helperText = "SLQF level of above mentioned qualification"
                 />
-                <RemoveCircleOutlineIcon style={{cursor:'pointer',color:'red',margin:'0 0 0 10px'}}/>
+            </Box>
+
+            <Box style={TextFieldStyle}>
+                <TextField
+                    style={{width:"100%",marginBottom:"1rem"}}
+                    id="Qualification"
+                    label="Qualification 4"
+                    name="qualification_4"
+                    helperText = "degree/post degree/deploma/ certificate"
+                />
+                <TextField
+                    style={{width:"100%"}}
+                    id="slqfLevelId"
+                    label="SLQF level"
+                    name="qualification_4SlqfLevel"
+                    helperText = "SLQF level of above mentioned qualification"
+                />
             </Box>
         </Box>
         
