@@ -11,8 +11,7 @@ import axios from "../api.js";
 //4 - includeUser (boolean -> true if you want to include the user of vice chancellor for each university) (must include includeUniversitySide = true)
 
 const getAUniversity = async (universityId, queryParams = null) => {
-    let URL = SERVER_URL + SERVER_API_VERSION + 'universities/'; //get a university (universities/{universityId})
-    URL = URL + universityId;
+    const URL = SERVER_URL + SERVER_API_VERSION + 'universities/' + universityId; //get a university (universities/{universityId})
 
     if(queryParams) {
         return await axios.get(URL, { params: queryParams });

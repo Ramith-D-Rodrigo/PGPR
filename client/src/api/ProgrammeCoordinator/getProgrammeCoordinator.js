@@ -11,7 +11,7 @@ import axios from "../api.js";
 //3 - includeUser (boolean -> true if you want to include the user of the programme coordinator) (must require includeUniversitySide to be true)
 
 const getProgrammeCoordinator = async (programmeCoordinatorId, queryParams = null) => {
-    let URL = SERVER_URL + SERVER_API_VERSION + 'programmeCoordinators/' + programmeCoordinatorId;
+    const URL = SERVER_URL + SERVER_API_VERSION + 'programmeCoordinators/' + programmeCoordinatorId;
 
     if(queryParams != null) {
         return await axios.get(URL, {params : queryParams});

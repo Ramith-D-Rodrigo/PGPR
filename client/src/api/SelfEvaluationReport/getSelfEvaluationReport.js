@@ -6,7 +6,7 @@ import axios from "../api.js";
 //url is : SERVER_URL + SERVER_API_VERSION + 'selfEvaluationReports/{selfEvaluationReportId}'
 
 const getSelfEvaluationReport = async (selfEvaluationReportId) => {
-    let URL = SERVER_URL + SERVER_API_VERSION + 'selfEvaluationReports/' + selfEvaluationReportId;
+    const URL = SERVER_URL + SERVER_API_VERSION + 'selfEvaluationReports/' + selfEvaluationReportId;
 
     return await axios.get(URL);
 }

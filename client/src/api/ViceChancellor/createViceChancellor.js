@@ -6,7 +6,7 @@ import axios from "../api.js";
 //url is : SERVER_URL + SERVER_API_VERSION + 'viceChancellors/'
 
 const createViceChancellor = async (viceChancellor) => {
-    let URL = SERVER_URL + SERVER_API_VERSION + 'viceChancellors/';
+    const URL = SERVER_URL + SERVER_API_VERSION + 'viceChancellors/';
 
     await axios.get("/sanctum/csrf-cookie"); //csrf-cookie is required for post requests
 

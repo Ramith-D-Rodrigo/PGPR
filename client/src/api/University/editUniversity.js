@@ -3,10 +3,8 @@ import axios from "../api.js";
 
 //role of this function is to edit a university
 
-let URL = SERVER_URL + SERVER_API_VERSION + 'universities/';
-
 const editUniversity = async (universityId, universityData) => {
-    URL = URL + universityId;
+    const URL = SERVER_URL + SERVER_API_VERSION + 'universities/' + universityId;
 
     await axios.get("/sanctum/csrf-cookie"); //csrf-cookie is required for patch requests
 
