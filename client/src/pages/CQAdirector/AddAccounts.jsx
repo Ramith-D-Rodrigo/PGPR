@@ -11,6 +11,7 @@ import AddIQAUDiretor from './AddIQAUDiretor';
 import { Snackbar,Alert } from '@mui/material';
 import createDean from '../../api/Dean/createDean';
 import createProgrammeCoordinator from '../../api/ProgrammeCoordinator/createProgrammeCoordinator';
+import createIQAUDirector from '../../api/IQAUDirector/createIQAUDirector';
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -94,8 +95,6 @@ const handleProgrammeCoordinatorSubmit = async(evt) => {
   const form = evt.target;
   let formData = new FormData(form);
 
-  console.log(formData);
-
   // for (const [key,value] of formData.entries()){
   //     console.log(`Key: ${key}, Value: ${value}`);
   // }
@@ -114,6 +113,31 @@ const handleProgrammeCoordinatorSubmit = async(evt) => {
   }
 }
 
+const handleIQAUDirectorSubmit = async(evt) => {
+  evt.preventDefault();
+  setLoading(true);
+
+  const form = evt.target;
+  let formData = new FormData(form);
+
+  // for (const [key,value] of formData.entries()){
+  //     console.log(`Key: ${key}, Value: ${value}`);
+  // }
+
+  try{
+    const result = await createIQAUDirector(formData);
+    console.log(result);
+    setSuccess(true);
+    setLoading(false);
+  }
+  catch(error){
+      console.log(error);
+      setError(true);
+      setMsg(error?.response?.data?.message);
+      setLoading(false);
+}
+}
+
   return (
     <>
       <Box sx={{ width: '100%' }}>
@@ -125,13 +149,13 @@ const handleProgrammeCoordinatorSubmit = async(evt) => {
           </Tabs>
         </Box>
         <CustomTabPanel value={value} index={0}>
-          <AddDean OnSubmit={handleDeanSubmit} isLoading={loading}/>
+          <AddDean onSubmit={handleDeanSubmit} isLoading={loading}/>
         </CustomTabPanel>
         <CustomTabPanel value={value} index={1}>
           <AddProgrammeCoordinator onSubmit={handleProgrammeCoordinatorSubmit} isLoading={loading}/>
         </CustomTabPanel>
         <CustomTabPanel value={value} index={2}>
-          <AddIQAUDiretor/>
+          <AddIQAUDiretor onSubmit={handleIQAUDirectorSubmit} isLoading={loading}/>
         </CustomTabPanel>
       </Box>
 

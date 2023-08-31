@@ -24,7 +24,7 @@ function AddProgrammeCoordinator({onSubmit, isLoading}) {
     const [assignedDate, setAssignedDate] = useState(new Date().getFullYear().toString()+"-01-01");
 
     return (
-        <form noValidate onSubmit={(evt)=>onSubmit(evt)} >
+        <form onSubmit={(evt)=>onSubmit(evt)} >
 
           <Divider variant="middle" >
               Official Details

@@ -13,7 +13,7 @@ const TextFieldStyle = {
     margin:"20px 0"
 }
 
-const AddDean = ({OnSubmit,isLoading}) => {
+const AddDean = ({onSubmit,isLoading}) => {
 
     const [destination,setDestination] = useState('');
     const [faculty,setFaculty] = useState('');
@@ -23,7 +23,7 @@ const AddDean = ({OnSubmit,isLoading}) => {
     const [assignedDate, setAssignedDate] = useState(new Date().getFullYear().toString()+"-01-01");
 
   return (
-    <form onSubmit={(evt) => OnSubmit(evt)} >
+    <form onSubmit={(evt) => onSubmit(evt)} >
 
         <Divider variant="middle" >
             Official Details
