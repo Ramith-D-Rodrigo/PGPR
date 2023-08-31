@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import InputLabel from '@mui/material/InputLabel';
@@ -7,8 +7,6 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import { Input, Typography, Button } from '@mui/material';
 import Divider from '@mui/material/Divider';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 
 const TextFieldStyle = {
     width:"30%",
@@ -36,10 +34,6 @@ const AddDean = () => {
     const [profilePicture,setProfilePicture] = useState(null);
     const [cv,setCV] = useState(null);
     const [assignedDate, setAssignedDate] = useState(new Date().getFullYear().toString()+"-01-01");
-
-    const handleChange = (event) => {
-        setGender(event.target.value);
-      };    
 
   return (
     <form onSubmit={handleSubmit} >
@@ -228,7 +222,6 @@ const AddDean = () => {
                 value={File}
                 label = "profile picture"
                 helperText = ".png,.jpeg,.jpg"
-                required
             /> */}
 
             <FormControl style={TextFieldStyle} fullWidth>
@@ -240,7 +233,6 @@ const AddDean = () => {
                     name="profilePic"
                     label="Profile Picture"
                     onChange={(e)=>setProfilePicture(e.target.files[0])}
-                    required
                 />
             </FormControl>
 
@@ -261,6 +253,7 @@ const AddDean = () => {
                 label = "Department Name"
                 name="departmentName"
                 helperText = "ex: Department of Computer Science"
+                required
             />
 
             <TextField
@@ -269,6 +262,7 @@ const AddDean = () => {
                 label = "Department Head Name"
                 name="departmentHeadName"
                 helperText = "ex: Dr.Hans dopez"
+                required
             />
 
             <TextField
@@ -277,6 +271,7 @@ const AddDean = () => {
                 label = "Department Head Email"
                 name="departmentHeadEmail"
                 helperText = "hansdopez@example.com"
+                required
             />
 
             <TextField
@@ -285,6 +280,7 @@ const AddDean = () => {
                 label = "Department Postal Address"
                 name="departmentPostalAddress"
                 helperText = "ex: Department of Computer Science, University of Colombo, Colombo 07"
+                required
             />
         
         </Box>
