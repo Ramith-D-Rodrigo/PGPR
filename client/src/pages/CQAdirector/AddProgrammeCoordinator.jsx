@@ -5,7 +5,7 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
-import { Input, Typography, Button } from '@mui/material';
+import { Input, Typography, Button, CircularProgress } from '@mui/material';
 import Divider from '@mui/material/Divider';
 
 const TextFieldStyle = {
@@ -13,20 +13,7 @@ const TextFieldStyle = {
   margin:"20px 0"
 }
 
-const handleSubmit = (evt) => {
-  evt.preventDefault();
-
-  const form = evt.target;
-  let formData = new FormData(form);
-
-  console.log(formData);
-
-  for (const [key,value] of formData.entries()){
-      console.log(`Key: ${key}, Value: ${value}`);
-  }
-}
-
-function AddProgrammeCoordinator() {
+function AddProgrammeCoordinator({onSubmit, isLoading}) {
 
     const [destination,setDestination] = useState('');
     const [faculty,setFaculty] = useState('');
@@ -37,7 +24,7 @@ function AddProgrammeCoordinator() {
     const [assignedDate, setAssignedDate] = useState(new Date().getFullYear().toString()+"-01-01");
 
     return (
-        <form onSubmit={handleSubmit} >
+        <form noValidate onSubmit={(evt)=>onSubmit(evt)} >
 
           <Divider variant="middle" >
               Official Details
@@ -387,7 +374,8 @@ function AddProgrammeCoordinator() {
           
           <Box sx={{width:"100%",padding:"2rem 0"}}>
               <Button fullWidth type="submit" variant="contained" color="primary">
-                  Submit
+                {isLoading? "Loading " : "Submit"}
+                {isLoading && <CircularProgress style={{color:"white",margin:"0 0.5rem"}} size={24} />}
               </Button>
           </Box>
       

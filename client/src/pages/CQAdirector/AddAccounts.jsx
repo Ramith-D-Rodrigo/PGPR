@@ -10,6 +10,7 @@ import AddProgrammeCoordinator from './AddProgrammeCoordinator';
 import AddIQAUDiretor from './AddIQAUDiretor';
 import { Snackbar,Alert } from '@mui/material';
 import createDean from '../../api/Dean/createDean';
+import createProgrammeCoordinator from '../../api/ProgrammeCoordinator/createProgrammeCoordinator';
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -73,7 +74,34 @@ const handleDeanSubmit = async(evt) => {
   //     console.log(`Key: ${key}, Value: ${value}`);
   // }
   try{
-      result = await createDean(formData);
+      const result = await createDean(formData);
+      console.log(result);
+      setSuccess(true);
+      setLoading(false);
+  }
+  catch(error){
+      console.log(error);
+      setError(true);
+      setMsg(error?.response?.data?.message);
+      setLoading(false);
+  }
+}
+
+const handleProgrammeCoordinatorSubmit = async(evt) => {
+  evt.preventDefault();
+  setLoading(true);
+
+  const form = evt.target;
+  let formData = new FormData(form);
+
+  console.log(formData);
+
+  // for (const [key,value] of formData.entries()){
+  //     console.log(`Key: ${key}, Value: ${value}`);
+  // }
+
+  try{
+      const result = await createProgrammeCoordinator(formData);
       console.log(result);
       setSuccess(true);
       setLoading(false);
@@ -100,7 +128,7 @@ const handleDeanSubmit = async(evt) => {
           <AddDean OnSubmit={handleDeanSubmit} isLoading={loading}/>
         </CustomTabPanel>
         <CustomTabPanel value={value} index={1}>
-          <AddProgrammeCoordinator/>
+          <AddProgrammeCoordinator onSubmit={handleProgrammeCoordinatorSubmit} isLoading={loading}/>
         </CustomTabPanel>
         <CustomTabPanel value={value} index={2}>
           <AddIQAUDiretor/>
