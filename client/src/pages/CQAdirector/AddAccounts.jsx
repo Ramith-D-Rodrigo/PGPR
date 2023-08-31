@@ -86,18 +86,6 @@ const handleDeanSubmit = async(evt) => {
   }
 }
 
-  // Define your form submission logic here
-  const handleSubmit = (formValues) => {
-    // Handle form submission
-    console.log(formValues);
-  };
-
-  // Define your form cancellation logic here
-  const handleCancel = () => {
-    // Handle form cancellation
-    console.log('Form cancelled');
-  };
-
   return (
     <>
       <Box sx={{ width: '100%' }}>
