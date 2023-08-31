@@ -316,7 +316,7 @@ function AddProgrammeCoordinator() {
                   <TextField
                       style={{width:"100%",marginBottom:"1rem"}}
                       id="Qualification 1"
-                      label="Qualification 1*"
+                      label="Qualification 1"
                       name="qualification_1"
                       helperText = "degree/post degree/deploma/ certificate"
                       required
@@ -324,7 +324,7 @@ function AddProgrammeCoordinator() {
                   <TextField
                       style={{width:"100%"}}
                       id="slqfLevelId"
-                      label="SLQF level*"
+                      label="SLQF level"
                       name="qualification_1SlqfLevel"
                       helperText = "SLQF level of above mentioned qualification"
                       required
@@ -335,7 +335,7 @@ function AddProgrammeCoordinator() {
                   <TextField
                       style={{width:"100%",marginBottom:"1rem"}}
                       id="Qualification"
-                      label="Qualification 2*"
+                      label="Qualification 2"
                       name="qualification_2"
                       helperText = "degree/post degree/deploma/ certificate"
                       required
@@ -343,7 +343,7 @@ function AddProgrammeCoordinator() {
                   <TextField
                       style={{width:"100%"}}
                       id="slqfLevelId"
-                      label="SLQF level*"
+                      label="SLQF level"
                       name="qualification_2SlqfLevelnation"
                       helperText = "SLQF level of above mentioned qualification"
                       required

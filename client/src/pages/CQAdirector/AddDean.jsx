@@ -7,22 +7,28 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import { Input, Typography, Button } from '@mui/material';
 import Divider from '@mui/material/Divider';
+import createDean from '../../api/Dean/createDean';
 
 const TextFieldStyle = {
     width:"30%",
     margin:"20px 0"
 }
 
-const handleSubmit = (evt) => {
+const handleSubmit = async(evt) => {
     evt.preventDefault();
 
     const form = evt.target;
     let formData = new FormData(form);
 
-    console.log(formData);
-
-    for (const [key,value] of formData.entries()){
-        console.log(`Key: ${key}, Value: ${value}`);
+    // for (const [key,value] of formData.entries()){
+    //     console.log(`Key: ${key}, Value: ${value}`);
+    // }
+    try{
+        result = await createDean(formData);
+        console.log(result);
+    }
+    catch(error){
+        console.log(error);
     }
 }
 
@@ -298,7 +304,7 @@ const AddDean = () => {
                 <TextField
                     style={{width:"100%",marginBottom:"1rem"}}
                     id="Qualification 1"
-                    label="Qualification 1*"
+                    label="Qualification 1"
                     name="qualification_1"
                     helperText = "degree/post degree/deploma/ certificate"
                     required
@@ -306,7 +312,7 @@ const AddDean = () => {
                 <TextField
                     style={{width:"100%"}}
                     id="slqfLevelId"
-                    label="SLQF level*"
+                    label="SLQF level"
                     name="qualification_1SlqfLevel"
                     helperText = "SLQF level of above mentioned qualification"
                     required
@@ -317,7 +323,7 @@ const AddDean = () => {
                 <TextField
                     style={{width:"100%",marginBottom:"1rem"}}
                     id="Qualification"
-                    label="Qualification 2*"
+                    label="Qualification 2"
                     name="qualification_2"
                     helperText = "degree/post degree/deploma/ certificate"
                     required
@@ -325,7 +331,7 @@ const AddDean = () => {
                 <TextField
                     style={{width:"100%"}}
                     id="slqfLevelId"
-                    label="SLQF level*"
+                    label="SLQF level"
                     name="qualification_2SlqfLevelnation"
                     helperText = "SLQF level of above mentioned qualification"
                     required
