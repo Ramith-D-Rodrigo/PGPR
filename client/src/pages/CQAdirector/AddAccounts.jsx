@@ -8,6 +8,7 @@ import Box from '@mui/material/Box';
 import AddDean from './AddDean';
 import AddProgrammeCoordinator from './AddProgrammeCoordinator';
 import AddIQAUDiretor from './AddIQAUDiretor';
+import { Button } from '@mui/material';
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -20,11 +21,7 @@ function CustomTabPanel(props) {
       aria-labelledby={`simple-tab-${index}`}
       {...other}
     >
-      {value === index && (
-        <Box sx={{ p: 3 }}>
-          <Typography>{children}</Typography>
-        </Box>
-      )}
+      {value === index && children}
     </div>
   );
 }
@@ -45,6 +42,10 @@ function a11yProps(index) {
 const AddAccounts = () => {
 
   const [value, setValue] = React.useState(0);
+  const [msg, setMsg] = React.useState('');
+  const [success, setSuccess] = React.useState(false);
+  const [error, setError] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -73,7 +74,7 @@ const AddAccounts = () => {
 
   return (
     <Box sx={{ width: '100%' }}>
-      <Box sx={{ borderBottom: 1, borderColor: 'divider',marginBottom: 2, }}>
+      <Box sx={{ borderBottom: 1, borderColor: 'divider',marginBottom: 5,display:"flex",justifyContent:"center" }}>
         <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
           <Tab label="Add a Dean/Director" {...a11yProps(0)} />
           <Tab label="Add a Programme Coordinator" {...a11yProps(1)} />
@@ -89,7 +90,7 @@ const AddAccounts = () => {
       <CustomTabPanel value={value} index={2}>
         <AddIQAUDiretor/>
       </CustomTabPanel>
-  </Box>
+    </Box>
  
   );
 };
