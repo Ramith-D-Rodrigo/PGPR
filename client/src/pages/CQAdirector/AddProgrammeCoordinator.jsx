@@ -29,6 +29,8 @@ function AddProgrammeCoordinator({onSubmit, isLoading,faculties}) {
     },[])
 
     return (
+      <>
+        {isLoading && <Typography variant="h6" align='center' style={{margin:"2rem 0"}}>Loading ... <CircularProgress color='primary' style={{margin:"0 0.5rem"}} size={24} /></Typography>}
         <form onSubmit={(evt)=>onSubmit(evt)} >
 
           <Divider variant="middle" >
@@ -45,6 +47,7 @@ function AddProgrammeCoordinator({onSubmit, isLoading,faculties}) {
                       value = {destination}
                       name="designation"
                       onChange={(e)=>setDestination(e.target.value)}
+                      disabled={isLoading}
                       required
                   >
                   <MenuItem value={"Director"}>Director</MenuItem>
@@ -61,6 +64,7 @@ function AddProgrammeCoordinator({onSubmit, isLoading,faculties}) {
                       value={faculty}
                       name="facultyid"
                       onChange={(e)=>setFaculty(e.target.value)}
+                      disabled={isLoading}
                       required
                   >
                   {
@@ -80,6 +84,7 @@ function AddProgrammeCoordinator({onSubmit, isLoading,faculties}) {
                       name="postgraduateProgrammeid"
                       value={postgraduateProgramme}
                       onChange={(e)=>setPostgraduateProgramme(e.target.value)}
+                      disabled={isLoading}
                       required
                   >
                       {/* {get data of all postgrd. programmes and map to menues} */}
@@ -96,6 +101,7 @@ function AddProgrammeCoordinator({onSubmit, isLoading,faculties}) {
                   value={assignedDate}
                   label = "Assigned Date*"
                   onChange= {(e)=> setAssignedDate(e.target.value)}
+                  disabled={isLoading}
                   helperText = "select a date"
               />
 
@@ -105,6 +111,7 @@ function AddProgrammeCoordinator({onSubmit, isLoading,faculties}) {
                   label="Official Telephone Number"
                   name="officialTelephoneNo"
                   helperText="ex: 0111234567"
+                  disabled={isLoading}
                   required
               />
 
@@ -115,6 +122,7 @@ function AddProgrammeCoordinator({onSubmit, isLoading,faculties}) {
                   name="officialEmail"
                   label="Official Email"
                   helperText="ex: JohnDoeofficial@example.com"
+                  disabled={isLoading}
                   required
               />
 
@@ -125,6 +133,7 @@ function AddProgrammeCoordinator({onSubmit, isLoading,faculties}) {
                   name="googleScholarLink"
                   label="Google Scholar Link"
                   helperText="ex: https://googleScholar/perera.s.d.s.d/profile"
+                  disabled={isLoading}
                   required
               />
 
@@ -136,6 +145,7 @@ function AddProgrammeCoordinator({onSubmit, isLoading,faculties}) {
                       type="file"
                       name="cv"
                       onChange={(e)=>setCV(e.target.files[0])}
+                      disabled={isLoading}
                       label="cv"
                       // required
                   />
@@ -148,6 +158,7 @@ function AddProgrammeCoordinator({onSubmit, isLoading,faculties}) {
                   name="experienceInIndustry"
                   id="industryexperiences"
                   label="Experiences in Industry"
+                  disabled={isLoading}
                   helperText = "briefly explain. remaining:400 words"
               />
           </Box>
@@ -163,6 +174,7 @@ function AddProgrammeCoordinator({onSubmit, isLoading,faculties}) {
                   label="Surname"
                   helperText="ex: John"
                   name="surname"
+                  disabled={isLoading}
                   required
               />
 
@@ -172,6 +184,7 @@ function AddProgrammeCoordinator({onSubmit, isLoading,faculties}) {
                   label="Initials"
                   helperText="ex: A.B.C"
                   name="initials"
+                  disabled={isLoading}
                   required
               />
 
@@ -181,6 +194,7 @@ function AddProgrammeCoordinator({onSubmit, isLoading,faculties}) {
                   label="Full Name"
                   helperText="ex: John Doe"
                   name="fullName"
+                  disabled={isLoading}
                   required
               />
 
@@ -190,6 +204,7 @@ function AddProgrammeCoordinator({onSubmit, isLoading,faculties}) {
                   label="Contact Number"
                   helperText="ex: 0712345678"
                   name="contactNo"
+                  disabled={isLoading}
                   required
               />
 
@@ -199,6 +214,7 @@ function AddProgrammeCoordinator({onSubmit, isLoading,faculties}) {
                   label="Personal Email"
                   helperText="ex: JohnDoe@example.com"
                   name="personalEmail"
+                  disabled={isLoading}
                   required
               />
 
@@ -208,6 +224,7 @@ function AddProgrammeCoordinator({onSubmit, isLoading,faculties}) {
                   label="National Identity Card Number"
                   helperText="ex: 123456789V / 123456789123"
                   name="nic"
+                  disabled={isLoading}
                   required
               />
               
@@ -220,6 +237,7 @@ function AddProgrammeCoordinator({onSubmit, isLoading,faculties}) {
                       name="gender"
                       value={gender}
                       onChange={(e)=>setGender(e.target.value)}
+                      disabled={isLoading}
                       required
                   >
                   <MenuItem value={"m"}>Male</MenuItem>
@@ -245,6 +263,7 @@ function AddProgrammeCoordinator({onSubmit, isLoading,faculties}) {
                       name="profilePic"
                       label="Profile Picture"
                       onChange={(e)=>setProfilePicture(e.target.files[0])}
+                      disabled={isLoading}
                   />
               </FormControl>
 
@@ -265,6 +284,7 @@ function AddProgrammeCoordinator({onSubmit, isLoading,faculties}) {
                   label = "Department Name"
                   name="departmentName"
                   helperText = "ex: Department of Computer Science"
+                  disabled={isLoading}
                   required
               />
 
@@ -274,6 +294,7 @@ function AddProgrammeCoordinator({onSubmit, isLoading,faculties}) {
                   label = "Department Head Name"
                   name="departmentHeadName"
                   helperText = "ex: Dr.Hans dopez"
+                  disabled={isLoading}
                   required
               />
 
@@ -283,6 +304,7 @@ function AddProgrammeCoordinator({onSubmit, isLoading,faculties}) {
                   label = "Department Head Email"
                   name="departmentHeadEmail"
                   helperText = "hansdopez@example.com"
+                  disabled={isLoading}
                   required
               />
 
@@ -292,6 +314,7 @@ function AddProgrammeCoordinator({onSubmit, isLoading,faculties}) {
                   label = "Department Postal Address"
                   name="departmentPostalAddress"
                   helperText = "ex: Department of Computer Science, University of Colombo, Colombo 07"
+                  disabled={isLoading}
                   required
               />
           
@@ -303,7 +326,7 @@ function AddProgrammeCoordinator({onSubmit, isLoading,faculties}) {
           <Box style={{display:"flex",flexWrap:"wrap",alignItems:"start",justifyContent:"space-between",width:"100%",padding:"0 2rem",margin:"3rem 0"}}>
               
               <Box style={{display:"flex",width:"100%",justifyContent:"flex-start"}}>
-                  <p><strong>Note: </strong>First two qualifications are required. fill the later two if neccesary.</p>
+                  <p><strong>Note: </strong>First two qualifications are required. fill the later two if necessary.</p>
               </Box>
 
               <Box style={TextFieldStyle}>
@@ -313,6 +336,7 @@ function AddProgrammeCoordinator({onSubmit, isLoading,faculties}) {
                       label="Qualification 1"
                       name="qualification_1"
                       helperText = "degree/post degree/deploma/ certificate"
+                      disabled={isLoading}
                       required
                   />
                   <TextField
@@ -321,6 +345,7 @@ function AddProgrammeCoordinator({onSubmit, isLoading,faculties}) {
                       label="SLQF level"
                       name="qualification_1SlqfLevel"
                       helperText = "SLQF level of above mentioned qualification"
+                      disabled={isLoading}
                       required
                   />
               </Box>
@@ -332,6 +357,7 @@ function AddProgrammeCoordinator({onSubmit, isLoading,faculties}) {
                       label="Qualification 2"
                       name="qualification_2"
                       helperText = "degree/post degree/deploma/ certificate"
+                      disabled={isLoading}
                       required
                   />
                   <TextField
@@ -340,6 +366,7 @@ function AddProgrammeCoordinator({onSubmit, isLoading,faculties}) {
                       label="SLQF level"
                       name="qualification_2SlqfLevelnation"
                       helperText = "SLQF level of above mentioned qualification"
+                      disabled={isLoading}
                       required
                   />
               </Box>
@@ -351,6 +378,7 @@ function AddProgrammeCoordinator({onSubmit, isLoading,faculties}) {
                       label="Qualification 3"
                       name="qualification_3"
                       helperText = "degree/post degree/deploma/ certificate"
+                      disabled={isLoading}
                   />
                   <TextField
                       style={{width:"100%"}}
@@ -358,6 +386,7 @@ function AddProgrammeCoordinator({onSubmit, isLoading,faculties}) {
                       label="SLQF level"
                       name="qualification_3SlqfLevel"
                       helperText = "SLQF level of above mentioned qualification"
+                      disabled={isLoading}
                   />
               </Box>
 
@@ -368,6 +397,7 @@ function AddProgrammeCoordinator({onSubmit, isLoading,faculties}) {
                       label="Qualification 4"
                       name="qualification_4"
                       helperText = "degree/post degree/deploma/ certificate"
+                      disabled={isLoading}
                   />
                   <TextField
                       style={{width:"100%"}}
@@ -375,19 +405,21 @@ function AddProgrammeCoordinator({onSubmit, isLoading,faculties}) {
                       label="SLQF level"
                       name="qualification_4SlqfLevel"
                       helperText = "SLQF level of above mentioned qualification"
+                      disabled={isLoading}
                   />
               </Box>
           </Box>
           
           <Box sx={{width:"100%",padding:"2rem 0"}}>
-              <Button fullWidth type="submit" variant="contained" color="primary">
+              <Button disabled={isLoading} fullWidth type="submit" variant="contained" color="primary">
                 {isLoading? "Loading " : "Submit"}
-                {isLoading && <CircularProgress style={{color:"white",margin:"0 0.5rem"}} size={24} />}
+                {isLoading && <CircularProgress color='primary' style={{margin:"0 0.5rem"}} size={24} />}
               </Button>
           </Box>
       
 
         </form>
+      </>
     )
 }
 

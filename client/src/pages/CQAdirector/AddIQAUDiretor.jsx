@@ -26,6 +26,8 @@ function AddIQAUDiretor({onSubmit,isLoading,faculties}) {
     },[])
 
     return (
+    <>
+      {isLoading && <Typography variant="h6" align='center' style={{margin:"2rem 0"}}>Loading ... <CircularProgress color='primary' style={{margin:"0 0.5rem"}} size={24} /></Typography>}
       <form onSubmit={onSubmit} >
 
         <Divider variant="middle" >
@@ -42,6 +44,7 @@ function AddIQAUDiretor({onSubmit,isLoading,faculties}) {
                     name="facultyid"
                     value={faculty}
                     onChange={(e)=>setFaculty(e.target.value)}
+                    disabled={isLoading}
                     required
                 >
                 {
@@ -60,6 +63,7 @@ function AddIQAUDiretor({onSubmit,isLoading,faculties}) {
                 value={assignedDate}
                 label = "Assigned Date*"
                 onChange= {(e)=> setAssignedDate(e.target.value)}
+                disabled={isLoading}
                 helperText = "select a date"
             />
 
@@ -69,6 +73,7 @@ function AddIQAUDiretor({onSubmit,isLoading,faculties}) {
                 label="Official Telephone Number"
                 name="officialTelephoneNo"
                 helperText="ex: 0111234567"
+                disabled={isLoading}
                 required
             />
 
@@ -79,6 +84,7 @@ function AddIQAUDiretor({onSubmit,isLoading,faculties}) {
                 name="officialEmail"
                 label="Official Email"
                 helperText="ex: JohnDoeofficial@example.com"
+                disabled={isLoading}
                 required
             />
 
@@ -90,6 +96,7 @@ function AddIQAUDiretor({onSubmit,isLoading,faculties}) {
                     type="file"
                     name="cv"
                     onChange={(e)=>setCV(e.target.files[0])}
+                    disabled={isLoading}
                     label="cv"
                     // required
                 />
@@ -107,6 +114,7 @@ function AddIQAUDiretor({onSubmit,isLoading,faculties}) {
                 label="Surname"
                 helperText="ex: John"
                 name="surname"
+                disabled={isLoading}
                 required
             />
 
@@ -116,6 +124,7 @@ function AddIQAUDiretor({onSubmit,isLoading,faculties}) {
                 label="Initials"
                 helperText="ex: A.B.C"
                 name="initials"
+                disabled={isLoading}
                 required
             />
 
@@ -125,6 +134,7 @@ function AddIQAUDiretor({onSubmit,isLoading,faculties}) {
                 label="Full Name"
                 helperText="ex: John Doe"
                 name="fullName"
+                disabled={isLoading}
                 required
             />
 
@@ -134,6 +144,7 @@ function AddIQAUDiretor({onSubmit,isLoading,faculties}) {
                 label="Contact Number"
                 helperText="ex: 0712345678"
                 name="contactNo"
+                disabled={isLoading}
                 required
             />
 
@@ -143,6 +154,7 @@ function AddIQAUDiretor({onSubmit,isLoading,faculties}) {
                 label="Personal Email"
                 helperText="ex: JohnDoe@example.com"
                 name="personalEmail"
+                disabled={isLoading}
                 required
             />
 
@@ -152,6 +164,7 @@ function AddIQAUDiretor({onSubmit,isLoading,faculties}) {
                 label="National Identity Card Number"
                 helperText="ex: 123456789V / 123456789123"
                 name="nic"
+                disabled={isLoading}
                 required
             />
             
@@ -164,6 +177,7 @@ function AddIQAUDiretor({onSubmit,isLoading,faculties}) {
                     name="gender"
                     value={gender}
                     onChange={(e)=>setGender(e.target.value)}
+                    disabled={isLoading}
                     required
                 >
                 <MenuItem value={"m"}>Male</MenuItem>
@@ -189,20 +203,22 @@ function AddIQAUDiretor({onSubmit,isLoading,faculties}) {
                     name="profilePic"
                     label="Profile Picture"
                     onChange={(e)=>setProfilePicture(e.target.files[0])}
+                    disabled={isLoading}
                 />
             </FormControl>
 
         </Box>
         
         <Box sx={{width:"100%",padding:"2rem 0"}}>
-            <Button fullWidth type="submit" variant="contained" color="primary">
+            <Button disabled={isLoading} fullWidth type="submit" variant="contained" color="primary">
                 {isLoading? "Loading " : "Submit"}
-                {isLoading && <CircularProgress style={{color:"white",margin:"0 0.5rem"}} size={24} />}
+                {isLoading && <CircularProgress color='primary' style={{margin:"0 0.5rem"}} size={24} />}
             </Button>
         </Box>
     
 
       </form>
+    </>
     )
 }
 
