@@ -6,7 +6,9 @@ import axios from "../api.js";
 //url is : SERVER_URL + SERVER_API_VERSION + 'selfEvaluationReports/{selfEvaluationReportId}/recommendSelfEvaluationReport/'
 
 const recommendSelfEvaluationReport = async (selfEvaluationReportId) => {
-    let URL = SERVER_URL + SERVER_API_VERSION + 'selfEvaluationReports/' + selfEvaluationReportId + '/recommendSelfEvaluationReport/';
+    const URL = SERVER_URL + SERVER_API_VERSION + 'selfEvaluationReports/' + selfEvaluationReportId + '/recommendSelfEvaluationReport/';
+
+    await axios.get("/sanctum/csrf-cookie"); //csrf-cookie is required for post requests
 
     return await axios.post(URL);
 }

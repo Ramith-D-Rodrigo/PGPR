@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Resources\V1\CenterForQualityAssuranceDirectorResource;
+use App\Http\Resources\V1\UniversityResource;
 use App\Models\CenterForQualityAssurance;
 use App\Models\CenterForQualityAssuranceDirector;
 use App\Http\Requests\V1\StoreCenterForQualityAssuranceDirectorRequest;
@@ -135,6 +136,21 @@ class CenterForQualityAssuranceDirectorController extends Controller
             DB::rollBack();
             return response() -> json([
                 'message' => 'Failed to remove Center For Quality Assurance Director role',
+                'error' => $e -> getMessage()
+            ], 500);
+        }
+    }
+
+    //get the university of the cqa director
+    public function university(CenterForQualityAssuranceDirector $cqaDirector) {
+        try{
+            $university = $cqaDirector -> centerForQualityAssurance -> university;
+
+            return new UniversityResource($university);
+        }
+        catch(\Exception $e){
+            return response() -> json([
+                'message' => 'Failed to retrieve university',
                 'error' => $e -> getMessage()
             ], 500);
         }

@@ -31,7 +31,7 @@ class UniversityResource extends JsonResource
         }
 
         //include related data
-        $returnArr['centerForQualtyAssurance'] = new CenterForQualityAssuranceResource($this -> whenLoaded('centerForQualityAssurance'));
+        $returnArr['centerForQualityAssurance'] = new CenterForQualityAssuranceResource($this -> whenLoaded('centerForQualityAssurance'));
         $returnArr['viceChancellor'] = new ViceChancellorResource($this -> whenLoaded('viceChancellor'));
 
         return $returnArr;

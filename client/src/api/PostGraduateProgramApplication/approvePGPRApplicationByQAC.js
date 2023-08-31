@@ -6,9 +6,9 @@ import axios from "../api.js";
 //url is : SERVER_URL + SERVER_API_VERSION + 'pgprApplications/{pgprApplicationId}/qacOfficerApproval'
 
 const approvePGPRApplicationByQAC = async (pgprApplicationId, decision) => {    //decision should be => approved or rejected
-    let URL = SERVER_URL + SERVER_API_VERSION + 'pgprApplications/' + pgprApplicationId + '/qacOfficerApproval';
-
+    const URL = SERVER_URL + SERVER_API_VERSION + 'pgprApplications/' + pgprApplicationId + '/qacOfficerApproval';
     
+    await axios.get("/sanctum/csrf-cookie"); //csrf-cookie is required for post requests
     return await axios.post(URL, {status : decision});
 }
 

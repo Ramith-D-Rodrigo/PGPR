@@ -34,7 +34,7 @@ class PostGraduateProgramReviewController extends Controller
                 ]
             ]]);
 
-            return new PostGraduateProgramReviewCollection($pgprs);
+            return new PostGraduateProgramReviewCollection($pgprs -> get());
 
         }
         catch(AuthorizationException $e){

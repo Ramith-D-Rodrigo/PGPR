@@ -3,7 +3,7 @@ import axios from "../api.js";
 
 //role of this function: get current dean of a faculty
 
-let URL = SERVER_URL + SERVER_API_VERSION + 'faculties/'; //to get current dean, => faculties/{facultyId}/currentDean
+//to get current dean, => faculties/{facultyId}/currentDean
 
 //possible query params:
 //1 - includeAcademicStaff (boolean -> true if you want to include the academic staff of dean for faculty) (must include includeDean = true)
@@ -12,7 +12,7 @@ let URL = SERVER_URL + SERVER_API_VERSION + 'faculties/'; //to get current dean,
 
 
 const getCurrentDean = async (facultyId, queryParams = null) => {
-    URL = URL + facultyId + '/currentDean';
+    const URL = SERVER_URL + SERVER_API_VERSION + 'faculties/' + facultyId + '/currentDean';
 
     if(queryParams) {
         return await axios.get(URL, { params: queryParams });

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Resources\V1\UniversityResource;
 use App\Http\Resources\V1\ViceChancellorResource;
 use App\Models\University;
 use App\Models\ViceChancellor;
@@ -158,6 +159,22 @@ class ViceChancellorController extends Controller
             DB::rollBack();
             return response() -> json([
                 'message' => 'Failed to remove vice chancellor role',
+                'error' => $e -> getMessage()
+            ], 500);
+        }
+    }
+
+    //get the university of the vice chancellor
+    public function university(ViceChancellor $viceChancellor)
+    {
+        try{
+            $university = $viceChancellor -> university;
+
+            return new UniversityResource($university);
+        }
+        catch(\Exception $e){
+            return response() -> json([
+                'message' => 'Failed to retrieve vice chancellor university',
                 'error' => $e -> getMessage()
             ], 500);
         }

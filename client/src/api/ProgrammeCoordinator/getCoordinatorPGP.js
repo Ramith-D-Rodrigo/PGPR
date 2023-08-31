@@ -5,7 +5,7 @@ import axios from "../api.js";
 
 //url is : SERVER_URL + SERVER_API_VERSION + 'programmeCoordinators/{programmeCoordinatorId}/postGraduateProgram'
 const getCoordinatorPGP = async (programmeCoordinatorId) => {
-    let URL = SERVER_URL + SERVER_API_VERSION + 'programmeCoordinators/' + programmeCoordinatorId + '/postGraduateProgram';
+    const URL = SERVER_URL + SERVER_API_VERSION + 'programmeCoordinators/' + programmeCoordinatorId + '/postGraduateProgram';
 
     return await axios.get(URL);
 }

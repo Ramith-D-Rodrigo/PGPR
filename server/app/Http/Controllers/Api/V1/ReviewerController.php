@@ -440,7 +440,7 @@ class ReviewerController extends Controller
 
     public function downloadExcelFile(){
         try{
-            $file = Storage::download('public/reviewer-sheet.xlsx');
+            $file = Storage::download('public/reviewer-excel-template.xlsx');
             return $file;
         }
         catch(\Exception $e){

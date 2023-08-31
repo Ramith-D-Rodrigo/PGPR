@@ -82,7 +82,7 @@ class PostGraduateProgramController extends Controller
                 }
             }
 
-            return new PostGraduateProgramCollection($pgps);
+            return new PostGraduateProgramCollection($pgps -> get());
         }
         catch(\Exception $e){
             return response() -> json(['message' => $e -> getMessage()], 500);

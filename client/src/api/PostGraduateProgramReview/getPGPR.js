@@ -6,7 +6,7 @@ import axios from "../api.js";
 //url is : SERVER_URL + SERVER_API_VERSION + 'postGraduateProgramReviews/{pgprId}'
 
 const getPGPR = async (pgprId) => {
-    let URL = SERVER_URL + SERVER_API_VERSION + 'postGraduateProgramReviews/' + pgprId;
+    const URL = SERVER_URL + SERVER_API_VERSION + 'postGraduateProgramReviews/' + pgprId;
 
     return await axios.get(URL);
 }
