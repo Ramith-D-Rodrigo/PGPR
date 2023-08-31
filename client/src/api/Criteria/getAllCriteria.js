@@ -3,10 +3,10 @@ import axios from "../api.js";
 
 //role of this function: get all criteria
 
-//url is : SERVER_URL + SERVER_API_VERSION + 'criteria/'
+//url is : SERVER_URL + SERVER_API_VERSION + 'criterias/'
 
 const getAllCriteria = async () => {
-    let URL = SERVER_URL + SERVER_API_VERSION + 'criteria/';
+    let URL = SERVER_URL + SERVER_API_VERSION + 'criterias/';
 
     return await axios.get(URL);
 }

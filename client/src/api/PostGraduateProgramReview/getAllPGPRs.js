@@ -5,12 +5,12 @@ import axios from "../api.js";
 
 //url is : SERVER_URL + SERVER_API_VERSION + 'postGraduateProgramReviews'
 
-const getAllPGPRApplications = async () => {
+const getAllPGPRs = async () => {
     const URL = SERVER_URL + SERVER_API_VERSION + 'postGraduateProgramReviews';
 
     return await axios.get(URL);
 }
 
 
-export default getAllPGPRApplications;
+export default getAllPGPRs;
 
