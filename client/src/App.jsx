@@ -49,6 +49,7 @@ import UpdateABC from "./pages/Reviewer/UpdateABC";
 import Summary_details from "./pages/Reviewer/Summary_details";
 import SelfEvaluationReport from "./pages/ViceChancellor/SelfEvaluationReport";
 import View from './pages/ViceChancellor/View';
+import PostGraduateProgramReviewApplications from './pages/QACOfficer/PostGraduateProgramReviewApplications'
 // import UpdateEvidence from './pages/ProgrammeCoordinator/UpdateEvidence';
 // import ViewSummary from './pages/ProgrammeCoordinator/ViewSummary';
 import "./App.css";
@@ -94,6 +95,7 @@ function App() {
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="universities" element={<Universities />} />
                 <Route path="createAccounts/" element={<CreateAccounts />} />
+                <Route path="PGPRApplications" element={<PostGraduateProgramReviewApplications />} />
               </Route>
             </Route>
 
