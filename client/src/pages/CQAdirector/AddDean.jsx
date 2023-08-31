@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import InputLabel from '@mui/material/InputLabel';
@@ -13,7 +13,7 @@ const TextFieldStyle = {
     margin:"20px 0"
 }
 
-const AddDean = ({onSubmit,isLoading}) => {
+const AddDean = ({onSubmit,isLoading,faculties}) => {
 
     const [destination,setDestination] = useState('');
     const [faculty,setFaculty] = useState('');
@@ -21,6 +21,10 @@ const AddDean = ({onSubmit,isLoading}) => {
     const [profilePicture,setProfilePicture] = useState(null);
     const [cv,setCV] = useState(null);
     const [assignedDate, setAssignedDate] = useState(new Date().getFullYear().toString()+"-01-01");
+
+    useEffect(()=>{
+        document.title="Add Dean";
+    },[])
 
   return (
     <form onSubmit={(evt) => onSubmit(evt)} >
@@ -53,13 +57,15 @@ const AddDean = ({onSubmit,isLoading}) => {
                     id="facultySelect"
                     label="faculty*"
                     name="facultyid"
-                    value={faculty}
+                    value = {faculty}
                     onChange={(e)=>setFaculty(e.target.value)}
                     required
                 >
-                    {/* {get data of all faculties and map to menues} */}
-                <MenuItem value={"Director"}>Director</MenuItem>
-                <MenuItem value={"Dean"}>Dean</MenuItem>
+                {
+                    faculties.map((faculty,index)=>{
+                        return <MenuItem key={index} value={faculty.id}>{faculty.name}</MenuItem>
+                    })
+                }
                 </Select>
             </FormControl>
 

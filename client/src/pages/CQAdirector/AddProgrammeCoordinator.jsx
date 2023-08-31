@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import InputLabel from '@mui/material/InputLabel';
@@ -13,7 +13,7 @@ const TextFieldStyle = {
   margin:"20px 0"
 }
 
-function AddProgrammeCoordinator({onSubmit, isLoading}) {
+function AddProgrammeCoordinator({onSubmit, isLoading,faculties}) {
 
     const [destination,setDestination] = useState('');
     const [faculty,setFaculty] = useState('');
@@ -22,6 +22,11 @@ function AddProgrammeCoordinator({onSubmit, isLoading}) {
     const [cv,setCV] = useState(null);
     const [postgraduateProgramme,setPostgraduateProgramme] = useState('');
     const [assignedDate, setAssignedDate] = useState(new Date().getFullYear().toString()+"-01-01");
+
+    useEffect(()=>{
+        document.title="Add Programme Coordinator";
+        // get all postgraduate programmes
+    },[])
 
     return (
         <form onSubmit={(evt)=>onSubmit(evt)} >
@@ -53,14 +58,16 @@ function AddProgrammeCoordinator({onSubmit, isLoading}) {
                       labelId="facultyLabel"
                       id="facultySelect"
                       label="faculty*"
-                      name="facultyid"
                       value={faculty}
+                      name="facultyid"
                       onChange={(e)=>setFaculty(e.target.value)}
                       required
                   >
-                      {/* {get data of all faculties and map to menues} */}
-                  <MenuItem value={"Director"}>Director</MenuItem>
-                  <MenuItem value={"Dean"}>Dean</MenuItem>
+                  {
+                        faculties.map((faculty,index)=>{
+                            return <MenuItem key={index} value={faculty.id}>{faculty.name}</MenuItem>
+                        })
+                  }
                   </Select>
               </FormControl>
 

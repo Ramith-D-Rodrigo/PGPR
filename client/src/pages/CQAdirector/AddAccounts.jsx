@@ -13,6 +13,7 @@ import createDean from '../../api/Dean/createDean';
 import createProgrammeCoordinator from '../../api/ProgrammeCoordinator/createProgrammeCoordinator';
 import createIQAUDirector from '../../api/IQAUDirector/createIQAUDirector';
 import getCQADirectorUniversity from '../../api/CQADirector/getCQADirectorUniversity';
+import getUniversityFaculties from '../../api/University/getUniversityFaculties';
 import useAuth from '../../hooks/useAuth';
 import { Navigate } from 'react-router-dom';
 
@@ -54,6 +55,7 @@ const AddAccounts = () => {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
   const [uniId,setUniId] = useState('');
+  const [faculties,setFaculties] = useState([]);
 
   useEffect(()=>{
     const getCQAUniiD = async()=>{
@@ -62,6 +64,9 @@ const AddAccounts = () => {
           const result = await getCQADirectorUniversity(auth?.id);
           console.log("CQA university :",result?.data?.data);
           setUniId(result?.data?.data?.id);
+          const result2 = await getUniversityFaculties(result?.data?.data?.id);
+          console.log("CQA university faculties :",result2?.data?.data);
+          setFaculties(result2?.data?.data);  
           setLoading(false);
         }
         catch(err)
@@ -71,7 +76,7 @@ const AddAccounts = () => {
           setLoading(false);
         }
     }
-
+    document.title="Add Accounts | CQA";
     getCQAUniiD();
       
   },[]);
@@ -175,13 +180,13 @@ const handleIQAUDirectorSubmit = async(evt) => {
           </Tabs>
         </Box>
         <CustomTabPanel value={value} index={0}>
-          <AddDean onSubmit={handleDeanSubmit} isLoading={loading}/>
+          <AddDean onSubmit={handleDeanSubmit} isLoading={loading} faculties={faculties}/>
         </CustomTabPanel>
         <CustomTabPanel value={value} index={1}>
-          <AddProgrammeCoordinator onSubmit={handleProgrammeCoordinatorSubmit} isLoading={loading}/>
+          <AddProgrammeCoordinator onSubmit={handleProgrammeCoordinatorSubmit} isLoading={loading} faculties={faculties}/>
         </CustomTabPanel>
         <CustomTabPanel value={value} index={2}>
-          <AddIQAUDiretor onSubmit={handleIQAUDirectorSubmit} isLoading={loading}/>
+          <AddIQAUDiretor onSubmit={handleIQAUDirectorSubmit} isLoading={loading} faculties={faculties}/>
         </CustomTabPanel>
       </Box>
 
