@@ -8,7 +8,8 @@ import Box from '@mui/material/Box';
 import AddDean from './AddDean';
 import AddProgrammeCoordinator from './AddProgrammeCoordinator';
 import AddIQAUDiretor from './AddIQAUDiretor';
-import { Button } from '@mui/material';
+import { Snackbar,Alert } from '@mui/material';
+import createDean from '../../api/Dean/createDean';
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -60,6 +61,31 @@ const AddAccounts = () => {
       
     ]
 );
+
+const handleDeanSubmit = async(evt) => {
+  evt.preventDefault();
+  setLoading(true);
+
+  const form = evt.target;
+  let formData = new FormData(form);
+
+  // for (const [key,value] of formData.entries()){
+  //     console.log(`Key: ${key}, Value: ${value}`);
+  // }
+  try{
+      result = await createDean(formData);
+      console.log(result);
+      setSuccess(true);
+      setLoading(false);
+  }
+  catch(error){
+      console.log(error);
+      setError(true);
+      setMsg(error?.response?.data?.message);
+      setLoading(false);
+  }
+}
+
   // Define your form submission logic here
   const handleSubmit = (formValues) => {
     // Handle form submission
@@ -73,24 +99,49 @@ const AddAccounts = () => {
   };
 
   return (
-    <Box sx={{ width: '100%' }}>
-      <Box sx={{marginBottom: 5,display:"flex",justifyContent:"center",backgroundColor:'lightgreen' }}>
-        <Tabs value={value} onChange={handleChange} aria-label="account add tabs">
-          <Tab label="Add a Dean/Director" {...a11yProps(0)} />
-          <Tab label="Add a Programme Coordinator" {...a11yProps(1)} />
-          <Tab label="Add a IQAU director" {...a11yProps(2)} />
-        </Tabs>
+    <>
+      <Box sx={{ width: '100%' }}>
+        <Box sx={{marginBottom: 5,display:"flex",justifyContent:"center",backgroundColor:'#D8E6FC' }}>
+          <Tabs value={value} onChange={handleChange} aria-label="account add tabs">
+            <Tab label="Add a Dean/Director" {...a11yProps(0)} />
+            <Tab label="Add a Programme Coordinator" {...a11yProps(1)} />
+            <Tab label="Add a IQAU director" {...a11yProps(2)} />
+          </Tabs>
+        </Box>
+        <CustomTabPanel value={value} index={0}>
+          <AddDean OnSubmit={handleDeanSubmit} isLoading={loading}/>
+        </CustomTabPanel>
+        <CustomTabPanel value={value} index={1}>
+          <AddProgrammeCoordinator/>
+        </CustomTabPanel>
+        <CustomTabPanel value={value} index={2}>
+          <AddIQAUDiretor/>
+        </CustomTabPanel>
       </Box>
-      <CustomTabPanel value={value} index={0}>
-        <AddDean/>
-      </CustomTabPanel>
-      <CustomTabPanel value={value} index={1}>
-        <AddProgrammeCoordinator/>
-      </CustomTabPanel>
-      <CustomTabPanel value={value} index={2}>
-        <AddIQAUDiretor/>
-      </CustomTabPanel>
-    </Box>
+
+      <Snackbar
+        open={error}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        autoHideDuration={2000}
+        onClose={() => {setError(false)}}
+      >
+        <Alert onClose={() => {setError(false)}} severity="error">
+          {msg}
+        </Alert>
+      </Snackbar>
+
+      <Snackbar
+        open={success}
+        autoHideDuration={1500}
+        onClose={() => setSuccess(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert onClose={() => setSuccess(false)} severity="success">
+          Created Successfully!
+        </Alert>
+      </Snackbar>
+
+    </>
  
   );
 };

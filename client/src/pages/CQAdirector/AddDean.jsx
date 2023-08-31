@@ -5,34 +5,15 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
-import { Input, Typography, Button } from '@mui/material';
+import { Input, Typography, Button, CircularProgress } from '@mui/material';
 import Divider from '@mui/material/Divider';
-import createDean from '../../api/Dean/createDean';
 
 const TextFieldStyle = {
     width:"30%",
     margin:"20px 0"
 }
 
-const handleSubmit = async(evt) => {
-    evt.preventDefault();
-
-    const form = evt.target;
-    let formData = new FormData(form);
-
-    // for (const [key,value] of formData.entries()){
-    //     console.log(`Key: ${key}, Value: ${value}`);
-    // }
-    try{
-        result = await createDean(formData);
-        console.log(result);
-    }
-    catch(error){
-        console.log(error);
-    }
-}
-
-const AddDean = () => {
+const AddDean = ({OnSubmit,isLoading}) => {
 
     const [destination,setDestination] = useState('');
     const [faculty,setFaculty] = useState('');
@@ -42,7 +23,7 @@ const AddDean = () => {
     const [assignedDate, setAssignedDate] = useState(new Date().getFullYear().toString()+"-01-01");
 
   return (
-    <form onSubmit={handleSubmit} >
+    <form onSubmit={(evt) => OnSubmit(evt)} >
 
         <Divider variant="middle" >
             Official Details
@@ -375,7 +356,8 @@ const AddDean = () => {
         
         <Box sx={{width:"100%",padding:"2rem 0"}}>
             <Button fullWidth type="submit" variant="contained" color="primary">
-                Submit
+                {isLoading? "Loading " : "Submit"}
+                {isLoading && <CircularProgress style={{color:"white",margin:"0 0.5rem"}} size={24} />}
             </Button>
         </Box>
     
