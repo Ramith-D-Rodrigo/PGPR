@@ -1,4 +1,3 @@
-import { SERVER_API_VERSION, SERVER_URL } from '../../assets/constants';
 import useSetUserNavigations from '../../hooks/useSetUserNavigations';
 import {CircularProgress, Typography} from '@mui/material';
 import Table from '@mui/material/Table';
@@ -19,6 +18,8 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
+import getAllPGPRApplications from '../../api/PostGraduateProgramApplication/getAllPGPRApplications';
+import submitPGPRApplication from '../../api/PostGraduateProgramApplication/submitPGPRApplication';
 
 function PGPRApplications() {
 
@@ -55,36 +56,39 @@ function PGPRApplications() {
         setOpen(false);
     };
     // handleClickSubmitPGPRApplication(pgprApplication.id)
-    async function getPgprApplications () {
+    async function handleGetPGPRApplications () {
         setLoading(true);
         setMessage("");
-        await axios.get("/sanctum/csrf-cookie");
-        await axios.get(SERVER_URL + SERVER_API_VERSION +'pgprApplications/')
-        .then(res => {
-            console.log(res.data.data);
-            setPGPRApplications(res?.data?.data);
-        })
-        .catch(err => {
+        
+        try{
+            await axios.get("/sanctum/csrf-cookie");
+            const pgprResult = await getAllPGPRApplications();
+            console.log(pgprResult.data.data);
+            setPGPRApplications(pgprResult?.data?.data);
+        }
+        catch(err){
             console.log("error: ",err);
             setPGPRApplications([]);
-        })
+        }
+
         setLoading(false);
     }
 
     useEffect(() => {
         document.title = "PGPR Applications";        
-        getPgprApplications();
+        handleGetPGPRApplications();
     }, []);
 
     const handleClickSubmitPGPRApplication = async(pgprApplicationID) => {
         setOpen(false);
         setLoading(true);
         await axios.get("/sanctum/csrf-cookie");
-        await axios.post(SERVER_URL + SERVER_API_VERSION +'pgprApplications/'+pgprApplicationID+'/submit')
-        .then(res => {
+        const handleSubmit = await submitPGPRApplication(pgprApplicationID);
+       
+        handleSubmit.then(res => {
             console.log(res.data.data);
             setSuccess(true);
-            getPgprApplications();
+            handleGetPGPRApplications();
             // setMessage("PGPR Application submitted successfully.");
             //should false after message is shown
         })

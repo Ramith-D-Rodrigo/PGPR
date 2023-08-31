@@ -6,7 +6,9 @@ import axios from "../api.js";
 //url is : SERVER_URL + SERVER_API_VERSION + 'viceChancellors/{vcId}/removeRole'
 
 const removeViceChancellorRole = async (vcId) => {
-    let URL = SERVER_URL + SERVER_API_VERSION + 'viceChancellors/' + vcId + '/removeRole';
+    const URL = SERVER_URL + SERVER_API_VERSION + 'viceChancellors/' + vcId + '/removeRole';
+
+    await axios.get("/sanctum/csrf-cookie"); //csrf-cookie is required for delete requests
 
     return await axios.delete(URL);
 }

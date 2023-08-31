@@ -6,7 +6,9 @@ import axios from "../api.js";
 //url is : SERVER_URL + SERVER_API_VERSION + 'programmeCoordinators'
 
 const createProgrammeCoordinator = async (programmeCoordinatorData) => {
-    let URL = SERVER_URL + SERVER_API_VERSION + 'programmeCoordinators';
+    const URL = SERVER_URL + SERVER_API_VERSION + 'programmeCoordinators';
+
+    await axios.get("/sanctum/csrf-cookie"); //csrf-cookie is required for post requests
 
     return await axios.post(URL, programmeCoordinatorData);
 }

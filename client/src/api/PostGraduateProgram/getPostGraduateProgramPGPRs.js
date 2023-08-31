@@ -5,14 +5,12 @@ import axios from "../api.js";
 
 //url is : SERVER_URL + SERVER_API_VERSION + 'postGraduatePrograms/{postGraduateProgramId}/reviews'
 
-let URL = SERVER_URL + SERVER_API_VERSION + 'postGraduatePrograms/';
-
 //possible query params:
 //1 - includeFaculty (boolean -> true if you want to include the faculty of the pgpr)
 //2 - includeUniversity (boolean -> true if you want to include the university of the pgpr) (must request includeFaculty)
 
 const getPostGraduateProgramPGPRs = async (postGraduateProgramId, queryParams = null) => {  //queryParams should be an object
-    URL = URL + postGraduateProgramId + '/reviews';
+    const URL = SERVER_URL + SERVER_API_VERSION + 'postGraduatePrograms/' + postGraduateProgramId + '/reviews';
     if(queryParams != null){
         return await axios.get(URL, {params: queryParams});
     }

@@ -8,7 +8,9 @@ import axios from "../api.js";
 const editPGPRApplication = async (pgprApplicationId, pgprApplicationData) => {
     pgprApplicationData.append('_method', 'patch'); //for laravel to know that this is a patch request
 
-    let URL = SERVER_URL + SERVER_API_VERSION + 'pgprApplications/' + pgprApplicationId;
+    const URL = SERVER_URL + SERVER_API_VERSION + 'pgprApplications/' + pgprApplicationId;
+
+    await axios.get("/sanctum/csrf-cookie"); //csrf-cookie is required for post requests
 
     //pgprApplicationData have the atrribute -> _method: 'patch' (so that laravel knows that this is a patch request)
     return await axios.post(URL, pgprApplicationData);

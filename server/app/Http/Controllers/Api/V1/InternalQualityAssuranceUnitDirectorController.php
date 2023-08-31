@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Resources\V1\FacultyResource;
 use App\Http\Resources\V1\InternalQualityAssuranceUnitDirectorResource;
 use App\Models\Faculty;
 use App\Models\InternalQualityAssuranceUnitDirector;
@@ -145,5 +146,21 @@ class InternalQualityAssuranceUnitDirectorController extends Controller
             , 500);
         }
 
+    }
+
+    //get the faculty of the iqau director
+    public function faculty(InternalQualityAssuranceUnitDirector $iqauDirector){
+        try{
+
+            $faculty = $iqauDirector -> internalQualityAssuranceUnit -> faculty;
+
+            return new FacultyResource($faculty);
+        }
+        catch(AuthorizationException $e){
+            return response() -> json(['message' => $e -> getMessage()], 403);
+        }
+        catch(\Exception $e){
+            return response() -> json(['message' => 'Failed to retrieve the faculty', 'error' => $e -> getMessage()], 500);
+        }
     }
 }

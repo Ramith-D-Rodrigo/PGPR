@@ -11,7 +11,7 @@ import axios from "../api.js";
 //3 - includeUniversity (boolean -> true if you want to include the university of the pgpr application) (must request includeFaculty)
 
 const getAllPGPRApplications = async (queryParams = null) => {  //queryParams should be an object
-    let URL = SERVER_URL + SERVER_API_VERSION + 'pgprApplications/';
+    const URL = SERVER_URL + SERVER_API_VERSION + 'pgprApplications/';
 
     if(queryParams != null){
         return await axios.get(URL, {params: queryParams});

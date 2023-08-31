@@ -2,12 +2,12 @@ import { SERVER_API_VERSION, SERVER_URL } from '../../assets/constants';
 import { TextField, Button, Checkbox, CircularProgress, FormControl, FormControlLabel, FormGroup, IconButton, Input, InputAdornment, InputLabel, MenuItem, Select,Snackbar,Alert, Box, Typography } from '@mui/material'
 import FormHelperText from '@mui/material/FormHelperText';
 import axios from '../../api/api.js';
-// import handlePGPRApplicationCreation from '../../api/Dean/handlePGPRApplicationCreation';
-import getPostGraduateProgrammes from '../../api/Dean/getPostGraduateProgrammes';
 import { useState, useEffect, useRef } from 'react';
 import useSetUserNavigations from '../../hooks/useSetUserNavigations';
 import { useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
+import  getPGPRApplication  from '../../api/PostGraduateProgramApplication/getPGPRApplication';
+import editPGPRApplication from '../../api/PostGraduateProgramApplication/editPGPRApplication';
 
 function EditPGPRApplication() {
 
@@ -45,13 +45,14 @@ function EditPGPRApplication() {
 
     useEffect(() => {
       
-      const getPGPRApplication = async() => {
+      const handleGetPGPRApplication = async() => {
         setLoading(true);
         setErrorMsg(false);
         setSuccess(false);
-        const URL = SERVER_URL + SERVER_API_VERSION + 'pgprApplications/' + pgprApplicationID;
-        // await axios.get("/sanctum/csrf-cookie");
-        await axios.get(URL).then((res) => {
+
+        const result = await getPGPRApplication(pgprApplicationID);
+
+        await result.then((res) => {
         //   console.log("res : ",res);
           setLoading(false);
           if(res.status == 200)
@@ -74,7 +75,7 @@ function EditPGPRApplication() {
           setErrorMsg(err?.response?.data?.message);
         });
       }
-      getPGPRApplication();
+      handleGetPGPRApplication();
     }, []);
 
     useEffect(()=>{
@@ -100,7 +101,7 @@ function EditPGPRApplication() {
         setLoading(false);
         return;
       }
-      const URL = SERVER_URL + SERVER_API_VERSION + 'pgprApplications/'+pgprApplicationID;
+
       let data = {};
         if(year1 !== selectedPGP.year1) data.year_1 = year1;
         if(year2 !== selectedPGP.year2) data.year_2 = year2;
@@ -123,11 +124,12 @@ function EditPGPRApplication() {
             return;
         }
       
-      await axios.get("/sanctum/csrf-cookie");
-      await axios.post(URL, formdata).then((res) => {
-        console.log("res : ",res);
+      try{
+        await axios.get("/sanctum/csrf-cookie");
+        const submitResult = await editPGPRApplication(pgprApplicationID, formdata);
+        console.log("res : ",submitResult);
         setLoading(false);
-        if(res.status == 200)
+        if(submitResult.status == 200)
         {
           console.log("saved successfully");
           setSuccess(true);
@@ -135,13 +137,13 @@ function EditPGPRApplication() {
             navigate('../');
           },1500)
         }
-        
-      }).catch((err) => {
+      }
+      catch(err){
         console.log("err : ",err);
         console.log(err?.response?.data?.message);
         setLoading(false);
         setErrorMsg(err?.response?.data?.message);
-      });
+      }
     }
 
     const handleFileChange = (event) => {

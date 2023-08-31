@@ -3,10 +3,10 @@ import axios from "../api.js";
 
 //role of this function: get all faculties of a university
 
-let URL = SERVER_URL + SERVER_API_VERSION + 'universities/'; //get all faculties of a university (universities/{universityId}/faculties)
+//get all faculties of a university (universities/{universityId}/faculties)
 
 const getUniversityFaculties = async (universityId) => {
-    URL = URL + universityId + '/faculties';
+    const URL = SERVER_URL + SERVER_API_VERSION + 'universities/' + universityId + '/faculties';
     return await axios.get(URL);
 }
 

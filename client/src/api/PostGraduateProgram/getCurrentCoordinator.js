@@ -5,8 +5,6 @@ import axios from "../api.js";
 
 //url is : SERVER_URL + SERVER_API_VERSION + 'postGraduatePrograms/{postGraduateProgramId}/currentCoordinator'
 
-let URL = SERVER_URL + SERVER_API_VERSION + 'postGraduatePrograms/';
-
 //possible query params:
 // 1 - includeAcademicStaff (boolean -> true if you want to include academic staff id of the current coordinator of the post graduate program)
 // 2 - includeUniversitySide (boolean -> true if you want to include the university side of the current coordinator of the post graduate program) (must request includeAcademicStaff)
@@ -14,7 +12,7 @@ let URL = SERVER_URL + SERVER_API_VERSION + 'postGraduatePrograms/';
     //(this will include the user initials, surname, id)
 
 const getCurrentCoordinator = async (postGraduateProgramId, queryParams = null) => {    //queryParams should be an object
-    URL = URL + postGraduateProgramId + '/currentCoordinator';
+    let URL = SERVER_URL + SERVER_API_VERSION + 'postGraduatePrograms/' + postGraduateProgramId + '/currentCoordinator';
 
     if (queryParams.length !== null) {
         return await axios.get(URL, { params: queryParams });

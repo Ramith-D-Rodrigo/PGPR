@@ -5,11 +5,8 @@ import axios from "../api.js";
 
 //url is : SERVER_URL + SERVER_API_VERSION + 'postGraduatePrograms/{postGraduateProgramId}/faculty'
 
-let URL = SERVER_URL + SERVER_API_VERSION + 'postGraduatePrograms/';
-
-
 const getPostGraduateProgramFaculty = async (postGraduateProgramId) => {
-    URL = URL + postGraduateProgramId + '/faculty';
+    let URL = SERVER_URL + SERVER_API_VERSION + 'postGraduatePrograms/' + postGraduateProgramId + '/faculty';
     return await axios.get(URL);
 }
 

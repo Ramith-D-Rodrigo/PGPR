@@ -3,7 +3,7 @@ import axios from "../api.js";
 
 //role of this function: get a faculty
 
-let URL = SERVER_URL + SERVER_API_VERSION + 'faculties/'; //get a faculty (faculties/{facultyId})
+//get a faculty (faculties/{facultyId})
 
 //possible query params:
 //1 - includeUniversity (boolean -> true if you want to include the university for faculty)
@@ -15,7 +15,7 @@ let URL = SERVER_URL + SERVER_API_VERSION + 'faculties/'; //get a faculty (facul
 
 
 const getAFaculty = async (facultyId, queryParams = null) => {
-    URL = URL + facultyId;
+    const URL = SERVER_URL + SERVER_API_VERSION + 'faculties/' + facultyId;
 
     if(queryParams) {
         return await axios.get(URL, { params: queryParams });

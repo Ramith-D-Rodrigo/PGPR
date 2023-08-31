@@ -34,7 +34,15 @@ class UniversityController extends Controller
             //related data
             $cqa = request() -> query('includeCQA');
             if($cqa){
-                $universities = $universities -> with('centerForQualityAssurance');
+                $universities = $universities -> with(['centerForQualityAssurance' => [
+                    'currentQualityAssuranceDirector' => [
+                        'qualityAssuranceStaff' => [
+                            'universitySide' => [
+                                'user:id,initials,surname,profile_pic'
+                            ]
+                        ]
+                    ]
+                ]]);
             }
 
             $vc = request() -> query('includeViceChancellor');
@@ -53,8 +61,7 @@ class UniversityController extends Controller
                     }
                 }
             }
-
-            return new UniversityCollection($universities);
+            return new UniversityCollection($universities -> get());
         }
         catch(\Exception $e){
             return response()->json([
@@ -109,7 +116,15 @@ class UniversityController extends Controller
             //check if cqa is included
             $cqa = request() -> query('includeCQA');
             if($cqa){
-                $university = $university -> loadMissing('centerForQualityAssurance');
+                $university = $university -> load(['centerForQualityAssurance' => [
+                    'currentQualityAssuranceDirector' => [
+                        'qualityAssuranceStaff' => [
+                            'universitySide' => [
+                                'user:id,initials,surname,profile_pic'
+                            ]
+                        ]
+                    ]
+                ]]);
             }
 
             //check if vc is included
@@ -132,7 +147,7 @@ class UniversityController extends Controller
                 }
             }
 
-            return new UniversityResource($university);
+            return new UniversityResource($university -> get());
         }
         catch(\Exception $e){
             return response()->json([
