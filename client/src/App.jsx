@@ -50,6 +50,8 @@ import Summary_details from "./pages/Reviewer/Summary_details";
 import SelfEvaluationReport from "./pages/ViceChancellor/SelfEvaluationReport";
 import View from './pages/ViceChancellor/View';
 import PostGraduateProgramReviewApplications from './pages/QACOfficer/PostGraduateProgramReviewApplications'
+import Reviewers from "./pages/QACOfficer/Reviewers";
+import ImportReviewers from "./pages/QACOfficer/ImportReviewers";
 // import UpdateEvidence from './pages/ProgrammeCoordinator/UpdateEvidence';
 // import ViewSummary from './pages/ProgrammeCoordinator/ViewSummary';
 import "./App.css";
@@ -96,6 +98,10 @@ function App() {
                 <Route path="universities" element={<Universities />} />
                 <Route path="createAccounts/" element={<CreateAccounts />} />
                 <Route path="PGPRApplications" element={<PostGraduateProgramReviewApplications />} />
+                <Route path='reviewers/'>
+                  <Route path='' element={<Reviewers/>}/>
+                  <Route path='import' element={<ImportReviewers/>}/>
+                </Route>
               </Route>
             </Route>
 
