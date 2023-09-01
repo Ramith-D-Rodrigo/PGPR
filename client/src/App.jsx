@@ -55,6 +55,8 @@ import ImportReviewers from "./pages/QACOfficer/ImportReviewers";
 // import UpdateEvidence from './pages/ProgrammeCoordinator/UpdateEvidence';
 // import ViewSummary from './pages/ProgrammeCoordinator/ViewSummary';
 import "./App.css";
+import PostGraduateProgramReviews from "./pages/QACOfficer/PostGraduateProgramReviews";
+import ViewPGPR from "./pages/QACOfficer/ViewPGPR";
 
 /* 
   important: 
@@ -101,6 +103,10 @@ function App() {
                 <Route path='reviewers/'>
                   <Route path='' element={<Reviewers/>}/>
                   <Route path='import' element={<ImportReviewers/>}/>
+                </Route>
+                <Route path='PGPRs/'>
+                  <Route path='' element={<PostGraduateProgramReviews/>}/>
+                  <Route path='view/:id' element={<ViewPGPR/>}/>
                 </Route>
               </Route>
             </Route>
