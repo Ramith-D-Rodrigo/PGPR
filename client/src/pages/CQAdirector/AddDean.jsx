@@ -238,7 +238,7 @@ const AddDean = ({onSubmit,isLoading,faculties}) => {
             /> */}
 
             <FormControl style={TextFieldStyle} fullWidth>
-                <Typography variant="body2" style={{marginBottom:"5px",color:"gray"}}>Profile Picture</Typography>
+                <Typography variant="body2" style={{marginBottom:"5px",color:"gray"}}>Profile Picture (	&lt; 1 mb)</Typography>
                 <Input
                     
                     id="profilePicture"
