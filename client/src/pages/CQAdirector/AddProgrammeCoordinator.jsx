@@ -14,7 +14,7 @@ const TextFieldStyle = {
   margin:"20px 0"
 }
 
-function AddProgrammeCoordinator({onSubmit, isLoading,faculties}) {
+function AddProgrammeCoordinator({onSubmit,onSelectedFaculty,isLoading,faculties}) {
 
     const [destination,setDestination] = useState('');
     const [faculty,setFaculty] = useState('');
@@ -31,14 +31,16 @@ function AddProgrammeCoordinator({onSubmit, isLoading,faculties}) {
 
     const handleSelectFaculty = async(e)=>{
         const selectedFacultyId = e.target.value;
+        isLoading = true;
         setPostgraduateProgramme('');
         setFaculty(selectedFacultyId);
         try{
-            const response = await getFacultyPostGraduatePrograms(selectedFacultyId);
-            console.log("PG programmes for selected faculty: ",response);
-            setPostgraduateProgrammes(response?.data?.data);
-        }catch(error){
-            console.log("get PG programmes for selected faculty",error);
+            let pgProgrammes = await onSelectedFaculty(selectedFacultyId)
+            setPostgraduateProgrammes(pgProgrammes);
+        }
+        catch(error){
+            console.log("error get PG programmes for selected faculty",error);
+            setPostgraduateProgrammes([]);
         }
     }
 

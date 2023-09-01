@@ -14,6 +14,7 @@ import createProgrammeCoordinator from '../../api/ProgrammeCoordinator/createPro
 import createIQAUDirector from '../../api/IQAUDirector/createIQAUDirector';
 import getCQADirectorUniversity from '../../api/CQADirector/getCQADirectorUniversity';
 import getUniversityFaculties from '../../api/University/getUniversityFaculties';
+import getFacultyPostGraduatePrograms from '../../api/Faculty/getFacultyPostGraduatePrograms';
 import useAuth from '../../hooks/useAuth';
 import { Navigate } from 'react-router-dom';
 
@@ -169,6 +170,22 @@ const handleIQAUDirectorSubmit = async(evt) => {
 }
 }
 
+const handleSelectedFaculty = async (facultyId) => {
+  setLoading(true);
+  try{
+    const response = await getFacultyPostGraduatePrograms(facultyId);
+    console.log("PG programmes for selected faculty: ",response);
+    setLoading(false);
+    return response?.data?.data;
+  }catch(error){
+    console.log("error get PG programmes for selected faculty",error);
+    setError(true);
+    setMsg(error?.response?.data?.message);
+    setLoading(false);
+    return [];
+  }
+}
+
   return (
     <>
       <Box sx={{ width: '100%' }}>
@@ -183,7 +200,7 @@ const handleIQAUDirectorSubmit = async(evt) => {
           <AddDean onSubmit={handleDeanSubmit} isLoading={loading} faculties={faculties}/>
         </CustomTabPanel>
         <CustomTabPanel value={value} index={1}>
-          <AddProgrammeCoordinator onSubmit={handleProgrammeCoordinatorSubmit} isLoading={loading} faculties={faculties}/>
+          <AddProgrammeCoordinator onSubmit={handleProgrammeCoordinatorSubmit} isLoading={loading} faculties={faculties} onSelectedFaculty={handleSelectedFaculty}/>
         </CustomTabPanel>
         <CustomTabPanel value={value} index={2}>
           <AddIQAUDiretor onSubmit={handleIQAUDirectorSubmit} isLoading={loading} faculties={faculties}/>
