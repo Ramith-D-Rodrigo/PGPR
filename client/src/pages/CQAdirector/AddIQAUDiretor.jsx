@@ -52,6 +52,9 @@ function AddIQAUDiretor({onSubmit,isLoading,faculties}) {
                         return <MenuItem key={index} value={faculty.id}>{faculty.name}</MenuItem>
                     })
                 }
+                {
+                    faculties.length===0 && <MenuItem value={0}>No faculties</MenuItem>
+                }
                 </Select>
             </FormControl>
 

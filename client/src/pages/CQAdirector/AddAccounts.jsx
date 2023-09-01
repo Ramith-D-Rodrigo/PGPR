@@ -71,7 +71,7 @@ const AddAccounts = () => {
         }
         catch(err)
         {
-          console.log(err);
+          console.log("CQA get university id / faculties : ",err);
           //navigate to error page
           setLoading(false);
         }
@@ -107,12 +107,12 @@ const handleDeanSubmit = async(evt) => {
   // }
   try{
       const result = await createDean(formData);
-      console.log(result);
+      console.log("Dean create form data : ",result);
       setSuccess(true);
       setLoading(false);
   }
   catch(error){
-      console.log(error);
+      console.log("Dean create form data : ",error);
       setError(true);
       setMsg(error?.response?.data?.message);
       setLoading(false);
@@ -132,12 +132,12 @@ const handleProgrammeCoordinatorSubmit = async(evt) => {
 
   try{
       const result = await createProgrammeCoordinator(formData);
-      console.log(result);
+      console.log("PG prg coordinator create form data : ",result);
       setSuccess(true);
       setLoading(false);
   }
   catch(error){
-      console.log(error);
+      console.log("PG prg coordinator create form data : ",error);
       setError(true);
       setMsg(error?.response?.data?.message);
       setLoading(false);
@@ -157,12 +157,12 @@ const handleIQAUDirectorSubmit = async(evt) => {
 
   try{
     const result = await createIQAUDirector(formData);
-    console.log(result);
+    console.log("IQAU director create form data : ",result);
     setSuccess(true);
     setLoading(false);
   }
   catch(error){
-      console.log(error);
+      console.log("IQAU director create form data : ",error);
       setError(true);
       setMsg(error?.response?.data?.message);
       setLoading(false);

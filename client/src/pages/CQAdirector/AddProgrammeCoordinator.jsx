@@ -6,6 +6,7 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import { Input, Typography, Button, CircularProgress } from '@mui/material';
+import getFacultyPostGraduatePrograms from '../../api/Faculty/getFacultyPostGraduatePrograms';
 import Divider from '@mui/material/Divider';
 
 const TextFieldStyle = {
@@ -21,12 +22,25 @@ function AddProgrammeCoordinator({onSubmit, isLoading,faculties}) {
     const [profilePicture,setProfilePicture] = useState(null);
     const [cv,setCV] = useState(null);
     const [postgraduateProgramme,setPostgraduateProgramme] = useState('');
+    const [postgraduateProgrammes,setPostgraduateProgrammes] = useState([]);
     const [assignedDate, setAssignedDate] = useState(new Date().getFullYear().toString()+"-01-01");
 
     useEffect(()=>{
         document.title="Add Programme Coordinator";
-        // get all postgraduate programmes
     },[])
+
+    const handleSelectFaculty = async(e)=>{
+        const selectedFacultyId = e.target.value;
+        setPostgraduateProgramme('');
+        setFaculty(selectedFacultyId);
+        try{
+            const response = await getFacultyPostGraduatePrograms(selectedFacultyId);
+            console.log("PG programmes for selected faculty: ",response);
+            setPostgraduateProgrammes(response?.data?.data);
+        }catch(error){
+            console.log("get PG programmes for selected faculty",error);
+        }
+    }
 
     return (
       <>
@@ -63,7 +77,7 @@ function AddProgrammeCoordinator({onSubmit, isLoading,faculties}) {
                       label="faculty*"
                       value={faculty}
                       name="facultyid"
-                      onChange={(e)=>setFaculty(e.target.value)}
+                      onChange={handleSelectFaculty}
                       disabled={isLoading}
                       required
                   >
@@ -87,9 +101,13 @@ function AddProgrammeCoordinator({onSubmit, isLoading,faculties}) {
                       disabled={isLoading}
                       required
                   >
-                      {/* {get data of all postgrd. programmes and map to menues} */}
-                  <MenuItem value={"Director"}>Director</MenuItem>
-                  <MenuItem value={"Dean"}>Dean</MenuItem>
+                    {
+                        (faculty== '')? <MenuItem value={0}>Select a faculty first</MenuItem> : 
+                        (postgraduateProgrammes.length===0)? <MenuItem value={0}>No postgraduate programmes</MenuItem> : 
+                        postgraduateProgrammes.map((postgraduateProgramme,index)=>{
+                            return <MenuItem key={index} value={postgraduateProgramme.id}>{postgraduateProgramme.title}</MenuItem>
+                        })
+                    }
                   </Select>
               </FormControl>
 

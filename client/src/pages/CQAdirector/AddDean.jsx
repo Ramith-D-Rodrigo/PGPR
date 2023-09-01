@@ -70,6 +70,9 @@ const AddDean = ({onSubmit,isLoading,faculties}) => {
                         return <MenuItem key={index} value={faculty.id}>{faculty.name}</MenuItem>
                     })
                 }
+                {
+                    faculties.length===0 && <MenuItem value={""}>No faculties</MenuItem>
+                }
                 </Select>
             </FormControl>
 
