@@ -41,7 +41,7 @@ function AddIQAUDiretor({onSubmit,isLoading,faculties}) {
                     labelId="facultyLabel"
                     id="facultySelect"
                     label="faculty*"
-                    name="facultyid"
+                    name="facultyId"
                     value={faculty}
                     onChange={(e)=>setFaculty(e.target.value)}
                     disabled={isLoading}
@@ -101,7 +101,7 @@ function AddIQAUDiretor({onSubmit,isLoading,faculties}) {
                     onChange={(e)=>setCV(e.target.files[0])}
                     disabled={isLoading}
                     label="cv"
-                    // required
+                    required
                 />
             </FormControl>
         </Box>
@@ -207,6 +207,7 @@ function AddIQAUDiretor({onSubmit,isLoading,faculties}) {
                     label="Profile Picture"
                     onChange={(e)=>setProfilePicture(e.target.files[0])}
                     disabled={isLoading}
+                    required
                 />
             </FormControl>
 
