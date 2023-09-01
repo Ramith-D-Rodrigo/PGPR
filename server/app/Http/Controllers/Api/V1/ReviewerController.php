@@ -74,6 +74,7 @@ class ReviewerController extends Controller
         } catch (ValidationException $e) {
             $failures = $e->errors();
             return response()->json([
+                'message' => 'Error occurred while importing reviewers',
                 'errors' => $failures
             ], 422);
         } catch (ValidationValidationException $e) { //validation errors of the array of rows when validating

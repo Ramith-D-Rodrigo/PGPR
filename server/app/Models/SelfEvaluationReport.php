@@ -59,4 +59,9 @@ class SelfEvaluationReport extends Model
     {
         return $this->belongsToMany(Standard::class, 'ser_standard_adherence', 'ser_id', 'standard_id')->withPivot('adherence');
     }
+
+    //the programme coordinator who is assigned to the post graduate program review
+    public function programmeCoordinator(){
+        return $this -> belongsTo(ProgrammeCoordinator::class, 'pgp_coordinator_id', 'id');
+    }
 }

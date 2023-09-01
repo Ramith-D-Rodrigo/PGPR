@@ -34,6 +34,7 @@ class PostGraduateProgramReviewResource extends JsonResource
 
         //lazy load the following relationships
         $returnArr['postGraduateProgramme'] = new PostGraduateProgramResource($this -> whenLoaded('postGraduateProgram'));
+        $returnArr['selfEvaluationReport'] = new SelfEvaluationReportResource($this -> whenLoaded('selfEvaluationReport'));
         $returnArr['postGraduateProgramReviewApplication'] = new PostGraduateProgramReviewApplicationResource($this -> whenLoaded('postGraduateProgramReviewApplication'));
         return $returnArr;
     }
