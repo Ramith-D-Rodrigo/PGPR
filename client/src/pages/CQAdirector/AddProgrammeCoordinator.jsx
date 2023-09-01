@@ -102,8 +102,8 @@ function AddProgrammeCoordinator({onSubmit, isLoading,faculties}) {
                       required
                   >
                     {
-                        (faculty== '')? <MenuItem value={0}>Select a faculty first</MenuItem> : 
-                        (postgraduateProgrammes.length===0)? <MenuItem value={0}>No postgraduate programmes</MenuItem> : 
+                        (faculty== '')? <MenuItem value={''}>Select a faculty first</MenuItem> : 
+                        (postgraduateProgrammes.length===0)? <MenuItem value={''}>No postgraduate programmes</MenuItem> : 
                         postgraduateProgrammes.map((postgraduateProgramme,index)=>{
                             return <MenuItem key={index} value={postgraduateProgramme.id}>{postgraduateProgramme.title}</MenuItem>
                         })

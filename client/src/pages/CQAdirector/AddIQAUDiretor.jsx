@@ -53,7 +53,7 @@ function AddIQAUDiretor({onSubmit,isLoading,faculties}) {
                     })
                 }
                 {
-                    faculties.length===0 && <MenuItem value={0}>No faculties</MenuItem>
+                    faculties.length===0 && <MenuItem value={""}>No faculties</MenuItem>
                 }
                 </Select>
             </FormControl>
