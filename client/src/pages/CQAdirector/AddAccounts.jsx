@@ -74,7 +74,17 @@ const AddAccounts = () => {
         {
           console.log("CQA get university id / faculties : ",err);
           //navigate to error page
-          setLoading(false);
+          setError(true);
+          if(err?.response?.data){
+            setMsg(err?.response?.data?.message);
+            setLoading(false);
+          }
+          else if(err?.message){
+            setMsg(err?.message+" Try Reloading the page.");
+          }
+          else{
+            setMsg("Something went wrong! Try Reloading the page.");
+          }
         }
     }
     document.title="Add Accounts | CQA";
@@ -180,8 +190,16 @@ const handleSelectedFaculty = async (facultyId) => {
   }catch(error){
     console.log("error get PG programmes for selected faculty",error);
     setError(true);
-    setMsg(error?.response?.data?.message);
-    setLoading(false);
+    if(error?.response?.data){
+      setMsg(error?.response?.data?.message);
+      setLoading(false);
+    }
+    else if(error?.message){
+      setMsg(error?.message+" Try Reloading the page.");
+    }
+    else{
+      setMsg("Something went wrong! Try Reloading the page.");
+    }
     return [];
   }
 }
