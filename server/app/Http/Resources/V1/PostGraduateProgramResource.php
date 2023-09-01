@@ -28,7 +28,7 @@ class PostGraduateProgramResource extends JsonResource
         }
 
         $returnArr['faculty'] = new FacultyResource($this -> whenLoaded('faculty'));
-        $returnArr['programmeCoordinator'] = $this -> whenLoaded('currentProgrammeCoordinator');
+        $returnArr['programmeCoordinator'] = new ProgrammeCoordinatorResource($this -> whenLoaded('currentProgrammeCoordinator'));
         $returnArr['criteria'] = new CriteriaCollection($this -> whenLoaded('criteria'));
         return $returnArr;
     }

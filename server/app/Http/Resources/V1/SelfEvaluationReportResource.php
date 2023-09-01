@@ -58,6 +58,7 @@ class SelfEvaluationReportResource extends JsonResource
 
         //load the standards that have given evidence
         $returnArr['evidenceGivenStandards'] = new StandardCollection($this -> whenLoaded('standards'));
+        $returnArr['programmeCoordinator'] = new ProgrammeCoordinatorResource($this -> whenLoaded('programmeCoordinator'));
         return $returnArr;
     }
 }
