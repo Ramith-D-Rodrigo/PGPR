@@ -59,6 +59,7 @@ class StorePostGraduateProgramRequest extends FormRequest
             'slqf_level' => ['required', 'integer', 'min:5', 'max:12'],
             'commencement_year' => ['required', 'integer', 'min:1900', 'max:'.(date('Y')+1)],
             'faculty_id' => ['required', 'integer', 'exists:faculties,id'],
+            'is_professional_pg_programme' => ['required', 'boolean'],
             //'added_by_cqa_director_id' ,
             //'programme_coordinator_id'
         ];

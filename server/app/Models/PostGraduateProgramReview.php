@@ -26,7 +26,7 @@ class PostGraduateProgramReview extends Model
     // a post graduate review program has one desk evaluation
     public function deskEvaluations(): HasOne
     {
-        return $this->hasOne(DeskEvaluation::class, 'pgpr_id', );
+        return $this->hasOne(DeskEvaluation::class, 'pgpr_id',);
     }
 
     // a post graduate review program has one proper evaluation
@@ -49,7 +49,7 @@ class PostGraduateProgramReview extends Model
     //pgpr has a self-evaluation report
     public function selfEvaluationReport(): HasOne
     {
-        return $this->hasOne(SelfEvaluationReport::class);
+        return $this->hasOne(SelfEvaluationReport::class, 'post_graduate_program_review_id', 'id');
     }
 
     // every pgpr has a final report

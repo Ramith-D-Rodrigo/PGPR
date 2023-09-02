@@ -71,21 +71,23 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
     //routes for side drawer -- not completed
     const reviewerRoutes = [
       {route:"DashBoard",link: "/reviewer/dashboard"},
-      {route:"PG Assignment" ,link: "/reviewer/PG_Assignment"},
+      {route:"PG Assignments" ,link: "/reviewer/PG_Assignments"},
       {route:"Set Date" ,link: "/reviewer/SetDate"},
       {route:"Set Criteria" ,link: "/reviewer/SetCriteria"},
     ]
 
     const qacDirectorRoutes = [
       {route:"DashBoard",link: "/qac_director/dashboard"},
-      {route:"Add PG Program" ,link: "/qac_director/AddPGProgramPage"},
-      {route:"Add Accounts" ,link: "/qac_director/AddAccounts"},
+      {route:"Universities",link: "/qac_director/universities"},
+      {route:"CQA Offices",link: "/qac_director/cqa_offices"},
+      {route:"Reviewers",link: "/qac_director/reviewers"},
     ]
 
     const qacOfficerRoutes = [
       {route:"DashBoard",link: "/qac_officer/dashboard"},
       {route:"Universities" ,link: "/qac_officer/universities"},
-      //{route:"Import Reviewers" ,link: "/qac_officer/importreviewers"},
+      {route:"CQA Offices" ,link: "/qac_officer/cqa_offices"},
+      {route:"Reviewers" ,link: "/qac_officer/importreviewers"},
   ]
 
     const cqaDirectorRoutes = [
@@ -93,6 +95,8 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
       {route:"Add PG Program" ,link: "/cqa_director/AddPGProgramPage"},
       {route:"Add Accounts" ,link: "/cqa_director/AddAccounts"},
       {route:"Edit PG Program" ,link: "/cqa_director/EditPGProgram"},
+      {route:"View PG Programs" ,link: "/cqa_director/ViewPGPrograms"},
+      {route:"View Coordinators" ,link: "/cqa_director/ViewCoordinators"},
     ]
 
     const deanDirectorRoutes = [
@@ -107,6 +111,10 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
 
     const programmeCoordinatorRoutes = [
       {route:"DashBoard",link: "/programme_coordinator/dashboard"},
+      {route:"Ser",link: "/programme_coordinator/Ser"},
+      {route:"Submit PGPR",link: "/programme_coordinator/SubmitPGPR"},
+      {route:"Edit Ser",link: "/programme_coordinator/EditSer"},
+      {route:"Add Evidence",link: "/programme_coordinator/AddEvidence"},
     ]
 
     const viceChancellorRoutes = [
@@ -145,6 +153,8 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
         break;
     }
 
+    const logo = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR8G70_aXsPvet0K-TvhODLgf6P8eJVQ2iL_ZsmDx5Lm9eK7C_9pWXAg3dfmtaTjad0xZM&usqp=CAU";
+
     return (
         <Drawer
           sx={{
@@ -167,11 +177,7 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
                 <HelpIcon/>
           </IconButton> 
           <DrawerHeader sx={{justifyContent:"center",padding:"10px"}}>
-            <Avatar
-              alt="UGC LOGO"
-              sx={{width:120,height:120}}
-              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR8G70_aXsPvet0K-TvhODLgf6P8eJVQ2iL_ZsmDx5Lm9eK7C_9pWXAg3dfmtaTjad0xZM&usqp=CAU"
-            />
+            <img src={logo} alt="UGC LOGO" style={{width:"140px",height:"140px"}}/>
           </DrawerHeader>
 
           <Divider variant="middle" color='black'/>

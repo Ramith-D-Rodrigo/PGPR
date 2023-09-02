@@ -27,14 +27,13 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\V1\ReviewerImport;
 use Illuminate\Validation\ValidationException as ValidationValidationException;
 use Maatwebsite\Excel\Validators\ValidationException;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Illuminate\Support\Collection;
 
 class ReviewerController extends Controller
 {
@@ -212,7 +211,7 @@ class ReviewerController extends Controller
             }
 
             return new ReviewerBrowsePGPRCollection($review_teams);
-        }catch (ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return response()->json(["message" => "Your credentials are wrong, cannot be authorized for this action.", "data" => []], 401);
         } catch (Exception $exception) {
             return response()->json(["message" => "An internal server error occurred, user request cannot be full filled."], 500);
@@ -263,11 +262,11 @@ class ReviewerController extends Controller
 
             //change the status to ACCEPTED in the reviewer_review_team table
             $review_team->pivot->reviewer_confirmation = 'ACCEPTED';
-            $review_team->pivot->declaration_letter = Storage::disk('public')->url($path);//add the file url here
+            $review_team->pivot->declaration_letter = Storage::disk('public')->url($path); //add the file url here
             $review_team->pivot->save(); //save the data to the pivot table
 
             return response()->json(['message' => 'Your declaration was successfully uploaded.'], 201);
-        }catch (ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return response()->json(["message" => "Your credentials are wrong, cannot be authorized for this action.", "data" => []], 401);
         } catch (Exception $exception) {
             return response()->json(["message" => "An internal server error occurred, user request cannot be full filled."], 500);
@@ -428,7 +427,7 @@ class ReviewerController extends Controller
             $reviewer = Reviewer::findOrFail(Auth::id());
 
             //find the review teams of the reviewer
-            $reviewTeams =$reviewer
+            $reviewTeams = $reviewer
                 ->reviewTeams
                 ->whereIn('status', ['PENDING', 'APPROVED'])
                 ->load('postGraduateReviewProgram'); //only get either pending or accepted review teams only
@@ -438,7 +437,7 @@ class ReviewerController extends Controller
             foreach ($reviewTeams as $reviewTeam) {
                 $postGraduateReviewProgram = $reviewTeam->postGraduateReviewProgram;
                 $deskEvaluation = $postGraduateReviewProgram->deskEvaluations;
-                if($deskEvaluation) $deskEvaluations->add($deskEvaluation);
+                if ($deskEvaluation) $deskEvaluations->add($deskEvaluation);
             }
 
             return count($deskEvaluations) > 0 ?
@@ -461,7 +460,7 @@ class ReviewerController extends Controller
             $reviewer = Reviewer::findOrFail(Auth::id());
 
             //find the review teams of the reviewer
-            $reviewTeams =$reviewer
+            $reviewTeams = $reviewer
                 ->reviewTeams
                 ->whereIn('status', ['PENDING', 'APPROVED'])
                 ->load('postGraduateReviewProgram'); //only get either pending or accepted review teams only
@@ -471,7 +470,7 @@ class ReviewerController extends Controller
             foreach ($reviewTeams as $reviewTeam) {
                 $postGraduateReviewProgram = $reviewTeam->postGraduateReviewProgram;
                 $properEvaluation = $postGraduateReviewProgram->properEvaluations;
-                if($properEvaluation) $properEvaluations->add($properEvaluation);
+                if ($properEvaluation) $properEvaluations->add($properEvaluation);
             }
 
             return count($properEvaluations) > 0 ?
@@ -498,5 +497,18 @@ class ReviewerController extends Controller
     public function destroy(Reviewer $reviewer)
     {
         //remove the user's reviewer role
+    }
+
+    public function downloadExcelFile()
+    {
+        try {
+            $file = Storage::download('public/reviewer-sheet.xlsx');
+            return $file;
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error occurred while downloading reviewer sheet',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }

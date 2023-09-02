@@ -22,8 +22,14 @@ return new class extends Migration {
             $table->string("year_4");
             $table->string("year_5");
             $table->date("y_end");
-            $table->unsignedBigInteger('post_graduate_program_id')->nullable(); //id of the post graduate program that is being reviewed
-            $table->unsignedBigInteger('quality_assurance_council_officer_id')->nullable(); //id of the quality assurance council officer who approved the application
+            $table -> unsignedBigInteger('post_graduate_program_id'); //id of the post graduate program that is being reviewed
+            $table->unsignedBigInteger('quality_assurance_council_officer_id') -> nullable(); //id of the quality assurance council officer who approved the application or rejected it
+            $table -> enum('status', ['creating', 'submitted', 'applied', 'approved', 'rejected']) -> default('creating');
+            //status of the application (creating is when the application is being created,
+            //submitted is when the application is submitted to the CQADirector,
+            //applied is when the application is approved by the CQADirector and submitted to the QACouncilOfficer,
+            //approved is when the QACouncilOfficer approves the application,
+            //rejected is when the QACouncilOfficer rejects the application)
             $table->timestamps();
 
             //foreign keys

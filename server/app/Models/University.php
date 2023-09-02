@@ -50,4 +50,9 @@ class University extends Model
     {
         return $this->belongsTo(QualityAssuranceCouncilDirector::class, 'quality_assurance_council_director_id', 'id');
     }
+
+    //a university has one vice chancellor
+    public function viceChancellor(){
+        return $this->belongsTo(ViceChancellor::class, 'vice_chancellor_id', 'id');
+    }
 }

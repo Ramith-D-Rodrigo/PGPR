@@ -2,9 +2,21 @@ import React from 'react';
 import Form from '../../components/Form';
 import MainContent from '../../components/MainContent';
 import ScrollableDiv from '../../components/ScrollableDiv';
+import useSetUserNavigations from '../../hooks/useSetUserNavigations';
+
 
 
 const AddPGProgramPage = () => {
+  useSetUserNavigations(
+    [
+        {
+          name: "Add PG Program",
+          link: "/AddPGProgramPage"
+        },
+      
+    ]
+);
+  
   // Define your form submission logic here
   const handleSubmit = (formValues) => {
     // Handle form submission
