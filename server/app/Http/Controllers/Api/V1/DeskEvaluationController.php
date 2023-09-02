@@ -18,7 +18,7 @@ class DeskEvaluationController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(Request $request): DeskEvaluationCollection
     {
         //
         return new DeskEvaluationCollection(DeskEvaluation::all());
