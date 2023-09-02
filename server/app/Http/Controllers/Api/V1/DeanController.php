@@ -16,6 +16,7 @@ use App\Http\Requests\V1\StoreDeanRequest;
 use App\Http\Requests\V1\UpdateDeanRequest;
 use App\Http\Controllers\Controller;
 use App\Mail\sendPassword;
+use App\Models\DeskEvaluation;
 use App\Models\Faculty;
 use App\Models\ReviewTeam;
 use App\Services\V1\DeanService;
@@ -236,6 +237,14 @@ class DeanController extends Controller
                 )
             );
             $reviewTeam->save();
+
+            $deskEvaluation = new DeskEvaluation();
+            $deskEvaluation->pgpr_id = $reviewTeam->pgpr_id;
+            $deskEvaluation->start_date = NULL; // or to set this is current time use => Carbon::now()
+            $deskEvaluation->end_date = NULL;
+
+            $deskEvaluation->save();
+
             DB::commit();
             return response()->json(['message' => 'Your request is duly noted.']);
         } catch (ModelNotFoundException $exception) {
