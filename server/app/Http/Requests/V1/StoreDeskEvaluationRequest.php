@@ -37,8 +37,8 @@ class StoreDeskEvaluationRequest extends FormRequest
         $this->merge(
             [
                 'pgpr_id' => $this->pgprId,
-                'start_date' => $this->start_date,
-                'end_date' => $this->end_date,
+                'start_date' => $this->startDate,
+                'end_date' => $this->endDate,
             ]
         );
     }
