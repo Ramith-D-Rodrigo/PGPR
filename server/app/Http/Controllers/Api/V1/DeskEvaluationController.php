@@ -2,17 +2,20 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Http\Requests\StoreDeskEvaluationRequest;
-use App\Http\Requests\UpdateDeskEvaluationRequest;
+
+use App\Http\Requests\V1\StoreDeskEvaluationRequest;
+use App\Http\Requests\V1\UpdateDeskEvaluationRequest;
 use App\Models\DeskEvaluation;
 use App\Http\Controllers\Controller;
+use Exception;
+use Illuminate\Http\Request;
 
 class DeskEvaluationController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         //
     }
