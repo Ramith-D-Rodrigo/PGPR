@@ -23,6 +23,6 @@ class DeskEvaluation extends Model
             'desk_evaluation_score',
             'desk_evaluation_id',
             'standard_id' // the column in the relating model
-        )->withPivot('de_score');
+        )->withPivot(['desk_evaluation_id', 'reviewer_id', 'de_score', 'comment']);
     }
 }
