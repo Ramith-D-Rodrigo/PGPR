@@ -36,7 +36,7 @@ class University extends Model
 
     public function viceChancellor()
     {
-        return $this->hasOne(ViceChancellor::class ,'university_id', 'id');
+        return $this->hasOne(ViceChancellor::class ,'university_id', 'id')->latestOfMany();
     }
 
     //a university has one center for quality assurance
