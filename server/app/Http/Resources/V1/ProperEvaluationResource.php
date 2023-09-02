@@ -20,6 +20,8 @@ class ProperEvaluationResource extends JsonResource
             'startDate' => $this->start_date,
             'endDate' => $this->end_date,
             'stage' => $this->stage,
+            'properEvaluation1' => new ProperEvaluation1Resource($this->whenLoaded('properEvaluation1')),
+            'properEvaluation2' => new ProperEvaluation2Resource($this->whenLoaded('properEvaluation2'))
         ];
     }
 }
