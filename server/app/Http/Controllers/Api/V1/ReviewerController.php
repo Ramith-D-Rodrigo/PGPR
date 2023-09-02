@@ -7,8 +7,9 @@ use App\Http\Requests\V1\StoreAcademicStaffRequest;
 use App\Http\Requests\V1\UpdateAcceptPGPRRequest;
 use App\Http\Requests\V1\UpdateRejectAppointmentRequest;
 use App\Http\Requests\V1\UpdateRejectPGPRAssignmentRequest;
+use App\Http\Resources\V1\DeskEvaluationCollection;
+use App\Http\Resources\V1\ProperEvaluationCollection;
 use App\Http\Resources\V1\ReviewerBrowsePGPRCollection;
-use App\Http\Resources\V1\ReviewerBrowsePGPRResource;
 use App\Http\Resources\V1\ReviewerCollection;
 use App\Http\Resources\V1\ReviewerResource;
 use App\Mail\RejectReviewerRole;
@@ -26,7 +27,6 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\V1\ReviewerImport;
@@ -42,8 +42,12 @@ class ReviewerController extends Controller
      */
     public function index(): ReviewerCollection
     {
-        //returns everything
-        return new ReviewerCollection(Reviewer::all()->loadMissing(['user', 'workingFaculty', 'reviewTeams']));
+        //returns everything ->with('postGraduateReviewProgram.postGraduateProgram.faculty.university')
+        return new ReviewerCollection(Reviewer::all()->loadMissing([
+            'user',
+            'workingFaculty',
+            'reviewTeams'
+        ]));
     }
 
     //import reviewers using excel file
@@ -199,7 +203,7 @@ class ReviewerController extends Controller
      * View program reviews => with filtering
      * TODO: IMPLEMENT FILTERING
      */
-    public function browsePGPRs(Request $request): ReviewerBrowsePGPRCollection|JsonResponse
+    public function browsePGPRs(): ReviewerBrowsePGPRCollection|JsonResponse
     {
         //get the review teams and get the PGPRs from them
         try {
@@ -216,7 +220,7 @@ class ReviewerController extends Controller
             }
 
             return new ReviewerBrowsePGPRCollection($review_teams);
-        }catch (ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return response()->json(["message" => "Your credentials are wrong, cannot be authorized for this action.", "data" => []], 401);
         } catch (Exception $exception) {
             return response()->json(["message" => "An internal server error occurred, user request cannot be full filled."], 500);
@@ -267,11 +271,11 @@ class ReviewerController extends Controller
 
             //change the status to ACCEPTED in the reviewer_review_team table
             $review_team->pivot->reviewer_confirmation = 'ACCEPTED';
-            $review_team->pivot->declaration_letter = Storage::disk('public')->url($path);//add the file url here
+            $review_team->pivot->declaration_letter = Storage::disk('public')->url($path); //add the file url here
             $review_team->pivot->save(); //save the data to the pivot table
 
             return response()->json(['message' => 'Your declaration was successfully uploaded.'], 201);
-        }catch (ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return response()->json(["message" => "Your credentials are wrong, cannot be authorized for this action.", "data" => []], 401);
         } catch (Exception $exception) {
             return response()->json(["message" => "An internal server error occurred, user request cannot be full filled."], 500);
@@ -423,6 +427,72 @@ class ReviewerController extends Controller
     }
 
     /**
+     * Get desk evaluations of the currently logged in reviewer
+     */
+    public function reviewerDeskEvaluations()
+    {
+        try {
+            // find the reviewer
+            $reviewer = Reviewer::findOrFail(Auth::id());
+
+            //find the review teams of the reviewer
+            $reviewTeams = $reviewer
+                ->reviewTeams
+                ->whereIn('status', ['PENDING', 'APPROVED'])
+                ->load('postGraduateReviewProgram'); //only get either pending or accepted review teams only
+
+            $deskEvaluations = collect();
+
+            foreach ($reviewTeams as $reviewTeam) {
+                $postGraduateReviewProgram = $reviewTeam->postGraduateReviewProgram;
+                $deskEvaluation = $postGraduateReviewProgram->deskEvaluations;
+                if ($deskEvaluation) $deskEvaluations->add($deskEvaluation);
+            }
+
+            return count($deskEvaluations) > 0 ?
+                new DeskEvaluationCollection($deskEvaluations) :
+                response()->json(["message" => "The reviewer doesn't have any desk evaluations yet"]);
+        } catch (ModelNotFoundException $exception) {
+            return response()->json(["message" => "The requested reviewer data cannot be found"], 400);
+        } catch (Exception $exception) {
+            return response()->json(["message" => "Some thing bad happened"], 500);
+        }
+    }
+
+    /**
+     * Get desk evaluations of the currently logged in reviewer
+     */
+    public function reviewerProperEvaluations(): ProperEvaluationCollection|JsonResponse
+    {
+        try {
+            // find the reviewer
+            $reviewer = Reviewer::findOrFail(Auth::id());
+
+            //find the review teams of the reviewer
+            $reviewTeams = $reviewer
+                ->reviewTeams
+                ->whereIn('status', ['PENDING', 'APPROVED'])
+                ->load('postGraduateReviewProgram'); //only get either pending or accepted review teams only
+
+            $properEvaluations = collect();
+
+            foreach ($reviewTeams as $reviewTeam) {
+                $postGraduateReviewProgram = $reviewTeam->postGraduateReviewProgram;
+                $properEvaluation = $postGraduateReviewProgram->properEvaluations;
+                if ($properEvaluation) $properEvaluations->add($properEvaluation);
+            }
+
+            return count($properEvaluations) > 0 ?
+                new ProperEvaluationCollection($properEvaluations) :
+                response()->json(["message" => "The reviewer doesn't have any proper evaluations yet"]);
+        } catch (ModelNotFoundException $exception) {
+            return response()->json(["message" => "The requested reviewer data cannot be found"], 400);
+        } catch (Exception $exception) {
+            return response()->json(["message" => "Some thing bad happened"], 500);
+        }
+    }
+
+    /**
      * Update the specified resource in storage.
      */
     public function update(UpdateReviewerRequest $request, Reviewer $reviewer)
@@ -437,16 +507,15 @@ class ReviewerController extends Controller
     {
         //remove the user's reviewer role
     }
-
+  
     public function downloadExcelFile(){
         try{
             $file = Storage::download('public/reviewer-excel-template.xlsx');
             return $file;
-        }
-        catch(\Exception $e){
+        } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Error occurred while downloading reviewer sheet',
-                'error' => $e -> getMessage(),
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

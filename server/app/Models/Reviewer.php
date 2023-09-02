@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Reviewer extends Model
 {
@@ -21,12 +23,12 @@ class Reviewer extends Model
     }
 
     //reviewer is an academic staff
-    public function academicStaff()
+    public function academicStaff(): BelongsTo
     {
         return $this->belongsTo(AcademicStaff::class, 'id', 'id');
     }
 
-    public function reviewTeams()
+    public function reviewTeams(): BelongsToMany
     {
         return $this->belongsToMany(
             ReviewTeam::class,
@@ -41,7 +43,7 @@ class Reviewer extends Model
     }
 
     // reviewers can score for many standards
-    public function standards(string $type) // $type should be either one of them => ['DESK', 'PROPER']
+    public function standards(string $type): BelongsToMany // $type should be either one of them => ['DESK', 'PROPER']
     {
         if ($type === "DESK") {
             return $this->belongsToMany(
@@ -61,7 +63,7 @@ class Reviewer extends Model
     }
 
     //reviewer working faculty
-    public function workingFaculty()
+    public function workingFaculty(): BelongsTo
     {
         return $this->belongsTo(Faculty::class, 'working_faculty', 'id')->with('university');
     }

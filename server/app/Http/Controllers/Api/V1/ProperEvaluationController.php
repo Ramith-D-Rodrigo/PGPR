@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Http\Requests\StoreProperEvaluationRequest;
-use App\Http\Requests\UpdateProperEvaluationRequest;
+
+use App\Http\Requests\V1\StoreProperEvaluationRequest;
+use App\Http\Requests\V1\UpdateProperEvaluationRequest;
 use App\Models\ProperEvaluation;
 use App\Http\Controllers\Controller;
 

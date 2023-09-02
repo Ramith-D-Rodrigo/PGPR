@@ -21,6 +21,5 @@ class ProperEvaluationResource extends JsonResource
             'endDate' => $this->end_date,
             'stage' => $this->stage,
         ];
-
     }
 }
