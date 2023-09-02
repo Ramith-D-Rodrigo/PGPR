@@ -53,7 +53,6 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::apiResource('iqaUnits', 'InternalQualityAssuranceUnitController');
     Route::apiResource('faculties', 'FacultyController')->middleware('auth');
     Route::apiResource('deskEvaluations', 'DeskEvaluationController');
-    Route::apiResource('deans', 'DeanController');
     Route::apiResource('criterias', 'CriteriaController');
     Route::apiResource('cqaDirectors', 'CenterForQualityAssuranceDirectorController');
     Route::apiResource('centerForQualityAssurances', 'CenterForQualityAssuranceController');
@@ -84,6 +83,15 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::get('/reviewers/reviewer-proper-evaluations', 'ReviewerController@reviewerProperEvaluations')->middleware('auth');
     // api resource => this must come here otherwise the declaration doc will have problems
     Route::apiResource('reviewers', 'ReviewerController')->middleware('auth');
+
+    // dean accepts an appointed review team
+    Route::post('/deans/acceptReviewTeam', 'DeanController@acceptReviewTeam')->middleware('auth');
+
+    // dean rejects an appointed review team
+    Route::post('/deans/rejectReviewTeam', 'DeanController@rejectReviewTeam')->middleware('auth');
+
+    // dean api resources
+    Route::apiResource('deans', 'DeanController');
 
     //route for google drive file info (for now, only the metadata is returned (testing))
     Route::post('driveFileInfo', 'GoogleDriveController@getFileInfo');
