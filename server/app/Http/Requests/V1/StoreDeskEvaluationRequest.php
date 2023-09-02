@@ -24,7 +24,7 @@ class StoreDeskEvaluationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'pgpr_id' => ['required', Rule::exists('post_graduate_program_reviews')->where(function ($query) {
+            'pgpr_id' => ['required', 'unique', Rule::exists('post_graduate_program_reviews')->where(function ($query) {
                 $query->whereIn('status_of_pgpr', ['DE', 'SUBMITTED', 'PLANNING']);
             })],
             'start_date' => 'required|date|after_or_equal:today',
@@ -46,7 +46,8 @@ class StoreDeskEvaluationRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'pgpr_id.required',
+            'pgpr_id.required' => 'You need to provide the post graduate review program id',
+            'pgpr_id.unique' => 'Seem there is already an existing desk evaluation for this review, cannot add another',
             'pgpr_id.exists' => 'The postgraduate program id you have mentioned does not exists in out database or is not in an updatable state please check again and retry',
             'start_date.required' => 'You need to provide a start date for the desk evaluation process',
             'start_date.date' => 'You need to provide a date value for the start date',
