@@ -45,14 +45,14 @@ class PostGraduateProgramReview extends Model
     }
 
     // pgpr sentIntentLetter relation
-    public function deans()
+    public function deans(): BelongsTo
     {
         return $this->belongsTo(Dean::class, 'dean_id', 'id');
     }
 
     // pgpr has review teams associated with itself
 
-    public function acceptedReviewTeam()
+    public function acceptedReviewTeam(): \Illuminate\Database\Eloquent\Relations\HasMany|null
     {
         $reviewTeams = $this->reviewTeams()->where('status', 'ACCEPTED');
         if ($reviewTeams->count() > 0) {
@@ -63,7 +63,7 @@ class PostGraduateProgramReview extends Model
 
     //pgpr has only one review team that is accepted by the dean
 
-    public function reviewTeams()
+    public function reviewTeams(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(PostGraduateProgramReview::class, 'pgpr_id');
     }
