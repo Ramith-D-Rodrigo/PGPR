@@ -38,6 +38,7 @@ return new class extends Migration
             $table->unsignedBigInteger('reviewer_id')->nullable();
             $table->enum('section', ['A', 'B', 'D']); //sections are A, B, and D
             $table->string('remark');
+            $table->timestamps();
 
             $table->foreign('ser_id')->references('id')->on('self_evaluation_reports');
             $table->foreign('reviewer_id')->references('id')->on('reviewers');
