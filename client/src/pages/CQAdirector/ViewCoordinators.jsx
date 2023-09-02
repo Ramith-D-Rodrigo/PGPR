@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MainContent from "../../components/MainContent";
 import useSetUserNavigations from "../../hooks/useSetUserNavigations";
+import { CircularProgress } from "@mui/material";
 import {
   Button,
   Table,
@@ -24,6 +25,13 @@ import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
+import getCQADirectorUniversity from "../../api/CQADirector/getCQADirectorUniversity";
+import getUniversityFaculties from "../../api/University/getUniversityFaculties";
+import getCurrentDean from "../../api/Faculty/getCurrentDean";
+import getFacultyPostGraduatePrograms from "../../api/Faculty/getFacultyPostGraduatePrograms";
+import getCurrentCoordinator from "../../api/PostGraduateProgram/getCurrentCoordinator";
+
+
 
 const CustomTable = ({ tableData, openEditDialog }) => {
   return (
@@ -103,36 +111,62 @@ const CustomTable = ({ tableData, openEditDialog }) => {
 
 const Coordinators = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [auth, setAuth] = useState(null);
+  const [isLoading, setIsLoading] = useState(true); // State to track loading
 
-  const [tableData, setTableData] = useState([
-    {
-      cid: "C-100",
-      name: "Dr. Manju",
-      faculty: "Science",
-      status: "Approved",
-      pgCount: 3,
-      profilePhoto: "https://randomuser.me/api/portraits/men/1.jpg", // Professional profile photo of a gentleman
-    },
-    {
-      cid: "C-101",
-      name: "Dr. Pasindu",
-      faculty: "Arts",
-      status: "Confirmed",
-      pgCount: 2,
-      profilePhoto: "https://randomuser.me/api/portraits/men/2.jpg", // Professional profile photo of a gentleman
-    },
-    {
-      cid: "C-102",
-      name: "Dr. Thilini",
-      faculty: "Management",
-      status: "Canceled",
-      pgCount: 5,
-      profilePhoto: "https://randomuser.me/api/portraits/women/1.jpg", // Professional profile photo of a lady
-    },
-  ]);
+  const [university, setUniversity] = useState(null); // Add this state to store university data
+  const [universityFaculties, setUniversityFaculties] = useState([]); // State to store faculties
+  const [tableData, setTableData] = useState([]); // Initialize tableData as an empty array
 
+
+  
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        
+        const cqaDirectorId = auth.id; 
+        const response = await getCQADirectorUniversity(cqaDirectorId);
+        const universityData = response.data;
+        setUniversity(universityData);
+
+        // Fetch faculties of the university
+        const universityId = universityData.id;
+        const facultiesResponse = await getUniversityFaculties(universityId);
+        const facultiesData = facultiesResponse.data;
+
+        // Fetch the current dean for a specific faculty
+        const facultyId = "FACULTY_ID";
+        const deanResponse = await getCurrentDean(facultyId);
+        const deanData = deanResponse.data;
+
+        // Fetch postgraduate programs for the same faculty
+        const postGradProgramsResponse = await getFacultyPostGraduatePrograms(facultyId);
+        const postGradProgramsData = postGradProgramsResponse.data;
+
+        // Fetch coordinators for each postgraduate program
+        const coordinatorPromises = postGradProgramsData.map(async (program) => {
+          const coordinatorResponse = await getCurrentCoordinator(program.id);
+          return coordinatorResponse.data;
+        });
+
+        const coordinatorsData = await Promise.all(coordinatorPromises);
+
+        // Combine deanData, postGradProgramsData, and coordinatorsData into tableData
+        const updatedTableData = [deanData, ...postGradProgramsData, ...coordinatorsData];
+
+        setTableData(updatedTableData);
+
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setIsLoading(false);
+      }
+    }
+
+    fetchData();
+  }, []);
   const [selectedCoordinatorForEdit, setSelectedCoordinatorForEdit] = useState(
-    tableData[0]
+    {}
   );
 
   // Define openEditPopup function within the Coordinators component
@@ -201,41 +235,8 @@ const Coordinators = () => {
         View Program Coordinators/Dean (IQAU Director){" "}
       </h2>
       <hr className="border-t-2 border-black my-4 opacity-50" />
-      <div className="grid grid-cols-2 gap-4">
-        <div className="flex flex-col">
-          <label
-            htmlFor="university"
-            className="block font-medium text-gray-700"
-          >
-            University Name:
-          </label>
-          <input
-            type="text"
-            id="university"
-            className="form-input border border-black p-1"
-          />
-        </div>
-        <div className="flex flex-col">
-          <label htmlFor="director" className="block font-medium text-gray-700">
-            IQAU Director:
-          </label>
-          <input
-            type="text"
-            id="director"
-            className="form-input border border-black p-1"
-          />
-        </div>
-      </div>
-      <div className="flex justify-center mt-4">
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => handleSearch()}
-        >
-          <Search />
-          Search
-        </Button>
-      </div>
+      <div className="grid grid-cols-2 gap-4"></div>
+
       <div className="flex justify-center mt-4">
         <Button variant="contained" color="primary">
           Show Current Coordinators
@@ -248,21 +249,38 @@ const Coordinators = () => {
           Show Current Dean/Director
         </Button>
       </div>
+      {/* Conditionally render the loading indicator */}
+    {isLoading ? (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center", // Horizontally center
+          alignItems: "center", // Vertically center
+          height: "60vh", // Adjust the height as needed
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <p>Loading</p>
+          <CircularProgress style={{ marginLeft: "8px" }} />
+        </div>
+      </div>
+    ) : (
+        // Render the table when not loading
+        <CustomTable
+          tableData={tableData}
+          openEditDialog={handleOpenEditDialog}
+        />
+      )}
 
-      <CustomTable
-        tableData={tableData}
-        openEditDialog={handleOpenEditDialog}
-      />
-
-<Dialog
-  open={isEditDialogOpen}
-  onClose={handleCloseEditDialog}
-  maxWidth="md" // Adjust the width as needed
-  fullWidth // Take up the full width
->
-  <DialogTitle style={{ fontSize: '24px', fontWeight: 'bold' }}>
-    Edit Coordinator Details
-  </DialogTitle>
+      <Dialog
+        open={isEditDialogOpen}
+        onClose={handleCloseEditDialog}
+        maxWidth="md" // Adjust the width as needed
+        fullWidth // Take up the full width
+      >
+        <DialogTitle style={{ fontSize: "24px", fontWeight: "bold" }}>
+          Edit Coordinator Details
+        </DialogTitle>
         <DialogContent className="w-full">
           <form className="dialog-form space-y-4">
             <div className="flex flex-col">
