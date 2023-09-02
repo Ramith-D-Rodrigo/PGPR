@@ -274,12 +274,12 @@ class DeanController extends Controller
             $postGraduateProgram = $reviewTeam->postGraduateReviewProgram;
             $postGraduateProgram = $postGraduateProgram->postGraduateProgram;
 
-            $faculty =  $postGraduateProgram->faculty;
+            $faculty = $postGraduateProgram->faculty;
 
-            $dean =  $faculty->deans[0];
-            $dean =  $dean->user;
+            $dean = $faculty->deans[0];
+            $dean = $dean->user;
 
-            $university =  $faculty->university;
+            $university = $faculty->university;
 
             // DB::beginTransaction();
             $reviewTeam->status = 'REJECTED';
@@ -312,8 +312,9 @@ class DeanController extends Controller
             DB::rollBack();
             return response()->json(['message' => 'Something bad has happened, we are working tirelessly to fix the issue.'], 500);
         }
-      
-      
+    }
+
+
     //get the faculty of the dean
     public function faculty(Dean $dean){
         try{
