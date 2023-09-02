@@ -11,6 +11,7 @@ use App\Http\Requests\V1\UpdatePostGraduateProgramReviewApplicationRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\V1\PostGraduateProgramReviewApplicationResource;
 use App\Models\SelfEvaluationReport;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -24,11 +25,25 @@ class PostGraduateProgramReviewApplicationController extends Controller
     public function index()
     {
         try{
+            //authorize the action
+            $this -> authorize('viewAny', PostGraduateProgramReviewApplication::class);
+
             $filter = new PostGraduateProgramReviewApplicationFilter(request() -> session() -> get('authRole'), request());
 
             $queryItems = $filter -> getEloQuery();
+            $whereInQueryItems = $filter -> getWhereInQuery();
+            $whereNotInQueryItems = $filter -> getWhereNotInQuery();
 
             $pgprApplications = PostGraduateProgramReviewApplication::where($queryItems);
+
+            foreach($whereInQueryItems as $whereInQueryItem){
+                $pgprApplications = $pgprApplications -> whereIn($whereInQueryItem[0], $whereInQueryItem[1]);
+            }
+
+            foreach($whereNotInQueryItems as $whereNotInQueryItem){
+                $pgprApplications = $pgprApplications -> whereNotIn($whereNotInQueryItem[0], $whereNotInQueryItem[1]);
+            }
+
 
             //related data
             $pgpr = request() -> query('includePostGraduateProgram');
@@ -57,7 +72,10 @@ class PostGraduateProgramReviewApplicationController extends Controller
                 }
             }
 
-            return new PostGraduateProgramReviewApplicationCollection($pgprApplications -> paginate() -> appends(request() -> query()));
+            return new PostGraduateProgramReviewApplicationCollection($pgprApplications -> get());
+        }
+        catch(AuthorizationException $e){
+            return response() -> json(['message' => $e -> getMessage()], 403);
         }
         catch(\Exception $e){
             return response() -> json(['message' => $e -> getMessage()], 500);
@@ -65,19 +83,24 @@ class PostGraduateProgramReviewApplicationController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(StorePostGraduateProgramReviewApplicationRequest $request)
     {
-        return new PostGraduateProgramReviewApplicationResource(PostGraduateProgramReviewApplication::create($request->validated()));
+        try{
+            //authorize the action
+            $this -> authorize('create', PostGraduateProgramReviewApplication::class);
+
+            return new PostGraduateProgramReviewApplicationResource(
+                PostGraduateProgramReviewApplication::create($request->validated())
+            );
+        }
+        catch(AuthorizationException $e){
+            return response() -> json(['message' => $e -> getMessage()], 403);
+        }
+        catch(\Exception $e){
+            return response() -> json(['message' => $e -> getMessage()], 500);
+        }
     }
 
     /**
@@ -86,6 +109,9 @@ class PostGraduateProgramReviewApplicationController extends Controller
     public function show(PostGraduateProgramReviewApplication $pgprApplication)
     {
         try{
+            //authorize action
+            $this -> authorize('view', $pgprApplication);
+
             //include the related data
             $pgpr = request() -> query('includePostGraduateProgram');
 
@@ -117,17 +143,12 @@ class PostGraduateProgramReviewApplicationController extends Controller
 
             return new PostGraduateProgramReviewApplicationResource($pgprApplication);
         }
+        catch(AuthorizationException $e){
+            return response() -> json(['message' => $e -> getMessage()], 403);
+        }
         catch(\Exception $e){
             return response() -> json(['message' => $e -> getMessage()], 500);
         }
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(PostGraduateProgramReviewApplication $postGraduateProgramReviewApplication)
-    {
-        //
     }
 
     /**
@@ -136,6 +157,9 @@ class PostGraduateProgramReviewApplicationController extends Controller
     public function update(UpdatePostGraduateProgramReviewApplicationRequest $request, PostGraduateProgramReviewApplication $pgprApplication)
     {
         try{
+            //authorize the action
+            $this -> authorize('update', $pgprApplication);
+
             $validatedData = $request -> validated();
 
             //store the intent letter if it is included in the request
@@ -168,6 +192,9 @@ class PostGraduateProgramReviewApplicationController extends Controller
 
             return response()->json(['message' => 'Post graduate program review application updated successfully.'], 200);
         }
+        catch(AuthorizationException $e){
+            return response()->json(['message' => $e -> getMessage()], 403);
+        }
         catch(\Exception $e){
             return response()->json(['message' => 'Error updating post graduate program review application.',
                 'error' => $e->getMessage()]
@@ -178,26 +205,20 @@ class PostGraduateProgramReviewApplicationController extends Controller
     //submit the post graduate program review application to the cqa director approval
     public function submit(Request $request, PostGraduateProgramReviewApplication $pgprApplication){
         try{
-            //check submitting user is the dean of the faculty
-            $dean = Auth::user();
-            $deanFacultyID = $dean -> universitySide -> academicStaff -> dean -> faculty -> id ?? null;
-            if($deanFacultyID != $pgprApplication -> postGraduateProgram -> faculty_id){
-                return response()->json(['message' => 'You are not authorized to submit this post graduate program review application.'], 403);
-            }
+            //authorize submission
+            $this -> authorize('submitAuthorize', $pgprApplication);
 
             //check whether intent letter is uploaded
             if(!$pgprApplication -> intent_letter){
                 return response()->json(['message' => 'Intent letter is not uploaded.'], 400);
             }
 
-            //check whether the application is already submitted
-            if($pgprApplication -> request_date || $pgprApplication -> status == 'submitted'){
-                return response()->json(['message' => 'This post graduate program review application is already submitted.'], 400);
-            }
-
             $pgprApplication -> update(['request_date' => today() -> toDateString(), 'status' => 'submitted']);
 
             return response()->json(['message' => 'Post graduate program review application submitted successfully.'], 200);
+        }
+        catch(AuthorizationException $e){
+            return response()->json(['message' => $e -> getMessage()], 403);
         }
         catch(\Exception $e){
             return response()->json(['message' => 'Error submitting post graduate program review application.',
@@ -209,24 +230,18 @@ class PostGraduateProgramReviewApplicationController extends Controller
     //cqa director recommendation
     public function cqaDirectorRecommendation(Request $request, PostGraduateProgramReviewApplication $pgprApplication){
         try{
-            //check submitting user is the cqa director
-            $cqaDirector = Auth::user();
-            $cqaDirectorID = $cqaDirector -> universitySide -> qualityAssuranceStaff -> centerForQualityAssuranceDirector -> id ?? null;
-            if($cqaDirectorID != $pgprApplication -> postGraduateProgram -> faculty -> university -> centerForQualityAssurance -> currentQualityAssuranceDirector -> id ?? null){
-                return response()->json(['message' => 'You are not authorized to recommend this post graduate program review application.'], 403);
-            }
-
-            //check whether the application is already approved
-            if($pgprApplication -> application_date){
-                return response()->json(['message' => 'This post graduate program review application is already applied.'], 400);
-            }
+            //authorize the cqa director
+            $this -> authorize('cqaDirectorRecommendationAuthorize', $pgprApplication);
 
             $pgprApplication -> update(['application_date' => today() -> toDateString(), 'status' => 'applied']);
 
             return response()->json(['message' => 'Post graduate program review application recommended successfully.'], 200);
         }
+        catch(AuthorizationException $e){
+            return response()->json(['message' => $e -> getMessage()], 403);
+        }
         catch(\Exception $e){
-            return response()->json(['message' => 'Error approving post graduate program review application.',
+            return response()->json(['message' => 'Error recommending post graduate program review application.',
                 'error' => $e->getMessage()]
             , 400);
         }
@@ -235,23 +250,16 @@ class PostGraduateProgramReviewApplicationController extends Controller
     //qac officer approval
     public function qacOfficerApproval(Request $request, PostGraduateProgramReviewApplication $pgprApplication){
         try{
-            //check submitting user is the qac officer
-            $qacOfficer = Auth::user();
-            $qacOfficerID = $qacOfficer -> qualityAssuranceCouncilOfficer -> id ?? null;
+            //authorize the qac officer
+            $this -> authorize('qacOfficerApprovalAuthorize', $pgprApplication);
 
-            //not a qac officer
-            if(!$qacOfficerID){
-                return response()->json(['message' => 'You are not authorized to approve this post graduate program review application.'], 403);
-            }
-
-            //check whether the application is already approved
-            if($pgprApplication -> quality_assurance_council_officer_id  && ($pgprApplication -> status == 'approved' || $pgprApplication -> status == 'rejected')){
-                return response()->json(['message' => 'This post graduate program review application is already handled.'], 400);
+            if($request -> status != 'approved' && $request -> status != 'rejected'){
+                return response()->json(['message' => 'Invalid status.'], 400);
             }
 
             DB::beginTransaction();
 
-            $pgprApplication -> update(['quality_assurance_council_officer_id' => $qacOfficerID, 'status' => $request -> status]);
+            $pgprApplication -> update(['quality_assurance_council_officer_id' => Auth::user() -> id, 'status' => $request -> status]);
 
             //create a post graduate program review if the application is approved
             if($request -> status == 'approved'){
@@ -271,6 +279,10 @@ class PostGraduateProgramReviewApplicationController extends Controller
 
             return response()->json(['message' => 'Post graduate program review application approved/rejected successfully.'], 200);
         }
+        catch(AuthorizationException $e){
+            DB::rollBack();
+            return response()->json(['message' => $e -> getMessage()], 403);
+        }
         catch(\Exception $e){
             DB::rollBack();
             return response()->json(['message' => 'Error approving/rejecting post graduate program review application.',
@@ -283,6 +295,30 @@ class PostGraduateProgramReviewApplicationController extends Controller
      */
     public function destroy(PostGraduateProgramReviewApplication $postGraduateProgramReviewApplication)
     {
-        //
+        try{
+            //authorize the action
+            $this -> authorize('delete', $postGraduateProgramReviewApplication);
+
+            //get the intent letter path
+            $intentLetter = $postGraduateProgramReviewApplication -> intent_letter;
+
+            //remove the intent letter from the storage if it exists
+            if($intentLetter){
+                $intentLetterPath = str_replace('/storage', 'public', $intentLetter);
+                Storage::delete($intentLetterPath);
+            }
+
+            $postGraduateProgramReviewApplication -> delete();
+
+            return response()->json(['message' => 'Post graduate program review application deleted successfully.'], 200);
+        }
+        catch(AuthorizationException $e){
+            return response()->json(['message' => $e -> getMessage()], 403);
+        }
+        catch(\Exception $e){
+            return response()->json(['message' => 'Error deleting post graduate program review application.',
+                'error' => $e->getMessage()]
+            , 400);
+        }
     }
 }

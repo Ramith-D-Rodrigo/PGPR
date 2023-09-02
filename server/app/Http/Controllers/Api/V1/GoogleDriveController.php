@@ -64,30 +64,32 @@ class GoogleDriveController extends Controller
     public function createFolder(Request $request){
         $folderName = $request -> folderName;
         $DriveManager = new DriveManager();
-        $folderId = $DriveManager -> createFolder($folderName);
+        $folder = $DriveManager -> createFolder($folderName);
 
         return response() -> json([
-            'folderId' => $folderId
+            'folderId' => $folder -> getId(),
+            'webViewLink' => $folder -> getWebViewLink()
         ], 200);
     }
 
     public function copyContent(Request $request){
         $url = $request -> url;
         $DriveManager = new DriveManager();
-        $fileId = $DriveManager -> getFileId($url);
 
-        if($fileId == ""){ //copying content is a folder
+        if($DriveManager -> isFolder($request -> url)){ //copying content is a folder
             $fileId = $DriveManager -> getFolderId($url);
-            $newFileId = $DriveManager -> copyFolder($fileId);
+            $newFile = $DriveManager -> copyFolder($fileId);
         }
         else{   //a file
-            $newFileId = $DriveManager -> copyFile($fileId);
+            $fileId = $DriveManager -> getFileId($url);
+            $newFile = $DriveManager -> copyFile($fileId);
         }
 
-        $DriveManager -> removePermissionIdWise($newFileId, 'anyoneWithLink'); //remove public access
+        $DriveManager -> removePermissionIdWise($newFile -> getId(), 'anyoneWithLink'); //remove public access
 
         return response() -> json([
-            'newFileId' => $newFileId,
+            'newFileId' => $newFile -> getId(),
+            //'webViewLink' => $newFile -> getWebContentLink()
         ], 200);
     }
 }

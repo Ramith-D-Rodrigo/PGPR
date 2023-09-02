@@ -3,6 +3,7 @@
 namespace App\Http\Requests\V1;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Str;
 
 class UpdateFacultyRequest extends FormRequest
 {
@@ -11,7 +12,7 @@ class UpdateFacultyRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +23,30 @@ class UpdateFacultyRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => ['sometimes', 'required', 'string', 'max:255'],
+            'website' => ['sometimes', 'required', 'string', 'max:255', 'unique:faculties'],
+            'address'=> ['sometimes', 'required', 'string', 'max:255'],
+            'contact_no' => ['sometimes','required', 'json'],
+            'fax_no' => ['sometimes','required', 'json'],
+
+            //iqau data is also required
+            'iqau_address' => ['sometimes', 'required', 'string', 'max:255'],
+            'iqau_contact_no' => ['sometimes','required', 'json'],
+            'iqau_fax_no' => ['sometimes', 'required', 'json'],
+            'iqau_email' => ['sometimes', 'required', 'string', 'email', 'max:255', 'unique:internal_quality_assurance_units,email'],
         ];
+    }
+
+    public function prepareForValidation(){
+        //convert camel case to snake case
+        $returnArr = [];
+
+        $objProps = $this -> all();
+
+        foreach($objProps as $key => $value){
+            $returnArr[Str::snake($key)] = $value;
+        }
+
+        $this -> replace($returnArr);
     }
 }

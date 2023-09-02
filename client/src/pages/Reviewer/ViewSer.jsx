@@ -84,6 +84,7 @@ const ViewSer = () => {
                 width="100%"
                 height="auto"
                 backgroundColor="#D8E6FC"
+                sx={{marginBottom:'20px'}}
             >
                 <Grid container spacing={2}>
                 {headerInfo.map((infoItem, index) => (
@@ -96,7 +97,9 @@ const ViewSer = () => {
                 ))}
                 </Grid>
             </DiscriptiveDiv>
-            
+            <Typography align='center' fontWeight={600} variant="h6" gutterBottom component="div" style={{marginRight:'20px'}}>
+                View Self Evaluation Report
+            </Typography>
             <TableContainer component={Paper} style={{height:"auto",margin:"2rem 0"}}>
                 <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table">
                     <TableHead>

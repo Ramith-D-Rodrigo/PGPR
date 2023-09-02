@@ -42,7 +42,7 @@ class University extends Model
     //a university has one center for quality assurance
     public function centerForQualityAssurance()
     {
-        return $this->hasOne(CenterForQualityAssurance::class);
+        return $this->belongsTo(CenterForQualityAssurance::class);
     }
 
     //a university is created by a quality assurance council director
@@ -52,7 +52,7 @@ class University extends Model
     }
 
     //a university has one vice chancellor
-    public function viceChancellor(){
-        return $this->belongsTo(ViceChancellor::class, 'vice_chancellor_id', 'id');
-    }
+    // public function viceChancellor(){
+    //     return $this->belongsTo(ViceChancellor::class, 'vice_chancellor_id', 'id');
+    // }
 }

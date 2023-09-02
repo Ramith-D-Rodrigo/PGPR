@@ -188,10 +188,10 @@ const SetCriteria = () => {
   ];
 
   return (
-    <ScrollableDiv height="600px">
+    <div height="auto">
       <SetDateForm />
       <CustomTable tableData={tableData} />
-    </ScrollableDiv>
+    </div>
   );
 };
 

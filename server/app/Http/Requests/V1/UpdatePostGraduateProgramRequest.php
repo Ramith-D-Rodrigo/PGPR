@@ -14,19 +14,7 @@ class UpdatePostGraduateProgramRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        //only cqa director can update pgg (role authorization is checked in the middleware)
-
-        //we have to check if cqa director only updating pgps of his/her university
-        $user = Auth::user();
-
-        $uniID = $user -> universitySide -> university -> id;
-
-        //get the route's pgp
-        $pgp = $this -> route('postGraduateProgram');
-
-        $pgpUni = $pgp -> faculty -> university -> id;
-
-        return $uniID == $pgpUni;
+        return true;
     }
 
 

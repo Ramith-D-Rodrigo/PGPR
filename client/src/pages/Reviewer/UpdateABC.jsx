@@ -61,7 +61,7 @@ function UpdateABC() {
         <Box sx={{display:'flex',justifyContent:'space-between',width:"100%",alignItems:"center",margin:'1.5rem'}}>
           <Box sx={{display:'flex',flexDirection:'column',justifyContent:'flex-start',alignItems:"center",height:'100%',margin:'10px'}}>
             <Typography variant="h6" component="h2" gutterBottom>
-                Section C
+                Section D
             </Typography>
             <Button variant="contained" color="primary">View</Button>
           </Box>

@@ -12,7 +12,8 @@ class Evidence extends Model
         'evidence_code',
         'evidence_name',
         'applicable_years',
-        'url'
+        'url',
+        'stored_url'
     ];
 
     protected $table = 'evidences';

@@ -50,8 +50,8 @@ function Summary_details() {
     <>
       <Box sx={{display:'flex',flexDirection:'column',justifyContent:'space-between',maxHeight:'100%',height:'100%',alignItems:'center',margin:'10px'}}>
         <Box sx={{display:'flex',flexDirection:'column',justifyContent:'center',width:"100%",alignItems:"center",margin:'2rem 0 0'}}>
-            <Typography variant="h5" component="h2" gutterBottom>
-                Criteria Wise Summary Details
+            <Typography align='center' fontWeight={600} variant="h6" gutterBottom component="div" style={{marginRight:'20px'}}>
+              Criteria Wise Summary Details of Postgraduate programme review
             </Typography>
             <Typography variant="body2" component="h2" gutterBottom>
                 Desk Evaluation

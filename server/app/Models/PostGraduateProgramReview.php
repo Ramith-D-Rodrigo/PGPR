@@ -28,8 +28,8 @@ class PostGraduateProgramReview extends Model
     {
         return $this->hasOne(DeskEvaluation::class, 'pgpr_id',);
     }
-
-    // a post graduate review program has one proper evaluation
+  
+     // a post graduate review program has one proper evaluation
     public function properEvaluations(): HasOne
     {
         return $this->hasOne(ProperEvaluation::class, 'pgpr_id');
@@ -40,6 +40,29 @@ class PostGraduateProgramReview extends Model
     {
         return $this->belongsTo(PostGraduateProgramReviewApplication::class, 'pgpr_application_id', 'id');
     }
+  
+    // pgpr sentIntentLetter relation
+    public function deans()
+    {
+        return $this->belongsTo(Dean::class, 'dean_id', 'id');
+    }
+
+    // pgpr has review teams associated with itself
+    public function reviewTeams()
+    {
+        return $this->hasMany(PostGraduateProgramReview::class, 'pgpr_id');
+    }
+
+    //pgpr has only one review team that is accepted by the dean
+    public function acceptedReviewTeam()
+    {
+        $reviewTeams = $this -> reviewTeams() -> where('status', 'ACCEPTED');
+        if($reviewTeams -> count() > 0){
+            return $reviewTeams -> first();
+        }
+        return null;
+    }
+
 
     public function postGraduateProgram(): BelongsTo
     {
@@ -54,6 +77,7 @@ class PostGraduateProgramReview extends Model
 
     // every pgpr has a final report
     public function finalReports(): HasOne
+
     {
         return $this->hasOne(FinalReport::class, 'final_report_id');
     }

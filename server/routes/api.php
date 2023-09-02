@@ -37,10 +37,30 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::get('reviewers/downloadExcelFile', 'ReviewerController@downloadExcelFile');
 
     //TODO: Renamed route names should reflect on the method names in the controllers
+    Route::apiResource('postGraduatePrograms', 'PostGraduateProgramController') -> middleware('auth');
+    //other routes of the postGraduatePrograms
+        //get post graduate program reviews of a post graduate program
+        Route::get('postGraduatePrograms/{postGraduateProgram}/reviews', 'PostGraduateProgramController@reviews') -> middleware('auth');
+        //get the faculty of a post graduate program
+        Route::get('postGraduatePrograms/{postGraduateProgram}/faculty', 'PostGraduateProgramController@faculty') -> middleware('auth');
+        //get the current program coordinator of a post graduate program
+        Route::get('postGraduatePrograms/{postGraduateProgram}/currentCoordinator', 'PostGraduateProgramController@currentCoordinator') -> middleware('auth');
+
     Route::apiResource('viceChancellors', 'ViceChancellorController');
+    //other routes of vice chancellor
+        //remove role of vice chancellor
+        Route::delete('viceChancellors/{viceChancellor}/removeRole', 'ViceChancellorController@removeRole') -> middleware('auth');
+        Route::get('viceChancellors/{viceChancellor}/university', 'ViceChancellorController@university') -> middleware('auth');
+
     Route::apiResource('users', 'UserController');
     Route::apiResource('universitySides', 'UniversitySideController');
     Route::apiResource('universities', 'UniversityController')->middleware('auth');
+    //other routes of the universities
+        //get the current vice chancellor of a university
+        Route::get('universities/{university}/currentViceChancellor', 'UniversityController@currentViceChancellor') -> middleware('auth');
+        //get faculties of a university
+        Route::get('universities/{university}/faculties', 'UniversityController@faculties') -> middleware('auth');
+
     Route::apiResource('standards', 'StandardController');
     Route::apiResource('selfEvaluationReports', 'SelfEvaluationReportController') -> middleware('auth');
     Route::apiResource('reviewTeams', 'ReviewTeamController');
@@ -48,21 +68,48 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::apiResource('qacOfficers', 'QualityAssuranceCouncilOfficerController');
     Route::apiResource('qacDirectors', 'QualityAssuranceCouncilDirectorController');
     Route::apiResource('properEvaluations', 'ProperEvaluationController');
-    Route::apiResource('programmeCoordinators', 'ProgrammeCoordinatorController')
-        -> middleware('auth')
-        -> middleware('authorize.role:cqa_director,vice_chancellor,qac_director,qac_officer,iqau_director,dean,reviewer') ->only(['index'])
-        -> middleware('authorize.role:cqa_director') ->only(['store', 'update', 'destroy']);
+    Route::apiResource('programmeCoordinators', 'ProgrammeCoordinatorController')-> middleware('auth');
+    //other routes of the programmeCoordinators
+        //get the post graduate program of the programme coordinator
+        Route::get('programmeCoordinators/{programmeCoordinator}/postGraduateProgram', 'ProgrammeCoordinatorController@postGraduateProgram') -> middleware('auth');
+        //remove role of programme coordinator
+        Route::delete('programmeCoordinators/{programmeCoordinator}/removeRole', 'ProgrammeCoordinatorController@removeRole') -> middleware('auth');
+
     Route::apiResource('postGraduateProgramReviews', 'PostGraduateProgramReviewController');
 
     Route::apiResource('pgprApplications', 'PostGraduateProgramReviewApplicationController') -> middleware('auth');
-    Route::apiResource('postGraduatePrograms', 'PostGraduateProgramController') -> middleware('auth') -> middleware('authorize.role:cqa_director') -> only(['update']);
-    Route::apiResource('iqauDirectors', 'InternalQualityAssuranceUnitDirectorController') -> middleware('auth') -> middleware('authorize.role:cqa_director')->only(['store', 'update', 'destroy']);
+    Route::apiResource('iqauDirectors', 'InternalQualityAssuranceUnitDirectorController') -> middleware('auth');
+    //other routes of the iqauDirectors
+        //remove role of iqau director
+        Route::delete('iqauDirectors/{iqauDirector}/removeRole', 'InternalQualityAssuranceUnitDirectorController@removeRole') -> middleware('auth');
+        Route::get('iqauDirectors/{iqauDirector}/faculty', 'InternalQualityAssuranceUnitDirectorController@faculty') -> middleware('auth');
+
     Route::apiResource('iqaUnits', 'InternalQualityAssuranceUnitController');
     Route::apiResource('faculties', 'FacultyController') -> middleware('auth');
-    Route::apiResource('evidences', 'EvidenceController') -> middleware('auth') -> middleware('authorize.role:programme_coordinator') -> only(['store', 'update', 'destroy']);
+    //other routes of the faculties
+        //get the university of the faculty
+        Route::get('faculties/{faculty}/university', 'FacultyController@university') -> middleware('auth');
+        //get the current dean of the faculty
+        Route::get('faculties/{faculty}/currentDean', 'FacultyController@currentDean') -> middleware('auth');
+        //get the post graduate programs of the faculty
+        Route::get('faculties/{faculty}/postGraduatePrograms', 'FacultyController@postGraduatePrograms') -> middleware('auth');
+
+
+    Route::apiResource('evidences', 'EvidenceController') -> middleware('auth');
     Route::apiResource('deskEvaluations', 'DeskEvaluationController');
+
+    Route::apiResource('deans', 'DeanController');
+    //other routes of the deans
+        //get the faculty of the dean
+        Route::get('deans/{dean}/faculty', 'DeanController@faculty') -> middleware('auth');
+        //remove role of dean
+        Route::delete('deans/{dean}/removeRole', 'DeanController@removeRole') -> middleware('auth');
     Route::apiResource('criterias', 'CriteriaController');
     Route::apiResource('cqaDirectors', 'CenterForQualityAssuranceDirectorController');
+    //other routes of the cqa directors
+        Route::delete('cqaDirectors/{cqaDirector}/removeRole', 'CenterForQualityAssuranceDirectorController@removeRole') -> middleware('auth');
+        Route::get('cqaDirectors/{cqaDirector}/university', 'CenterForQualityAssuranceDirectorController@university') -> middleware('auth');
+
     Route::apiResource('centerForQualityAssurances', 'CenterForQualityAssuranceController');
     Route::apiResource('academicStaffs', 'AcademicStaffController');
 
@@ -111,13 +158,13 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
 
     //other routes for pgpr application
     Route::post('pgprApplications/{pgprApplication}/submit', 'PostGraduateProgramReviewApplicationController@submit') -> middleware('auth');  //submit pgpr application by the dean
-    Route::post('pgprApplications/{pgprApplication}/cqaDirectorApprove', 'PostGraduateProgramReviewApplicationController@cqaDirectorRecommendation') -> middleware('auth') -> middleware('authorize.role:cqa_director');  //approve pgpr application by the cqa director
-    Route::post('pgprApplications/{pgprApplication}/qacOfficerApproval', 'PostGraduateProgramReviewApplicationController@qacOfficerApproval') -> middleware('auth') -> middleware('authorize.role:qac_officer');  //approve pgpr application by the qac officer
+    Route::post('pgprApplications/{pgprApplication}/cqaDirectorApprove', 'PostGraduateProgramReviewApplicationController@cqaDirectorRecommendation') -> middleware('auth'); //approve pgpr application by the cqa director
+    Route::post('pgprApplications/{pgprApplication}/qacOfficerApproval', 'PostGraduateProgramReviewApplicationController@qacOfficerApproval') -> middleware('auth');//approve pgpr application by the qac officer
 
     //routes for self evaluation report methods
-    Route::post('selfEvaluationReports/{selfEvaluationReport}/addAdherenceToStandards', 'SelfEvaluationReportController@addAdherenceToStandards') -> middleware('auth') -> middleware('authorize.role:programme_coordinator');
+    Route::post('selfEvaluationReports/{selfEvaluationReport}/addAdherenceToStandards', 'SelfEvaluationReportController@addAdherenceToStandards') -> middleware('auth');
     Route::get('selfEvaluationReports/{selfEvaluationReport}/getStandards/{criteria}', 'SelfEvaluationReportController@getStandards') -> middleware('auth');
     Route::get('selfEvaluationReports/{selfEvaluationReport}/getStandardEvidencesAndAdherence/{standard}', 'SelfEvaluationReportController@getStandardEvidencesAndAdherence') -> middleware('auth');
-    Route::post('selfEvaluationReports/{selfEvaluationReport}/submitSelfEvaluationReport', 'SelfEvaluationReportController@submitSelfEvaluationReport') -> middleware('auth') -> middleware('authorize.role:programme_coordinator');
-    Route::post('selfEvaluationReports/{selfEvaluationReport}/recommendSelfEvaluationReport', 'SelfEvaluationReportController@recommendSelfEvaluationReport') -> middleware('auth') -> middleware('authorize.role:cqa_director,iqau_director,vice_chancellor');
+    Route::post('selfEvaluationReports/{selfEvaluationReport}/submitSelfEvaluationReport', 'SelfEvaluationReportController@submitSelfEvaluationReport') -> middleware('auth');
+    Route::post('selfEvaluationReports/{selfEvaluationReport}/recommendSelfEvaluationReport', 'SelfEvaluationReportController@recommendSelfEvaluationReport') -> middleware('auth');
 });

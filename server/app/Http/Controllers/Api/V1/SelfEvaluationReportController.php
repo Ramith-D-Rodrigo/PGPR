@@ -13,8 +13,10 @@ use App\Http\Requests\V1\UpdateSelfEvaluationReportRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\V1\StandardResource;
 use App\Models\Standard;
+use App\Services\V1\PostGraduateProgramReviewService;
 use App\Services\V1\StandardService;
 use Exception;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
@@ -51,6 +53,17 @@ class SelfEvaluationReportController extends Controller
      */
     public function show(SelfEvaluationReport $selfEvaluationReport)
     {
+
+        //authorize the request
+        try{
+            $this -> authorize('view', $selfEvaluationReport);
+        }
+        catch(AuthorizationException $e){
+            return response() -> json([
+                'message' => $e -> getMessage()
+            ], 403);
+        }
+
         //needed details
         //university name and faculty name
         //pgpr id
@@ -120,27 +133,44 @@ class SelfEvaluationReportController extends Controller
     //add adherence to standards
     public function addAdherenceToStandards(StoreAdherenceToSERStandard $request, SelfEvaluationReport $selfEvaluationReport)
     {
-        $validatedData = $request->validated();
+        try{
+            //authorize the request
+            $this -> authorize('addAdherenceToStandardsAuthorize', $selfEvaluationReport);
 
-        //check whether the adherence to standard already exists
-        $standard = $selfEvaluationReport->adherenceToStandards()->where('standard_id', $validatedData['standard_id'])->first();
-        if ($standard) {
-            //then update the adherence
-            $selfEvaluationReport->adherenceToStandards()->updateExistingPivot($validatedData['standard_id'], [
-                'adherence' => $validatedData['adherence'],
-                'updated_at' => now(),
-            ]);
-        } else {
-            $selfEvaluationReport->adherenceToStandards()->attach($validatedData['standard_id'], [
-                'adherence' => $validatedData['adherence'],
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+            $validatedData = $request->validated();
+
+            //check whether the adherence to standard already exists
+            $standard = $selfEvaluationReport->adherenceToStandards()->where('standard_id', $validatedData['standard_id'])->first();
+            if($standard){
+                //then update the adherence
+                $selfEvaluationReport -> adherenceToStandards() -> updateExistingPivot($validatedData['standard_id'], [
+                    'adherence' => $validatedData['adherence'],
+                    'updated_at' => now(),
+                ]);
+            }
+            else{
+                $selfEvaluationReport -> adherenceToStandards() -> attach($validatedData['standard_id'], [
+                    'adherence' => $validatedData['adherence'],
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+
+            return response()->json([
+                'message' => 'Adherence to standard added successfully',
+            ], 201);
         }
-
-        return response()->json([
-            'message' => 'Adherence to standard added successfully',
-        ], 201);
+        catch(AuthorizationException $e){
+            return response() -> json([
+                'message' => $e -> getMessage(),
+            ], 403);
+        }
+        catch(Exception $e){
+            return response() -> json([
+                'message' => 'Failed to add adherence to standard',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     //get the standards of the self evaluation report by the criteria id sent by client
@@ -160,9 +190,10 @@ class SelfEvaluationReportController extends Controller
     }
 
     //get the evidences and adherence of the standard
-    public function getStandardEvidencesAndAdherence(SelfEvaluationReport $selfEvaluationReport, Standard $standard)
-    {
-        try {
+    public function getStandardEvidencesAndAdherence(SelfEvaluationReport $selfEvaluationReport, Standard $standard){
+        try{
+            //authorize the request
+            $this -> authorize('getStandardEvidencesAndAdherenceAuthorize', $selfEvaluationReport);
             //get the evidences and adherence of the standard of the self evaluation report
             $standard->load([
                 'evidences' => function ($query) use ($selfEvaluationReport, $standard) {
@@ -176,7 +207,13 @@ class SelfEvaluationReportController extends Controller
             ]);
             //dd($standard);
             return new StandardResource($standard);
-        } catch (Exception $e) {
+        }
+        catch(AuthorizationException $e){
+            return response()->json([
+                'message' => $e -> getMessage(),
+            ], 403);
+        }
+        catch(Exception $e){
             return response()->json([
                 'message' => 'Error occurred while getting the standard evidences and adherence',
                 'error' => $e->getTrace()
@@ -185,9 +222,11 @@ class SelfEvaluationReportController extends Controller
     }
 
     //submit the ser report for iqau, cqa, vc recommendations
-    public function submitSelfEvaluationReport(SubmitSelfEvaluationReportRequest $request, SelfEvaluationReport $selfEvaluationReport)
-    {
-        try {
+    public function submitSelfEvaluationReport(SubmitSelfEvaluationReportRequest $request, SelfEvaluationReport $selfEvaluationReport){
+        try{
+            //authorize the request
+            $this -> authorize('submitSelfEvaluationReportAuthorize', $selfEvaluationReport);
+
             //get the validated data
             $validatedData = $request->validated();
 
@@ -262,7 +301,13 @@ class SelfEvaluationReportController extends Controller
                 'message' => 'Self evaluation report submitted successfully',
                 'self_evaluation_report' => new SelfEvaluationReportResource($selfEvaluationReport)
             ], 200);
-        } catch (Exception $e) {
+        }
+        catch(AuthorizationException $e){
+            return response()->json([
+                'message' => $e -> getMessage(),
+            ], 403);
+        }
+        catch(Exception $e){
             DB::rollBack();
             //delete the files if they are stored
             if (Storage::exists('public/ser/sectionA/' . $sectionAFileName)) {
@@ -288,9 +333,11 @@ class SelfEvaluationReportController extends Controller
         }
     }
 
-    public function recommendSelfEvaluationReport(Request $request, SelfEvaluationReport $selfEvaluationReport)
-    {
-        try {
+    public function recommendSelfEvaluationReport(Request $request, SelfEvaluationReport $selfEvaluationReport){
+        try{
+            //authorize the request
+            $this -> authorize('recommendSelfEvaluationReportAuthorize', $selfEvaluationReport);
+
             //first check if the self evaluation report is submitted
             //checked using section_a, section_b, section_d, final_ser_report and payment_voucher
             if (
@@ -349,15 +396,54 @@ class SelfEvaluationReportController extends Controller
                     'updated_at' => now(),
                 ]);
 
-                //TODO: we have to extract the files from evidences urls and store them in system's google drive
-            }
+                //commit the transaction of recommending the self evaluation report
+                DB::commit();
 
-            DB::commit();
-        } catch (Exception $e) {
+                //check if reviewer team has been assigned to the postgraduate programme review
+                $pgpr = $selfEvaluationReport -> postGraduateProgramReview;
+                $reviewTeam = $pgpr -> acceptedReviewTeam;
+
+                if($reviewTeam){   //has an accepted review team
+                    //store the files in relevant folders
+                    $flag = PostGraduateProgramReviewService::StoreEvidencesInSystemDrive($pgpr);
+
+                    if($flag){  //successfully stored the evidences in system drive
+                        return response()->json([
+                            'message' => 'Self evaluation report recommended successfully',
+                        ], 200);
+                    }
+
+                    //if failed to store the evidences in system drive
+                    return response()->json([
+                        'message' => 'Self evaluation report recommended successfully. But failed to store the evidences in system drive',
+                    ], 200);
+                }
+                else{
+                    //if no review team is assigned to the postgraduate programme review
+                    return response()->json([
+                        'message' => 'Self evaluation report recommended successfully. But no review team is assigned to the postgraduate programme review',
+                    ], 200);
+                }
+            }
+            else{
+                //commit the transaction of recommending the self evaluation report
+                DB::commit();
+
+                return response()->json([
+                    'message' => 'Self evaluation report recommended successfully',
+                ], 200);
+            }
+        }
+        catch(AuthorizationException $e){
+            return response()->json([
+                'message' => $e -> getMessage(),
+            ], 403);
+        }
+        catch(Exception $e){
             DB::rollBack();
             return response()->json([
                 'message' => 'Error occurred while recommending the self evaluation report',
-                'error' => $e->getTrace()
+                'error' => $e -> getMessage()
             ], 500);
         }
     }

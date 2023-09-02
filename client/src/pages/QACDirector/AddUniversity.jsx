@@ -1,12 +1,12 @@
 import React from 'react'
 import { Button, Checkbox, CircularProgress, FormControl, FormControlLabel, FormGroup, IconButton, Input, InputAdornment, InputLabel, MenuItem, Select,Snackbar,Alert, Box } from '@mui/material'
 import FormHelperText from '@mui/material/FormHelperText';
-import axios from '../../api/api.js';
 import {useState,useEffect} from 'react';
 import useSetUserNavigations from '../../hooks/useSetUserNavigations'
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import { useNavigate } from 'react-router-dom';
+import createUniversity from '../../api/University/createUniversity';
 
 
 function AddUniversity() {
@@ -230,9 +230,7 @@ function AddUniversity() {
             return;
         }
         else{
-            await axios.get('/sanctum/csrf-cookie');
-            await axios.post('/api/v1/universities',
-            {
+            const uniData = {
                 name:universityName,
                 address: universityAddress,
                 website : universityWebsite,
@@ -249,23 +247,26 @@ function AddUniversity() {
                     data : cqaContactNumbers.numbers,
                 },
                 cqaEmail: cqaEmail,
-            }
-            ).then(res => {
-                console.log(res.data);
-                setResponseMsg(res.statusText);
+            };
+            
+            //create university
+            try{
+                const creationResult = await createUniversity(uniData);
+                console.log(creationResult.data);
+                setResponseMsg(creationResult.statusText);
                 setAdded(true);
                 setLoading(false);
                 setTimeout(() => {
                     navigate('../',{ replace: true });
                 }, 1000);
-            })
-            .catch(err => {
+            }
+            catch(err){
                 console.log("message : ",err?.response?.data?.message);
                 console.log("errors : ",err?.response?.data?.errors);
                 setResponseMsg(err?.response?.data?.message);
                 setFailed(true);
                 setLoading(false);
-            });            
+            }           
         } 
     }
 
@@ -380,7 +381,7 @@ function AddUniversity() {
             </FormControl>
 
             <FormControl sx={{padding:"15px 10px",width:'50%',boxSizing:'border-box'}} {...cqaEmailError.err} variant="standard">
-                <InputLabel htmlFor="cqa-email"><b>QAC Email</b></InputLabel>
+                <InputLabel htmlFor="cqa-email"><b>CQA Email</b></InputLabel>
                 <Input
                 required
                 // autoComplete='off'
