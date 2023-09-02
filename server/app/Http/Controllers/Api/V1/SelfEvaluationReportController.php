@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Models\SelfEvaluationReport;
-use App\Http\Requests\StoreSelfEvaluationReportRequest;
-use App\Http\Requests\UpdateSelfEvaluationReportRequest;
+use App\Http\Requests\V1\StoreSelfEvaluationReportRequest;
+use App\Http\Requests\V1\UpdateSelfEvaluationReportRequest;
 use App\Http\Controllers\Controller;
 
 class SelfEvaluationReportController extends Controller
@@ -38,7 +38,7 @@ class SelfEvaluationReportController extends Controller
      */
     public function show(SelfEvaluationReport $selfEvaluationReport)
     {
-        
+
     }
 
     /**
@@ -52,7 +52,7 @@ class SelfEvaluationReportController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateSelfEvaluationReportRequest $request, SelfEvaluationReport $selfEvaluationReport)
+    public function update(UpdateSelfEvaluationReportRequest $request, string $id)
     {
         //
     }
