@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Requests\V1\ShowRemarksOfSERRequest;
 use App\Http\Requests\V1\UpdateAcceptAppointmentRequest;
-use App\Http\Requests\V1\StoreAcademicStaffRequest;
 use App\Http\Requests\V1\UpdateAcceptPGPRRequest;
 use App\Http\Requests\V1\UpdateRejectAppointmentRequest;
 use App\Http\Requests\V1\UpdateRejectPGPRAssignmentRequest;
+use App\Http\Requests\V1\UpdateSERRemarksOfSectionsABDRequest;
 use App\Http\Resources\V1\DeskEvaluationCollection;
 use App\Http\Resources\V1\ProperEvaluationCollection;
 use App\Http\Resources\V1\ReviewerBrowsePGPRCollection;
@@ -18,6 +19,7 @@ use App\Models\Reviewer;
 use App\Http\Requests\V1\StoreReviewerRequest;
 use App\Http\Requests\V1\UpdateReviewerRequest;
 use App\Http\Controllers\Controller;
+use App\Models\SelfEvaluationReport;
 use App\Models\User;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -185,7 +187,6 @@ class ReviewerController extends Controller
         }
     }
 
-    //TODO: NEED TO CHECK WHETHER THE USER IS ACTUALLY PART OF THE REVIEW TEAM
     public function downloadReviewAppointmentDeclarationLetter(Request $request): BinaryFileResponse
     {
         $headers = [
@@ -358,12 +359,72 @@ class ReviewerController extends Controller
     {
     }
 
+    public function viewRemarksOfSectionsABD(ShowRemarksOfSERRequest $request): JsonResponse
+    {
+        try {
+            $serId = $request->validated('ser_id');
+            $reviewerId = Auth::id();
+
+            $remarks = DB::table('ser_section_reviewer_remarks')->select(['section' , 'remark'])->where([
+                'reviewer_id' => $reviewerId,
+                'ser_id' => $serId,
+            ])->first();
+
+            $data = [];
+            $ser = SelfEvaluationReport::findOrFail($serId);
+            $data['serData'] = [
+                'serId' => $ser->id,
+                'sectionA' => $ser->section_a,
+                'sectionB' => $ser->section_b,
+                'sectionC' => $ser->section_c,
+            ];
+
+            $data['remarks'] = [];
+
+            if ($remarks) {
+                foreach ($remarks as $remark) {
+                    $data['remarks'][] = $remark;
+                }
+            }
+
+            return response()->json(['message' => 'Successful', 'data' => $data]);
+        }catch (ModelNotFoundException $exception) {
+            return response()->json(['message' => 'The self evaluation report you requested cannot be found please check and try again.'], 422);
+        } catch (Exception $exception) {
+            return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+        }
+    }
+
     /**
      * Use case 1.2.1
      * Update remarks of Section A, B and D
      */
-    public function updateRemarksOfSection()
+    public function updateRemarksOfSectionsABD(UpdateSERRemarksOfSectionsABDRequest $request): JsonResponse
     {
+        try {
+            // TODO: check whether the review belongs to that particular review team before updating
+            $reviewerId = Auth::id();
+            $serId = $request->validated('ser_id');
+            $sections = $request->validated('sections');
+            DB::beginTransaction();
+            foreach ($sections as $section) {
+                $attributes = [
+                    'reviewer_id' => $reviewerId,
+                    'ser_id' => $serId,
+                    'section' => $section['section']
+                ];
+
+                $values = [
+                    'remark' => $section['remark']
+                ];
+                DB::table('ser_section_reviewer_remarks')->updateOrInsert($attributes, $values);
+            }
+            DB::commit();
+            return response()->json(['message' => 'Your remarks were successfully updated']);
+        } catch (Exception $exception) {
+            DB::rollBack();
+            return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+        }
     }
 
     /**
@@ -389,6 +450,9 @@ class ReviewerController extends Controller
     public function viewSummaryOfDEGrade()
     {
     }
+
+    public function viewOwnProoperEvaluationCriteria()
+    {}
 
     /**
      * Store a newly created resource in storage.
@@ -507,7 +571,7 @@ class ReviewerController extends Controller
     {
         //remove the user's reviewer role
     }
-  
+
     public function downloadExcelFile(){
         try{
             $file = Storage::download('public/reviewer-excel-template.xlsx');
