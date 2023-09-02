@@ -29,6 +29,8 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\V1\ReviewerImport;
@@ -357,6 +359,30 @@ class ReviewerController extends Controller
      */
     public function viewSpecificPGPR(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'pgprId' => 'required|exists:post_graduate_program_reviews,id',
+        ], [
+            'pgprId.required' => 'We need the postgraduate review program id inorder to provide the necessary details',
+            'pgprId.exists' => 'There is no such postgraduate review program in our database, please check and retry',
+        ]);
+
+        if ($validator->passes()) {
+            try {
+                $reviewer = Reviewer::findOrFail(Auth::id());
+
+                $reviewTeams = $reviewer
+                    ->reviewTeams
+                    ->where('pgpr_id', $validator->validated()['pgprId'])->load('postGraduateReviewProgram');
+
+                return response()->json(['message' => 'successful', 'data' => $reviewTeams->postGraduateReviewProgram]);
+            } catch (ModelNotFoundException $exception) {
+                return response()->json(['message' => 'Hmm. we dont have such reviewer in our system, how did you get in?'], 403);
+            } catch (Exception $exception) {
+                return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+            }
+        } else {
+           return response()->json(['message' => 'Unsuccessful', 'errors' => $validator->errors()]);
+        }
     }
 
     public function viewRemarksOfSectionsABD(ShowRemarksOfSERRequest $request): JsonResponse
@@ -459,10 +485,6 @@ class ReviewerController extends Controller
      */
     public function store(StoreReviewerRequest $request)
     {
-        //incase the user wants to create a reviewer account,
-        //add the reviewer role to the user,
-        //add the user to the reviewer table
-        //return the response to the user
     }
 
     /**
