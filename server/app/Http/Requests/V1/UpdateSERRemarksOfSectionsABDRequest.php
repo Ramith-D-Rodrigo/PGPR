@@ -42,9 +42,11 @@ class UpdateSERRemarksOfSectionsABDRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'remark.required' => 'You should provide a remark',
-            'remark.min' => 'The comment must be of at least 4 characters long.',
-            'remark.max' => 'The comment cannot exceed 255 characters.',
+            'ser_id.required' => 'You need to provide the ID of the Self evaluation report that you are updating',
+            'ser_id.exists' => 'There was no such self evaluation report amongst our records please check again and retry',
+            'sections.*.remark.required' => 'You should provide a remark for the sections that you are updating',
+            'sections.*.remark.min' => 'The remark must be of at least 4 characters long.',
+            'sections.*.remark.max' => 'The remark cannot exceed 255 characters.',
         ];
     }
 }
