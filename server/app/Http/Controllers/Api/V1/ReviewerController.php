@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Requests\V1\ShowRemarksOfSERRequest;
+use App\Http\Requests\V1\StoreConductEvaluationRequest;
 use App\Http\Requests\V1\UpdateAcceptAppointmentRequest;
 use App\Http\Requests\V1\UpdateAcceptPGPRRequest;
 use App\Http\Requests\V1\UpdateRejectAppointmentRequest;
@@ -15,6 +16,7 @@ use App\Http\Resources\V1\ReviewerCollection;
 use App\Http\Resources\V1\ReviewerResource;
 use App\Mail\RejectReviewerRole;
 use App\Mail\ReviewerRejectReviewAssignment;
+use App\Models\PostGraduateProgramReview;
 use App\Models\Reviewer;
 use App\Http\Requests\V1\StoreReviewerRequest;
 use App\Http\Requests\V1\UpdateReviewerRequest;
@@ -356,8 +358,10 @@ class ReviewerController extends Controller
     /**
      * Use case 1.2
      * View specific program review
+     *
+     * send the PGPR ID as pgprId=10 in the GET request
      */
-    public function viewSpecificPGPR(Request $request)
+    public function viewSpecificPGPR(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'pgprId' => 'required|exists:post_graduate_program_reviews,id',
@@ -456,9 +460,53 @@ class ReviewerController extends Controller
     /**
      * Use case 1.3
      * Conduct desk evaluation
+     *
+     *      {
+     *          pgpr_id: 10,
+     *          criteria_id: 10,
+     *          standard_id: 10,
+     *          comment: "This is marvelous",
+     *          de_score: 0 <= x <= 3
+     *      }
+     *
+     *
      */
-    public function conductDeskEvaluation()
+    public function conductDeskEvaluation(StoreConductEvaluationRequest $request): JsonResponse
     {
+        try {
+            $validated = $request->validated();
+            $postGraduateReviewProgram = PostGraduateProgramReview::findOrFail($validated['pgpr_id']);
+            $deskEvaluation = $postGraduateReviewProgram->deskEvaluation;
+
+            if ($deskEvaluation) {
+                $attributes = [
+                    'desk_evaluation_id' => $deskEvaluation->id,
+                    'reviewer_id' => Auth::id(),
+                    'standard_id' => $validated['standard_id'],
+                ];
+
+                $values = [
+                    'de_score' => $validated['de_score'],
+                    'comment' => $validated['comment'],
+                ];
+
+                DB::table('desk_evaluation_score')->updateOrInsert($attributes, $values);
+
+                return response()->json(['message' => 'Successful, added the data']);
+            } else {
+                return response()->json(
+                    ['message' => 'Desk evaluation for this postgraduate program is not scheduled yet, will be informed when scheduled'],
+                    422
+                );
+            }
+        } catch (ModelNotFoundException $exception) {
+            return response()->json(
+                ['message' => 'We could find the requested post graduate review program, please try check and retry'],
+                500
+            );
+        } catch (Exception $exception) {
+            return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+        }
     }
 
     /**
@@ -477,8 +525,9 @@ class ReviewerController extends Controller
     {
     }
 
-    public function viewOwnProoperEvaluationCriteria()
-    {}
+    public function viewOwnProperEvaluationCriteria()
+    {
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -498,7 +547,7 @@ class ReviewerController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $id): ReviewerResource|JsonResponse
     {
         //get the necessary data from the user table and return that
         try {
@@ -515,7 +564,7 @@ class ReviewerController extends Controller
     /**
      * Get desk evaluations of the currently logged in reviewer
      */
-    public function reviewerDeskEvaluations()
+    public function reviewerDeskEvaluations(): JsonResponse|DeskEvaluationCollection
     {
         try {
             // find the reviewer
