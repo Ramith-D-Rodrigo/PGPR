@@ -248,7 +248,7 @@ class PostGraduateProgramController extends Controller
                         $user = request() -> query('includeUser');
                         if($user){
                             $programmeCoordinator -> load(['academicStaff:id' => [
-                                'universitySide:id' => ['user:id,initials,surname']
+                                'universitySide:id' => ['user:id,initials,surname,profile_pic']
                                 ]
                             ]);
                         }

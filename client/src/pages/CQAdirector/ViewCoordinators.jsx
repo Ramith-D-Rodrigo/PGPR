@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import MainContent from "../../components/MainContent";
 import useSetUserNavigations from "../../hooks/useSetUserNavigations";
+import useAuth from "../../hooks/useAuth";
 import { CircularProgress } from "@mui/material";
 import {
   Button,
@@ -54,12 +55,6 @@ const CustomTable = ({ tableData, openEditDialog }) => {
                   <b>Faculty</b>
                 </TableCell>
                 <TableCell align="center">
-                  <b>Status</b>
-                </TableCell>
-                <TableCell align="center">
-                  <b>No. of PG Programs</b>
-                </TableCell>
-                <TableCell align="center">
                   <b>Actions</b>
                 </TableCell>
               </TableRow>
@@ -70,11 +65,9 @@ const CustomTable = ({ tableData, openEditDialog }) => {
                   <TableCell align="center">
                     <Avatar alt="Profile Photo" src={row.profilePhoto} />
                   </TableCell>
-                  <TableCell align="center">{row.cid}</TableCell>
-                  <TableCell align="center">{row.name}</TableCell>
-                  <TableCell align="center">{row.faculty}</TableCell>
-                  <TableCell align="center">{row.status}</TableCell>
-                  <TableCell align="center">{row.pgCount}</TableCell>
+                  <TableCell align="center">{row.id}</TableCell>
+                  <TableCell align="center">{row.academicStaff.universitySide.user.surname}</TableCell>
+                  <TableCell align="center">{row.faculty.name}</TableCell>
                   <TableCell align="center">
                     <Button
                       style={{ margin: "0 8px" }}
@@ -111,60 +104,80 @@ const CustomTable = ({ tableData, openEditDialog }) => {
 
 const Coordinators = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [auth, setAuth] = useState(null);
   const [isLoading, setIsLoading] = useState(true); // State to track loading
-
+  const {auth} = useAuth();
   const [university, setUniversity] = useState(null); // Add this state to store university data
   const [universityFaculties, setUniversityFaculties] = useState([]); // State to store faculties
   const [tableData, setTableData] = useState([]); // Initialize tableData as an empty array
 
 
-  
   useEffect(() => {
     async function fetchData() {
       try {
-        
         const cqaDirectorId = auth.id; 
         const response = await getCQADirectorUniversity(cqaDirectorId);
-        const universityData = response.data;
+        const universityData = response.data.data;
         setUniversity(universityData);
-
+  
         // Fetch faculties of the university
         const universityId = universityData.id;
         const facultiesResponse = await getUniversityFaculties(universityId);
-        const facultiesData = facultiesResponse.data;
+        const facultiesData = facultiesResponse.data.data;
+        console.log('Faculties Data:', facultiesData); 
 
-        // Fetch the current dean for a specific faculty
-        const facultyId = "FACULTY_ID";
-        const deanResponse = await getCurrentDean(facultyId);
-        const deanData = deanResponse.data;
+        const queryParams = {
+          includeAcademicStaff: true,
+          includeUniversitySide: true,
+          includeUser: true
+          }
 
-        // Fetch postgraduate programs for the same faculty
-        const postGradProgramsResponse = await getFacultyPostGraduatePrograms(facultyId);
-        const postGradProgramsData = postGradProgramsResponse.data;
+        // Initialize an array to store data for all coordinators
+        const allCoordinatorData = [];
+  
+        for (let i = 0; i < facultiesData.length; i++) {
+          const faculty = facultiesData[i];
+          
+          // Fetch the current dean for the current faculty
+          const deanResponse = await getCurrentDean(faculty.id, queryParams);
+          const deanData = deanResponse.data.data;
+  
+          deanData.faculty = faculty;
 
-        // Fetch coordinators for each postgraduate program
-        const coordinatorPromises = postGradProgramsData.map(async (program) => {
-          const coordinatorResponse = await getCurrentCoordinator(program.id);
-          return coordinatorResponse.data;
-        });
+          // Fetch postgraduate programs for the current faculty
+          const postGradProgramsResponse = await getFacultyPostGraduatePrograms(faculty.id);
+          const postGradProgramsData = postGradProgramsResponse.data.data;
+          console.log('PG Data:', postGradProgramsData); 
+  
+          // Fetch coordinators for each postgraduate program
+            const coordinatorPromises = postGradProgramsData.map(async (program) => {
+            console.log('log:',program.id);
+            const coordinatorResponse = await getCurrentCoordinator(program.id, queryParams);
+            console.log('response:', coordinatorResponse); 
 
-        const coordinatorsData = await Promise.all(coordinatorPromises);
-
-        // Combine deanData, postGradProgramsData, and coordinatorsData into tableData
-        const updatedTableData = [deanData, ...postGradProgramsData, ...coordinatorsData];
-
-        setTableData(updatedTableData);
-
+            const coordinatorData = response.data.data;
+            coordinatorData.faculty = faculty;
+            return coordinatorResponse.data.data;
+          });
+          
+          const coordinatorsData = await Promise.all(coordinatorPromises);
+  
+          // Combine deanData, postGradProgramsData, and coordinatorsData into allCoordinatorData
+          allCoordinatorData.push(deanData, ...coordinatorsData);
+        }
+  
+        // Set allCoordinatorData to tableData
+        setTableData(allCoordinatorData);
+  
         setIsLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
         setIsLoading(false);
       }
     }
-
+  
     fetchData();
   }, []);
+  
   const [selectedCoordinatorForEdit, setSelectedCoordinatorForEdit] = useState(
     {}
   );
@@ -260,7 +273,7 @@ const Coordinators = () => {
         }}
       >
         <div style={{ display: "flex", alignItems: "center" }}>
-          <p>Loading</p>
+          <p>Loading ...</p>
           <CircularProgress style={{ marginLeft: "8px" }} />
         </div>
       </div>
