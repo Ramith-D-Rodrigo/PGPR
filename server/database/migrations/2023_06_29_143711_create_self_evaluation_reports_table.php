@@ -31,6 +31,18 @@ return new class extends Migration
             $table -> foreign('center_for_quality_assurance_director_id', 'cqa_dir_id') -> references('id') -> on('center_for_quality_assurance_directors');
             $table -> foreign('iqau_dir_id') -> references('id') -> on('internal_quality_assurance_unit_directors');
         });
+
+        Schema::create('ser_section_reviewer_remarks', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('ser_id')->nullable();
+            $table->unsignedBigInteger('reviewer_id')->nullable();
+            $table->enum('section', ['A', 'B', 'D']); //sections are A, B, and D
+            $table->string('remark');
+            $table->timestamps();
+
+            $table->foreign('ser_id')->references('id')->on('self_evaluation_reports');
+            $table->foreign('reviewer_id')->references('id')->on('reviewers');
+        });
     }
 
     /**

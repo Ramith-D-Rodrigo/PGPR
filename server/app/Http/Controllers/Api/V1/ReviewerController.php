@@ -2,21 +2,26 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Requests\V1\ShowRemarksOfSERRequest;
+use App\Http\Requests\V1\StoreConductEvaluationRequest;
 use App\Http\Requests\V1\UpdateAcceptAppointmentRequest;
-use App\Http\Requests\V1\StoreAcademicStaffRequest;
 use App\Http\Requests\V1\UpdateAcceptPGPRRequest;
 use App\Http\Requests\V1\UpdateRejectAppointmentRequest;
 use App\Http\Requests\V1\UpdateRejectPGPRAssignmentRequest;
+use App\Http\Requests\V1\UpdateSERRemarksOfSectionsABDRequest;
+use App\Http\Resources\V1\DeskEvaluationCollection;
+use App\Http\Resources\V1\ProperEvaluationCollection;
 use App\Http\Resources\V1\ReviewerBrowsePGPRCollection;
-use App\Http\Resources\V1\ReviewerBrowsePGPRResource;
 use App\Http\Resources\V1\ReviewerCollection;
 use App\Http\Resources\V1\ReviewerResource;
 use App\Mail\RejectReviewerRole;
 use App\Mail\ReviewerRejectReviewAssignment;
+use App\Models\PostGraduateProgramReview;
 use App\Models\Reviewer;
 use App\Http\Requests\V1\StoreReviewerRequest;
 use App\Http\Requests\V1\UpdateReviewerRequest;
 use App\Http\Controllers\Controller;
+use App\Models\SelfEvaluationReport;
 use App\Models\User;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -27,6 +32,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\V1\ReviewerImport;
@@ -42,8 +48,12 @@ class ReviewerController extends Controller
      */
     public function index(): ReviewerCollection
     {
-        //returns everything
-        return new ReviewerCollection(Reviewer::all()->loadMissing(['user', 'workingFaculty', 'reviewTeams']));
+        //returns everything ->with('postGraduateReviewProgram.postGraduateProgram.faculty.university')
+        return new ReviewerCollection(Reviewer::all()->loadMissing([
+            'user',
+            'workingFaculty',
+            'reviewTeams'
+        ]));
     }
 
     //import reviewers using excel file
@@ -182,7 +192,6 @@ class ReviewerController extends Controller
         }
     }
 
-    //TODO: NEED TO CHECK WHETHER THE USER IS ACTUALLY PART OF THE REVIEW TEAM
     public function downloadReviewAppointmentDeclarationLetter(Request $request): BinaryFileResponse
     {
         $headers = [
@@ -200,7 +209,7 @@ class ReviewerController extends Controller
      * View program reviews => with filtering
      * TODO: IMPLEMENT FILTERING
      */
-    public function browsePGPRs(Request $request): ReviewerBrowsePGPRCollection|JsonResponse
+    public function browsePGPRs(): ReviewerBrowsePGPRCollection|JsonResponse
     {
         //get the review teams and get the PGPRs from them
         try {
@@ -217,7 +226,7 @@ class ReviewerController extends Controller
             }
 
             return new ReviewerBrowsePGPRCollection($review_teams);
-        }catch (ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return response()->json(["message" => "Your credentials are wrong, cannot be authorized for this action.", "data" => []], 401);
         } catch (Exception $exception) {
             return response()->json(["message" => "An internal server error occurred, user request cannot be full filled."], 500);
@@ -268,11 +277,11 @@ class ReviewerController extends Controller
 
             //change the status to ACCEPTED in the reviewer_review_team table
             $review_team->pivot->reviewer_confirmation = 'ACCEPTED';
-            $review_team->pivot->declaration_letter = Storage::disk('public')->url($path);//add the file url here
+            $review_team->pivot->declaration_letter = Storage::disk('public')->url($path); //add the file url here
             $review_team->pivot->save(); //save the data to the pivot table
 
             return response()->json(['message' => 'Your declaration was successfully uploaded.'], 201);
-        }catch (ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return response()->json(["message" => "Your credentials are wrong, cannot be authorized for this action.", "data" => []], 401);
         } catch (Exception $exception) {
             return response()->json(["message" => "An internal server error occurred, user request cannot be full filled."], 500);
@@ -350,25 +359,155 @@ class ReviewerController extends Controller
     /**
      * Use case 1.2
      * View specific program review
+     *
+     * send the PGPR ID as pgprId=10 in the GET request
      */
-    public function viewSpecificPGPR(Request $request)
+    public function viewSpecificPGPR(Request $request): JsonResponse
     {
+        $validator = Validator::make($request->all(), [
+            'pgprId' => 'required|exists:post_graduate_program_reviews,id',
+        ], [
+            'pgprId.required' => 'We need the postgraduate review program id inorder to provide the necessary details',
+            'pgprId.exists' => 'There is no such postgraduate review program in our database, please check and retry',
+        ]);
+
+        if ($validator->passes()) {
+            try {
+                $reviewer = Reviewer::findOrFail(Auth::id());
+
+                $reviewTeams = $reviewer
+                    ->reviewTeams
+                    ->where('pgpr_id', $validator->validated()['pgprId'])->load('postGraduateReviewProgram');
+
+                return response()->json(['message' => 'successful', 'data' => $reviewTeams->postGraduateReviewProgram]);
+            } catch (ModelNotFoundException $exception) {
+                return response()->json(['message' => 'Hmm. we dont have such reviewer in our system, how did you get in?'], 403);
+            } catch (Exception $exception) {
+                return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+            }
+        } else {
+           return response()->json(['message' => 'Unsuccessful', 'errors' => $validator->errors()]);
+        }
+    }
+
+    public function viewRemarksOfSectionsABD(ShowRemarksOfSERRequest $request): JsonResponse
+    {
+        try {
+            $serId = $request->validated('ser_id');
+            $reviewerId = Auth::id();
+
+            $remarks = DB::table('ser_section_reviewer_remarks')->select(['section' , 'remark'])->where([
+                'reviewer_id' => $reviewerId,
+                'ser_id' => $serId,
+            ])->first();
+
+            $data = [];
+            $ser = SelfEvaluationReport::findOrFail($serId);
+            $data['serData'] = [
+                'serId' => $ser->id,
+                'sectionA' => $ser->section_a,
+                'sectionB' => $ser->section_b,
+                'sectionC' => $ser->section_c,
+            ];
+
+            $data['remarks'] = [];
+
+            if ($remarks) {
+                foreach ($remarks as $remark) {
+                    $data['remarks'][] = $remark;
+                }
+            }
+
+            return response()->json(['message' => 'Successful', 'data' => $data]);
+        }catch (ModelNotFoundException $exception) {
+            return response()->json(['message' => 'The self evaluation report you requested cannot be found please check and try again.'], 422);
+        } catch (Exception $exception) {
+            return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+        }
     }
 
     /**
      * Use case 1.2.1
      * Update remarks of Section A, B and D
      */
-    public function updateRemarksOfSection()
+    public function updateRemarksOfSectionsABD(UpdateSERRemarksOfSectionsABDRequest $request): JsonResponse
     {
+        try {
+            // TODO: check whether the review belongs to that particular review team before updating
+            $reviewerId = Auth::id();
+            $serId = $request->validated('ser_id');
+            $sections = $request->validated('sections');
+            DB::beginTransaction();
+            foreach ($sections as $section) {
+                $attributes = [
+                    'reviewer_id' => $reviewerId,
+                    'ser_id' => $serId,
+                    'section' => $section['section']
+                ];
+
+                $values = [
+                    'remark' => $section['remark']
+                ];
+                DB::table('ser_section_reviewer_remarks')->updateOrInsert($attributes, $values);
+            }
+            DB::commit();
+            return response()->json(['message' => 'Your remarks were successfully updated']);
+        } catch (Exception $exception) {
+            DB::rollBack();
+            return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+        }
     }
 
     /**
      * Use case 1.3
      * Conduct desk evaluation
+     *
+     *      {
+     *          pgpr_id: 10,
+     *          criteria_id: 10,
+     *          standard_id: 10,
+     *          comment: "This is marvelous",
+     *          de_score: 0 <= x <= 3
+     *      }
+     *
+     *
      */
-    public function conductDeskEvaluation()
+    public function conductDeskEvaluation(StoreConductEvaluationRequest $request): JsonResponse
     {
+        try {
+            $validated = $request->validated();
+            $postGraduateReviewProgram = PostGraduateProgramReview::findOrFail($validated['pgpr_id']);
+            $deskEvaluation = $postGraduateReviewProgram->deskEvaluation;
+
+            if ($deskEvaluation) {
+                $attributes = [
+                    'desk_evaluation_id' => $deskEvaluation->id,
+                    'reviewer_id' => Auth::id(),
+                    'standard_id' => $validated['standard_id'],
+                ];
+
+                $values = [
+                    'de_score' => $validated['de_score'],
+                    'comment' => $validated['comment'],
+                ];
+
+                DB::table('desk_evaluation_score')->updateOrInsert($attributes, $values);
+
+                return response()->json(['message' => 'Successful, added the data']);
+            } else {
+                return response()->json(
+                    ['message' => 'Desk evaluation for this postgraduate program is not scheduled yet, will be informed when scheduled'],
+                    422
+                );
+            }
+        } catch (ModelNotFoundException $exception) {
+            return response()->json(
+                ['message' => 'We could find the requested post graduate review program, please try check and retry'],
+                500
+            );
+        } catch (Exception $exception) {
+            return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+        }
     }
 
     /**
@@ -387,15 +526,15 @@ class ReviewerController extends Controller
     {
     }
 
+    public function viewOwnProperEvaluationCriteria()
+    {
+    }
+
     /**
      * Store a newly created resource in storage.
      */
     public function store(StoreReviewerRequest $request)
     {
-        //incase the user wants to create a reviewer account,
-        //add the reviewer role to the user,
-        //add the user to the reviewer table
-        //return the response to the user
     }
 
     /**
@@ -409,13 +548,79 @@ class ReviewerController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $id): ReviewerResource|JsonResponse
     {
         //get the necessary data from the user table and return that
         try {
             $reviewer = Reviewer::with(['user', 'workingFaculty', 'reviewTeams'])->findOrFail($id); //get the reviewer
             //to use the resource to send the data
             return new ReviewerResource($reviewer);
+        } catch (ModelNotFoundException $exception) {
+            return response()->json(["message" => "The requested reviewer data cannot be found"], 400);
+        } catch (Exception $exception) {
+            return response()->json(["message" => "Some thing bad happened"], 500);
+        }
+    }
+
+    /**
+     * Get desk evaluations of the currently logged in reviewer
+     */
+    public function reviewerDeskEvaluations(): JsonResponse|DeskEvaluationCollection
+    {
+        try {
+            // find the reviewer
+            $reviewer = Reviewer::findOrFail(Auth::id());
+
+            //find the review teams of the reviewer
+            $reviewTeams = $reviewer
+                ->reviewTeams
+                ->whereIn('status', ['PENDING', 'APPROVED'])
+                ->load('postGraduateReviewProgram'); //only get either pending or accepted review teams only
+
+            $deskEvaluations = collect();
+
+            foreach ($reviewTeams as $reviewTeam) {
+                $postGraduateReviewProgram = $reviewTeam->postGraduateReviewProgram;
+                $deskEvaluation = $postGraduateReviewProgram->deskEvaluations;
+                if ($deskEvaluation) $deskEvaluations->add($deskEvaluation);
+            }
+
+            return count($deskEvaluations) > 0 ?
+                new DeskEvaluationCollection($deskEvaluations) :
+                response()->json(["message" => "The reviewer doesn't have any desk evaluations yet"]);
+        } catch (ModelNotFoundException $exception) {
+            return response()->json(["message" => "The requested reviewer data cannot be found"], 400);
+        } catch (Exception $exception) {
+            return response()->json(["message" => "Some thing bad happened"], 500);
+        }
+    }
+
+    /**
+     * Get desk evaluations of the currently logged in reviewer
+     */
+    public function reviewerProperEvaluations(): ProperEvaluationCollection|JsonResponse
+    {
+        try {
+            // find the reviewer
+            $reviewer = Reviewer::findOrFail(Auth::id());
+
+            //find the review teams of the reviewer
+            $reviewTeams = $reviewer
+                ->reviewTeams
+                ->whereIn('status', ['PENDING', 'APPROVED'])
+                ->load('postGraduateReviewProgram'); //only get either pending or accepted review teams only
+
+            $properEvaluations = collect();
+
+            foreach ($reviewTeams as $reviewTeam) {
+                $postGraduateReviewProgram = $reviewTeam->postGraduateReviewProgram;
+                $properEvaluation = $postGraduateReviewProgram->properEvaluations;
+                if ($properEvaluation) $properEvaluations->add($properEvaluation);
+            }
+
+            return count($properEvaluations) > 0 ?
+                new ProperEvaluationCollection($properEvaluations) :
+                response()->json(["message" => "The reviewer doesn't have any proper evaluations yet"]);
         } catch (ModelNotFoundException $exception) {
             return response()->json(["message" => "The requested reviewer data cannot be found"], 400);
         } catch (Exception $exception) {
@@ -443,11 +648,10 @@ class ReviewerController extends Controller
         try{
             $file = Storage::download('public/reviewer-excel-template.xlsx');
             return $file;
-        }
-        catch(\Exception $e){
+        } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Error occurred while downloading reviewer sheet',
-                'error' => $e -> getMessage(),
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

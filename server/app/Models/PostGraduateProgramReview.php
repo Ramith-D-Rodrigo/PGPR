@@ -4,83 +4,102 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use function Symfony\Component\String\u;
 
 class PostGraduateProgramReview extends Model
 {
-  use HasFactory;
+    use HasFactory;
 
-  protected $fillable = [
-    'post_graduate_program_id',
-    'qac_dir_id',
-    'status_of_pgpr',
-    'payment_voucher',
-    'grouped_with',
-    'action_plan',
-    'preliminary_report',
-    'pgpr_application_id'
-  ];
+    protected $fillable = [
+        'post_graduate_program_id',
+        'qac_dir_id',
+        'status_of_pgpr',
+        'payment_voucher',
+        'grouped_with',
+        'action_plan',
+        'preliminary_report',
+        'pgpr_application_id'
+    ];
 
-/*  // a post graduate review program has one desk evaluation
-  public function deskEvaluations()
-  {
-    return $this->hasOne(DeskEvaluation::class, 'de_id', 'id');
-  }
+    // a post graduate review program has one desk evaluation
+    public function deskEvaluations(): HasOne
+    {
+        return $this->hasOne(DeskEvaluation::class, 'pgpr_id');
+    }
 
-  // a post graduate review program has one proper evaluation
-  public function poperEvaluations()
-  {
-    return $this->hasOne(ProperEvaluation::class, 'pe_id', 'id');
-  }*/
+    // a post graduate review program has one proper evaluation
+    public function properEvaluations(): HasOne
+    {
+        return $this->hasOne(
+            ProperEvaluation::class,
+            'pgpr_id'
+        )->with(['properEvaluation1', 'properEvaluation2']);
+    }
 
     // pgpr sentIntentLetter relation
-    public function deans()
+    public function postGraduateProgramReviewApplication(): BelongsTo
+    {
+        return $this->belongsTo(PostGraduateProgramReviewApplication::class, 'pgpr_application_id', 'id');
+    }
+
+    // pgpr sentIntentLetter relation
+    public function deans(): BelongsTo
     {
         return $this->belongsTo(Dean::class, 'dean_id', 'id');
     }
 
     // pgpr has review teams associated with itself
-    public function reviewTeams()
-    {
-        return $this->hasMany(PostGraduateProgramReview::class, 'pgpr_id');
-    }
 
-    //pgpr has only one review team that is accepted by the dean
-    public function acceptedReviewTeam()
+    public function acceptedReviewTeam(): \Illuminate\Database\Eloquent\Relations\HasMany|null
     {
-        $reviewTeams = $this -> reviewTeams() -> where('status', 'ACCEPTED');
-        if($reviewTeams -> count() > 0){
-            return $reviewTeams -> first();
+        $reviewTeams = $this->reviewTeams()->where('status', 'ACCEPTED');
+        if ($reviewTeams->count() > 0) {
+            return $reviewTeams->first();
         }
         return null;
     }
 
+    //pgpr has only one review team that is accepted by the dean
 
-    public function postGraduateProgram()
+    public function reviewTeams(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(PostGraduateProgramReview::class, 'pgpr_id');
+    }
+
+    public function postGraduateProgram(): BelongsTo
     {
         return $this->belongsTo(PostGraduateProgram::class, 'post_graduate_program_id', 'id');
     }
 
-  //pgpr has a self evaluation report
-    public function selfEvaluationReport()
+    //pgpr has a self-evaluation report
+    public function selfEvaluationReport(): HasOne
     {
         return $this->hasOne(SelfEvaluationReport::class, 'post_graduate_program_review_id', 'id');
     }
 
     // every pgpr has a final report
-    public function finalReports()
+    public function finalReports(): HasOne
+
     {
         return $this->hasOne(FinalReport::class, 'final_report_id');
     }
 
     // pgprs may be rejected by the QACDiretor
-    public function qualityAssuranceCouncilDirectors()
+    public function qualityAssuranceCouncilDirectors(): BelongsTo
     {
         return $this->belongsTo(QualityAssuranceCouncilDirector::class, 'qac_dir_id', 'id');
     }
 
-  //post graduate program review has many post graduate program review applications
-    public function postGraduateProgramReviewApplication(){
+    //post graduate program review has many post graduate program review applications
+    public function postGraduateProgramReviewApplications(): BelongsTo
+    {
         return $this->belongsTo(PostGraduateProgramReviewApplication::class, 'pgpr_application_id', 'id');
+    }
+
+    public function reviewTeam(): HasOne
+    {
+        return $this->hasOne(ReviewTeam::class, 'pgpr_id');
     }
 }
