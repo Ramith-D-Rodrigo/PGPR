@@ -16,6 +16,7 @@ use App\Http\Requests\V1\StoreDeanRequest;
 use App\Http\Requests\V1\UpdateDeanRequest;
 use App\Http\Controllers\Controller;
 use App\Mail\sendPassword;
+use App\Models\DeskEvaluation;
 use App\Models\Faculty;
 use App\Models\ReviewTeam;
 use App\Services\V1\DeanService;
@@ -45,14 +46,14 @@ class DeanController extends Controller
 
             //where in and where not in query items
 
-            $whereInQueryItems = $filter -> getWhereInQuery();
-            foreach($whereInQueryItems as $whereInQueryItem){
-                $deans = $deans -> whereIn($whereInQueryItem[0], $whereInQueryItem[1]);
+            $whereInQueryItems = $filter->getWhereInQuery();
+            foreach ($whereInQueryItems as $whereInQueryItem) {
+                $deans = $deans->whereIn($whereInQueryItem[0], $whereInQueryItem[1]);
             }
 
-            $whereNotInQueryItems = $filter -> getWhereNotInQuery();
-            foreach($whereNotInQueryItems as $whereNotInQueryItem){
-                $deans = $deans -> whereNotIn($whereNotInQueryItem[0], $whereNotInQueryItem[1]);
+            $whereNotInQueryItems = $filter->getWhereNotInQuery();
+            foreach ($whereNotInQueryItems as $whereNotInQueryItem) {
+                $deans = $deans->whereNotIn($whereNotInQueryItem[0], $whereNotInQueryItem[1]);
             }
 
             //related data
@@ -79,10 +80,9 @@ class DeanController extends Controller
             if ($faculty) {
                 $deans = $deans->with('faculty');
             }
-            return new DeanCollection($deans -> get());
-        }
-        catch(\Exception $e){
-            return response() -> json(['message' => $e -> getMessage()], 500);
+            return new DeanCollection($deans->get());
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
         }
     }
 
@@ -91,12 +91,12 @@ class DeanController extends Controller
      */
     public function store(StoreDeanRequest $request)
     {
-        try{
-            $this -> authorize('create', Dean::class);
+        try {
+            $this->authorize('create', Dean::class);
 
             //set needed additional fields
 
-            $validatedData = $request -> validated(); //get the validated data
+            $validatedData = $request->validated(); //get the validated data
 
             $validatedData['status'] = 'Pending'; //set the status (user account status)
             $validatedData['current_status'] = 'Active';   //set the current status (dean status)
@@ -126,19 +126,25 @@ class DeanController extends Controller
             DeanService::sendAccountCreateMail($validatedData, $password);
             DB::commit();   //commit the changes if all of them were successful
 
-            return response() -> json([
+            return response()->json([
                 'message' => 'Dean created successfully',
                 'data' => new DeanResource($dean)
             ], 201);
 
-        }
-        catch(AuthorizationException $e){
-            return response() -> json(['message' => $e -> getMessage()], 403);
-        }
-        catch(\Exception $e){
+        } catch (AuthorizationException $e) {
+            return response()->json(['message' => $e->getMessage()], 403);
+        } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['message' => 'Failed to create dean', 'error' => $e->getMessage()], 500);
         }
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(UpdateDeanRequest $request, Dean $dean)
+    {
+        //
     }
 
     /**
@@ -178,16 +184,6 @@ class DeanController extends Controller
         }
     }
 
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateDeanRequest $request, Dean $dean)
-    {
-        //
-    }
-
-
     /**
      * Remove the specified resource from storage.
      */
@@ -215,12 +211,12 @@ class DeanController extends Controller
             $postGraduateProgram = $reviewTeam->postGraduateReviewProgram;
             $postGraduateProgram = $postGraduateProgram->postGraduateProgram;
 
-            $faculty =  $postGraduateProgram->faculty;
+            $faculty = $postGraduateProgram->faculty;
 
-            $dean =  $faculty->deans[0];
-            $dean =  $dean->user;
+            $dean = $faculty->deans[0];
+            $dean = $dean->user;
 
-            $university =  $faculty->university;
+            $university = $faculty->university;
 
             // DB::beginTransaction();
             $reviewTeam->status = 'ACCEPTED';
@@ -241,6 +237,14 @@ class DeanController extends Controller
                 )
             );
             $reviewTeam->save();
+
+            $deskEvaluation = new DeskEvaluation();
+            $deskEvaluation->pgpr_id = $reviewTeam->pgpr_id;
+            $deskEvaluation->start_date = NULL; // or to set this is current time use => Carbon::now()
+            $deskEvaluation->end_date = NULL;
+
+            $deskEvaluation->save();
+
             DB::commit();
             return response()->json(['message' => 'Your request is duly noted.']);
         } catch (ModelNotFoundException $exception) {
@@ -316,22 +320,23 @@ class DeanController extends Controller
 
 
     //get the faculty of the dean
-    public function faculty(Dean $dean){
-        try{
-            $faculty = $dean -> faculty;
+    public function faculty(Dean $dean)
+    {
+        try {
+            $faculty = $dean->faculty;
 
-            if($faculty){
+            if ($faculty) {
                 return new FacultyResource($faculty);
             }
-        }
-        catch(\Exception $e){
-            return response() -> json(['message' => 'Failed to get the faculty of the dean', 'error' => $e -> getMessage()], 500);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to get the faculty of the dean', 'error' => $e->getMessage()], 500);
         }
     }
 
-    public function removeRole(Dean $dean){
-        try{
-            $this -> authorize('removeRole', $dean);
+    public function removeRole(Dean $dean)
+    {
+        try {
+            $this->authorize('removeRole', $dean);
 
             DB::beginTransaction();
 
@@ -339,16 +344,14 @@ class DeanController extends Controller
 
             DB::commit();
 
-            return response() -> json([
+            return response()->json([
                 'message' => 'Dean role removed successfully',
             ], 200);
-        }
-        catch(AuthorizationException $e){
-            return response() -> json(['message' => $e -> getMessage()], 403);
-        }
-        catch(\Exception $e){
+        } catch (AuthorizationException $e) {
+            return response()->json(['message' => $e->getMessage()], 403);
+        } catch (\Exception $e) {
             DB::rollBack();
-            return response() -> json(['message' => 'Failed to remove dean role', 'error' => $e -> getMessage()], 500);
+            return response()->json(['message' => 'Failed to remove dean role', 'error' => $e->getMessage()], 500);
         }
     }
 }

@@ -69,7 +69,7 @@ class ReviewTeam extends Model
             PostGraduateProgramReview::class,
             'pgpr_id',
             'id'
-        );
+        )->with(['properEvaluations', 'deskEvaluations']);
     }
 
     // review team has a final report

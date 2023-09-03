@@ -26,13 +26,16 @@ class PostGraduateProgramReview extends Model
     // a post graduate review program has one desk evaluation
     public function deskEvaluations(): HasOne
     {
-        return $this->hasOne(DeskEvaluation::class, 'pgpr_id',);
+        return $this->hasOne(DeskEvaluation::class, 'pgpr_id');
     }
-  
-     // a post graduate review program has one proper evaluation
+
+    // a post graduate review program has one proper evaluation
     public function properEvaluations(): HasOne
     {
-        return $this->hasOne(ProperEvaluation::class, 'pgpr_id');
+        return $this->hasOne(
+            ProperEvaluation::class,
+            'pgpr_id'
+        )->with(['properEvaluation1', 'properEvaluation2']);
     }
 
     // pgpr sentIntentLetter relation
@@ -40,29 +43,30 @@ class PostGraduateProgramReview extends Model
     {
         return $this->belongsTo(PostGraduateProgramReviewApplication::class, 'pgpr_application_id', 'id');
     }
-  
+
     // pgpr sentIntentLetter relation
-    public function deans()
+    public function deans(): BelongsTo
     {
         return $this->belongsTo(Dean::class, 'dean_id', 'id');
     }
 
     // pgpr has review teams associated with itself
-    public function reviewTeams()
-    {
-        return $this->hasMany(PostGraduateProgramReview::class, 'pgpr_id');
-    }
 
-    //pgpr has only one review team that is accepted by the dean
-    public function acceptedReviewTeam()
+    public function acceptedReviewTeam(): \Illuminate\Database\Eloquent\Relations\HasMany|null
     {
-        $reviewTeams = $this -> reviewTeams() -> where('status', 'ACCEPTED');
-        if($reviewTeams -> count() > 0){
-            return $reviewTeams -> first();
+        $reviewTeams = $this->reviewTeams()->where('status', 'ACCEPTED');
+        if ($reviewTeams->count() > 0) {
+            return $reviewTeams->first();
         }
         return null;
     }
 
+    //pgpr has only one review team that is accepted by the dean
+
+    public function reviewTeams(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(PostGraduateProgramReview::class, 'pgpr_id');
+    }
 
     public function postGraduateProgram(): BelongsTo
     {

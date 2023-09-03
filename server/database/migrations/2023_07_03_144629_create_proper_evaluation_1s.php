@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('proper_evaluation_1s', function (Blueprint $table) {
             $table->id();
             $table->date('start_date');
-            $table->date('pe_1_meeting_date');
-            $table->date('end_date');
-            $table->string('remark');
+            $table->date('pe_1_meeting_date')->nullable();
+            $table->date('end_date')->nullable();
+            $table->string('remark')->default('None');
             $table->timestamps();
 
             $table->foreign('id')->references('id')->on('proper_evaluations');
