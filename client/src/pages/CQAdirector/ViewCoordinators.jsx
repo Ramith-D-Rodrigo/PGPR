@@ -139,9 +139,25 @@ const Coordinators = () => {
           
           // Fetch the current dean for the current faculty
           const deanResponse = await getCurrentDean(faculty.id, queryParams);
+          
           const deanData = deanResponse.data.data;
   
           deanData.faculty = faculty;
+
+
+          // if (deanResponse.status === 200) {
+          //   const deanData = deanResponse.data.data;
+          //   // Proceed with processing the dean data
+          // } else if (deanResponse.status === 404) {
+          //   console.error(`Dean not found for faculty "${faculty.name}"`, deanResponse.data);
+          //   // Handle the case where the dean is not found, e.g., set a default value
+          // } else {
+          //   console.error(
+          //     `Error fetching dean data for faculty "${faculty.name}":`,
+          //     deanResponse.status,
+          //     deanResponse.statusText,
+          //     deanResponse.data
+          //   );
 
           // Fetch postgraduate programs for the current faculty
           const postGradProgramsResponse = await getFacultyPostGraduatePrograms(faculty.id);
@@ -154,7 +170,7 @@ const Coordinators = () => {
             const coordinatorResponse = await getCurrentCoordinator(program.id, queryParams);
             console.log('response:', coordinatorResponse); 
 
-            const coordinatorData = response.data.data;
+            const coordinatorData = coordinatorResponse.data.data;
             coordinatorData.faculty = faculty;
             return coordinatorResponse.data.data;
           });
