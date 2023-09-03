@@ -57,10 +57,11 @@ class StoreAssignReviewTeamMemberCriteriaRequest extends FormRequest
                         ->where('reviewer_confirmation', 'ACCEPTED')
                         ->exists();
                     if (!$exists) {
-                        $fail(" You are not the chair person of the review team $reviewTeamId, not authorized to make this request.");
+                        $fail("You are not the chair person of the review team $reviewTeamId, not authorized to make this request.");
                     }
                 }
             ],
+            'reviewers' => 'required|array|min:1|max:3',
             'reviewers.*.reviewer_id' => [
                 'required',
                 Rule::exists('reviewers', 'id')->where(function ($query) {
@@ -77,7 +78,7 @@ class StoreAssignReviewTeamMemberCriteriaRequest extends FormRequest
                     }
                 }
             ],
-            'reviewers.*.criteria' => 'required|array',
+            'reviewers.*.criteria' => 'required|array|min:1|max:3',
             'reviewers.*.criteria.*' => 'required|exists:criterias,id',
         ];
     }
