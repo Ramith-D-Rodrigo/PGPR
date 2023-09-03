@@ -5,7 +5,7 @@ namespace App\Http\Requests\V1;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreConductEvaluationRequest extends FormRequest
+class StoreConductProperEvaluationRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -15,7 +15,7 @@ class StoreConductEvaluationRequest extends FormRequest
         return true;
     }
 
-    /**
+     /**
      * Get the validation rules that apply to the request.
      *  Use case 1.3
      *  Conduct desk evaluation
@@ -37,9 +37,10 @@ class StoreConductEvaluationRequest extends FormRequest
             'criteria_id' => 'required|exists:criterias,id',
             'standard_id' => 'required|exists:standards,id',
             'comment' => 'required|max:255',
-            'de_score' => 'required|integer|between:0,3',
+            'pe_score' => 'required|integer|between:0,3',
         ];
     }
+
 
     protected function prepareForValidation(): void
     {
@@ -49,7 +50,7 @@ class StoreConductEvaluationRequest extends FormRequest
                 'criteria_id' => $this->criteriaId,
                 'standard_id' => $this->standardId,
                 'comment' => $this->observations,
-                'de_score' => $this->score,
+                'pe_score' => $this->score,
             ]
         );
     }
@@ -65,9 +66,11 @@ class StoreConductEvaluationRequest extends FormRequest
             'standard_id.exists' => 'The standard id that you provided is not a valid standard of the criteria that you provided, please check and retry',
             'observations.required' => 'We need your valuable observations please include them, will be easy for you as well',
             'observations.max' => 'The maximum length of the observations text is limited to 255 characters. please make sure you do not go over the limit',
-            'de_score.required' => 'You need to give a  score for this evaluation',
-            'de_score.integer' => 'The score must be a number, in fact it should be an integer',
-            'de_score.between' => 'The score must be a value between 0-3 (0, 1, 2, 3)',
+            'pe_score.required' => 'You need to give a  score for this evaluation',
+            'pe_score.integer' => 'The score must be a number, in fact it should be an integer',
+            'pe_score.between' => 'The score must be a value between 0-3 (0, 1, 2, 3)',
         ];
     }
+
 }
+
