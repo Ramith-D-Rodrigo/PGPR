@@ -24,7 +24,7 @@ class UpdateProperEvaluationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id' => ['required', Rule::exists('proper_evaluations')->where(function ($query) {
+            'id' => ['required', Rule::exists('proper_evaluations', 'id')->where(function ($query) {
                 $query->whereIn('status', ['1', '2']);
             })],
             'start_date' => 'sometimes|date|after_or_equal:today',

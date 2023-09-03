@@ -24,7 +24,7 @@ class StoreProperEvaluationRequest extends FormRequest
     public function rules(): array
     {
         return [
-                'pgpr_id' => ['required', 'unique', Rule::exists('post_graduate_program_reviews')->where(function ($query) {
+                'pgpr_id' => ['required', 'unique', Rule::exists('post_graduate_program_reviews', 'id')->where(function ($query) {
                     $query->whereIn('status_of_pgpr', ['DE', 'SUBMITTED', 'PLANNING']);
                 })],
                 'start_date' => 'required|date|after_or_equal:today',
