@@ -46,10 +46,13 @@ const CustomTable = ({ tableData, openEditDialog }) => {
                   <b>Profile Photo</b>
                 </TableCell>
                 <TableCell align="center">
-                  <b>C-ID</b>
+                  <b>ID</b>
                 </TableCell>
                 <TableCell align="center">
                   <b>Name</b>
+                </TableCell>
+                <TableCell align="center">
+                  <b>Role</b>
                 </TableCell>
                 <TableCell align="center">
                   <b>Faculty</b>
@@ -66,7 +69,8 @@ const CustomTable = ({ tableData, openEditDialog }) => {
                     <Avatar alt="Profile Photo" src={row.profilePhoto} />
                   </TableCell>
                   <TableCell align="center">{row.id}</TableCell>
-                  <TableCell align="center">{row.academicStaff.universitySide.user.surname}</TableCell>
+                  <TableCell align="center">{row.academicStaff.universitySide.user.initials + " " +row.academicStaff.universitySide.user.surname}</TableCell>
+                  <TableCell align="center">{row.role}</TableCell>
                   <TableCell align="center">{row.faculty.name}</TableCell>
                   <TableCell align="center">
                     <Button
@@ -143,6 +147,7 @@ const Coordinators = () => {
           const deanData = deanResponse.data.data;
   
           deanData.faculty = faculty;
+          deanData.role = "Dean";
 
 
           // if (deanResponse.status === 200) {
@@ -172,6 +177,7 @@ const Coordinators = () => {
 
             const coordinatorData = coordinatorResponse.data.data;
             coordinatorData.faculty = faculty;
+            coordinatorData.role = "Programme Coordinator";
             return coordinatorResponse.data.data;
           });
           
