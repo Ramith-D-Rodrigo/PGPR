@@ -14,6 +14,11 @@ class ProperEvaluation1Resource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'startDate' => $this->start_date,
+            'endDate' => $this->end_date,
+            'properEvaluationPhase1MeetingDate' => $this->pe_1_meeting_date,
+            'remark' => $this->remark,
+        ];
     }
 }
