@@ -1,9 +1,5 @@
-import { useEffect } from "react";
-import { useParams } from "react-router-dom";
-import useSetUserNavigations from "../../hooks/useSetUserNavigations";
-import DiscriptiveDiv from "../../components/DiscriptiveDiv";
-import { useState } from "react";
-import Button from "@mui/material/Button";
+import { useEffect, useState } from "react";
+import { useParams, Link } from "react-router-dom";
 import {
   Table,
   TableBody,
@@ -15,16 +11,19 @@ import {
   Box,
   Typography,
   Grid,
+  TextField,
+  FormControl,
+  FormHelperText,
+  Button,
 } from "@mui/material";
-import TextField from "@mui/material/TextField";
-import FormControl from "@mui/material/FormControl";
-import FormHelperText from "@mui/material/FormHelperText";
-import { Link } from "react-router-dom";
-import useDrawerState from "../../hooks/useDrawerState";
+
+//import useDrawerState from "../../hooks/useDrawerState";
+import DiscriptiveDiv from "../../components/DiscriptiveDiv";
+import { EvaluatePENavigation } from "../../navigations";
 
 const EvaluatePE = () => {
   const { pgprId, criteriaId } = useParams();
-  const open = useDrawerState().drawerState.open;
+  //const open = useDrawerState().drawerState.open;
   const [standardID, setstandardID] = useState(1);
   const [observations, setobservations] = useState("");
   const [score, setscore] = useState(0);
@@ -88,24 +87,13 @@ const EvaluatePE = () => {
     }
   };
 
-  useSetUserNavigations([
-    {
-      name: "PG Assignments",
-      link: "/PG_Assignments",
-    },
-    {
-      name: "PE",
-      link: "/PG_Assignments/Conduct_PE/" + pgprId,
-    },
-    {
-      name: "Assigned Criteria",
-      link: "/PG_Assignments/Conduct_PE/" + pgprId,
-    },
-    {
-      name: "Evaluate PE",
-      link: "/PG_Assignments/Conduct_PE/" + pgprId + "/" + criteriaId,
-    },
-  ]);
+  const decodedPgprId = decodeURIComponent(pgprId);
+  const decodedCriteriaId = decodeURIComponent(criteriaId);
+
+  <EvaluatePENavigation
+    decodedPgprId={decodedPgprId}
+    decodedCriteriaId={decodedCriteriaId}
+  />;
 
   const createData = (evidences, yearsapplicable) => {
     evidences = evidences.map((evidence, index) => {
@@ -266,8 +254,7 @@ const EvaluatePE = () => {
         sx={{
           display: "flex",
           justifyContent: "space-between",
-          width: "100%",
-          margin: "10px 0",
+          margin: "20px",
         }}
       >
         <Button

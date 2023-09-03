@@ -32,6 +32,7 @@ import PGAssignments from "./pages/Reviewer/PGAssignments";
 import ConductDE from "./pages/Reviewer/ConductDE";
 import ConductPE from "./pages/Reviewer/ConductPE";
 import EvaluatePE from "./pages/Reviewer/EvaluatePE";
+import PESummaryDetails from "./pages/Reviewer/PESummaryDetails";
 import ViewAssignedCriteria from "./pages/Reviewer/ViewAssignedCriteria";
 import ViewUniversities from "./pages/QACDirector/ViewUniversities";
 import ViewUniversity from "./pages/QACDirector/ViewUniversity";
@@ -155,6 +156,10 @@ function App() {
                     <Route
                       path="Assigned_criteria/:pgprId/:criteriaId"
                       element={<EvaluatePE />}
+                    />
+                    <Route
+                      path="Summary_details/:pgprID"
+                      element={<PESummaryDetails />}
                     />
                   </Route>
                 </Route>

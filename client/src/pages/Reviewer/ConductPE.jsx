@@ -11,22 +11,15 @@ import {
   TableCell,
   Typography,
 } from "@mui/material";
-import useSetUserNavigations from "../../hooks/useSetUserNavigations";
+
 import DiscriptiveDiv from "../../components/DiscriptiveDiv";
+import { ConductPENavigation } from "../../navigations";
 
 const ConductPE = () => {
   const { pgprId } = useParams();
   const decodedPgprId = decodeURIComponent(pgprId);
-  useSetUserNavigations([
-    {
-      name: "PG Assignments",
-      link: "/PG_Assignments",
-    },
-    {
-      name: "PE",
-      link: `/PG_Assignments/Conduct_PE/${decodedPgprId}`,
-    },
-  ]);
+
+  <ConductPENavigation decodedPgprId={decodedPgprId} />;
 
   const headerInfo = [
     { label: "University:", value: "University of Colombo" },
