@@ -24,11 +24,12 @@ class UpdateDeskEvaluationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id' => ['required', Rule::exists('desk_evaluations')->where(function ($query) {
+            'id' => ['required', Rule::exists('desk_evaluations', 'id')->where(function ($query) {
                 $query->where('status', 'ONGOING');
             })],
             'start_date' => 'sometimes|date|after_or_equal:today',
             'end_date' => 'sometimes|date|after:start_date',
+            'status' => ['sometimes', Rule::in(['COMPLETED'])]
         ];
     }
 
@@ -54,6 +55,7 @@ class UpdateDeskEvaluationRequest extends FormRequest
             'end_date.required' => 'You need to provide an end date for the desk evaluation',
             'end_date.date' => 'You need to provide a date value for the end date',
             'end_date.after_or_equal' => 'The end date you provided is older than the start date, which is not valid',
+            'status.in' => 'You can only change the status of a desk evaluation to COMPLETED and the desk evaluation should be in ONGOING state to do this',
         ];
     }
 

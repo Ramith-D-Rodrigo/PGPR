@@ -9,6 +9,9 @@ use App\Http\Resources\V1\DeskEvaluationCollection;
 use App\Http\Resources\V1\DeskEvaluationResource;
 use App\Models\DeskEvaluation;
 use App\Http\Controllers\Controller;
+use App\Models\ProperEvaluation;
+use App\Models\ProperEvaluation1;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
@@ -71,6 +74,30 @@ class DeskEvaluationController extends Controller
         try {
             $validated = $request->validated();
             $deskEvaluation = DeskEvaluation::findOrFail($id);
+
+            if (array_key_exists('status', $validated)) {
+                if ($deskEvaluation->status == 'COMPLETED') {
+                    return response()->json(['message' => 'The desk evaluation is not in an updatable state'], 422);
+                } else {
+                    // since the desk evaluation is completed, automatically create the proper evaluation
+                    $properEvaluation = new ProperEvaluation();
+                    $properEvaluation->pgpr_id = $deskEvaluation->pgpr_id;
+                    $properEvaluation->start_date = Carbon::today();
+                    $properEvaluation->end_date = NULL;
+                    $properEvaluation->status = '1';
+
+                    $properEvaluation1 = new ProperEvaluation1([
+                        'start_date' => Carbon::today(),
+                        'pe_1_meeting_date' => NULL,
+                        'end_date' => NULL,
+                        'remark' => 'None'
+                    ]);
+
+                    $properEvaluation->properEvaluation1()->save($properEvaluation1);
+
+                    $properEvaluation->save();
+                }
+            }
 
             $deskEvaluation->update(
                 $validated
