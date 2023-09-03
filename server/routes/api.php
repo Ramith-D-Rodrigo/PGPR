@@ -93,17 +93,19 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
         Route::get('faculties/{faculty}/currentDean', 'FacultyController@currentDean') -> middleware('auth');
         //get the post graduate programs of the faculty
         Route::get('faculties/{faculty}/postGraduatePrograms', 'FacultyController@postGraduatePrograms') -> middleware('auth');
+        //get the current iqau director of the faculty
+        Route::get('faculties/{faculty}/currentIQAUDirector', 'FacultyController@currentIQAUDirector') -> middleware('auth');
 
 
     Route::apiResource('evidences', 'EvidenceController') -> middleware('auth');
     Route::apiResource('deskEvaluations', 'DeskEvaluationController');
+
     Route::apiResource('deans', 'DeanController');
     //other routes of the deans
         //get the faculty of the dean
         Route::get('deans/{dean}/faculty', 'DeanController@faculty') -> middleware('auth');
         //remove role of dean
         Route::delete('deans/{dean}/removeRole', 'DeanController@removeRole') -> middleware('auth');
-
     Route::apiResource('criterias', 'CriteriaController');
     Route::apiResource('cqaDirectors', 'CenterForQualityAssuranceDirectorController');
     //other routes of the cqa directors
@@ -138,6 +140,15 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::get('/reviewers/reviewer-proper-evaluations', 'ReviewerController@reviewerProperEvaluations')->middleware('auth');
     // api resource => this must come here otherwise the declaration doc will have problems
     Route::apiResource('reviewers', 'ReviewerController')->middleware('auth');
+
+    // dean accepts an appointed review team
+    Route::post('/deans/acceptReviewTeam', 'DeanController@acceptReviewTeam')->middleware('auth');
+
+    // dean rejects an appointed review team
+    Route::post('/deans/rejectReviewTeam', 'DeanController@rejectReviewTeam')->middleware('auth');
+
+    // dean api resources
+    Route::apiResource('deans', 'DeanController');
 
     //route for google drive file info (for now, only the metadata is returned (testing))
     Route::post('driveFileInfo', 'GoogleDriveController@getFileInfo');

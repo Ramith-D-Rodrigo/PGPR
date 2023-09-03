@@ -2,10 +2,11 @@
 
 namespace Database\Factories;
 
+use App\Models\DeskEvaluation;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\DeskEvaluation>
+ * @extends Factory<DeskEvaluation>
  */
 class DeskEvaluationFactory extends Factory
 {
@@ -17,7 +18,9 @@ class DeskEvaluationFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'start_date' => fake()->date(),
+            'end_date' => fake()->date(),
+            'status' => "ONGOING",
         ];
     }
 }

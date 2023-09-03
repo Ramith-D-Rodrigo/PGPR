@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\V1;
 
+use App\Models\ProperEvaluation;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Str;
@@ -36,6 +37,8 @@ class PostGraduateProgramReviewResource extends JsonResource
         $returnArr['postGraduateProgramme'] = new PostGraduateProgramResource($this -> whenLoaded('postGraduateProgram'));
         $returnArr['selfEvaluationReport'] = new SelfEvaluationReportResource($this -> whenLoaded('selfEvaluationReport'));
         $returnArr['postGraduateProgramReviewApplication'] = new PostGraduateProgramReviewApplicationResource($this -> whenLoaded('postGraduateProgramReviewApplication'));
+        $returnArr['properEvaluation'] = new ProperEvaluationResource($this->whenLoaded('properEvaluations'));
+        $returnArr['deskEvaluation'] = new DeskEvaluationResource($this->whenLoaded('deskEvaluations'));
         return $returnArr;
     }
 }

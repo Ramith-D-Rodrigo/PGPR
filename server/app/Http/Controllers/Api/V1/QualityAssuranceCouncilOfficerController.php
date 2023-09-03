@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Requests\V1\CreateReviewTeamRequest;
+use App\Http\Requests\V1\StoreQualityAssuranceCouncilOfficerRequest;
+use App\Http\Requests\V1\UpdateQualityAssuranceCouncilOfficerRequest;
 use App\Models\QualityAssuranceCouncilOfficer;
-use App\Http\Requests\StoreQualityAssuranceCouncilOfficerRequest;
-use App\Http\Requests\UpdateQualityAssuranceCouncilOfficerRequest;
 use App\Http\Controllers\Controller;
 
 class QualityAssuranceCouncilOfficerController extends Controller
