@@ -2,15 +2,20 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Requests\V1\ShowProperEvaluationDetailsOfReviewTeamRequest;
 use App\Http\Requests\V1\StoreReviewTeamRequest;
 use App\Http\Requests\V1\UpdateReviewTeamRequest;
+use App\Http\Resources\V1\CriteriaResource;
 use App\Http\Resources\V1\ReviewTeamCollection;
 use App\Http\Resources\V1\ReviewTeamResource;
+use App\Http\Resources\V1\UserResource;
 use App\Mail\InformDeanOfReviewTeamAssignment;
 use App\Mail\InformReviewerOfReviewAssignment;
+use App\Models\Criteria;
 use App\Models\Dean;
 use App\Models\PostGraduateProgramReview;
 use App\Models\QualityAssuranceStaff;
+use App\Models\Reviewer;
 use App\Models\ReviewTeam;
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -193,6 +198,49 @@ class ReviewTeamController extends Controller
         }  catch (ModelNotFoundException $exception) {
             DB::rollBack();
             return response()->json(["message" => "There is not such review team in our databases."], 400);
+        } catch (Exception $exception) {
+            return response()->json(["message" => "Something bad happened!, We are working on it."], 500);
+        }
+    }
+
+    /**
+     * Reviewer views PE details of review team
+     * {
+     *     reviewTeamId: 12,
+     *     pgprId: 1,
+     * }
+     *
+    */
+
+    public function viewProperEvaluationDetails(ShowProperEvaluationDetailsOfReviewTeamRequest $request): JsonResponse
+    {
+        try {
+            $validated = $request->validated();
+
+            $reviewerRecords = DB::table('review_team_set_criterias')
+                ->where('review_team_id', $validated['review_team_id'])
+                ->where('pgpr_id', $validated['pgpr_id'])
+                ->groupBy('assigned_to_reviewer_id')
+                ->get();
+
+            if ($reviewerRecords->isEmpty()) {
+                return response()->json(['message' => 'Seems the criteria have not been assigned yet.', 'data' => []]);
+            }
+
+            $data = [];
+
+            foreach ($reviewerRecords as $reviewerId => $records) {
+                $temp = [];
+                $temp['reviewer'] = new UserResource(Reviewer::find($reviewerId)->user);
+                $temp['criteria'] = [];
+                foreach ($records as $record) {
+                    $temp['criteria'][] = new CriteriaResource(Criteria::find($record->criteria_id)->load('standards'));
+                }
+                $data[] = $temp;
+            }
+            return response()->json(['message' => 'Successful', 'data' => $data]);
+        } catch (Exception $exception) {
+            return response()->json(['message' => 'Something bad happened!, We are working on it.'], 500);
         }
     }
 }
