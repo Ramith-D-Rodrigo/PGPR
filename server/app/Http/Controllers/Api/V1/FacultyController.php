@@ -332,4 +332,47 @@ class FacultyController extends Controller
             ], 500);
         }
     }
+
+    public function currentIQAUDirector(Faculty $faculty){
+        try{
+            $iqauDirector = $faculty -> internalQualityAssuranceUnit -> internalQualityAssuranceUnitDirector;
+
+            if($iqauDirector){
+                //related data
+                $qualityAssuranceStaff = request() -> query('includeQualityAssuranceStaff');
+                if($qualityAssuranceStaff){
+                    //check if university side is included
+                    $universitySide = request() -> query('includeUniversitySide');
+                    if($universitySide){
+                        //check if user is included
+                        $user = request() -> query('includeUser');
+                        if($user){
+                            $iqauDirector = $iqauDirector -> load(['qualityAssuranceStaff:id' => [
+                                'universitySide:id' => ['user:id,initials,surname,profile_pic']
+                                ]
+                            ]);
+                        }
+                        else{
+                            $iqauDirector = $iqauDirector -> load(['qualityAssuranceStaff:id' => ['universitySide:id']]);
+                        }
+                    }
+                    else{
+                        $iqauDirector = $iqauDirector -> loadMissing('qualityAssuranceStaff:id');
+                    }
+                }
+                return new DeanResource($iqauDirector);
+            }
+            else{
+                return response() -> json([
+                    'message' => 'The faculty does not have an IQAU director'
+                ], 404);
+            }
+        }
+        catch(\Exception $e){
+            return response() -> json([
+                'message' => 'Failed to retrieve the IQAU director',
+                'error' => $e -> getMessage()
+            ], 500);
+        }
+    }
 }

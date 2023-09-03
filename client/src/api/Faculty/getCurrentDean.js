@@ -6,7 +6,7 @@ import axios from "../api.js";
 //to get current dean, => faculties/{facultyId}/currentDean
 
 //possible query params:
-//1 - includeAcademicStaff (boolean -> true if you want to include the academic staff of dean for faculty) (must include includeDean = true)
+//1 - includeAcademicStaff (boolean -> true if you want to include the academic staff of dean for faculty)
 //2 - includeUniversitySide (boolean -> true if you want to include the university side of dean for faculty) (must include includeAcademicStaff = true)
 //3 - includeUser (boolean -> true if you want to include the user of dean) (must include includeUniversitySide = true)
 
