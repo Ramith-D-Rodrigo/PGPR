@@ -65,7 +65,7 @@ class PostGraduateProgramReview extends Model
 
     public function reviewTeams(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(PostGraduateProgramReview::class, 'pgpr_id');
+        return $this->hasMany(ReviewTeam::class, 'pgpr_id');
     }
 
     public function postGraduateProgram(): BelongsTo
