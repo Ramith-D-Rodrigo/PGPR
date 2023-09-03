@@ -14,6 +14,12 @@ class ProperEvaluation2Resource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'startDate' => $this->start_date,
+            'endDate' => $this->end_date,
+            'siteVisitStartDate' => $this->site_visit_start_date,
+            'siteVisitEndDate' => $this->site_visit_end_date,
+            'remark' => $this->remark,
+        ];
     }
 }
