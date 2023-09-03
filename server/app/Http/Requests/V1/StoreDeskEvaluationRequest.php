@@ -25,7 +25,7 @@ class StoreDeskEvaluationRequest extends FormRequest
     {
         return [
             'pgpr_id' => ['required', 'unique', Rule::exists('post_graduate_program_reviews')->where(function ($query) {
-                $query->whereIn('status_of_pgpr', ['DE', 'SUBMITTED', 'PLANNING']);
+                $query->whereIn('status_of_pgpr', ['SUBMITTED', 'PLANNING']);
             })],
             'start_date' => 'required|date|after_or_equal:today',
             'end_date' => 'required|date|after:start_date',
