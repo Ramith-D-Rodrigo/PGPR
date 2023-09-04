@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Requests\V1\ShowRemarksOfSERRequest;
-use App\Http\Requests\V1\StoreConductEvaluationRequest;
+use App\Http\Requests\V1\StoreConductDeskEvaluationRequest;
+use App\Http\Requests\V1\StoreConductProperEvaluationRequest;
 use App\Http\Requests\V1\UpdateAcceptAppointmentRequest;
 use App\Http\Requests\V1\UpdateAcceptPGPRRequest;
 use App\Http\Requests\V1\UpdateRejectAppointmentRequest;
@@ -537,7 +538,7 @@ class ReviewerController extends Controller
      *
      *
      */
-    public function conductDeskEvaluation(StoreConductEvaluationRequest $request): JsonResponse
+    public function conductDeskEvaluation(StoreConductDeskEvaluationRequest $request): JsonResponse
     {
         try {
             $validated = $request->validated();
@@ -567,7 +568,59 @@ class ReviewerController extends Controller
             }
         } catch (ModelNotFoundException $exception) {
             return response()->json(
-                ['message' => 'We could find the requested post graduate review program, please try check and retry'],
+                ['message' => 'We could find the requested post graduate review program, please check and retry'],
+                500
+            );
+        } catch (Exception $exception) {
+            return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+        }
+    }
+
+    /**
+     * Use case
+     * Conduct proper evaluation
+     *
+     *      {
+     *          pgpr_id: 10,
+     *          criteria_id: 10,
+     *          standard_id: 10,
+     *          comment: "This is marvelous",
+     *          pe_score: 0 <= x <= 3
+     *      }
+     *
+     *
+     */
+    public function conductProperEvaluation(StoreConductProperEvaluationRequest $request): JsonResponse
+    {
+        try {
+            $validated = $request->validated();
+            $postGraduateReviewProgram = PostGraduateProgramReview::findOrFail($validated['pgpr_id']);
+            $properEvaluation = $postGraduateReviewProgram->properEvaluation;
+
+            if ($properEvaluation) {
+                $attributes = [
+                    'proper_evaluation_id' => $properEvaluation->id,
+                    'reviewer_id' => Auth::id(),
+                    'standard_id' => $validated['standard_id'],
+                ];
+
+                $values = [
+                    'pe_score' => $validated['pe_score'],
+                    'comment' => $validated['comment'],
+                ];
+
+                DB::table('proper_evaluation_score')->updateOrInsert($attributes, $values);
+
+                return response()->json(['message' => 'Successful, added the data']);
+            } else {
+                return response()->json(
+                    ['message' => 'Proper evaluation for this postgraduate program is not scheduled yet, will be informed when scheduled'],
+                    422
+                );
+            }
+        } catch (ModelNotFoundException $exception) {
+            return response()->json(
+                ['message' => 'We could find the requested post graduate review program, please check and retry'],
                 500
             );
         } catch (Exception $exception) {
@@ -577,9 +630,9 @@ class ReviewerController extends Controller
 
     /**
      * Use case 1.4
-     * View own DE => criteria wise
+     * View own DE => criteria wise => criteria wise score
      */
-    public function viewOwnDECriteria()
+    public function viewOwnDECriteria(Request $request)
     {
     }
 
