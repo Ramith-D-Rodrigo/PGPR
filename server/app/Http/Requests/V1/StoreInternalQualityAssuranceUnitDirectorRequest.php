@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\V1;
 
+use App\Models\Faculty;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class StoreInternalQualityAssuranceUnitDirectorRequest extends StoreQualityAssuranceStaffRequest
 {
@@ -11,6 +13,18 @@ class StoreInternalQualityAssuranceUnitDirectorRequest extends StoreQualityAssur
      */
     public function authorize(): bool
     {
+        //only cqa director can store iqau director (role is already authorized from the middleware)
+        //check for same university side
+        $uniSide = Auth::user() -> universitySide ?? null;
+
+        if($uniSide === null){
+            return false;
+        }
+
+        if($uniSide -> university_id != $this -> university_id) {
+            return false;
+        }
+
         return true;
     }
 
@@ -37,6 +51,16 @@ class StoreInternalQualityAssuranceUnitDirectorRequest extends StoreQualityAssur
         ];
 
         return array_merge($parentMsgs, $currMessages);
+    }
+
+    public function prepareForValidation() {
+        parent::prepareForValidation();
+
+        //add the iqau id by finding the iqau of the faculty id
+        $faculty = Faculty::findOrFail($this -> faculty_id);
+        $this -> merge([
+            'iqau_id' => $faculty -> internalQualityAssuranceUnit -> id
+        ]);
     }
 
 }

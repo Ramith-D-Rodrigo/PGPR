@@ -35,7 +35,7 @@ const InitialPasswordRest = () => {
     const location = useLocation();
     const from = location.state?.from?.pathname || "/"; // where the use got here
 
-    // console.log(auth);
+    console.log(auth);
 
     const handleClickShowPassword = () => {
         setShowPassword((show) => !show);
@@ -118,29 +118,42 @@ const InitialPasswordRest = () => {
         !auth?.initialLogin && navigate(from, { replace: false });
     }, []);
 
+    const logout = async () => {
+        try {
+            axios.get("/sanctum/csrf-cookie");
+            let response = await axios.post("/logout");
+            console.log(response?.status);
+            setAuth(null);
+            navigate("/login");
+        }
+        catch (error) {
+            if (!error?.response) {
+                console.log("No Server Response");
+                setAuth(null);
+                navigate("/login");
+            } else {
+                console.log(error?.response);
+            }
+        }
+    }
+
+    const handleLogOut = () => {
+        logout();
+    }
+
     useEffect(() => {
         if (success) {
           // Redirect to login page after displaying the success message
           // Note: backend will log out the user after the password reset
 
-          const logout = async () => {
-            try {
-                axios.get("/sanctum/csrf-cookie");
-                let response = await axios.post("/logout");
-                console.log(response?.status);
-                setAuth(null);
-                navigate("/login");
-              } catch (error) {
-                if (!error?.response) {
-                  console.log("No Server Response");
-                  setAuth(null);
-                  navigate("/login");
-                } else {
-                  console.log(error?.response);
-                }
+          
+            if(auth?.authRole[0] == "reviewer")
+            {
+                navigate("/accept-appointment");
             }
-        }
-            logout();
+            else{
+                logout();
+            }
         }
     }, [success]);
 
@@ -149,6 +162,7 @@ const InitialPasswordRest = () => {
         setErrorMsg("");
     }, [password, confirmPassword]);
 
+    const logoutDisable = loading? {disabled:true} : {disabled:false};
     const paperStyle = {padding:70,height:'70vh',width:'40%',margin:"30px auto",borderRadius:"20px"}
 
     return (
@@ -263,6 +277,15 @@ const InitialPasswordRest = () => {
                             </Paper>
                         </Grid>
                 </Grid>
+            </Box>
+
+            <Box sx={{position:'absolute',margin:'0 20px',right:0,bottom:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                <Button {...logoutDisable} style={{margin:"0 0 15px"}} type='submit' color='primary' variant="contained"
+
+                    onClick={handleLogOut}
+                    >
+                        Log Out
+                </Button>
             </Box>
         </>
     );

@@ -27,6 +27,8 @@ class FacultyResource extends JsonResource
             $returnArr[Str::camel($key)] = $value;
         }
 
+        $returnArr['university'] = new UniversityResource($this -> whenLoaded('university'));
+
         return $returnArr;
     }
 }

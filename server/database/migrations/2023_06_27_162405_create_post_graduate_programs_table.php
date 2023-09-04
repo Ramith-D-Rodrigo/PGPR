@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('title');
             $table->integer('slqf_level');
             $table->year('commencement_year');
+            $table->boolean('is_professional_pg_programme')->default(true);
 
             $table->foreignId('faculty_id');
             //nullable for now
