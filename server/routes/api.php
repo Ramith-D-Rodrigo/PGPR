@@ -60,6 +60,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
         Route::get('universities/{university}/currentViceChancellor', 'UniversityController@currentViceChancellor') -> middleware('auth');
         //get faculties of a university
         Route::get('universities/{university}/faculties', 'UniversityController@faculties') -> middleware('auth');
+        Route::get('universities/{university}/postGraduatePrograms/', 'UniversityController@postgraduatePrograms') -> middleware('auth');
 
     Route::apiResource('standards', 'StandardController');
     Route::apiResource('selfEvaluationReports', 'SelfEvaluationReportController') -> middleware('auth');
