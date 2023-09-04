@@ -14,6 +14,11 @@ class Dean extends Model
         'current_status',
     ];
 
+    // dean is a user
+    public function user(){
+        return $this->belongsTo(User::class, 'id', 'id');
+    }
+
     //dean is an academic staff
     public function academicStaff(){
         return $this->belongsTo(AcademicStaff::class, 'id', 'id');
