@@ -225,10 +225,10 @@ class UniversityController extends Controller
             //get all faculties of a university
             $faculties = $university -> faculties;
 
-            //get all postgraduate programs of a university
-            $postgraduatePrograms = [];
+            //get all postgraduate programs of a university as a single model collection
+            $postgraduatePrograms = collect();
             foreach($faculties as $faculty){
-                $postgraduatePrograms = array_merge($postgraduatePrograms, $faculty -> postGraduatePrograms -> toArray());
+                $postgraduatePrograms = $postgraduatePrograms -> merge($faculty -> postGraduatePrograms);
             }
 
             return new PostGraduateProgramCollection($postgraduatePrograms);
