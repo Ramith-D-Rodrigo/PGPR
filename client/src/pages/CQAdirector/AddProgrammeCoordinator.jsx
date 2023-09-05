@@ -78,7 +78,7 @@ function AddProgrammeCoordinator({onSubmit,onSelectedFaculty,isLoading,faculties
                       id="facultySelect"
                       label="faculty*"
                       value={faculty}
-                      name="facultyid"
+                      name="facultyId"
                       onChange={handleSelectFaculty}
                       disabled={isLoading}
                       required
@@ -167,7 +167,7 @@ function AddProgrammeCoordinator({onSubmit,onSelectedFaculty,isLoading,faculties
                       onChange={(e)=>setCV(e.target.files[0])}
                       disabled={isLoading}
                       label="cv"
-                      // required
+                      required
                   />
               </FormControl>
 
@@ -275,7 +275,7 @@ function AddProgrammeCoordinator({onSubmit,onSelectedFaculty,isLoading,faculties
               /> */}
 
               <FormControl style={TextFieldStyle} fullWidth>
-                  <Typography variant="body2" style={{marginBottom:"5px",color:"gray"}}>Profile Picture</Typography>
+                  <Typography variant="body2" style={{marginBottom:"5px",color:"gray"}}>Profile Picture ( &lt; 1 mb)</Typography>
                   <Input
                       
                       id="profilePicture"
@@ -284,6 +284,7 @@ function AddProgrammeCoordinator({onSubmit,onSelectedFaculty,isLoading,faculties
                       label="Profile Picture"
                       onChange={(e)=>setProfilePicture(e.target.files[0])}
                       disabled={isLoading}
+                      required
                   />
               </FormControl>
 
@@ -384,7 +385,7 @@ function AddProgrammeCoordinator({onSubmit,onSelectedFaculty,isLoading,faculties
                       style={{width:"100%"}}
                       id="slqfLevelId"
                       label="SLQF level"
-                      name="qualification_2SlqfLevelnation"
+                      name="qualification_2SlqfLevel"
                       helperText = "SLQF level of above mentioned qualification"
                       disabled={isLoading}
                       required

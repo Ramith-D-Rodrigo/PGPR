@@ -29,7 +29,7 @@ const AddDean = ({onSubmit,isLoading,faculties}) => {
   return (
     <>
     {isLoading && <Typography variant="h6" align='center' style={{margin:"2rem 0"}}>Loading ... <CircularProgress color='primary' style={{margin:"0 0.5rem"}} size={24} /></Typography>}
-    <form noValidate onSubmit={(evt) => onSubmit(evt)} >
+    <form onSubmit={(evt) => onSubmit(evt)} >
 
         <Divider variant="middle" >
             Official Details
@@ -60,7 +60,7 @@ const AddDean = ({onSubmit,isLoading,faculties}) => {
                     labelId="facultyLabel"
                     id="facultySelect"
                     label="faculty*"
-                    name="facultyid"
+                    name="facultyId"
                     value = {faculty}
                     onChange={(e)=>setFaculty(e.target.value)}
                     required
@@ -130,7 +130,7 @@ const AddDean = ({onSubmit,isLoading,faculties}) => {
                     onChange={(e)=>setCV(e.target.files[0])}
                     disabled={isLoading}
                     label="cv"
-                    // required
+                    required
                 />
             </FormControl>
 
@@ -238,7 +238,7 @@ const AddDean = ({onSubmit,isLoading,faculties}) => {
             /> */}
 
             <FormControl style={TextFieldStyle} fullWidth>
-                <Typography variant="body2" style={{marginBottom:"5px",color:"gray"}}>Profile Picture</Typography>
+                <Typography variant="body2" style={{marginBottom:"5px",color:"gray"}}>Profile Picture (	&lt; 1 mb)</Typography>
                 <Input
                     
                     id="profilePicture"
@@ -247,6 +247,7 @@ const AddDean = ({onSubmit,isLoading,faculties}) => {
                     label="Profile Picture"
                     onChange={(e)=>setProfilePicture(e.target.files[0])}
                     disabled={isLoading}
+                    required
                 />
             </FormControl>
 
@@ -347,7 +348,7 @@ const AddDean = ({onSubmit,isLoading,faculties}) => {
                     style={{width:"100%"}}
                     id="slqfLevelId"
                     label="SLQF level"
-                    name="qualification_2SlqfLevelnation"
+                    name="qualification_2SlqfLevel"
                     helperText = "SLQF level of above mentioned qualification"
                     disabled={isLoading}
                     required
