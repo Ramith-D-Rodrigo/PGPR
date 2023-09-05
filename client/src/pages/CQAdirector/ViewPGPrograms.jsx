@@ -11,6 +11,8 @@ import useAuth from "../../hooks/useAuth";
 import { CircularProgress } from "@mui/material";
 import getCQADirectorUniversity from "../../api/CQADirector/getCQADirectorUniversity";
 import getUniversityPostGraduatePrograms from "../../api/University/getUniversityPostGraduatePrograms";
+import getCurrentCoordinator from "../../api/PostGraduateProgram/getCurrentCoordinator";
+
 
 const CustomTable = ({ tableData, openEditDialog }) => {
   return (
@@ -32,10 +34,11 @@ const CustomTable = ({ tableData, openEditDialog }) => {
               {tableData.map((row, index) => (
                 <TableRow key={index}>
                   <TableCell align="center">{row.title}</TableCell>
-                  <TableCell align="center">{row.slqflevel}</TableCell>
-                  <TableCell align="center">{row.year}</TableCell>
-                  <TableCell align="center">{row.ispgp}</TableCell>
-                  <TableCell align="center">{row.pgcoordinator}</TableCell>
+                  <TableCell align="center">{row.slqfLevel}</TableCell>
+                  <TableCell align="center">{row.commencementYear}</TableCell>
+                  <TableCell align="center">{row.isProfessionalPgProgramme === 1 ? "Yes" : "No"}</TableCell>
+                  <TableCell align="center">{row.coordinatorName.academicStaff.universitySide.user.initials +" " +
+                      row.coordinatorName.academicStaff.universitySide.user.surname}</TableCell>
                   <TableCell align="center">
                     <Button
                       style={{ margin: "0 8px" }}
@@ -81,28 +84,50 @@ const Coordinators = () => {
     async function fetchData() {
       try {
         // Fetch data from the backend using API calls
-        const cqaDirectorId = auth.id; 
+        const cqaDirectorId = auth.id;
+        console.log('cqaDirectorId:', cqaDirectorId); // Log cqaDirectorId
         const response = await getCQADirectorUniversity(cqaDirectorId);
         const universityData = response.data.data;
+        console.log('universityData:', universityData); // Log universityData
         setUniversity(universityData);
-        
+
         const universityId = universityData.id;
-        console.log("response:",universityData)
-      
+        console.log('universityId:', universityId); // Log universityId
+
+        const queryParams = {
+          includeAcademicStaff: true,
+          includeUniversitySide: true,
+          includeUser: true,
+        };
         // Fetch postgraduate programs of the university
         const programsResponse = await getUniversityPostGraduatePrograms(universityId);
         const programsData = programsResponse.data.data;
-        console.log("programs:",programsResponse);
-  
-        // Set the fetched data to the state
-        setTableData(programsData);
+        console.log('programsData:', programsData); // Log programsData
+
+
+        // Fetch coordinators for each postgraduate program and update the tableData
+        const updatedTableData = await Promise.all(
+          programsData.map(async (program) => {
+            const coordinatorResponse = await getCurrentCoordinator(program.id,queryParams); // Pass the postgraduate program id
+            const coordinatorData = coordinatorResponse.data.data;
+            console.log('coordinatorData for program', program.id, ':', coordinatorData); // Log coordinatorData
+            program.coordinatorName = coordinatorData; // Store coordinator name
+            return program;
+          })
+        );
+
+        // Log the updated tableData
+        console.log('updatedTableData:', updatedTableData);
+
+        // Set the updated tableData to the state
+        setTableData(updatedTableData);
         setIsLoading(false);
       } catch (error) {
         console.error('Error fetching data:', error);
         setIsLoading(false);
       }
     }
-  
+
     fetchData();
   }, []);
    
