@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MainContent from "../../components/MainContent";
 import useSetUserNavigations from "../../hooks/useSetUserNavigations";
+import useAuth from "../../hooks/useAuth";
+import { CircularProgress } from "@mui/material";
 import {
   Button,
   Table,
@@ -24,6 +26,11 @@ import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
+import getCQADirectorUniversity from "../../api/CQADirector/getCQADirectorUniversity";
+import getUniversityFaculties from "../../api/University/getUniversityFaculties";
+import getCurrentDean from "../../api/Faculty/getCurrentDean";
+import getFacultyPostGraduatePrograms from "../../api/Faculty/getFacultyPostGraduatePrograms";
+import getCurrentCoordinator from "../../api/PostGraduateProgram/getCurrentCoordinator";
 
 const CustomTable = ({ tableData, openEditDialog }) => {
   return (
@@ -37,19 +44,16 @@ const CustomTable = ({ tableData, openEditDialog }) => {
                   <b>Profile Photo</b>
                 </TableCell>
                 <TableCell align="center">
-                  <b>C-ID</b>
+                  <b>ID</b>
                 </TableCell>
                 <TableCell align="center">
                   <b>Name</b>
                 </TableCell>
                 <TableCell align="center">
+                  <b>Role</b>
+                </TableCell>
+                <TableCell align="center">
                   <b>Faculty</b>
-                </TableCell>
-                <TableCell align="center">
-                  <b>Status</b>
-                </TableCell>
-                <TableCell align="center">
-                  <b>No. of PG Programs</b>
                 </TableCell>
                 <TableCell align="center">
                   <b>Actions</b>
@@ -62,11 +66,14 @@ const CustomTable = ({ tableData, openEditDialog }) => {
                   <TableCell align="center">
                     <Avatar alt="Profile Photo" src={row.profilePhoto} />
                   </TableCell>
-                  <TableCell align="center">{row.cid}</TableCell>
-                  <TableCell align="center">{row.name}</TableCell>
-                  <TableCell align="center">{row.faculty}</TableCell>
-                  <TableCell align="center">{row.status}</TableCell>
-                  <TableCell align="center">{row.pgCount}</TableCell>
+                  <TableCell align="center">{row.id}</TableCell>
+                  <TableCell align="center">
+                    {row.academicStaff.universitySide.user.initials +
+                      " " +
+                      row.academicStaff.universitySide.user.surname}
+                  </TableCell>
+                  <TableCell align="center">{row.role}</TableCell>
+                  <TableCell align="center">{row.faculty.name}</TableCell>
                   <TableCell align="center">
                     <Button
                       style={{ margin: "0 8px" }}
@@ -89,7 +96,7 @@ const CustomTable = ({ tableData, openEditDialog }) => {
                       Edit
                     </Button>
 
-                    {/* Removed the onClick event for Delete button */}
+                   
                   </TableCell>
                 </TableRow>
               ))}
@@ -103,38 +110,104 @@ const CustomTable = ({ tableData, openEditDialog }) => {
 
 const Coordinators = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // State to track loading
+  const { auth } = useAuth();
+  const [university, setUniversity] = useState(null); // Add this state to store university data
+  const [universityFaculties, setUniversityFaculties] = useState([]); // State to store faculties
+  const [tableData, setTableData] = useState([]); // Initialize tableData as an empty array
 
-  const [tableData, setTableData] = useState([
-    {
-      cid: "C-100",
-      name: "Dr. Manju",
-      faculty: "Science",
-      status: "Approved",
-      pgCount: 3,
-      profilePhoto: "https://randomuser.me/api/portraits/men/1.jpg", // Professional profile photo of a gentleman
-    },
-    {
-      cid: "C-101",
-      name: "Dr. Pasindu",
-      faculty: "Arts",
-      status: "Confirmed",
-      pgCount: 2,
-      profilePhoto: "https://randomuser.me/api/portraits/men/2.jpg", // Professional profile photo of a gentleman
-    },
-    {
-      cid: "C-102",
-      name: "Dr. Thilini",
-      faculty: "Management",
-      status: "Canceled",
-      pgCount: 5,
-      profilePhoto: "https://randomuser.me/api/portraits/women/1.jpg", // Professional profile photo of a lady
-    },
-  ]);
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const cqaDirectorId = auth.id;
+        const response = await getCQADirectorUniversity(cqaDirectorId);
+        const universityData = response.data.data;
+        setUniversity(universityData);
 
-  const [selectedCoordinatorForEdit, setSelectedCoordinatorForEdit] = useState(
-    tableData[0]
-  );
+        // Fetch faculties of the university
+        const universityId = universityData.id;
+        const facultiesResponse = await getUniversityFaculties(universityId);
+        const facultiesData = facultiesResponse.data.data;
+        console.log("Faculties Data:", facultiesData);
 
+        const queryParams = {
+          includeAcademicStaff: true,
+          includeUniversitySide: true,
+          includeUser: true,
+        };
+
+        // Initialize an array to store data for all coordinators
+        const allCoordinatorData = [];
+
+        for (let i = 0; i < facultiesData.length; i++) {
+          const faculty = facultiesData[i];
+
+          // Fetch the current dean for the current faculty
+          const deanResponse = await getCurrentDean(faculty.id, queryParams);
+
+          const deanData = deanResponse.data.data;
+
+          deanData.faculty = faculty;
+          deanData.role = "Dean";
+          // Fetch postgraduate programs for the current faculty
+          const postGradProgramsResponse = await getFacultyPostGraduatePrograms(
+            faculty.id
+          );
+          const postGradProgramsData = postGradProgramsResponse.data.data;
+          console.log("PG Data:", postGradProgramsData);
+
+          // Fetch coordinators for each postgraduate program
+          const coordinatorPromises = postGradProgramsData.map(
+            async (program) => {
+              console.log("log:", program.id);
+              const coordinatorResponse = await getCurrentCoordinator(
+                program.id,
+                queryParams
+              );
+              console.log("response:", coordinatorResponse);
+
+              const coordinatorData = coordinatorResponse.data.data;
+              coordinatorData.faculty = faculty;
+              coordinatorData.role = "Programme Coordinator";
+              return coordinatorResponse.data.data;
+            }
+          );
+
+          const coordinatorsData = await Promise.all(coordinatorPromises);
+
+          // Combine deanData, postGradProgramsData, and coordinatorsData into allCoordinatorData
+          allCoordinatorData.push(deanData, ...coordinatorsData);
+        }
+
+        // Set allCoordinatorData to tableData
+        setTableData(allCoordinatorData);
+
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setIsLoading(false);
+      }
+    }
+
+    fetchData();
+  }, []);
+
+  const [selectedCoordinatorForEdit, setSelectedCoordinatorForEdit] = useState({
+    id: '',
+    academicStaff: {
+      universitySide: {
+        user: {
+          initials: '',
+          surname: '',
+        },
+      },
+    },
+    faculty: {
+      name: '',
+    },
+    role: '',
+  });
+  
   // Define openEditPopup function within the Coordinators component
   const handleOpenEditDialog = (coordinator) => {
     setSelectedCoordinatorForEdit(coordinator);
@@ -145,7 +218,7 @@ const Coordinators = () => {
     if (selectedCoordinatorForEdit) {
       // Update the tableData with the edited coordinator details
       const updatedTableData = tableData.map((coordinator) =>
-        coordinator.cid === selectedCoordinatorForEdit.cid
+        coordinator.id === selectedCoordinatorForEdit.id
           ? selectedCoordinatorForEdit
           : coordinator
       );
@@ -201,41 +274,8 @@ const Coordinators = () => {
         View Program Coordinators/Dean (IQAU Director){" "}
       </h2>
       <hr className="border-t-2 border-black my-4 opacity-50" />
-      <div className="grid grid-cols-2 gap-4">
-        <div className="flex flex-col">
-          <label
-            htmlFor="university"
-            className="block font-medium text-gray-700"
-          >
-            University Name:
-          </label>
-          <input
-            type="text"
-            id="university"
-            className="form-input border border-black p-1"
-          />
-        </div>
-        <div className="flex flex-col">
-          <label htmlFor="director" className="block font-medium text-gray-700">
-            IQAU Director:
-          </label>
-          <input
-            type="text"
-            id="director"
-            className="form-input border border-black p-1"
-          />
-        </div>
-      </div>
-      <div className="flex justify-center mt-4">
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => handleSearch()}
-        >
-          <Search />
-          Search
-        </Button>
-      </div>
+      <div className="grid grid-cols-2 gap-4"></div>
+
       <div className="flex justify-center mt-4">
         <Button variant="contained" color="primary">
           Show Current Coordinators
@@ -248,40 +288,57 @@ const Coordinators = () => {
           Show Current Dean/Director
         </Button>
       </div>
+      {/* Conditionally render the loading indicator */}
+      {isLoading ? (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center", // Horizontally center
+            alignItems: "center", // Vertically center
+            height: "60vh", // Adjust the height as needed
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <p>Loading ...</p>
+            <CircularProgress style={{ marginLeft: "8px" }} />
+          </div>
+        </div>
+      ) : (
+        // Render the table when not loading
+        <CustomTable
+          tableData={tableData}
+          openEditDialog={handleOpenEditDialog}
+        />
+      )}
 
-      <CustomTable
-        tableData={tableData}
-        openEditDialog={handleOpenEditDialog}
-      />
-
-<Dialog
-  open={isEditDialogOpen}
-  onClose={handleCloseEditDialog}
-  maxWidth="md" // Adjust the width as needed
-  fullWidth // Take up the full width
->
-  <DialogTitle style={{ fontSize: '24px', fontWeight: 'bold' }}>
-    Edit Coordinator Details
-  </DialogTitle>
+      <Dialog
+        open={isEditDialogOpen}
+        onClose={handleCloseEditDialog}
+        maxWidth="md" // Adjust the width as needed
+        fullWidth // Take up the full width
+      >
+        <DialogTitle style={{ fontSize: "24px", fontWeight: "bold" }}>
+          Edit Coordinator Details
+        </DialogTitle>
         <DialogContent className="w-full">
           <form className="dialog-form space-y-4">
             <div className="flex flex-col">
               <label
-                htmlFor="cid"
+                htmlFor="id"
                 className="text-sm font-medium text-gray-700"
               >
-                C-ID:
+                Coordinator-ID:
               </label>
               <input
                 type="text"
-                id="cid"
+                id="id"
                 className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={selectedCoordinatorForEdit.cid}
+                value={selectedCoordinatorForEdit.id}
                 // Add an onChange handler to update selectedCoordinatorForEdit.cid
                 onChange={(e) =>
                   setSelectedCoordinatorForEdit((prevState) => ({
                     ...prevState,
-                    cid: e.target.value,
+                    id: e.target.value,
                   }))
                 }
               />
@@ -298,15 +355,30 @@ const Coordinators = () => {
                 type="text"
                 id="name"
                 className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={selectedCoordinatorForEdit.name}
+                value={
+                  selectedCoordinatorForEdit.academicStaff.universitySide.user.initials +" " +selectedCoordinatorForEdit.academicStaff.universitySide.user.surname}
                 // Add an onChange handler to update selectedCoordinatorForEdit.name
                 onChange={(e) =>
-                  setSelectedCoordinatorForEdit((prevState) => ({
-                    ...prevState,
-                    name: e.target.value,
-                  }))
+                  setSelectedCoordinatorForEdit((prevState) => {
+                    return {
+                      ...prevState,
+                      academicStaff: {
+                        ...prevState.academicStaff,
+                        universitySide: {
+                          ...prevState.academicStaff.universitySide,
+                          user: {
+                            ...prevState.academicStaff.universitySide.user,
+                            // Only update the name field
+                            initials: initials, // Assuming initials are the first part
+                            surname: surname,
+                          },
+                        },
+                      },
+                    };
+                  })
                 }
               />
+           
             </div>
 
             <div className="flex flex-col">
@@ -320,60 +392,44 @@ const Coordinators = () => {
                 type="text"
                 id="faculty"
                 className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={selectedCoordinatorForEdit.faculty}
+                value={selectedCoordinatorForEdit.faculty.name}
                 // Add an onChange handler to update selectedCoordinatorForEdit.faculty
                 onChange={(e) =>
                   setSelectedCoordinatorForEdit((prevState) => ({
                     ...prevState,
-                    faculty: e.target.value,
+                    faculty: {
+                      ...prevState.faculty,
+                      // Update the faculty name field
+                      name: e.target.value,
+                    },
                   }))
                 }
               />
             </div>
-
+           
             <div className="flex flex-col">
               <label
-                htmlFor="status"
+                htmlFor="role"
                 className="text-sm font-medium text-gray-700"
               >
-                Status:
+                Role:
               </label>
               <input
                 type="text"
-                id="status"
+                id="role"
                 className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={selectedCoordinatorForEdit.status}
-                // Add an onChange handler to update selectedCoordinatorForEdit.pgCount
+                value={selectedCoordinatorForEdit.role}
                 onChange={(e) =>
                   setSelectedCoordinatorForEdit((prevState) => ({
                     ...prevState,
-                    status: e.target.value,
+                    // Update the role field
+                    role: e.target.value,
                   }))
                 }
               />
             </div>
-
-            <div className="flex flex-col">
-              <label
-                htmlFor="pgCount"
-                className="text-sm font-medium text-gray-700"
-              >
-                No. of PG Programs:
-              </label>
-              <input
-                type="number"
-                id="pgCount"
-                className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={selectedCoordinatorForEdit.pgCount}
-                // Add an onChange handler to update selectedCoordinatorForEdit.pgCount
-                onChange={(e) =>
-                  setSelectedCoordinatorForEdit((prevState) => ({
-                    ...prevState,
-                    pgCount: e.target.value,
-                  }))
-                }
-              />
-            </div>
+         
+            
           </form>
         </DialogContent>
         <DialogActions className="mt-4 space-x-2">

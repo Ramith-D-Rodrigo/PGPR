@@ -22,17 +22,20 @@ class PostGraduateProgramReviewController extends Controller
 
             //load related data
             $pgprs = PostGraduateProgramReview::with(['postGraduateProgram' => [
-                'faculty' => [
-                    'university'
+                    'faculty' => [
+                        'university'
+                    ]
                 ],
-                'currentProgrammeCoordinator' => [
-                    'academicStaff' => [
-                        'universitySide' => [
-                            'user:id,initials,surname,profile_pic'
+                'selfEvaluationReport:id,post_graduate_program_review_id,pgp_coordinator_id' => [
+                    'programmeCoordinator:id' => [
+                        'academicStaff:id' => [
+                            'universitySide:id' => [
+                                'user:id,initials,surname,profile_pic'
+                            ]
                         ]
                     ]
                 ]
-            ]]);
+            ]);
 
             return new PostGraduateProgramReviewCollection($pgprs -> get());
 
@@ -44,7 +47,8 @@ class PostGraduateProgramReviewController extends Controller
         }
         catch(\Exception $e){
             return response()->json([
-                'message' => 'An error occured while trying to fetch post graduate program reviews'
+                'message' => 'An error occured while trying to fetch post graduate program reviews',
+                'error' => $e -> getMessage()
             ], 500);
         }
     }
@@ -75,17 +79,20 @@ class PostGraduateProgramReviewController extends Controller
 
             //load related data
             $pgpr = $postGraduateProgramReview -> load(['postGraduateProgram' => [
-                'faculty' => [
-                    'university'
+                    'faculty' => [
+                        'university'
+                    ],
                 ],
-                'currentProgrammeCoordinator' => [
-                    'academicStaff' => [
-                        'universitySide' => [
-                            'user:id,initials,surname,profile_pic'
+                'selfEvaluationReport:id,post_graduate_program_review_id,pgp_coordinator_id' => [
+                    'programmeCoordinator:id' => [
+                        'academicStaff:id' => [
+                            'universitySide:id' => [
+                                'user:id,initials,surname,profile_pic'
+                            ]
                         ]
                     ]
                 ]
-            ]]);
+            ]);
 
             return new PostGraduateProgramReviewResource($pgpr);
 

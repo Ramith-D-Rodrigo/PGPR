@@ -44,7 +44,7 @@ class PostGraduateProgramReviewApplicationFilter extends ApiFilter{
                 //set the eloquent query to filter only the faculty pgps
                 $this -> safeParams['postGraduateProgramId'] = ['in'];
 
-                //find the index of column post_graduate_program_id in eloquent query
+                //find the index of column post_graduate_program_id in whereIn query
                 $pgpIDColumnIndex = array_search('post_graduate_program_id', array_column($this -> whereInQuery, 0));
 
                 //set the pgp ids to the eloquent query
@@ -71,30 +71,27 @@ class PostGraduateProgramReviewApplicationFilter extends ApiFilter{
                 $this -> safeParams['postGraduateProgramId'] = ['in'];
 
                 //find the index of column post_graduate_program_id in eloquent query
-                $pgpIDColumnIndex = array_search('post_graduate_program_id', array_column($this -> eloQuery, 0));
+                $pgpIDColumnIndex = array_search('post_graduate_program_id', array_column($this -> whereInQuery, 0));
 
                 //set the pgp ids to the eloquent query
                 if($pgpIDColumnIndex !== false){
-                    $this -> eloQuery[$pgpIDColumnIndex] = ['post_graduate_program_id', 'in', $pgpIDs];
+                    $this -> whereInQuery[$pgpIDColumnIndex] = ['post_graduate_program_id', $pgpIDs];
                 }
                 else{
-                    array_push($this -> eloQuery, ['post_graduate_program_id', 'in', $pgpIDs]);
+                    array_push($this -> whereInQuery, ['post_graduate_program_id', $pgpIDs]);
                 }
 
                 //cqa director can only view submitted applications
 
                 //request date must be not null
-                $this -> safeParams['requestDate'] = ['ne'];
+                $this -> safeParams['requestDate'] = ['nn'];
 
-                //find the index of column request_date in eloquent query
-                $requestDateColumnIndex = array_search('request_date', array_column($this -> eloQuery, 0));
+                //find the index of where is not null query
+                $requestDateColumnIndex = array_search('request_date', $this -> whereIsNotNullQuery);
 
                 //set the request date to the eloquent query
-                if($requestDateColumnIndex !== false){
-                    $this -> eloQuery[$requestDateColumnIndex] = ['request_date', 'is not null'];
-                }
-                else{
-                    array_push($this -> eloQuery, ['request_date', 'is not null']);
+                if($requestDateColumnIndex === false){
+                    array_push($this -> whereIsNotNullQuery, 'request_date');
                 }
 
                 break;
@@ -104,34 +101,14 @@ class PostGraduateProgramReviewApplicationFilter extends ApiFilter{
                 //they can only view applications that have rejected, approved or applied applications
 
                 //get the status column index
-                $statusColumnIndex = array_search('status', array_column($this -> eloQuery, 0));
+                $statusColumnIndex = array_search('status', array_column($this -> whereInQuery, 0));
 
                 //set the status to the eloquent query
                 if($statusColumnIndex !== false){
-                    //we have to check 3rd index if the request filter has the appropriate status
-                    $requestedStatus = $this -> eloQuery[$statusColumnIndex][2];
-
-                    $flag = false;
-                    foreach($requestedStatus as $status){
-
-                        if(!($status == 'rejected' || $status == 'approved' || $status == 'applied')){ //has sent a status that is not allowed
-                            $flag = true;
-                            break;
-                        }
-                    }
-
-                    if($flag){  //has sent a status that is not allowed
-                        $this -> eloQuery[$statusColumnIndex] = ['status', 'in', ['rejected', 'approved', 'applied']];
-                    }
-                    else{   //check the operator
-                        if(in_array($this -> eloQuery[$statusColumnIndex][1], ['nin', 'nlike', 'ne'])){
-                            //invalid operator
-                            $this -> eloQuery[$statusColumnIndex] = ['status', 'in', ['rejected', 'approved', 'applied']];
-                        }
-                    }
+                    $this -> whereInQuery[$statusColumnIndex] = ['status', ['rejected', 'approved', 'applied']];
                 }
                 else{
-                    array_push($this -> eloQuery, ['status', 'in', ['rejected', 'approved', 'applied']]);
+                    array_push($this -> whereInQuery, ['status', ['rejected', 'approved', 'applied']]);
                 }
 
                 break;
