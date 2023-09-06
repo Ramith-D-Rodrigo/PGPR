@@ -103,7 +103,7 @@ class ProgrammeCoordinatorController extends Controller
     {
         try{
             //authorize the action
-            $this -> authorize('create', ProgrammeCoordinator::class);
+            $this -> authorize('create', [ProgrammeCoordinator::class, $request]);
 
 
             $validatedData = $request -> validated();

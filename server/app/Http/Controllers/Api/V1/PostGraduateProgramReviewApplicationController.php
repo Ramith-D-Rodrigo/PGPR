@@ -89,7 +89,7 @@ class PostGraduateProgramReviewApplicationController extends Controller
     {
         try{
             //authorize the action
-            $this -> authorize('create', PostGraduateProgramReviewApplication::class);
+            $this -> authorize('create', [PostGraduateProgramReviewApplication::class, $request]);
 
             return new PostGraduateProgramReviewApplicationResource(
                 PostGraduateProgramReviewApplication::create($request->validated())

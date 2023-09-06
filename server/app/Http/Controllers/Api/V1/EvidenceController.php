@@ -35,7 +35,7 @@ class EvidenceController extends Controller
     {
         try{
             //authorize the action
-            $this->authorize('create', Evidence::class);
+            $this->authorize('create', [Evidence::class, $request]);
 
 
             $validatedData = $request->validated();
