@@ -20,8 +20,8 @@ class FacultyFactory extends Factory
             'name' => fake()->name(),
             'website' => fake()->url(),
             'address' => fake()->address(),
-            'contact_no' => json_encode(fake()->phoneNumber()),
-            'fax_no' => json_encode(fake()->e164PhoneNumber()),
+            'contact_no' => json_encode(['data'=>[fake()->phoneNumber()]]),
+            'fax_no' => json_encode(['data'=>[fake()->e164PhoneNumber()]]),
         ];
     }
 }
