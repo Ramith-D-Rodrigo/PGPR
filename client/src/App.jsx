@@ -97,7 +97,10 @@ function App() {
               <Route path="qac_officer/">
                 <Route path="" element={<Dashboard />} />
                 <Route path="dashboard" element={<Dashboard />} />
-                <Route path="universities" element={<Universities />} />
+                <Route path="universities/">
+                  <Route path="" element={<Universities />} />
+                  <Route path="view/:id" element={<ViewUniversity />} />
+                </Route>
                 <Route path="createAccounts/" element={<CreateAccounts />} />
                 <Route path="PGPRApplications" element={<PostGraduateProgramReviewApplications />} />
                 <Route path='reviewers/'>

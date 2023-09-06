@@ -7,6 +7,7 @@ import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
 import { Button, ButtonGroup, TableContainer, TableHead } from '@mui/material';
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const Universities = () => {
 
@@ -82,7 +83,9 @@ const Universities = () => {
                                 </TableCell>
                                 <TableCell>
                                     <ButtonGroup>
-                                        <Button variant="contained" color="primary">View</Button>
+                                        <Link to={`/qac_officer/universities/view/${row.id}`}>
+                                            <Button variant="contained" color="primary">View</Button>
+                                        </Link>
                                         <Button variant="contained" color="primary">Edit</Button>
                                     </ButtonGroup>
                                 </TableCell>

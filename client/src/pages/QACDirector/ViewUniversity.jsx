@@ -1,9 +1,12 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import getAUniversity from '../../api/University/getAUniversity';
-import { CircularProgress, Typography } from '@mui/material';
+import { Button, CircularProgress, Table, Typography } from '@mui/material';
 import { SERVER_URL } from '../../assets/constants';
+import getUniversityFaculties from '../../api/University/getUniversityFaculties';
+import { TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import getCurrentDean from '../../api/Faculty/getCurrentDean';
 
 const ViewUniversity = () => {
     const { id } = useParams();
@@ -13,7 +16,7 @@ const ViewUniversity = () => {
 
     useEffect(() => {
 
-        document.title = 'View University | QAC'
+        document.title = 'View University | CQA'
 
         const handleGetUniversity = async () => {
 
@@ -32,6 +35,25 @@ const ViewUniversity = () => {
                 const result = await getAUniversity(id, queryParams);
 
                 console.log(result.data.data);
+
+                //get faculties of the university
+                const facultyResult = await getUniversityFaculties(id);
+
+                console.log(facultyResult.data.data);
+
+                //go through each faculty and get the dean
+                for(let i = 0; i < facultyResult.data.data.length; i++){
+                    const faculty = facultyResult.data.data[i];
+
+                    const deanResult = await getCurrentDean(faculty.id, { 'includeUser' : true, 'includeUniversitySide' : true , 'includeAcademicStaff' : true});
+
+                    console.log(deanResult.data.data);
+
+                    faculty.dean = deanResult.data.data;
+                }
+
+                result.data.data.faculties = facultyResult.data.data;
+
                 setUniversity(result.data.data);
             }
             catch(err){
@@ -77,6 +99,50 @@ const ViewUniversity = () => {
                     <img src={SERVER_URL.substring(0, SERVER_URL.length - 1) + university.centerForQualityAssurance.currentCQADirector?.qualityAssuranceStaff.universitySide.user.profilePic} target="_blank" rel="noreferrer"/>
                   </h2>
                 </div>
+
+                <h1>Faculties</h1>
+
+                <TableContainer>
+                    <Table>
+                        <TableHead >
+                            <TableRow>
+                                <TableCell align="center">Name</TableCell>
+                                <TableCell align="center">Faculty Code</TableCell>
+                                <TableCell align="center">Current Dean</TableCell>
+                                <TableCell align="center">Contact Numbers</TableCell>
+                                <TableCell align="center">Fax Numbers</TableCell>
+                                <TableCell align="center">Website</TableCell>
+                                <TableCell align="center">IQAU</TableCell>
+                            </TableRow>
+
+                        </TableHead>
+                        <TableBody>
+                            {university.faculties.map((row) => (
+                                <TableRow key={row.id}>
+                                    <TableCell>{row.name}</TableCell>
+                                    <TableCell>{row.id}</TableCell>
+                                    <TableCell>{row.dean?.academicStaff.universitySide.user.initials + " " + row.dean?.academicStaff.universitySide.user.surname}</TableCell>
+                                    <TableCell>{
+                                        row.contactNo['data'].map((contactNo) => (
+                                        <p key={row.id + contactNo}>{contactNo}</p>
+                                        ))
+                                    }</TableCell>
+                                    <TableCell>{
+                                        row.faxNo['data'].map((faxNo) => (
+                                        <p key={row.id + faxNo}>{faxNo}</p>
+                                        ))
+                                    }</TableCell>
+                                    <TableCell>{row.website}</TableCell>
+                                    <TableCell>
+                                        <Link to={`/iqau/${row.id}`}>
+                                            <Button>View</Button>
+                                        </Link>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
             </div>
         }
       </>

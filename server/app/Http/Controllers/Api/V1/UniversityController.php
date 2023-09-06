@@ -147,7 +147,7 @@ class UniversityController extends Controller
                 }
             }
 
-            return new UniversityResource($university -> get());
+            return new UniversityResource($university);
         }
         catch(\Exception $e){
             return response()->json([
