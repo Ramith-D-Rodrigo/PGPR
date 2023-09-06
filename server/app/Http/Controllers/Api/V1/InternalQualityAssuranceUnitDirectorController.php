@@ -41,7 +41,7 @@ class InternalQualityAssuranceUnitDirectorController extends Controller
     {
         try{
             //authorize the action
-            $this -> authorize('create', InternalQualityAssuranceUnitDirector::class);
+            $this -> authorize('create', [InternalQualityAssuranceUnitDirector::class, $request]);
 
 
             $validatedData = $request -> validated();
@@ -82,7 +82,7 @@ class InternalQualityAssuranceUnitDirectorController extends Controller
         }
         catch(\Exception $e){
             DB::rollBack();
-            return response()->json(['message' => 'Failed to create the internal quality assurance unit director', 'error' => $e->getMessage()], 500);
+            return response()->json(['message' => 'Failed to create the internal quality assurance unit director', 'error' => $e->getTrace()], 500);
 
         }
 

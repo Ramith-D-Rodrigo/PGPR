@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Http\Requests\V1\StoreDeanRequest;
 use App\Models\Dean;
 use App\Models\Faculty;
 use App\Models\User;
@@ -29,7 +30,7 @@ class DeanPolicy
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user): Response
+    public function create(User $user, StoreDeanRequest $request): Response
     {
         //only cqa director can create dean
         $currentRole = request() -> session() -> get('AuthRole');
@@ -42,7 +43,7 @@ class DeanPolicy
 
         $cqaUniversity = $user -> universitySide -> university_id;
 
-        $deanFaculty = request() -> faculty_id;
+        $deanFaculty = $request -> faculty_id;
 
         $deanUniversity = Faculty::find($deanFaculty) -> university_id;
 

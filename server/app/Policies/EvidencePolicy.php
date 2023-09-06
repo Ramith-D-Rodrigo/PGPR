@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Http\Requests\V1\StoreEvidenceRequest;
 use App\Models\Evidence;
 use App\Models\SelfEvaluationReport;
 use App\Models\User;
@@ -28,7 +29,7 @@ class EvidencePolicy
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user): Response
+    public function create(User $user, StoreEvidenceRequest $request): Response
     {
         //only programme coordinator and internal quality assurance officer can create evidence
         //only need to check whether these roles belong to the particular post graduate program review
@@ -40,7 +41,7 @@ class EvidencePolicy
         }
 
         //get the ser id from the request
-        $SERid = request() -> self_evaluation_report_id;
+        $SERid = $request -> self_evaluation_report_id;
 
         //find the faculty from the ser id
         $faculty = SelfEvaluationReport::findOrFail($SERid)
@@ -124,7 +125,7 @@ class EvidencePolicy
                         -> postGraduateProgramReview
                         -> postGraduateProgram
                         -> faculty;
-                        
+
         switch($currRole){
             case 'programme_coordinator':
 
