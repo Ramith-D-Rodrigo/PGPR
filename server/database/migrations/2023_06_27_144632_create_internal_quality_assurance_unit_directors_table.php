@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('internal_quality_assurance_unit_directors', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('iqau_id');
+            $table->foreignId('iqau_id') -> nullable();
             $table->timestamps();
 
             // indices

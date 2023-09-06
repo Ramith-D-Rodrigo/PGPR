@@ -19,7 +19,7 @@ class ViceChancellor extends Model
     //vice chancellor is a university side
     public function universitySide()
     {
-        return $this->belongsTo(UniversitySide::class, 'university_id', 'id');
+        return $this->belongsTo(UniversitySide::class, 'id', 'id');
     }
 
     //vice chancellor approves many self evaluation reports
@@ -31,6 +31,6 @@ class ViceChancellor extends Model
   //vice chancellor has a university
     public function university()
     {
-        return $this->belongsTo(University::class, 'vice_chancellor_id', 'id');
+        return $this->belongsTo(University::class, 'university_id', 'id');
     }
 }
