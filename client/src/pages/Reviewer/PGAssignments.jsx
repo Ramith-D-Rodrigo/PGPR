@@ -138,10 +138,6 @@ const pgAssignments = () => {
         setSelectedPGPRID(null);
     }
 
-    function handleDownloadLetter() {
-        console.log("Download Letter Clicked : ",selectedPGPRID);
-    }
-
     function handleClickAccept(pgprID) {
         setAcceptClicked(true);
         setSelectedPGPRID(pgprID);
@@ -292,9 +288,9 @@ const pgAssignments = () => {
                         <Typography variant="h6" gutterBottom component="div" style={{marginRight:'20px'}}>
                             It's happy to inform you that you have been appointed as a reviewer/Chairman for postgraduate programs by QAC. Click below to download the appointment letter.
                         </Typography>
-                        <Button variant="contained" color="primary" size="large" onClick={handleDownloadLetter}>
+                        <Link to={`${SERVER_URL}${SERVER_API_VERSION}reviewers/download-pgpr-declaration`} ><Button variant="contained" color="primary" size="large">
                             Download Appointment Letter
-                        </Button>
+                        </Button></Link>
                         <Box sx={{display:'flex',justifyContent:'space-around',width:'100%'}}>
                             <Button variant="contained" color="primary" size="large" onClick={()=>setAcceptAssignment(true)}>
                                 Accept Assignment
