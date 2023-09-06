@@ -1,18 +1,22 @@
+import { SERVER_URL, SERVER_API_VERSION } from '../../assets/constants';
 import React from 'react'
 import { useParams } from 'react-router-dom'
 import useSetUserNavigations from '../../hooks/useSetUserNavigations';
 import ScrollableDiv from '../../components/ScrollableDiv';
 import DiscriptiveDiv from '../../components/DiscriptiveDiv';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Button from '@mui/material/Button';
 import { Grid, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box } from '@mui/material';
 import { Link } from 'react-router-dom';
 import useDrawerState from '../../hooks/useDrawerState';
+import axios from '../../api/api';
+import getSelfEvaluationReport from '../../api/SelfEvaluationReport/getSelfEvaluationReport';
 
 
 const ViewSer = () => {
     const {pgprId} = useParams();
     const open = useDrawerState().drawerState.open;
+    const [SERDetails,setSERDetails] = useState({});
 
     useSetUserNavigations(
         [
@@ -26,6 +30,20 @@ const ViewSer = () => {
             }
         ]
     );
+
+    useEffect(() => {
+        document.title = "View SELF EVALUATION REPORT";
+        const getSERDetails = async () => {
+            try {
+                const response = await getSelfEvaluationReport(pgprId);
+                console.log("SER Details : ",response?.data?.data);
+                setSERDetails(response?.data?.data);
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        getSERDetails();
+    }, []);
 
     let descriptionWidth = 30;
 
@@ -54,28 +72,66 @@ const ViewSer = () => {
 
     const headerRowDivStyle = {width:'50%',textAlign:'left'};
 
+    const pgProgrammeDetails = SERDetails?.postGraduateProgramReview?.postGraduateProgramme;
+    const facultyDetails = pgProgrammeDetails?.faculty;
+    const universityDetails = facultyDetails?.university;
+    const pgCoordinatorDetails = SERDetails?.programmeCoordinator?.academicStaff?.universitySide?.user;
+
     const headerInfo = [
-        { label: "University:", value: "University of Colombo" },
+        { label: "University:", value: universityDetails?.name },
         {
           label: "Faculty/Institute:",
-          value: "University of Colombo School of Computing",
+          value: facultyDetails?.name,
         },
-        { label: "PGPR ID:", value: pgprId },
-        { label: "PGPR Name:", value: "MSc" },
+        { label: "PGPR ID:", value: `PGPR-${pgprId}` },
+        { label: "PG programme Name:", value: pgProgrammeDetails?.title },
         { label: "Application Start Date:", value: "12/12/2020" },
         { label: "Submission Date:", value: "01/01/2021" },
-        { label: "Program Coordinator:", value: "Mr. Smantha Karunanayake" },
+        { label: "Program Coordinator:", value: `${pgCoordinatorDetails?.initials} ${pgCoordinatorDetails?.surname}` },
       ];
 
-    const rows = [
-        createData("Programme Management",'X1/27', "x11","x12","x12", 'x12','x12'),
-        createData("P. Design and Development",'X1/27', "x11","x12","x12", 'x12','x12'),
-        createData("Human Physical Res. & LS",'X1/27', "x11","x12","x12", 'x12','x12'),
-        createData("Teaching Learning Research",'X1/27', "x11","x12","x12", 'x12','x12'),
-        createData("Programme Evaluation","X1/27", "x11","x12","x12", 'x12','x12'),
-        createData("Student Assessment & Awards","X1/27", "x11","x12","x12", 'x12','x12'),
-        createData("Innovative & Healthy Practices","X1/27", "x11","x12","x12", 'x12','x12'),
-      ];
+    const Criterias = SERDetails?.criterias;
+    const evidencesForGivenStandards = SERDetails?.evidenceGivenStandards;
+
+    const createRows = () => {
+        const rows = Criterias?.map((criteria,index)=>{
+            let noOfStandards = criteria?.standards?.length;
+            let noOfSubmittedStandards = 0;
+            let evidencesCount = [0,0,0,0,0,0]; // 1:Y1, 2:Y2, 3:Y3, 4:Y4, 5:Y5
+            criteria?.standards?.forEach((standard,index)=>{
+                let standardId = standard?.id;
+                evidencesForGivenStandards?.forEach((givenStandard,index)=>{
+                    if(givenStandard?.id == standardId)
+                    {
+                        noOfSubmittedStandards++;
+                        const evidences = givenStandard?.evidences;
+                        evidences?.forEach((evidence,index)=>{
+                            const applicableYears = evidence?.applicableYears;
+                            applicableYears?.forEach((year,index)=>{
+                                evidencesCount[year]++;
+                            });
+                        });
+                        return;
+                    }
+                });
+            });
+            return createData(criteria?.name,`${noOfSubmittedStandards}/${noOfStandards}`, evidencesCount[1],evidencesCount[2],evidencesCount[3],evidencesCount[4],evidencesCount[5]);
+        });
+        return rows;
+    };
+
+    const rows = Criterias? createRows() : [];
+
+
+    // const rows = [
+    //     createData("Programme Management",'X1/27', "x11","x12","x12", 'x12','x12'),
+    //     createData("P. Design and Development",'X1/27', "x11","x12","x12", 'x12','x12'),
+    //     createData("Human Physical Res. & LS",'X1/27', "x11","x12","x12", 'x12','x12'),
+    //     createData("Teaching Learning Research",'X1/27', "x11","x12","x12", 'x12','x12'),
+    //     createData("Programme Evaluation","X1/27", "x11","x12","x12", 'x12','x12'),
+    //     createData("Student Assessment & Awards","X1/27", "x11","x12","x12", 'x12','x12'),
+    //     createData("Innovative & Healthy Practices","X1/27", "x11","x12","x12", 'x12','x12'),
+    //   ];
 
     return (
         <>
