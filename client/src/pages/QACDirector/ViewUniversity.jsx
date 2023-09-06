@@ -134,7 +134,7 @@ const ViewUniversity = () => {
                                     }</TableCell>
                                     <TableCell>{row.website}</TableCell>
                                     <TableCell>
-                                        <Link to={`/iqau/${row.id}`}>
+                                        <Link to={`/iqau/${row.iqauId}`}>
                                             <Button>View</Button>
                                         </Link>
                                     </TableCell>
