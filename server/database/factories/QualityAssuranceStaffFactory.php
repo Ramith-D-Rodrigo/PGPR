@@ -18,7 +18,7 @@ class QualityAssuranceStaffFactory extends Factory
     public function definition(): array
     {
         return [
-            'id' => UniversitySide::factory(),
+            //'id' => UniversitySide::factory(),
             'assigned_date' => fake()->date(),
         ];
     }
