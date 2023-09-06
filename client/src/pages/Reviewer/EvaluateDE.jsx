@@ -13,7 +13,7 @@ import { Link } from 'react-router-dom';
 import useDrawerState from '../../hooks/useDrawerState';
 
 const EvaluateDE = () => {
-    const {uniId,criteriaId} = useParams();
+    const {pgprId,criteriaId} = useParams();
     const open = useDrawerState().drawerState.open;
     const [standardID, setstandardID] = useState(1);
     const [observations, setobservations] = useState('');
@@ -96,11 +96,11 @@ const EvaluateDE = () => {
             },
             {
                 name: "DE",
-                link: "/PG_Assignments/Conduct_DE/"+uniId
+                link: "/PG_Assignments/Conduct_DE/"+pgprId
             },
             {
                 name: "Evaluate DE",
-                link: "/PG_Assignments/Conduct_DE/"+uniId+"/"+criteriaId
+                link: "/PG_Assignments/Conduct_DE/"+pgprId+"/"+criteriaId
             }
         ]
     );
@@ -126,7 +126,7 @@ const EvaluateDE = () => {
     <DiscriptiveDiv description="Desk Evaluation"  width='100%' height="80%" backgroundColor="white" >
 
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Criteria : {criteriaId} - {uniId}
+            Criteria : {criteriaId} - {pgprId}
         </Typography>
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Standard {standardID} / {noOfAllStandards}

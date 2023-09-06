@@ -11,7 +11,7 @@ import useDrawerState from '../../hooks/useDrawerState';
 
 
 const ViewSer = () => {
-    const {uniId} = useParams();
+    const {pgprId} = useParams();
     const open = useDrawerState().drawerState.open;
 
     useSetUserNavigations(
@@ -22,7 +22,7 @@ const ViewSer = () => {
             },
             {
                 name: "View SER",
-                link: "/PG_Assignments/ViewSer/"+uniId
+                link: "/PG_Assignments/ViewSer/"+pgprId
             }
         ]
     );
@@ -60,7 +60,7 @@ const ViewSer = () => {
           label: "Faculty/Institute:",
           value: "University of Colombo School of Computing",
         },
-        { label: "PGPR ID:", value: uniId },
+        { label: "PGPR ID:", value: pgprId },
         { label: "PGPR Name:", value: "MSc" },
         { label: "Application Start Date:", value: "12/12/2020" },
         { label: "Submission Date:", value: "01/01/2021" },

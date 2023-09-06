@@ -166,17 +166,17 @@ function App() {
                 <Route path="dashboard" element={<ReviewerDashboard />} />
                 <Route path="PG_Assignments/">
                   <Route path="" element={<PGAssignments />} />
-                  <Route path="ViewSer/:uniId" element={<ViewSer />} />
+                  <Route path="ViewSer/:pgprId" element={<ViewSer />} />
                   <Route path="Conduct_DE/">
-                    <Route path=":uniId" element={<ConductDE />} />
-                    <Route path=":uniId/:criteriaId" element={<EvaluateDE />} />
-                    <Route path="UpdateABC/:uniId" element={<UpdateABC />} />
+                    <Route path=":pgprId" element={<ConductDE />} />
+                    <Route path=":pgprId/:criteriaId" element={<EvaluateDE />} />
+                    <Route path="UpdateABC/:pgprId" element={<UpdateABC />} />
                     <Route
-                      path="Standardwise_details/:uniId"
+                      path="Standardwise_details/:pgprId"
                       element={<Standardwise_details />}
                     />
                     <Route
-                      path="Summary_details/:uniId"
+                      path="Summary_details/:pgprId"
                       element={<Summary_details />}
                     />
                   </Route>

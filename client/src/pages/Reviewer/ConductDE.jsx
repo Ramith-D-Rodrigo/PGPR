@@ -10,7 +10,7 @@ import { Link } from 'react-router-dom';
 import useDrawerState from '../../hooks/useDrawerState';
 
 const ConductDE = () => {
-    const {uniId} = useParams();
+    const {pgprId} = useParams();
     const open = useDrawerState().drawerState.open;
 
     useSetUserNavigations(
@@ -21,7 +21,7 @@ const ConductDE = () => {
             },
             {
                 name: "DE",
-                link: "/PG_Assignments/Conduct_DE/"+uniId
+                link: "/PG_Assignments/Conduct_DE/"+pgprId
             }
         ]
     );
@@ -69,7 +69,7 @@ const ConductDE = () => {
           label: "Faculty/Institute:",
           value: "University of Colombo School of Computing",
         },
-        { label: "PGPR ID:", value: uniId },
+        { label: "PGPR ID:", value: pgprId },
         { label: "PGPR Name:", value: "MSc" },
         { label: "Application Start Date:", value: "12/12/2020" },
         { label: "Submission Date:", value: "01/01/2021" },
@@ -94,7 +94,7 @@ const ConductDE = () => {
                 }}>
                     <Box style={headerRowStyle}><div style={headerRowDivStyle}>University :</div><div style={headerRowDivStyle}>University of Colombo</div></Box>
                     <Box style={headerRowStyle}><div style={headerRowDivStyle}>Faculty/Institute :</div><div style={headerRowDivStyle}>University of Colombo School of Computing</div></Box>
-                    <Box style={headerRowStyle}><div style={headerRowDivStyle}>PGPR ID :</div><div style={headerRowDivStyle}>{uniId}</div></Box>
+                    <Box style={headerRowStyle}><div style={headerRowDivStyle}>PGPR ID :</div><div style={headerRowDivStyle}>{pgprId}</div></Box>
                     <Box style={headerRowStyle}><div style={headerRowDivStyle}>PGPR Name :</div><div style={headerRowDivStyle}>MSc</div></Box>
                     <Box style={headerRowStyle}><div style={headerRowDivStyle}>Application Start Date :</div><div style={headerRowDivStyle}>12/12/2020</div></Box>
                     <Box style={headerRowStyle}><div style={headerRowDivStyle}>Submission Date :</div><div style={headerRowDivStyle}>01/01/2021</div></Box>
@@ -168,9 +168,9 @@ const ConductDE = () => {
             </TableContainer>
 
             <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', width: '100%', padding: '20px 0',height:"auto" }}>
-                    <Link to = {`../UpdateABC/${uniId}`}><Button variant="contained" size="small" style={{width:"300px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>Update Part A, B, D</Button></Link>
-                    <Link to = {`../Standardwise_details/${uniId}`}><Button variant="contained" size="small" style={{width:"300px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>View Standards Wise Details of Desk Review</Button></Link>
-                    <Link to = {`../Summary_details/${uniId}`}><Button variant="contained" size="small" style={{width:"300px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>View Summary Details of Criteria Wise</Button></Link>
+                    <Link to = {`../UpdateABC/${pgprId}`}><Button variant="contained" size="small" style={{width:"300px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>Update Part A, B, D</Button></Link>
+                    <Link to = {`../Standardwise_details/${pgprId}`}><Button variant="contained" size="small" style={{width:"300px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>View Standards Wise Details of Desk Review</Button></Link>
+                    <Link to = {`../Summary_details/${pgprId}`}><Button variant="contained" size="small" style={{width:"300px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>View Summary Details of Criteria Wise</Button></Link>
             </Box>
         </>
     )
