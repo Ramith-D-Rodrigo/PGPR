@@ -92,7 +92,7 @@ class DeanController extends Controller
     public function store(StoreDeanRequest $request)
     {
         try {
-            $this->authorize('create', Dean::class);
+            $this->authorize('create', [Dean::class, $request]);
 
             //set needed additional fields
 
