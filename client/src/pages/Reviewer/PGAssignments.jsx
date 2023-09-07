@@ -1,7 +1,7 @@
 import React from 'react';
 import ScrollableDiv from '../../components/ScrollableDiv';
 import { Typography } from '@mui/material';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import useSetUserNavigations from '../../hooks/useSetUserNavigations';
 import axios from '../../api/api';
 import { SERVER_API_VERSION, SERVER_URL } from '../../assets/constants';
@@ -28,6 +28,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
+import getAssignedPGPRs from '../../api/Reviewer/getAssignedPGPRs';
 
 const pgAssignments = () => {
     const {auth} = useAuth();
@@ -51,6 +52,25 @@ const pgAssignments = () => {
     const [loading, setLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
     const [success, setSuccess] = useState(false);
+    const [assignedPGPRs, setAssignedPGPRs] = useState([]);
+
+    useEffect(() => {
+        document.title = "PG Assignments";
+        const getPGPRAssignments = async () => {
+            try {
+                setLoading(true);
+                setErrorMsg("");
+                const response = await getAssignedPGPRs();
+                console.log("PGPR Assignments : ",response?.data?.data);
+                setAssignedPGPRs(response?.data?.data);
+                setLoading(false);
+            } catch (err) {
+                console.error(err);
+                setLoading(false);
+            }
+        };
+        getPGPRAssignments();
+    }, []);
 
     async function handleSubmitAssignment() {
         console.log("Accept Clicked : ",selectedPGPRID);
@@ -141,7 +161,7 @@ const pgAssignments = () => {
     function handleClickAccept(pgprID) {
         setAcceptClicked(true);
         setSelectedPGPRID(pgprID);
-        // console.log("Accept Clicked : ",pgprID);
+        console.log("Accept Clicked : ",pgprID);
     }
 
     function createData(pgprID,University_Name, faculty_Name, pgp, Role, status, Actions) {
@@ -167,16 +187,51 @@ const pgAssignments = () => {
             }
             
         });
-        return {pgprID, University_Name, faculty_Name, pgp, Role, status, Actions };
+        return {pgprID:`PGPR-${pgprID}`, University_Name, faculty_Name, pgp, Role, status, Actions };
     }
 
-    const rows = [
-        createData("Uoc-11",'University of Colombo', "UCSC","MCS","Chairman", 'In-review', [{action:'Accept',allow:false},{action:'View',allow:true}, {action:'DE',allow:false}, {action:'PE',allow:false}]),
-        createData("Uoc-13",'University of Colombo', "FOC","MCS", "Reviewer", 'In-review', [{action:'Accept',allow:true},{action:'View',allow:true}, {action:'DE',allow:false}, {action:'PE',allow:false}]),
-        createData("Uom-17",'University of Moratuwa', "FOE","MCS", "Chairman",'In-review', [{action:'Accept',allow:false},{action:'View',allow:true}, {action:'DE',allow:true}, {action:'PE',allow:false}]),
-        createData("Uok-10",'University of Kelaniya', "FOCS","MCS","Chairman", 'In-review', [{action:'Accept',allow:false},{action:'View',allow:true}, {action:'DE',allow:false}, {action:'PE',allow:false}]),
-        createData("Uop-16","University of Peradeniya", "FIT","MCS","Reviewer", 'In-review', [{action:'Accept',allow:true},{action:'View',allow:true}, {action:'DE',allow:true}, {action:'PE',allow:true}]),
-      ];
+    
+
+    const rows = assignedPGPRs? assignedPGPRs?.map((pgpr,index) => {
+        const PGPRDetails = pgpr?.postGraduateReviewProgram;
+        const pgProggramme = PGPRDetails?.post_graduate_program;
+        const faculty = pgProggramme?.faculty;
+        const university = faculty?.university;
+        let actions = [];
+        if(PGPRDetails?.status_of_pgpr === 'SUBMITTED')
+        {
+            actions = [{action:'Accept',allow:true},{action:'View',allow:false},{action:'DE',allow:false},{action:'PE',allow:false}]
+        }
+        else if(PGPRDetails?.status_of_pgpr === 'DE')
+        {
+            actions = [{action:'Accept',allow:false},{action:'View',allow:true},{action:'DE',allow:true},{action:'PE',allow:false}]
+        }
+        else if(PGPRDetails?.status_of_pgpr === 'PE')
+        {
+            actions = [{action:'Accept',allow:false},{action:'View',allow:true},{action:'DE',allow:false},{action:'PE',allow:true}]
+        }
+        else if(PGPRDetails?.status_of_pgpr === 'FINAL')
+        {
+            actions = [{action:'Accept',allow:false},{action:'View',allow:true},{action:'DE',allow:false},{action:'PE',allow:false}]
+        }
+        else if(PGPRDetails?.status_of_pgpr === 'COMPLETED')
+        {
+            actions = [{action:'Accept',allow:false},{action:'View',allow:true},{action:'DE',allow:false},{action:'PE',allow:false}];
+        }
+        else{
+            actions = [{action:'Accept',allow:false},{action:'View',allow:false},{action:'DE',allow:false},{action:'PE',allow:false}];
+        }
+
+        return createData(PGPRDetails?.id,university?.name,faculty?.name,pgProggramme?.title,pgpr?.role,PGPRDetails?.status_of_pgpr,actions);
+    }) : [];
+
+    // const rows = [
+    //     createData("Uoc-11",'University of Colombo', "UCSC","MCS","Chairman", 'In-review', [{action:'Accept',allow:false},{action:'View',allow:true}, {action:'DE',allow:false}, {action:'PE',allow:false}]),
+    //     createData("Uoc-13",'University of Colombo', "FOC","MCS", "Reviewer", 'In-review', [{action:'Accept',allow:true},{action:'View',allow:true}, {action:'DE',allow:false}, {action:'PE',allow:false}]),
+    //     createData("Uom-17",'University of Moratuwa', "FOE","MCS", "Chairman",'In-review', [{action:'Accept',allow:false},{action:'View',allow:true}, {action:'DE',allow:true}, {action:'PE',allow:false}]),
+    //     createData("Uok-10",'University of Kelaniya', "FOCS","MCS","Chairman", 'In-review', [{action:'Accept',allow:false},{action:'View',allow:true}, {action:'DE',allow:false}, {action:'PE',allow:false}]),
+    //     createData("Uop-16","University of Peradeniya", "FIT","MCS","Reviewer", 'In-review', [{action:'Accept',allow:true},{action:'View',allow:true}, {action:'DE',allow:true}, {action:'PE',allow:true}]),
+    //   ];
 
       const statuses = [
         { title: 'In-review' },
