@@ -75,7 +75,7 @@ const ViewSer = () => {
     const pgProgrammeDetails = SERDetails?.postGraduateProgramReview?.postGraduateProgramme;
     const facultyDetails = pgProgrammeDetails?.faculty;
     const universityDetails = facultyDetails?.university;
-    const pgCoordinatorDetails = SERDetails?.programmeCoordinator?.academicStaff?.universitySide?.user;
+    const pgCoordinatorDetails = pgProgrammeDetails?.programmeCoordinator?.academicStaff?.universitySide?.user;
 
     const headerInfo = [
         { label: "University:", value: universityDetails?.name },
