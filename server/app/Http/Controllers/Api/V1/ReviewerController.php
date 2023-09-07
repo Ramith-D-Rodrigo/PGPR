@@ -255,7 +255,7 @@ class ReviewerController extends Controller
             //find the review teams
             $review_teams = $reviewer
                 ->reviewTeams
-                ->whereIn('status', ['PENDING', 'APPROVED']); //only get either pending or accepted review teams only
+                ->whereIn('status', ['PENDING', 'ACCEPTED']); //only get either pending or accepted review teams only
 
             if (!count($review_teams)) {
                 return response()->json(["message" => "Currently you don't have any reviews", "data" => []]);
