@@ -11,6 +11,7 @@ import FormControl from '@mui/material/FormControl';
 import FormHelperText from '@mui/material/FormHelperText';
 import { Link } from 'react-router-dom';
 import useDrawerState from '../../hooks/useDrawerState';
+import getSelfEvaluationReport from '../../api/SelfEvaluationReport/getSelfEvaluationReport';
 
 const EvaluateDE = () => {
     const {pgprId,criteriaId} = useParams();
@@ -20,6 +21,7 @@ const EvaluateDE = () => {
     const [score, setscore] = useState(0);
     const [observationsErrMsg,setobservationsErrMsg ]= useState("");
     const [scoreErrMsg,setscoreErrMsg] = useState("");
+    const [SERDetails,setSERDetails] = useState([]);
 
     let nextButtonState = standardID==27? {disabled:true} : {disabled:false};
     let prevButtonState = standardID==1? {disabled:true} : {disabled:false};
@@ -27,7 +29,17 @@ const EvaluateDE = () => {
 
     let noOfAllStandards = 27;
     useEffect(() => {
-        //get all initial (1)standard details/ data from endpoint
+        document.title = "View SELF EVALUATION REPORT";
+        const getSERDetails = async () => {
+            try {
+                const response = await getSelfEvaluationReport(pgprId);
+                console.log("SER Details : ",response?.data?.data);
+                setSERDetails(response?.data?.data);
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        getSERDetails();
     }, []);
 
     useEffect(() => {
