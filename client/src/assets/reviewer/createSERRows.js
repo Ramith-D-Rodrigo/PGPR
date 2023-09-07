@@ -20,7 +20,8 @@ const createSERRows = (Criterias,evidencesForGivenStandards,createRow) => {
                 }
             });
         });
-        return createRow(criteria?.name,`${noOfSubmittedStandards}/${noOfStandards}`, evidencesCount[1],evidencesCount[2],evidencesCount[3],evidencesCount[4],evidencesCount[5]);
+        const criteriaData = {name:criteria?.name,id:criteria?.id};
+        return createRow(criteriaData,`${noOfSubmittedStandards}/${noOfStandards}`, evidencesCount[1],evidencesCount[2],evidencesCount[3],evidencesCount[4],evidencesCount[5]);
     });
     return rows;
 };

@@ -62,9 +62,9 @@ const ViewSer = () => {
     };
     let tableHeight = expand ==8? {} : {height:'300px'};
 
-    function createData(criteria,submitted_standards, y1,y2,y3,y4,y5) {
+    function createData(criteriaData,submitted_standards, y1,y2,y3,y4,y5) {
         
-        return {criteria, submitted_standards, y1,y2,y3,y4,y5};
+        return {criteria:criteriaData.name, submitted_standards, y1,y2,y3,y4,y5};
     }
 
     const headerRowStyle = {
