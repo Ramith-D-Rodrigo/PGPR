@@ -2,67 +2,86 @@ import * as React from 'react';
 import { useParams } from 'react-router-dom';
 import { useState } from 'react'; // Import useState hook
 import Button from '@mui/material/Button';
+import { Grid, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box } from '@mui/material';
 import useSetUserNavigations from '../../hooks/useSetUserNavigations';
+import DiscriptionDiv from '../../components/DiscriptionDiv';
+import useDrawerState from '../../hooks/useDrawerState';
 
 const SubmitPGPR = () => {
-  useSetUserNavigations([
-    {
-      name: 'Self Evaluation Report',
-      link: '/Self Evaluation Report',
-    },
-  ]);
+  const {uniId} = useParams();
+    const open = useDrawerState().drawerState.open;
 
- 
-  const rawData = {
-    university: "University of Colombo",
-    faculty: "University of Colombo School of Computing",
-    pgprId: "PGPR-123",
-    pgprName: "MSc",
-    startDate: "2023-08-09",
-    slqfLevel: "5",
-    coordinator: "Dr.Samantha",
+    useSetUserNavigations(
+        [
+            {
+              name: "PG Assignments",
+              link: "/PG_Assignments"
+            },
+            {
+                name: "Self Evaluation Report",
+                link: "/PG_Assignments/SubmitPGPR/"+uniId
+            }
+        ]
+    );
+
+    let descriptionWidth = 30;
+
+    const [expand, setexpand] = useState(8);
+
+    let bodyHeight = open ==true? `${90-expand}%` : `calc( ${90-expand}% - 60px )`;
+    const handleClick = ()=>{
+        if(expand==8)
+        {
+        setexpand(descriptionWidth);
+        }
+        else{
+        setexpand(8);
+        }
+    };
+    let tableHeight = expand ==8? {} : {height:'300px'};
+
+
+    const headerRowStyle = {
+      display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '70%', padding: '0 20px', fontSize: '16px',borderBottom: '1px solid #00000020'
   };
+
+  const headerRowDivStyle = {width:'50%',textAlign:'left'};
+
+  const headerInfo = [
+      { label: "University:", value: "University of Colombo" },
+      {
+        label: "Faculty/Institute:",
+        value: "University of Colombo School of Computing",
+      },
+      { label: "PGPR ID:", value: uniId },
+      { label: "PGPR Name:", value: "MSc" },
+      { label: "Application Start Date:", value: "12/12/2020" },
+      { label: "Submission Date:", value: "01/01/2021" },
+      { label: "Program Coordinator:", value: "Mr. Smantha Karunanayake" },
+    ];
 
   return (
     <>
-      <div>
-       
-        <div>
-          <label htmlFor="university" className="block font-medium center text-gray-2000">
-            University Name: {rawData.university}
-          </label>
-        </div>
-        <div>
-          <label htmlFor="faculty/institute" className="block font-medium text-gray-2000">
-            Faculty/Institute: {rawData.faculty}
-          </label>
-        </div>
-        <div>
-          <label htmlFor="faculty/institute" className="block font-medium text-gray-2000">
-            PGPR ID: {rawData.pgprId}
-          </label>
-        </div>
-        <div>
-          <label htmlFor="faculty/institute" className="block font-medium text-gray-2000">
-            PGPR Name: {rawData.pgprName}
-          </label>
-        </div>
-        <div>
-          <label htmlFor="faculty/institute" className="block font-medium text-gray-2000">
-            Application Start Date: {rawData.startDate}
-          </label>
-        </div>
-        <div>
-          <label htmlFor="faculty/institute" className="block font-medium text-gray-2000">
-            SLQF Level: {rawData.slqfLevel}
-          </label>
-        </div>
-        <div>
-          <label htmlFor="faculty/institute" className="block font-medium text-gray-2000">
-            Programme Coordinator: {rawData.coordinator}
-          </label>
-        </div>
-      </div>
+      
+      <DiscriptionDiv
+                
+                width="100%"
+                height="auto"
+                backgroundColor="#D8E6FC"
+                sx={{marginBottom:'20px'}}
+            >
+                <Grid container spacing={2}>
+                {headerInfo.map((infoItem, index) => (
+                    <Grid item xs={6} sm={3} key={index}>
+                    <Typography align='left' variant="subtitle1">
+                        <b>{infoItem.label}</b>
+                    </Typography>
+                    <Typography align='left'>{infoItem.value}</Typography>
+                    </Grid>
+                ))}
+                </Grid>
+            </DiscriptionDiv>
+
       <br></br>
       <div style={{ textAlign: 'center', fontWeight: 'bold', textDecoration: 'underline' }}>
         <header style={{fontSize:'15px'}}>

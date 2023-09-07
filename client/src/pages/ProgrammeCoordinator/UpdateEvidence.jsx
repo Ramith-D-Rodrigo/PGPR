@@ -1,11 +1,11 @@
 import React from 'react';
-import  Popup from '../../components/PopUpUpdate';
+import  PopupUpdate from '../../components/PopUpUpdate';
 
 const UpdateEvidence = () => {
   return (
     <div>
       
-      <Popup />
+      <PopupUpdate />
     </div>
   );
 };

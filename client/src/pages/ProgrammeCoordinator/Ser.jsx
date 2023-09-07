@@ -2,16 +2,17 @@ import React from 'react'
 import { useParams } from 'react-router-dom'
 import useSetUserNavigations from '../../hooks/useSetUserNavigations';
 import ScrollableDiv from '../../components/ScrollableDiv';
-import DiscriptiveDiv from '../../components/DiscriptiveDiv';
+import DiscriptionDiv from '../../components/DiscriptionDiv';
 import { useState } from 'react';
 import Button from '@mui/material/Button';
 import { Grid, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box } from '@mui/material';
-import { Link } from 'react-router-dom';
 import useDrawerState from '../../hooks/useDrawerState';
+import ViewSummary from '../../components/ViewSummary';
+import { Link } from 'react-router-dom';
 
 
 const Ser = () => {
-    const {uniId} = useParams();
+    const { uniId } = useParams();
     const open = useDrawerState().drawerState.open;
 
     useSetUserNavigations(
@@ -22,7 +23,7 @@ const Ser = () => {
             },
             {
                 name: "Self Evaluation Report",
-                link: "/PG_Assignments/ViewSer/"+uniId
+                link: "/PG_Assignments/Ser/"+uniId
             }
         ]
     );
@@ -76,15 +77,34 @@ const Ser = () => {
         createData("Student Assessment & Awards","X1/27", "x11","x12","x12", 'x12','x12'),
         createData("Innovative & Healthy Practices","X1/27", "x11","x12","x12", 'x12','x12'),
       ];
-      const renderActions = () => {
+
+      const [isViewSummaryOpen, setViewSummaryOpen] = useState(false);
+      const [selectedRow, setSelectedRow] = useState(null);
+
+      const openViewSummary = (row) => {
+        setSelectedRow(row);
+        setViewSummaryOpen(true);
+      };
+
+      const closeViewSummary = () => {
+        setSelectedRow(null);
+        setViewSummaryOpen(false);
+      };
+
+
+
+
+      const renderActions = (row) => {
         return (
-            <div>
-                <Button variant="contained" color="primary" size="small">
+          <div>
+                <Button variant="contained" color="primary" size="small" onClick={() => openViewSummary(row)}>
                     View
                 </Button>
+                <Link to={`/edit-ser/${uniId}`}>
                 <Button variant="contained" color="info" size="small">
                     Edit
                 </Button>
+                </Link>
                 <Button variant="contained" color="error" size="small">
                     Delete
                 </Button>
@@ -98,7 +118,7 @@ const Ser = () => {
 
     return (
         <>
-            <DiscriptiveDiv
+            <DiscriptionDiv
                 
                 width="100%"
                 height="auto"
@@ -115,7 +135,7 @@ const Ser = () => {
                     </Grid>
                 ))}
                 </Grid>
-            </DiscriptiveDiv>
+            </DiscriptionDiv>
             
             <TableContainer component={Paper} style={{height:"auto",margin:"2rem 0"}}>
                 <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table">
@@ -140,29 +160,37 @@ const Ser = () => {
                             <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Y5</b></TableCell>
                             <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b></b></TableCell>
                         </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {rows.map((row) => (
-                            <TableRow
-                            key={row.criteria}
-                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                            >
-                                <TableCell component="th" scope="row">
-                                    {row.criteria}
-                                </TableCell>
+                        </TableHead>
+                        <TableBody>
+                                {rows.map((row) => (
+                                <TableRow key={row.criteria} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                                <TableCell component="th" scope="row">{row.criteria}</TableCell>
                                 <TableCell align="center">{row.submitted_standards}</TableCell>
                                 <TableCell align="center">{row.y1}</TableCell>
                                 <TableCell align="center">{row.y2}</TableCell>
                                 <TableCell align="center">{row.y3}</TableCell>
                                 <TableCell align="center">{row.y4}</TableCell>
                                 <TableCell align="center">{row.y5}</TableCell>
-                                <TableCell align="center">{row.Actions}</TableCell>
-                            </TableRow>
+                                <TableCell align="center">{renderActions(row)}</TableCell>
+                        </TableRow>
                         ))}
                     </TableBody>
                 </Table>
             </TableContainer>
+
+            <div style={{ marginTop: '10px', textAlign: 'right' }}>
+                <Button variant="contained" color="error" style={{ marginRight: '10px' }}>
+                Save and Finish Later
+                </Button>
+                <Button variant="contained" color="error">
+                Submit
+               </Button>
+            </div>
+
+            <ViewSummary isOpen={isViewSummaryOpen} onClose={closeViewSummary} selectedRow={selectedRow} />
+    
         </>
+        
     )
 }
 
