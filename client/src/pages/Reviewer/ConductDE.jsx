@@ -3,15 +3,18 @@ import { useParams } from 'react-router-dom'
 import useSetUserNavigations from '../../hooks/useSetUserNavigations';
 import ScrollableDiv from '../../components/ScrollableDiv';
 import DiscriptiveDiv from '../../components/DiscriptiveDiv';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Button from '@mui/material/Button';
 import { Grid,Typography,Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box, Divider } from '@mui/material';
 import { Link } from 'react-router-dom';
 import useDrawerState from '../../hooks/useDrawerState';
+import getSelfEvaluationReport from '../../api/SelfEvaluationReport/getSelfEvaluationReport';
+import createSERRows from '../../assets/reviewer/createSERRows';
 
 const ConductDE = () => {
     const {pgprId} = useParams();
     const open = useDrawerState().drawerState.open;
+    const [SERDetails,setSERDetails] = useState({});
 
     useSetUserNavigations(
         [
@@ -26,17 +29,23 @@ const ConductDE = () => {
         ]
     );
 
-    function createData(criteria,submitted_standards, y1,y2,y3,y4,y5, Actions) {
-        Actions = Actions.map((action,index) => {
-            
-            let allow = action.allow? {disabled:false} : {disabled:true};
-            if(action.action === 'Evaluate')
-            {
-                return <Link key={index} to={action.allow? criteria:''}><Button {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button></Link>
+    useEffect(() => {
+        document.title = "Conduct Desk Evaluation";
+        const getSERDetails = async () => {
+            try {
+                const response = await getSelfEvaluationReport(pgprId);
+                console.log("SER Details : ",response?.data?.data);
+                setSERDetails(response?.data?.data);
+            } catch (err) {
+                console.error(err);
             }
-            
-        });
-        return {criteria, submitted_standards, y1,y2,y3,y4,y5, Actions };
+        };
+        getSERDetails();
+    }, []);
+
+    function createData(criteriaData,submitted_standards, y1,y2,y3,y4,y5) {
+        const Actions = [<Link key={1} to={`${criteriaData.id}`}><Button style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{"Evaluate"}</Button></Link>]
+        return {criteria:criteriaData.name, submitted_standards, y1,y2,y3,y4,y5, Actions };
     }
 
     let descriptionWidth = 30;
@@ -76,15 +85,23 @@ const ConductDE = () => {
         { label: "Program Coordinator:", value: "Mr. Smantha Karunanayake" },
       ];
 
-    const rows = [
-        createData("Programme Management",'X1/27', "x11","x12","x12", 'x12','x12', [{action:'Evaluate',allow:true}]),
-        createData("P. Design and Development",'X1/27', "x11","x12","x12", 'x12','x12', [{action:'Evaluate',allow:true}]),
-        createData("Human Physical Res. & LS",'X1/27', "x11","x12","x12", 'x12','x12', [{action:'Evaluate',allow:true}]),
-        createData("Teaching Learning Research",'X1/27', "x11","x12","x12", 'x12','x12', [{action:'Evaluate',allow:true}]),
-        createData("Programme Evaluation","X1/27", "x11","x12","x12", 'x12','x12', [{action:'Evaluate',allow:true}]),
-        createData("Student Assessment & Awards","X1/27", "x11","x12","x12", 'x12','x12', [{action:'Evaluate',allow:true}]),
-        createData("Innovative & Healthy Practices","X1/27", "x11","x12","x12", 'x12','x12', [{action:'Evaluate',allow:true}]),
-      ];
+      const Criterias = SERDetails?.criterias;
+      const evidencesForGivenStandards = SERDetails?.evidenceGivenStandards;
+
+      console.log("Criterias : ",Criterias);
+        console.log("evidencesForGivenStandards : ",evidencesForGivenStandards);
+  
+      const rows = Criterias? createSERRows(SERDetails?.criterias,SERDetails?.evidenceGivenStandards,createData) : [];
+
+    //   const rows = [
+    //     createData("Programme Management",'X1/27', "x11","x12","x12", 'x12','x12', [{action:'Evaluate',allow:true}]),
+    //     createData("P. Design and Development",'X1/27', "x11","x12","x12", 'x12','x12', [{action:'Evaluate',allow:true}]),
+    //     createData("Human Physical Res. & LS",'X1/27', "x11","x12","x12", 'x12','x12', [{action:'Evaluate',allow:true}]),
+    //     createData("Teaching Learning Research",'X1/27', "x11","x12","x12", 'x12','x12', [{action:'Evaluate',allow:true}]),
+    //     createData("Programme Evaluation","X1/27", "x11","x12","x12", 'x12','x12', [{action:'Evaluate',allow:true}]),
+    //     createData("Student Assessment & Awards","X1/27", "x11","x12","x12", 'x12','x12', [{action:'Evaluate',allow:true}]),
+    //     createData("Innovative & Healthy Practices","X1/27", "x11","x12","x12", 'x12','x12', [{action:'Evaluate',allow:true}]),
+    //   ];
 
     return (
         <>
