@@ -11,6 +11,7 @@ import { Link } from 'react-router-dom';
 import useDrawerState from '../../hooks/useDrawerState';
 import axios from '../../api/api';
 import getSelfEvaluationReport from '../../api/SelfEvaluationReport/getSelfEvaluationReport';
+import createSERRows from '../../assets/reviewer/createSERRows';
 
 
 const ViewSer = () => {
@@ -93,45 +94,7 @@ const ViewSer = () => {
     const Criterias = SERDetails?.criterias;
     const evidencesForGivenStandards = SERDetails?.evidenceGivenStandards;
 
-    const createRows = () => {
-        const rows = Criterias?.map((criteria,index)=>{
-            let noOfStandards = criteria?.standards?.length;
-            let noOfSubmittedStandards = 0;
-            let evidencesCount = [0,0,0,0,0,0]; // 1:Y1, 2:Y2, 3:Y3, 4:Y4, 5:Y5
-            criteria?.standards?.forEach((standard,index)=>{
-                let standardId = standard?.id;
-                evidencesForGivenStandards?.forEach((givenStandard,index)=>{
-                    if(givenStandard?.id == standardId)
-                    {
-                        noOfSubmittedStandards++;
-                        const evidences = givenStandard?.evidences;
-                        evidences?.forEach((evidence,index)=>{
-                            const applicableYears = evidence?.applicableYears;
-                            applicableYears?.forEach((year,index)=>{
-                                evidencesCount[year]++;
-                            });
-                        });
-                        return;
-                    }
-                });
-            });
-            return createData(criteria?.name,`${noOfSubmittedStandards}/${noOfStandards}`, evidencesCount[1],evidencesCount[2],evidencesCount[3],evidencesCount[4],evidencesCount[5]);
-        });
-        return rows;
-    };
-
-    const rows = Criterias? createRows() : [];
-
-
-    // const rows = [
-    //     createData("Programme Management",'X1/27', "x11","x12","x12", 'x12','x12'),
-    //     createData("P. Design and Development",'X1/27', "x11","x12","x12", 'x12','x12'),
-    //     createData("Human Physical Res. & LS",'X1/27', "x11","x12","x12", 'x12','x12'),
-    //     createData("Teaching Learning Research",'X1/27', "x11","x12","x12", 'x12','x12'),
-    //     createData("Programme Evaluation","X1/27", "x11","x12","x12", 'x12','x12'),
-    //     createData("Student Assessment & Awards","X1/27", "x11","x12","x12", 'x12','x12'),
-    //     createData("Innovative & Healthy Practices","X1/27", "x11","x12","x12", 'x12','x12'),
-    //   ];
+    const rows = Criterias? createSERRows(Criterias,evidencesForGivenStandards,createData) : [];
 
     return (
         <>
