@@ -7,6 +7,7 @@ use App\Models\AcademicStaff;
 use App\Http\Requests\StoreAcademicStaffRequest;
 use App\Http\Requests\UpdateAcademicStaffRequest;
 use App\Http\Controllers\Controller;
+use Illuminate\Auth\Access\AuthorizationException;
 
 class AcademicStaffController extends Controller
 {
@@ -62,7 +63,26 @@ class AcademicStaffController extends Controller
      */
     public function update(UpdateAcademicStaffRequest $request, AcademicStaff $academicStaff)
     {
-        //
+        try{
+            $this -> authorize('update', [$request, $academicStaff]);
+
+            $academicStaff -> update($request -> validated());
+
+            return response() -> json([
+                'message' => 'Academic Staff profile updated successfully.',
+            ], 200);
+        }
+        catch(AuthorizationException $e){
+            return response() -> json([
+                'message' => $e -> getMessage(),
+            ], 403);
+        }
+        catch(\Exception $e){
+            return response() -> json([
+                'message' => 'Error updating Academic Staff profile.',
+                'error' => $e -> getMessage(),
+            ], 500);
+        }
     }
 
     /**
