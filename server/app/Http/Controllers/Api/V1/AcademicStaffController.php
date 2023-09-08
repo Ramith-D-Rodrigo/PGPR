@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Resources\V1\AcademicStaffResource;
 use App\Models\AcademicStaff;
 use App\Http\Requests\StoreAcademicStaffRequest;
 use App\Http\Requests\UpdateAcademicStaffRequest;
@@ -38,7 +39,14 @@ class AcademicStaffController extends Controller
      */
     public function show(AcademicStaff $academicStaff)
     {
-        //
+        try{
+            return new AcademicStaffResource($academicStaff);
+        }
+        catch(\Exception $e){
+            return response()->json([
+                'message' => 'Academic Staff not found.'
+            ], 404);
+        }
     }
 
     /**
