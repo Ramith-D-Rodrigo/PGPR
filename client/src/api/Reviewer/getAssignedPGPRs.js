@@ -1,5 +1,3 @@
-await axios.get(`${SERVER_URL}${SERVER_API_VERSION}reviewers/pgprs`);
-
 import { SERVER_URL, SERVER_API_VERSION } from "../../assets/constants";
 import axios from "../api.js";
 
