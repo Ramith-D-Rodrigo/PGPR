@@ -12,6 +12,9 @@ import FormHelperText from '@mui/material/FormHelperText';
 import { Link } from 'react-router-dom';
 import useDrawerState from '../../hooks/useDrawerState';
 import getSelfEvaluationReport from '../../api/SelfEvaluationReport/getSelfEvaluationReport';
+import getAllCriteria from '../../api/Criteria/getAllCriteria';
+import getStandardEvidencesAndAdherenceForSER from '../../api/SelfEvaluationReport/getStandardEvidencesAndAdherenceForSER';
+import { SERVER_URL, SERVER_API_VERSION } from '../../assets/constants';
 
 const EvaluateDE = () => {
     const {pgprId,criteriaId} = useParams();
@@ -22,19 +25,26 @@ const EvaluateDE = () => {
     const [observationsErrMsg,setobservationsErrMsg ]= useState("");
     const [scoreErrMsg,setscoreErrMsg] = useState("");
     const [SERDetails,setSERDetails] = useState([]);
+    const [Standard,setStandard] = useState([]);
+    const [evidencesForSelectedStandard,setevidencesForSelectedStandard] = useState([]);
+    const [criterias,setCriterias] = useState([]);
 
-    let nextButtonState = standardID==27? {disabled:true} : {disabled:false};
-    let prevButtonState = standardID==1? {disabled:true} : {disabled:false};
 
-
-    let noOfAllStandards = 27;
     useEffect(() => {
         document.title = "View SELF EVALUATION REPORT";
         const getSERDetails = async () => {
             try {
-                const response = await getSelfEvaluationReport(pgprId);
-                console.log("SER Details : ",response?.data?.data);
-                setSERDetails(response?.data?.data);
+                const response1 = await getSelfEvaluationReport(pgprId);
+                setSERDetails(response1?.data?.data);
+                const selectedStandards = response1?.data?.data?.criterias.find((criteria)=>{ return criteria.id==criteriaId}).standards;
+                setStandard(selectedStandards);
+                // console.log("Selected Standard : ",selectedStandards[standardID-1]);
+                const response2 = await getStandardEvidencesAndAdherence(pgprId,selectedStandards[standardID-1].id);
+                // setevidencesForSelectedStandard(response1?.data?.data?.evidenceGivenStandards.find((evidenceGivenStandard)=>{ return evidenceGivenStandard.standardAdherence.standardId==Standard[standardID-1]?.id}));
+                // console.log("SER Details : ",response1?.data?.data);
+                const response = await getAllCriteria();
+                // console.log("Criterias : ",response?.data?.data);
+                setCriterias(response?.data?.data);
             } catch (err) {
                 console.error(err);
             }
@@ -42,9 +52,36 @@ const EvaluateDE = () => {
         getSERDetails();
     }, []);
 
+    const getStandardEvidencesAndAdherence = async (pgprId,standardId) => {
+        try {
+            const response = await getStandardEvidencesAndAdherenceForSER(pgprId,standardId);
+            setevidencesForSelectedStandard(response?.data?.data);
+            // console.log("Standard Evidences And Adherence For SER : ",response?.data?.data);
+            return response?.data?.data;
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    //get evidences and adherence for selected standard
     useEffect(() => {
         //get standard details/ data from endpoint
+        const result = getStandardEvidencesAndAdherence(pgprId,Standard[standardID-1]?.id);
+        // console.log("Standard : ",result);
     }, [standardID]);
+
+    let noOfAllStandards = Standard.length;
+    let nextButtonState = standardID==noOfAllStandards? {disabled:true} : {disabled:false};
+    let prevButtonState = standardID==1? {disabled:true} : {disabled:false};
+
+    // const Criterias = SERDetails?.criterias;
+    // console.log("Criterias : ",Criterias);
+    console.log("evidenceForSelectedStandards : ",evidencesForSelectedStandard);
+
+    const findCriteriaName = (criteriaId)=>{
+        let criteria = criterias.find((criteria)=>{ return criteria.id==criteriaId});
+        return criteria?.name;
+    };
 
     const handleClickNext = ()=>{
         if(standardID<noOfAllStandards)
@@ -119,6 +156,10 @@ const EvaluateDE = () => {
 
     const createData = (evidences, yearsapplicable) =>
     {
+        if(evidences==undefined || yearsapplicable==undefined)
+        {
+            return {evidences:[], yearsapplicable:[]};
+        }
         evidences = evidences.map((evidence,index) => {
             return <Typography style={{margin:"8px 0"}} key={index} variant="body2" component="div" sx={{ flexGrow: 1 }}>{evidence.id} : <Link style={{}} key={index} to={evidence.link}><b>Evidence</b></Link></Typography>
         });
@@ -129,8 +170,10 @@ const EvaluateDE = () => {
     }
 
 
-    const rows = [
-        createData([{id:'1.3.01',link:'/1.3.01'},{id:'1.3.02',link:'/1.3.02'}],['y1,y2','y2,y3']),
+    const rows = evidencesForSelectedStandard ==[]? [] : [
+        // createData([{id:'1.3.01',link:'/1.3.01'},{id:'1.3.02',link:'/1.3.02'}],[['y1','y2'],['y2','y3']]),
+        // createData(evidencesForSelectedStandard?.evidences?.map((evidence)=>{ return {id:evidence.id,link:evidence.id} }),['y1,y2','y2,y3']),
+        createData(evidencesForSelectedStandard?.evidences?.map((evidence)=>{ return {id:evidence.id,link:evidence.id} }),evidencesForSelectedStandard?.evidences?.map((evidence)=>{ return evidence?.applicableYears?.map((year) => {return `Y${year} `}) } )),
       ];
 
   return (
@@ -138,10 +181,13 @@ const EvaluateDE = () => {
     <DiscriptiveDiv description="Desk Evaluation"  width='100%' height="80%" backgroundColor="white" >
 
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Criteria : {criteriaId} - {pgprId}
+            Criteria : {findCriteriaName(criteriaId)} - {`PGPR-${pgprId}`}
         </Typography>
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Standard {standardID} / {noOfAllStandards}
+        </Typography>
+        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            {Standard[standardID-1]?.standardNo}
         </Typography>
 
         <TableContainer component={Paper} style={{margin:"2rem 0"}}>
@@ -161,8 +207,8 @@ const EvaluateDE = () => {
                         key={index}
                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                         >
-                            <TableCell align="left">{"Standard Details"}</TableCell>
-                            <TableCell align="center">{"Uni Adherences"}</TableCell>
+                            <TableCell align="left">{Standard[standardID-1]?.description}</TableCell>
+                            <TableCell align="center">{evidencesForSelectedStandard?.standardAdherence?.adherence?? 'NOT INCLUDED'}</TableCell>
                             <TableCell align="center">{row.evidences}</TableCell>
                             <TableCell align="center">{row.yearsapplicable}</TableCell>
                         </TableRow>
