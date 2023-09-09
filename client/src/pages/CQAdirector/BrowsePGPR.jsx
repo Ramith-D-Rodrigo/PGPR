@@ -1,6 +1,6 @@
 // BrowsePGPR.jsx
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import {
@@ -23,10 +23,17 @@ import { CircularProgress } from "@mui/material";
 import useAuth from "../../hooks/useAuth";
 import getAllPGPRApplications from "../../api/PostGraduateProgramApplication/getAllPGPRApplications";
 import getDean from "../../api/Dean/getDean";
+import recommendPGPRApplicationByCQADirector from "../../api/PostGraduateProgramApplication/recommendPGPRApplicationByCQA";
 
 // Sample data (you can replace this with your actual data)
 
-const CustomTable = ({ tableData, openDetailsDialog, openRecommendDialog }) => {
+const CustomTable = ({
+  tableData,
+  openDetailsDialog,
+  handleRecommendClick,
+  isRecommendButtonDisabledArray, // Add this prop
+  recommendationMessage,
+}) => {
   return (
     <div className="mt-6">
       <div className="overflow-x-auto">
@@ -83,10 +90,21 @@ const CustomTable = ({ tableData, openDetailsDialog, openRecommendDialog }) => {
                       variant="contained"
                       color="primary"
                       size="small"
-                      onClick={() => openRecommendDialog(row)}
+                      onClick={() => handleRecommendClick(row, index)} // Pass the index
+                      disabled={isRecommendButtonDisabledArray[index]} // Use the array value
                     >
                       Recommend
                     </Button>
+                    {recommendationMessage === "Recommended" && (
+                      <div
+                        style={{
+                          marginTop: "8px",
+                          color: "green",
+                        }}
+                      >
+                        Recommended
+                      </div>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
@@ -104,7 +122,42 @@ const BrowsePGPR = () => {
   const [tableData, setTableData] = useState([]);
   const [selectedPGPR, setSelectedPGPR] = useState(null); // State to store selected PGPR application
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false); // State to manage dialog open/close
+  const [isRecommendButtonDisabledArray, setIsRecommendButtonDisabledArray] = useState(Array(tableData.length).fill(false));
+  const [recommendationMessage, setRecommendationMessage] = useState("");
   const { auth } = useAuth();
+
+  const handleRecommendClick = async (pgpr, rowIndex) => {
+    // Disable the button for the specific row
+    setIsRecommendButtonDisabledArray((prevArray) => {
+      const newArray = [...prevArray];
+      newArray[rowIndex] = true;
+      return newArray;
+    });
+
+    try {
+     
+      const response = await recommendPGPRApplicationByCQADirector(pgpr.id);
+
+      if (response.status === 200) {
+        // Recommendation was successful
+        setRecommendationMessage("Recommended");
+      } else {
+        // Recommendation failed
+        setRecommendationMessage("Recommendation Failed");
+      }
+    } catch (error) {
+      
+      console.error("Recommendation Error:", error);
+      setRecommendationMessage("Recommendation Failed");
+    } finally {
+    
+      setIsRecommendButtonDisabledArray((prevArray) => {
+        const newArray = [...prevArray];
+        newArray[rowIndex] = false;
+        return newArray;
+      });
+    }
+  };
 
   // Function to open the dialog and set the selected PGPR application
   const openDetailsDialog = (pgpr) => {
@@ -193,83 +246,93 @@ const BrowsePGPR = () => {
         ) : (
           // Render the table when not loading
           <CustomTable
-            tableData={tableData}
-            openDetailsDialog={openDetailsDialog}
-          />
+          tableData={tableData}
+          openDetailsDialog={openDetailsDialog}
+          handleRecommendClick={handleRecommendClick}
+          isRecommendButtonDisabledArray={isRecommendButtonDisabledArray} // Pass the array as a prop
+          recommendationMessage={recommendationMessage}
+        />
         )}
       </div>
 
       {/* Details Dialog */}
       <Dialog
-  open={isDetailsDialogOpen}
-  onClose={() => setIsDetailsDialogOpen(false)}
-  fullWidth
-  maxWidth="md" // You can adjust the width as needed
->
-  {selectedPGPR && (
-    <>
-      <DialogTitle style={{ textAlign: "center" }}>
-        <b>PGPR Application Details</b>
-        <IconButton
-          aria-label="close"
-          style={{ position: "absolute", right: "8px", top: "8px", color: "red" }}
-          onClick={() => setIsDetailsDialogOpen(false)}
-        >
-          <CloseIcon />
-        </IconButton>
-      </DialogTitle>
-      <DialogContent>
-        <div style={{ marginBottom: "16px" }}>
-          <b>ID:</b> {selectedPGPR.id}
-        </div>
-        <div style={{ marginBottom: "16px" }}>
-          <b>Request Date:</b> {selectedPGPR.requestDate}
-        </div>
-        <div style={{ marginBottom: "16px" }}>
-          <b>Application Date:</b> {selectedPGPR.applicationDate}
-        </div>
-        <div style={{ marginBottom: "16px" }}>
-          <b>Status:</b> {selectedPGPR.status}
-        </div>
-        <div style={{ marginBottom: "16px" }}>
-          <b>Dean Name:</b> {selectedPGPR.deanName}
-        </div>
-        <div style={{ marginBottom: "16px" }}>
-          <b>PG Program Name:</b> {selectedPGPR.postGraduateProgram.title}
-        </div>
-        {/* Display data for all 5 years */}
-        <div style={{ marginBottom: "16px" }}>
-          <b>Year 1 Data:</b> {selectedPGPR.year1}
-        </div>
-        <div style={{ marginBottom: "16px" }}>
-          <b>Year 2 Data:</b> {selectedPGPR.year2}
-        </div>
-        <div style={{ marginBottom: "16px" }}>
-          <b>Year 3 Data:</b> {selectedPGPR.year3}
-        </div>
-        <div style={{ marginBottom: "16px" }}>
-          <b>Year 4 Data:</b> {selectedPGPR.year4}
-        </div>
-        <div style={{ marginBottom: "16px" }}>
-          <b>Year 5 Data:</b> {selectedPGPR.year5}
-        </div>
-        {/* Add a button to download intent letter */}
-        <div style={{ textAlign: "center" }}>
-          <a
-            href={selectedPGPR.intentLetter}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Button variant="contained" color="primary">
-              Download Intent Letter
-            </Button>
-          </a>
-        </div>
-      </DialogContent>
-      
-    </>
-  )}
-</Dialog>
+        open={isDetailsDialogOpen}
+        onClose={() => setIsDetailsDialogOpen(false)}
+        fullWidth
+        maxWidth="md" // You can adjust the width as needed
+      >
+        {selectedPGPR && (
+          <>
+            <DialogTitle style={{ textAlign: "center" }}>
+              <b>PGPR Application Details</b>
+              <IconButton
+                aria-label="close"
+                style={{
+                  position: "absolute",
+                  right: "8px",
+                  top: "8px",
+                  color: "red",
+                }}
+                onClick={() => setIsDetailsDialogOpen(false)}
+              >
+                <CloseIcon />
+              </IconButton>
+            </DialogTitle>
+            <DialogContent>
+              <div style={{ marginBottom: "16px" }}>
+                <b>ID:</b> {selectedPGPR.id}
+              </div>
+              <div style={{ marginBottom: "16px" }}>
+                <b>Request Date:</b> {selectedPGPR.requestDate}
+              </div>
+              <div style={{ marginBottom: "16px" }}>
+                <b>Application Date:</b> {selectedPGPR.applicationDate}
+              </div>
+              <div style={{ marginBottom: "16px" }}>
+                <b>Status:</b> {selectedPGPR.status}
+              </div>
+              <div style={{ marginBottom: "16px" }}>
+                <b>Dean Name:</b> {selectedPGPR.deanName}
+              </div>
+              <div style={{ marginBottom: "16px" }}>
+                <b>PG Program Name:</b> {selectedPGPR.postGraduateProgram.title}
+              </div>
+              {/* Display data for all 5 years */}
+              <div style={{ marginBottom: "16px" }}>
+                <b>Year 1 :</b> {selectedPGPR.year1}
+              </div>
+              <div style={{ marginBottom: "16px" }}>
+                <b>Year 2 :</b> {selectedPGPR.year2}
+              </div>
+              <div style={{ marginBottom: "16px" }}>
+                <b>Year 3 :</b> {selectedPGPR.year3}
+              </div>
+              <div style={{ marginBottom: "16px" }}>
+                <b>Year 4 :</b> {selectedPGPR.year4}
+              </div>
+              <div style={{ marginBottom: "16px" }}>
+                <b>Year 5 :</b> {selectedPGPR.year5}
+              </div>
+              <div style={{ marginBottom: "16px" }}>
+                <b>Year End Date :</b> {selectedPGPR.yEnd}
+              </div>
+              {/* Add a button to download intent letter */}
+              <div style={{ textAlign: "center" }}>
+                <a
+                  href={selectedPGPR.intentLetter}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Button variant="contained" color="primary">
+                    Download Intent Letter
+                  </Button>
+                </a>
+              </div>
+            </DialogContent>
+          </>
+        )}
+      </Dialog>
     </>
   );
 };
