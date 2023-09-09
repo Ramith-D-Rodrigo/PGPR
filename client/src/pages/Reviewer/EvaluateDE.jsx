@@ -28,11 +28,13 @@ const EvaluateDE = () => {
     const [Standard,setStandard] = useState([]);
     const [evidencesForSelectedStandard,setevidencesForSelectedStandard] = useState([]);
     const [criterias,setCriterias] = useState([]);
+    const [loading, setLoading] = useState(false);
 
 
     useEffect(() => {
         document.title = "View SELF EVALUATION REPORT";
         const getSERDetails = async () => {
+            setLoading(true);
             try {
                 const response1 = await getSelfEvaluationReport(pgprId);
                 setSERDetails(response1?.data?.data);
@@ -45,8 +47,10 @@ const EvaluateDE = () => {
                 const response = await getAllCriteria();
                 // console.log("Criterias : ",response?.data?.data);
                 setCriterias(response?.data?.data);
+                setLoading(false);
             } catch (err) {
                 console.error(err);
+                setLoading(false);
             }
         };
         getSERDetails();
@@ -54,12 +58,16 @@ const EvaluateDE = () => {
 
     const getStandardEvidencesAndAdherence = async (pgprId,standardId) => {
         try {
+            setLoading(true);
             const response = await getStandardEvidencesAndAdherenceForSER(pgprId,standardId);
             setevidencesForSelectedStandard(response?.data?.data);
             // console.log("Standard Evidences And Adherence For SER : ",response?.data?.data);
+            setLoading(false);
             return response?.data?.data;
         } catch (err) {
             console.error(err);
+            setLoading(false);
+            return [];
         }
     };
 
@@ -71,8 +79,8 @@ const EvaluateDE = () => {
     }, [standardID]);
 
     let noOfAllStandards = Standard.length;
-    let nextButtonState = standardID==noOfAllStandards? {disabled:true} : {disabled:false};
-    let prevButtonState = standardID==1? {disabled:true} : {disabled:false};
+    let nextButtonState = standardID==noOfAllStandards? {disabled:true} : {};
+    let prevButtonState = standardID==1? {disabled:true} : {};
 
     // const Criterias = SERDetails?.criterias;
     // console.log("Criterias : ",Criterias);
@@ -156,14 +164,16 @@ const EvaluateDE = () => {
 
     const createData = (evidences, yearsapplicable) =>
     {
+        const TextNotIncluded = <Typography style={{margin:"8px 0"}} variant="body2" component="div" sx={{ flexGrow: 1 }}> NOT INCLUDED </Typography>
         if(evidences==undefined || yearsapplicable==undefined)
         {
-            return {evidences:[], yearsapplicable:[]};
+            return {evidences:TextNotIncluded, yearsapplicable:TextNotIncluded};
         }
-        evidences = evidences.map((evidence,index) => {
-            return <Typography style={{margin:"8px 0"}} key={index} variant="body2" component="div" sx={{ flexGrow: 1 }}>{evidence.id} : <Link style={{}} key={index} to={evidence.link}><b>Evidence</b></Link></Typography>
-        });
-        yearsapplicable = yearsapplicable.map((years,index) => {
+        evidences = evidences.length == 0? TextNotIncluded : 
+            evidences.map((evidence,index) => {
+                return <Typography style={{margin:"8px 0"}} key={index} variant="body2" component="div" sx={{ flexGrow: 1 }}>{evidence.id} : <Link style={{}} key={index} to={evidence.link}><b>Evidence</b></Link></Typography>
+            });
+        yearsapplicable = yearsapplicable.length==0? TextNotIncluded : yearsapplicable.map((years,index) => {
             return <Typography style={{margin:"8px 0"}} key={index} variant="body2" component="div" sx={{ flexGrow: 1 }}>{years}</Typography>
         });
         return {evidences, yearsapplicable};
@@ -207,7 +217,7 @@ const EvaluateDE = () => {
                         key={index}
                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                         >
-                            <TableCell align="left">{Standard[standardID-1]?.description}</TableCell>
+                            <TableCell align="left"><Box sx={{maxWidth:'25rem'}}>{Standard[standardID-1]?.description}</Box></TableCell>
                             <TableCell align="center">{evidencesForSelectedStandard?.standardAdherence?.adherence?? 'NOT INCLUDED'}</TableCell>
                             <TableCell align="center">{row.evidences}</TableCell>
                             <TableCell align="center">{row.yearsapplicable}</TableCell>
@@ -244,10 +254,10 @@ const EvaluateDE = () => {
         </Box>
     </DiscriptiveDiv>
     <Box sx={{display:"flex",justifyContent:"space-between",width:"100%",margin:"10px 0"}}>
-        <Button {...prevButtonState} onClick={handleClickPrev} variant="contained" color="primary" style={{width:"200px"}}>Previous Standard</Button>
-        <Button onClick={handleClickSave} variant="contained" color="secondary" style={{width:"100px"}}>Save</Button>
-        <Button onClick={handleClickCancel} variant="contained" color="secondary" style={{width:"100px"}}>Cancel</Button>
-        <Button {...nextButtonState} onClick={handleClickNext} variant="contained" color="primary" style={{width:"200px"}}>Next Standard</Button>
+        <Button {...{disabled:loading}} {...prevButtonState} onClick={handleClickPrev} variant="contained" color="primary" style={{width:"200px"}}>Previous Standard</Button>
+        <Button {...{disabled:loading}} onClick={handleClickSave} variant="contained" color="secondary" style={{width:"100px"}}>Save</Button>
+        <Button {...{disabled:loading}} onClick={handleClickCancel} variant="contained" color="secondary" style={{width:"100px"}}>Cancel</Button>
+        <Button {...{disabled:loading}} {...nextButtonState} onClick={handleClickNext} variant="contained" color="primary" style={{width:"200px"}}>Next Standard</Button>
     </Box>
     </>
   )
