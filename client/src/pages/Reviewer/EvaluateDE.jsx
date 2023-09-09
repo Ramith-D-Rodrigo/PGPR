@@ -173,7 +173,7 @@ const EvaluateDE = () => {
     const rows = evidencesForSelectedStandard ==[]? [] : [
         // createData([{id:'1.3.01',link:'/1.3.01'},{id:'1.3.02',link:'/1.3.02'}],[['y1','y2'],['y2','y3']]),
         // createData(evidencesForSelectedStandard?.evidences?.map((evidence)=>{ return {id:evidence.id,link:evidence.id} }),['y1,y2','y2,y3']),
-        createData(evidencesForSelectedStandard?.evidences?.map((evidence)=>{ return {id:evidence.id,link:evidence.id} }),evidencesForSelectedStandard?.evidences?.map((evidence)=>{ return evidence?.applicableYears?.map((year) => {return `Y${year} `}) } )),
+        createData(evidencesForSelectedStandard?.evidences?.map((evidence)=>{ return {id:evidence.id,link:evidence.url} }),evidencesForSelectedStandard?.evidences?.map((evidence)=>{ return evidence?.applicableYears?.map((year) => {return `Y${year} `}) } )),
       ];
 
   return (
