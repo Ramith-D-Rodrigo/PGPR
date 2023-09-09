@@ -8,25 +8,12 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import { CircularProgress } from "@mui/material";
+import useAuth from "../../hooks/useAuth";
+import getAllPGPRApplications from "../../api/PostGraduateProgramApplication/getAllPGPRApplications";
+import getDean from "../../api/Dean/getDean";
+
 
 // Sample data (you can replace this with your actual data)
-const dummyData = [
-  {
-    id: 1,
-    requestDate: "2023-08-25",
-    applicationDate: "2023-08-26",
-    status: "Pending",
-    pgProgramName: "Sample Program 1",
-  },
-  {
-    id: 2,
-    requestDate: "2023-08-24",
-    applicationDate: "2023-08-25",
-    status: "Approved",
-    pgProgramName: "Sample Program 2",
-  },
-  // Add more data as needed
-];
 
 const CustomTable = ({ tableData, openDetailsDialog, openRecommendDialog }) => {
   return (
@@ -53,7 +40,7 @@ const CustomTable = ({ tableData, openDetailsDialog, openRecommendDialog }) => {
                   <TableCell align="center">{row.applicationDate}</TableCell>
                   <TableCell align="center">{row.status}</TableCell>
                   <TableCell align="center">{row.deanName}</TableCell>
-                  <TableCell align="center">{row.pgProgramName}</TableCell>
+                  <TableCell align="center">{row.postGraduateProgram.title}</TableCell>
                   <TableCell align="center">
                     <Button
                       style={{ margin: "0 8px" }}
@@ -86,17 +73,61 @@ const CustomTable = ({ tableData, openDetailsDialog, openRecommendDialog }) => {
   );
 };
 
-
 const BrowsePGPR = () => {
-  const [isLoading, setIsLoading] = useState(true); // State to track loading
-  const [tableData, setTableData] = useState([]); // Initialize tableData as an empty array
+  const [isLoading, setIsLoading] = useState(true);
+  const [tableData, setTableData] = useState([]);
+  const { auth } = useAuth();
 
   useEffect(() => {
-    // In a real application, you would fetch data from the backend here.
-    // For now, we'll use the dummy data.
-    setTableData(dummyData);
-    setIsLoading(false);
+    async function fetchData() {
+      try {
+        // Fetch PGPR applications from the backend using the getAllPGPRApplications API call
+        const response = await getAllPGPRApplications({
+          includePostGraduateProgram: true, // Include postgraduate program details
+          includeFaculty: true, // Include faculty details (since includePostGraduateProgram is true)
+          includeUniversity: true, // Include university details (since includeFaculty is true)
+        });
+  
+        const pgprApplicationsData = response.data.data;
+  
+        // Log the fetched data
+        console.log('PGPR Applications Data:', pgprApplicationsData);
+  
+        // Now, you can fetch dean details for each PGPR application
+        const updatedTableData = await Promise.all(
+          pgprApplicationsData.map(async (pgpr) => {
+            const deanResponse = await getDean(pgpr.deanId, {
+              includeAcademicStaff: true,
+              includeUniversitySide: true,
+              includeUser: true,
+            });
+  
+            const deanData = deanResponse.data.data;
+            console.log('Dean Data for PGPR Application', pgpr.id, ':', deanData);
+  
+            // Update other properties as needed
+            // pgpr.propertyName = deanData.propertyName;
+  
+            pgpr.deanName = `${deanData.academicStaff.universitySide.user.initials} ${deanData.academicStaff.universitySide.user.surname}`;
+            return pgpr;
+          })
+        );
+  
+        // Log the updated tableData
+        console.log('Updated Table Data:', updatedTableData);
+  
+        // Set the updated tableData to the state
+        setTableData(updatedTableData);
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setIsLoading(false);
+      }
+    }
+  
+    fetchData();
   }, []);
+  
 
   return (
     <>
@@ -126,5 +157,6 @@ const BrowsePGPR = () => {
     </>
   );
 };
+
 
 export default BrowsePGPR;
