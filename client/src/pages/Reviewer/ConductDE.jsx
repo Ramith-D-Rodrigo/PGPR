@@ -5,7 +5,7 @@ import ScrollableDiv from '../../components/ScrollableDiv';
 import DiscriptiveDiv from '../../components/DiscriptiveDiv';
 import { useState, useEffect } from 'react';
 import Button from '@mui/material/Button';
-import { Grid,Typography,Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box, Divider } from '@mui/material';
+import { Grid,Typography,Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box, Divider, CircularProgress } from '@mui/material';
 import { Link } from 'react-router-dom';
 import useDrawerState from '../../hooks/useDrawerState';
 import getSelfEvaluationReport from '../../api/SelfEvaluationReport/getSelfEvaluationReport';
@@ -15,6 +15,7 @@ const ConductDE = () => {
     const {pgprId} = useParams();
     const open = useDrawerState().drawerState.open;
     const [SERDetails,setSERDetails] = useState({});
+    const [loading,SetLoading] = useState(false);
 
     useSetUserNavigations(
         [
@@ -32,12 +33,15 @@ const ConductDE = () => {
     useEffect(() => {
         document.title = "Conduct Desk Evaluation";
         const getSERDetails = async () => {
+            SetLoading(true);
             try {
                 const response = await getSelfEvaluationReport(pgprId);
                 console.log("SER Details : ",response?.data?.data);
                 setSERDetails(response?.data?.data);
+                SetLoading(false);
             } catch (err) {
                 console.error(err);
+                SetLoading(false);
             }
         };
         getSERDetails();
@@ -139,7 +143,7 @@ const ConductDE = () => {
             <Divider style={{margin:"2rem 0 1rem"}} textAlign="center">Desk Evaluation</Divider>
     
             <TableContainer component={Paper} style={{height:"auto"}}>
-                <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table">
+                <Table sx={{ height: 650 }} stickyHeader aria-label="sticky table">
                     <TableHead>
                         <TableRow>
                             <TableCell style={{backgroundColor:"#D8E6FC",}} align="left"><b>Criteria</b></TableCell>
@@ -163,7 +167,20 @@ const ConductDE = () => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {rows.map((row) => (
+                        {
+                        loading?
+                            <div style={{position:'absolute',left:50,right:50,margin:"0 auto",display:"flex",justifyContent:"center",alignItems:"center"}}> 
+                                <Typography variant="h6" style={{ margin: "0 0 0 20px" }}>
+                                    Loading ...
+                                </Typography>
+                                <CircularProgress
+                                style={{ margin: "0 0 0 20px", color: "darkblue" }}
+                                thickness={5}
+                                size={24}
+                                />
+                            </div>
+                            :
+                        rows.map((row) => (
                             <TableRow
                             key={row.criteria}
                             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}

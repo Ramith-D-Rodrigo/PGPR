@@ -6,7 +6,7 @@ import ScrollableDiv from '../../components/ScrollableDiv';
 import DiscriptiveDiv from '../../components/DiscriptiveDiv';
 import { useState, useEffect } from 'react';
 import Button from '@mui/material/Button';
-import { Grid, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box } from '@mui/material';
+import { Grid, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box, CircularProgress } from '@mui/material';
 import { Link } from 'react-router-dom';
 import useDrawerState from '../../hooks/useDrawerState';
 import axios from '../../api/api';
@@ -18,6 +18,7 @@ const ViewSer = () => {
     const {pgprId} = useParams();
     const open = useDrawerState().drawerState.open;
     const [SERDetails,setSERDetails] = useState({});
+    const [loading,SetLoading] = useState(false);
 
     useSetUserNavigations(
         [
@@ -35,12 +36,15 @@ const ViewSer = () => {
     useEffect(() => {
         document.title = "View SELF EVALUATION REPORT";
         const getSERDetails = async () => {
+            SetLoading(true);
             try {
                 const response = await getSelfEvaluationReport(pgprId);
                 console.log("SER Details : ",response?.data?.data);
                 setSERDetails(response?.data?.data);
+                SetLoading(false);
             } catch (err) {
                 console.error(err);
+                SetLoading(false);
             }
         };
         getSERDetails();
@@ -120,7 +124,7 @@ const ViewSer = () => {
                 View Self Evaluation Report
             </Typography>
             <TableContainer component={Paper} style={{height:"auto",margin:"2rem 0"}}>
-                <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table">
+                <Table sx={{ height: 650 }} stickyHeader aria-label="sticky table">
                     <TableHead>
                         <TableRow>
                             <TableCell style={{backgroundColor:"#D8E6FC",}} align="left"><b>Criteria</b></TableCell>
@@ -142,7 +146,20 @@ const ViewSer = () => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {rows.map((row) => (
+                        {
+                             loading?
+                                <div style={{position:'absolute',left:50,right:50,margin:"0 auto",display:"flex",justifyContent:"center",alignItems:"center"}}> 
+                                    <Typography variant="h6" style={{ margin: "0 0 0 20px" }}>
+                                        Loading ...
+                                    </Typography>
+                                    <CircularProgress
+                                    style={{ margin: "0 0 0 20px", color: "darkblue" }}
+                                    thickness={5}
+                                    size={24}
+                                    />
+                                </div>
+                                :
+                        rows.map((row) => (
                             <TableRow
                             key={row.criteria}
                             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
