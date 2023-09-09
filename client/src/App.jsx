@@ -11,7 +11,7 @@ import Unauthorized from "./components/Unauthorized";
 import LoginPersist from "./components/LoginPersist.jsx";
 import AddPGProgramPage from './pages/CQAdirector/AddPGProgramPage';
 import AddAccounts from './pages/CQAdirector/AddAccounts';
-import EditPGProgram from './pages/CQAdirector/EditPGProgram';
+import EditPGProgram from './pages/CQAdirector/BrowsePGPR';
 import SubmitIntent from './pages/DeanDirector/SubmitIntent';
 import SubmitConsent from './pages/DeanDirector/SubmitConsent';
 import SetDate from './pages/ReviewerChair/SetDate';
@@ -57,6 +57,7 @@ import ImportReviewers from "./pages/QACOfficer/ImportReviewers";
 import "./App.css";
 import PostGraduateProgramReviews from "./pages/QACOfficer/PostGraduateProgramReviews";
 import ViewPGPR from "./pages/QACOfficer/ViewPGPR";
+import BrowsePGPR from './pages/CQAdirector/BrowsePGPR';
 
 /* 
   important: 
@@ -120,7 +121,7 @@ function App() {
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="AddPGProgramPage" element={<AddPGProgramPage />} />
                 <Route path="AddAccounts" element={<AddAccounts />} />
-                <Route path="EditPGProgram" element={<EditPGProgram />} />
+                <Route path="BrowsePGPR" element={<BrowsePGPR />} />
                 <Route path="ViewPGPrograms/">
                 <Route path="" element={<ViewPGPrograms />} />
                 <Route
