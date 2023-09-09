@@ -5,7 +5,7 @@ import ScrollableDiv from '../../components/ScrollableDiv';
 import DiscriptiveDiv from '../../components/DiscriptiveDiv';
 import { useState } from 'react';
 import Button from '@mui/material/Button';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box, Typography } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box, Typography, CircularProgress } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import FormControl from '@mui/material/FormControl';
 import FormHelperText from '@mui/material/FormHelperText';
@@ -189,6 +189,18 @@ const EvaluateDE = () => {
   return (
     <>
     <DiscriptiveDiv description="Desk Evaluation"  width='100%' height="80%" backgroundColor="white" >
+        {loading &&
+                    <div style={{position:'absolute',left:0,margin:"0 auto",display:"flex",justifyContent:"center",alignItems:"center"}}> 
+                        <Typography variant="h6" style={{ margin: "0 0 0 20px" }}>
+                            Loading ...
+                        </Typography>
+                        <CircularProgress
+                        style={{ margin: "0 0 0 20px", color: "darkblue" }}
+                        thickness={5}
+                        size={24}
+                        />
+                    </div>
+        }
 
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Criteria : {findCriteriaName(criteriaId)} - {`PGPR-${pgprId}`}
