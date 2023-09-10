@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Requests\V1\ShowOwnDeskEvaluationCriteriaWiseRequest;
+use App\Http\Requests\V1\ShowOwnProperEvaluationCriteriaWiseRequest;
 use App\Http\Requests\V1\ShowRemarksOfSERRequest;
 use App\Http\Requests\V1\StoreConductDeskEvaluationRequest;
 use App\Http\Requests\V1\StoreConductProperEvaluationRequest;
@@ -609,19 +610,62 @@ class ReviewerController extends Controller
         }
     }
 
+    /**
+     *  GET request +>
+     *               properEvaluation=12&criteria=10
+     */
+    public function viewOwnProperEvaluationCriteria(ShowOwnProperEvaluationCriteriaWiseRequest $request): JsonResponse
+    {
+        try {
+
+            $validated = $request->validated();
+
+            $criteria_ids = DB::table('reivewer_team_set_criteria')
+                ->where([
+                    'assigned_to_reviewer_id' => Auth::id(),
+                    'pgpr_id' => $validated['proper_evaluation_id'],
+                ])
+                ->pluck('criteria_id');
+
+            $data = [];
+
+            foreach ($criteria_ids as $criteria_id) {
+                // Get criteria name
+                $criteria_name = DB::table('criterias')->where('id', $criteria_id)->value('name');
+
+                // Count total number of standards for this criteria
+                $total_standards = DB::table('standards')->where('criteria_id', $criteria_id)->count();
+
+                // Count number of evaluated standards for this criteria
+                $evaluated_standards = DB::table('proper_evaluaiton_score')
+                    ->join('standards', 'proper_evaluaiton_score.standard_id', '=', 'standards.id')
+                    ->where([
+                        'standards.criteria_id' => $validated['criteria_id'],
+                        'proper_evaluaiton_score.proper_evaluation_id' => $validated['proper_evaluation_id'],
+                        'proper_evaluaiton_score.reviewer_id' =>  Auth::id()
+                    ])
+                    ->count();
+
+                // Store in data
+                $data[] = [
+                    'criteriaId' => $criteria_id,
+                    'criteriaName' => $criteria_name,
+                    'totalStandards' => $total_standards,
+                    'evaluatedStandards' => $evaluated_standards,
+                ];
+            }
+
+            return response()->json(['message' => 'Successful', 'data' => $data]);
+        } catch (Exception $exception) {
+            return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+        }
+    }
 
     /**
      * Use case 1.6
      * View summary of DE grade
      */
     public function viewSummaryOfDEGrade()
-    {
-    }
-
-    /**
-     * Send only the criteria of the reviewers
-     */
-    public function viewOwnProperEvaluationCriteria()
     {
     }
 
