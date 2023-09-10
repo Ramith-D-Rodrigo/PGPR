@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Requests\V1\ReviewerSubmitDeskEvaluation;
+use App\Http\Requests\V1\ReviewerSubmitProperEvaluation;
 use App\Http\Requests\V1\ShowOwnDeskEvaluationCriteriaWiseRequest;
 use App\Http\Requests\V1\ShowOwnProperEvaluationCriteriaWiseRequest;
 use App\Http\Requests\V1\ShowRemarksOfSERRequest;
@@ -19,6 +21,7 @@ use App\Http\Resources\V1\ReviewerCollection;
 use App\Http\Resources\V1\ReviewerResource;
 use App\Mail\RejectReviewerRole;
 use App\Mail\ReviewerRejectReviewAssignment;
+use App\Models\DeskEvaluation;
 use App\Models\PostGraduateProgramReview;
 use App\Models\Reviewer;
 use App\Http\Requests\V1\StoreReviewerRequest;
@@ -432,7 +435,6 @@ class ReviewerController extends Controller
     public function updateRemarksOfSectionsABD(UpdateSERRemarksOfSectionsABDRequest $request): JsonResponse
     {
         try {
-            // TODO: check whether the review belongs to that particular review team before updating
             $reviewerId = Auth::id();
             $serId = $request->validated('ser_id');
             $sections = $request->validated('sections');
@@ -612,7 +614,7 @@ class ReviewerController extends Controller
 
     /**
      *  GET request +>
-     *               properEvaluation=12&criteria=10
+     *               pgpr=8&properEvaluation=12&criteria=10
      */
     public function viewOwnProperEvaluationCriteria(ShowOwnProperEvaluationCriteriaWiseRequest $request): JsonResponse
     {
@@ -620,10 +622,10 @@ class ReviewerController extends Controller
 
             $validated = $request->validated();
 
-            $criteria_ids = DB::table('reivewer_team_set_criteria')
+            $criteria_ids = DB::table('reviewer_team_set_criteria')
                 ->where([
                     'assigned_to_reviewer_id' => Auth::id(),
-                    'pgpr_id' => $validated['proper_evaluation_id'],
+                    'pgpr_id' => $validated['pgpr_id'],
                 ])
                 ->pluck('criteria_id');
 
@@ -637,12 +639,12 @@ class ReviewerController extends Controller
                 $total_standards = DB::table('standards')->where('criteria_id', $criteria_id)->count();
 
                 // Count number of evaluated standards for this criteria
-                $evaluated_standards = DB::table('proper_evaluaiton_score')
-                    ->join('standards', 'proper_evaluaiton_score.standard_id', '=', 'standards.id')
+                $evaluated_standards = DB::table('proper_evaluation_score')
+                    ->join('standards', 'proper_evaluation_score.standard_id', '=', 'standards.id')
                     ->where([
                         'standards.criteria_id' => $validated['criteria_id'],
-                        'proper_evaluaiton_score.proper_evaluation_id' => $validated['proper_evaluation_id'],
-                        'proper_evaluaiton_score.reviewer_id' =>  Auth::id()
+                        'proper_evaluation_score.proper_evaluation_id' => $validated['proper_evaluation_id'],
+                        'proper_evaluation_score.reviewer_id' => Auth::id()
                     ])
                     ->count();
 
@@ -662,18 +664,99 @@ class ReviewerController extends Controller
     }
 
     /**
-     * Use case 1.6
-     * View summary of DE grade
+     * reviewer submit desk evaluation
+     * POST request +>
+     *              deskEvaluation=10
      */
-    public function viewSummaryOfDEGrade()
+    public function submitDeskEvaluation(ReviewerSubmitDeskEvaluation $request): JsonResponse
     {
+        try {
+            $validated = $request->validated();
+
+            // Get all criteria ids
+            $criteria_ids = DB::table('criterias')->pluck('id');
+
+            $data = [];
+
+            foreach ($criteria_ids as $criteria_id) {
+                // Get criteria name
+                $criteria_name = DB::table('criterias')->where('id', $criteria_id)->value('name');
+
+                // Count total number of standards for this criteria
+                $total_standards = DB::table('standards')->where('criteria_id', $criteria_id)->count();
+
+                // Count number of evaluated standards for this criteria
+                $evaluated_standards = DB::table('desk_evaluation_scores')
+                    ->join('standards', 'desk_evaluation_scores.standard_id', '=', 'standards.id')
+                    ->where([
+                        'standards.criteria_id' => $criteria_id,
+                        'desk_evaluation_scores.desk_evaluation_id' => $validated['desk_evaluation_id'],
+                        'desk_evaluation_scores.reviewer_id' => Auth::id()
+                    ])
+                    ->count();
+
+                // Calculate number of standards left to be evaluated
+                $standards_left = $total_standards - $evaluated_standards;
+
+                // Store in array
+                $data[] = [
+                    'criteriaId' => $criteria_id,
+                    'criteriaName' => $criteria_name,
+                    'totalStandards' => $total_standards,
+                    'evaluatedStandards' => $evaluated_standards,
+                    'standardsLeft' => $standards_left,
+                ];
+            }
+
+            // Check if all standards have been evaluated
+            $all_evaluated = true;
+            foreach ($data as $item) {
+                if ($item['standardsLeft'] > 0) {
+                    $all_evaluated = false;
+                    break;
+                }
+            }
+
+            // if +> All standards have been evaluated, reviewer can submit desk evaluation
+            // else +> Not all standards have been evaluated, inform reviewer about pending standards
+            if ($all_evaluated) {
+                // Get the post graduate program review and the review team
+                $deskEvaluation = DeskEvaluation::find($validated['desk_evaluation_id']);
+                $postGraduateProgramReview = $deskEvaluation->postGraduateProgramReview;
+                $postGraduateProgram = $postGraduateProgramReview->postGraduateProgram;
+                $reviewTeam = $postGraduateProgramReview->reviewTeam;
+                $reviewers = $reviewTeam->reviewers;
+
+               $reviewChair = User::find($reviewers->first(function ($reviewer) {
+                   return $reviewer->pivot->role == 'CHAIR';
+               })->id);
+
+               $reviewer = User::find(Auth::id());
+
+                // Send the mail
+                Mail::to($reviewChair->official_email)->send(
+                    new \App\Mail\ReviewerSubmitDeskEvaluation(
+                        reviewer: $reviewer,
+                        reviewChair: $reviewChair,
+                        subject: 'Reviewer Completed Desk Evaluation',
+                        content: 'mail.reviewerSubmitDeskEvaluation'
+                    )
+                );
+                return response()->json(['message' => 'You have successful submitted the desk review']);
+            } else {
+                return response()->json([
+                    'message' => 'You have standards that you have not evaluated in this desk evaluation yet, please complete them before submitting them',
+                    'data' => $data
+                ]);
+            }
+
+        } catch (Exception $exception) {
+            return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+        }
     }
 
-    public function submitDeskEvaluation()
-    {
-    }
-
-    public function submitProperEvaluation()
+    // reviewer submit proper evaluation
+    public function submitProperEvaluation(ReviewerSubmitProperEvaluation $request)
     {
     }
 
