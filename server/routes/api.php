@@ -60,6 +60,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
         Route::get('universities/{university}/currentViceChancellor', 'UniversityController@currentViceChancellor') -> middleware('auth');
         //get faculties of a university
         Route::get('universities/{university}/faculties', 'UniversityController@faculties') -> middleware('auth');
+        Route::get('universities/{university}/postGraduatePrograms/', 'UniversityController@postgraduatePrograms') -> middleware('auth');
 
     Route::apiResource('standards', 'StandardController');
     Route::apiResource('selfEvaluationReports', 'SelfEvaluationReportController') -> middleware('auth');
@@ -93,6 +94,8 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
         Route::get('faculties/{faculty}/currentDean', 'FacultyController@currentDean') -> middleware('auth');
         //get the post graduate programs of the faculty
         Route::get('faculties/{faculty}/postGraduatePrograms', 'FacultyController@postGraduatePrograms') -> middleware('auth');
+        //get the current iqau director of the faculty
+        Route::get('faculties/{faculty}/currentIQAUDirector', 'FacultyController@currentIQAUDirector') -> middleware('auth');
 
 
     Route::apiResource('evidences', 'EvidenceController') -> middleware('auth');

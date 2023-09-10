@@ -14,7 +14,7 @@ import axios from "../api.js";
 const getCurrentCoordinator = async (postGraduateProgramId, queryParams = null) => {    //queryParams should be an object
     let URL = SERVER_URL + SERVER_API_VERSION + 'postGraduatePrograms/' + postGraduateProgramId + '/currentCoordinator';
 
-    if (queryParams.length !== null) {
+    if (queryParams !== null) {
         return await axios.get(URL, { params: queryParams });
     }
     return await axios.get(URL);
