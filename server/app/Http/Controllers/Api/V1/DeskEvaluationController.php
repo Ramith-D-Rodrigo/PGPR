@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 
+use App\Http\Requests\V1\ShowDeskEvaluationRemarksRequest;
 use App\Http\Requests\V1\StoreDeskEvaluationRequest;
 use App\Http\Requests\V1\UpdateDeskEvaluationRequest;
 use App\Http\Resources\V1\DeskEvaluationCollection;
@@ -15,6 +16,8 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class DeskEvaluationController extends Controller
 {
@@ -108,6 +111,32 @@ class DeskEvaluationController extends Controller
             return new DeskEvaluationResource($deskEvaluation);
         } catch (ModelNotFoundException $exception) {
             return response()->json(['message' => 'The desk evaluation id you mentioned could not be found please try again after making amends'], 422);
+        } catch (Exception $exception) {
+            return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+        }
+    }
+
+    /**
+     * Get desk evaluation remark and score for a standard
+     *
+     * GET request +>
+     *          ?deskEvaluation=10&criteria=12&standard=8
+     */
+    public function getDeskEvaluationRemarkAndScoreForStandard(ShowDeskEvaluationRemarksRequest $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $validated = $request->validated();
+            $data = DB::table('desk_evaluation_score')->select([
+                'desk_evaluation_id as deskEvaluationId',
+                'standard_id as standardId',
+                'comment',
+                'score'
+            ])->where([
+                'reviewer_id' => Auth::id(),
+                'desk_evaluation_id' => $validated['desk_evaluation_id'],
+                'standard_id' => $validated['standard_id'],
+            ])->first();
+            return response()->json(['message' => 'Successful', 'data' => json_encode($data)]);
         } catch (Exception $exception) {
             return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
         }
