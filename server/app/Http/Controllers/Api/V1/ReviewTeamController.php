@@ -12,9 +12,7 @@ use App\Http\Resources\V1\UserResource;
 use App\Mail\InformDeanOfReviewTeamAssignment;
 use App\Mail\InformReviewerOfReviewAssignment;
 use App\Models\Criteria;
-use App\Models\Dean;
 use App\Models\PostGraduateProgramReview;
-use App\Models\QualityAssuranceStaff;
 use App\Models\Reviewer;
 use App\Models\ReviewTeam;
 use App\Http\Controllers\Controller;
@@ -163,7 +161,6 @@ class ReviewTeamController extends Controller
      */
     public function show(string $id): JsonResponse|ReviewTeamResource
     {
-        // TODO: ADD FILTERING (IF NEEDED)
         try {
             $this->authorize('view', ReviewTeam::class);
 
