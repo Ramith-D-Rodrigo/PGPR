@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Requests\V1\ShowOwnDeskEvaluationCriteriaWiseRequest;
 use App\Http\Requests\V1\ShowRemarksOfSERRequest;
 use App\Http\Requests\V1\StoreConductDeskEvaluationRequest;
 use App\Http\Requests\V1\StoreConductProperEvaluationRequest;
@@ -62,7 +63,7 @@ class ReviewerController extends Controller
     {
         try {
             //authorize the action
-            $this -> authorize('create', Reviewer::class);
+            $this->authorize('create', Reviewer::class);
 
             Excel::import(new ReviewerImport, request()->file('file'));
             //$arr = Excel::toArray(new ReviewerImport, request()->file('file'));
@@ -71,13 +72,11 @@ class ReviewerController extends Controller
             return response()->json([
                 'message' => 'Reviewers imported successfully'
             ], 200);
-        }
-        catch(AuthorizationException $e){
-            return response() -> json([
-                'message' => $e -> getMessage(),
+        } catch (AuthorizationException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
             ], 403);
-        }
-        catch (\Google\Service\Exception $e) { //google drive error
+        } catch (\Google\Service\Exception $e) { //google drive error
             return response()->json([
                 'message' => 'Error occurred while importing reviewers',
                 'error' => $e->getErrors(),
@@ -206,8 +205,7 @@ class ReviewerController extends Controller
 
     /**
      * Use case 1.1
-     * View program reviews => with filtering
-     * TODO: IMPLEMENT FILTERING
+     * View program reviews
      */
     public function browsePGPRs(): ReviewerBrowsePGPRCollection|JsonResponse
     {
@@ -386,7 +384,7 @@ class ReviewerController extends Controller
                 return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
             }
         } else {
-           return response()->json(['message' => 'Unsuccessful', 'errors' => $validator->errors()]);
+            return response()->json(['message' => 'Unsuccessful', 'errors' => $validator->errors()]);
         }
     }
 
@@ -396,7 +394,7 @@ class ReviewerController extends Controller
             $serId = $request->validated('ser_id');
             $reviewerId = Auth::id();
 
-            $remarks = DB::table('ser_section_reviewer_remarks')->select(['section' , 'remark'])->where([
+            $remarks = DB::table('ser_section_reviewer_remarks')->select(['section', 'remark'])->where([
                 'reviewer_id' => $reviewerId,
                 'ser_id' => $serId,
             ])->first();
@@ -419,7 +417,7 @@ class ReviewerController extends Controller
             }
 
             return response()->json(['message' => 'Successful', 'data' => $data]);
-        }catch (ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return response()->json(['message' => 'The self evaluation report you requested cannot be found please check and try again.'], 422);
         } catch (Exception $exception) {
             return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
@@ -565,10 +563,52 @@ class ReviewerController extends Controller
     /**
      * Use case 1.4
      * View own DE => criteria wise => criteria wise score
+     * Send only the criteria of the reviewers => the number of pending
+     * and marked standards for the criteria
+     *
+     * GET request +>
+     *              deskEvaluation=12&criteria=10
      */
-    public function viewOwnDECriteria(Request $request)
+    public function viewOwnDeskEvaluationCriteria(ShowOwnDeskEvaluationCriteriaWiseRequest $request): JsonResponse
     {
+        try {
+            // Get all criteria
+            $validated = $request->validated();
+            $criteria_ids = DB::table('criterias')->pluck('id');
+
+            $data = [];
+
+            foreach ($criteria_ids as $criteria_id) {
+                // Get criteria name
+                $criteria_name = DB::table('criterias')->where('id', $criteria_id)->value('name');
+
+                // Count total number of standards for this criteria
+                $total_standards = DB::table('standards')->where('criteria_id', $criteria_id)->count();
+
+                // Count number of evaluated standards for this criteria
+                $evaluated_standards = DB::table('desk_evaluation_scores')
+                    ->join('standards', 'desk_evaluation_scores.standard_id', '=', 'standards.id')
+                    ->where([
+                        'standards.criteria_id' => $validated['criteria_id'],
+                        'desk_evaluation_scores.desk_evaluation_id' => $validated['desk_evaluation_id'],
+                        'desk_evaluation_scores.reviewer_id' => Auth::id()
+                    ])
+                    ->count();
+
+                // Store in data
+                $data[] = [
+                    'criteriaId' => $criteria_id,
+                    'criteriaName' => $criteria_name,
+                    'totalStandards' => $total_standards,
+                    'evaluatedStandards' => $evaluated_standards,
+                ];
+            }
+            return response()->json(['message' => 'Success', 'data' => $data]);
+        } catch (Exception $exception) {
+            return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+        }
     }
+
 
     /**
      * Use case 1.6
@@ -578,7 +618,18 @@ class ReviewerController extends Controller
     {
     }
 
+    /**
+     * Send only the criteria of the reviewers
+     */
     public function viewOwnProperEvaluationCriteria()
+    {
+    }
+
+    public function submitDeskEvaluation()
+    {
+    }
+
+    public function submitProperEvaluation()
     {
     }
 
@@ -696,10 +747,10 @@ class ReviewerController extends Controller
         //remove the user's reviewer role
     }
 
-    public function downloadExcelFile(){
-        try{
-            $file = Storage::download('public/reviewer-excel-template.xlsx');
-            return $file;
+    public function downloadExcelFile(): \Symfony\Component\HttpFoundation\StreamedResponse|JsonResponse
+    {
+        try {
+            return Storage::download('public/reviewer-excel-template.xlsx');
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Error occurred while downloading reviewer sheet',
