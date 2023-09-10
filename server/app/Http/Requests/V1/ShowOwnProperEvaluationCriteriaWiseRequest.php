@@ -19,13 +19,14 @@ class ShowOwnProperEvaluationCriteriaWiseRequest extends FormRequest
      * Get the validation rules that apply to the request.
      *
      * GET request +>
-     *              properEvaluation=12&criteria=10
+     *              pgpr=8&properEvaluation=12&criteria=10
      *
      * @return array<string, ValidationRule|array|string>
      */
     public function rules(): array
     {
         return [
+            'pgpr_id' => 'required|exists:post_graduate_program_reviews,id',
             'proper_evaluation_id' => 'required|exists:proper_evaluations,id',
             'criteria_id' => 'required|exists:criteria,id',
         ];
@@ -35,6 +36,7 @@ class ShowOwnProperEvaluationCriteriaWiseRequest extends FormRequest
     {
         $this->merge(
             [
+                'pgpr_id' => $this->pgpr,
                 'proper_evaluation_id' => $this->properEvaluation,
                 'criteria_id' => $this->criteria,
             ]
@@ -44,6 +46,8 @@ class ShowOwnProperEvaluationCriteriaWiseRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'pgpr_id.required' => 'The post graduate program review id is required',
+            'pgpr_id.exists' => 'The post graduate program review does not exist',
             'proper_evaluation_id.required' => 'The proper evaluation id is required',
             'proper_evaluation_id.exists' => 'The proper evaluation does not exist in the database',
             'criteria_id.required' => 'The criteria id is required',
