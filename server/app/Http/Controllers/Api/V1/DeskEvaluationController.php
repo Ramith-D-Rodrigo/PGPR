@@ -136,7 +136,9 @@ class DeskEvaluationController extends Controller
                 'desk_evaluation_id' => $validated['desk_evaluation_id'],
                 'standard_id' => $validated['standard_id'],
             ])->first();
-            return response()->json(['message' => 'Successful', 'data' => json_encode($data)]);
+            return $data != null ?
+                response()->json(['message' => 'Successful', 'data' => $data]) :
+                response()->json(['message' => 'There were no records for this standard', 'data' => []]);
         } catch (Exception $exception) {
             return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
         }
