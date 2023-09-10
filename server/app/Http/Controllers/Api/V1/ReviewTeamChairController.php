@@ -86,6 +86,7 @@ class ReviewTeamChairController extends Controller
         try {
             $validated = $request->validated();
 
+            // Get all reviewer ids in your team
             $reviewer_ids = DB::table('reviewer_review_teams')
                 ->where([
                     'review_team_id' => $validated['review_team_id'],
@@ -96,41 +97,43 @@ class ReviewTeamChairController extends Controller
             $data = [];
 
             foreach ($reviewer_ids as $reviewer_id) {
-                // Get all criteria ids assigned to the reviewer
-                $criteria_ids = DB::table('reviewer_team_set_criteria')
-                    ->where([
-                        'assigned_to_reviewer_id' => $reviewer_id,
-                        'pgpr_id' => $validated['proper_evaluation_id'],
-                    ])
-                    ->pluck('criteria_id');
+                // Get all criteria ids
+                $criteria_ids = DB::table('criterias')->pluck('id');
+
+                $criteria_data = [];
 
                 foreach ($criteria_ids as $criteria_id) {
-                    // Get the criteria name
+                    // Get criteria name
                     $criteria_name = DB::table('criterias')->where('id', $criteria_id)->value('name');
 
                     // Count total number of standards for this criteria
                     $total_standards = DB::table('standards')->where('criteria_id', $criteria_id)->count();
 
                     // Count number of evaluated standards for this criteria
-                    $evaluated_standards = DB::table('proper_evaluaiton_score')
-                        ->join('standards', 'proper_evaluaiton_score.standard_id', '=', 'standards.id')
+                    $evaluated_standards = DB::table('desk_evaluation_scores')
+                        ->join('standards', 'desk_evaluation_scores.standard_id', '=', 'standards.id')
                         ->where([
                             'standards.criteria_id' => $criteria_id,
-                            'proper_evaluaiton_score.proper_evaluation_id' => $validated['proper_evaluation_id'],
-                            'proper_evaluaiton_score.reviewer_id' => $reviewer_id
+                            'desk_evaluation_scores.desk_evaluation_id' => $validated['desk_evaluation_id'],
+                            'desk_evaluation_scores.reviewer_id' => $reviewer_id
                         ])
                         ->count();
 
-                    $data[] = [
-                        'reviewerId' => $reviewer_id,
-                        'reviewerData' => User::find($reviewer_id),
+                    $criteria_data[] = [
                         'criteriaId' => $criteria_id,
                         'criteriaName' => $criteria_name,
                         'totalStandards' => $total_standards,
                         'evaluatedStandards' => $evaluated_standards,
                     ];
                 }
+
+                $data[] = [
+                    'reviewerId' => $reviewer_id,
+                    'reviewerData' => User::find($reviewer_id),
+                    'criteriaData' => $criteria_data,
+                ];
             }
+
             return response()->json(['message' => 'Successful', 'data' => $data]);
         } catch (Exception $exception) {
             return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
@@ -141,7 +144,7 @@ class ReviewTeamChairController extends Controller
     /**
      * Reviewer can view the proper evaluation progress of the review team members
      * GET request +>
-     *              reviewTeam=10&properEvaluation=12
+     *              pgpr=8&reviewTeam=10&properEvaluation=12
      */
     public function viewReviewTeamProperEvaluationProgress(ShowReviewTeamProperEvaluationProgressRequest $request): \Illuminate\Http\JsonResponse
     {
@@ -160,7 +163,7 @@ class ReviewTeamChairController extends Controller
                 $criteria_ids = DB::table('reviewer_team_set_criteria')
                     ->where([
                         'assigned_to_reviewer_id' => $reviewer_id,
-                        'pgpr_id' => $validated['proper_evaluation_id'],
+                        'pgpr_id' => $validated['pgpr_id'],
                     ])
                     ->pluck('criteria_id');
 
@@ -174,12 +177,12 @@ class ReviewTeamChairController extends Controller
                     $total_standards = DB::table('standards')->where('criteria_id', $criteria_id)->count();
 
                     // Count number of evaluated standards for this criteria
-                    $evaluated_standards = DB::table('proper_evaluaiton_score')
-                        ->join('standards', 'proper_evaluaiton_score.standard_id', '=', 'standards.id')
+                    $evaluated_standards = DB::table('proper_evaluation_score')
+                        ->join('standards', 'proper_evaluation_score.standard_id', '=', 'standards.id')
                         ->where([
                             'standards.criteria_id' => $criteria_id,
-                            'proper_evaluaiton_score.proper_evaluation_id' => $validated['proper_evaluation_id'],
-                            'proper_evaluaiton_score.reviewer_id' => $reviewer_id
+                            'proper_evaluation_score.proper_evaluation_id' => $validated['proper_evaluation_id'],
+                            'proper_evaluation_score.reviewer_id' => $reviewer_id
                         ])
                         ->count();
 
