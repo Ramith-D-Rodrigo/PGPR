@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 
 use App\Http\Requests\V1\ShowDeskEvaluationRemarksRequest;
+use App\Http\Requests\V1\ShowStandardWiseDetailsOfEachCriteriaRequest;
 use App\Http\Requests\V1\StoreDeskEvaluationRequest;
 use App\Http\Requests\V1\UpdateDeskEvaluationRequest;
 use App\Http\Resources\V1\DeskEvaluationCollection;
@@ -15,6 +16,7 @@ use App\Models\ProperEvaluation1;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -115,6 +117,35 @@ class DeskEvaluationController extends Controller
             return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
         }
     }
+
+    /**
+     * Reviewer view standard wise details
+     *
+     * GET request +>
+     *              deskEvaluation=10&criteria=12
+     *
+     */
+    public function viewStandardWiseDetailsOfEachCriteriaInDE(ShowStandardWiseDetailsOfEachCriteriaRequest $request): JsonResponse
+    {
+        try {
+            $validated = $request->validated();
+            $data = DB::table('desk_evaluation_score')
+                ->join('standards', 'desk_evaluation_score.standard_id', '=', 'standards.id')
+                ->select(['desk_evaluation_score.desk_evaluation_id', 'desk_evaluation_score.standard_id', 'desk_evaluation_score.comment', 'desk_evaluation_score.de_score'])
+                ->where([
+                    'standards.criteria_id' => $validated['criteria_id'],
+                    'desk_evaluation_score.desk_evaluation_id' => $validated['desk_evaluation_id'],
+                    'desk_evaluation_score.reviewer_id' => Auth::id()
+                ])
+                ->get();
+            return $data != null ?
+                response()->json(['message' => 'Success', 'data' => $data]) :
+                response()->json(['message' => 'No data under this criteria yet.', 'data' => $data]);
+        } catch (Exception $exception) {
+            return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+        }
+    }
+
 
     /**
      * Get desk evaluation remark and score for a standard
