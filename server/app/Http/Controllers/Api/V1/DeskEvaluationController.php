@@ -130,8 +130,19 @@ class DeskEvaluationController extends Controller
         try {
             $validated = $request->validated();
             $data = DB::table('desk_evaluation_score')
-                ->join('standards', 'desk_evaluation_score.standard_id', '=', 'standards.id')
-                ->select(['desk_evaluation_score.desk_evaluation_id', 'desk_evaluation_score.standard_id', 'desk_evaluation_score.comment', 'desk_evaluation_score.de_score'])
+                ->join(
+                    'standards',
+                    'desk_evaluation_score.standard_id',
+                    '=', 'standards.id')
+                ->select(
+                    [
+                        'desk_evaluation_score.desk_evaluation_id as deskEvaluationId',
+                        'desk_evaluation_score.standard_id as standardId',
+                        'standard.standard_no as standardNo',
+                        'desk_evaluation_score.comment as comment',
+                        'desk_evaluation_score.de_score as score'
+                    ]
+                )
                 ->where([
                     'standards.criteria_id' => $validated['criteria_id'],
                     'desk_evaluation_score.desk_evaluation_id' => $validated['desk_evaluation_id'],
@@ -161,7 +172,7 @@ class DeskEvaluationController extends Controller
                 'desk_evaluation_id as deskEvaluationId',
                 'standard_id as standardId',
                 'comment',
-                'score'
+                'de_score as score'
             ])->where([
                 'reviewer_id' => Auth::id(),
                 'desk_evaluation_id' => $validated['desk_evaluation_id'],
