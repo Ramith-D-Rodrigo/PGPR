@@ -215,7 +215,7 @@ const SubmitPE = () => {
                 aria-labelledby="submit-PE_results"
             >
                 <DialogTitle id="submit-PE_results_ID">
-                {"Are you sure that you want to Reject this postgraduate programme review assignment?"}
+                {"Are you sure that you want to Submit the Proper Evaluation Results?"}
                 </DialogTitle>
                 <DialogContent>
                 <DialogContentText>

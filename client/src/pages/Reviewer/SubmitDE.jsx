@@ -219,7 +219,7 @@ const SubmitDE = () => {
                 aria-labelledby="submit-DE_results"
             >
                 <DialogTitle id="submit-DE_results_ID">
-                {"Are you sure that you want to Reject this postgraduate programme review assignment?"}
+                {"Are you sure that you want to Submit the Desk Evaluation Results?"}
                 </DialogTitle>
                 <DialogContent>
                 <DialogContentText>
