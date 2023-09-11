@@ -20,6 +20,7 @@ import PGAssignments from './pages/Reviewer/PGAssignments';
 import ConductDE from './pages/Reviewer/ConductDE';
 import ConductPE from './pages/Reviewer/ConductPE';
 import { DrawerStateProvider } from './contexts/DrawerStateProvider';
+import { ReviewerRoleProvider } from "./contexts/ReviewerRoleProvider";
 import PGPRApplication from "./pages/Dean/PGPRApplication";
 import PGPRApplications from "./pages/Dean/PGPRApplications";
 import EditPGPRApplication from "./pages/Dean/EditPGPRApplication";
@@ -160,7 +161,7 @@ function App() {
               </Route>
             </Route>
 
-            <Route element={<Authenticate allowedRoles={["reviewer"]} />}>
+            <Route element={<ReviewerRoleProvider><Authenticate allowedRoles={["reviewer"]} /></ReviewerRoleProvider>}>
               <Route path="reviewer/">
                 <Route path="" element={<ReviewerDashboard />} />
                 <Route path="dashboard" element={<ReviewerDashboard />} />
