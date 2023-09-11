@@ -172,9 +172,9 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     //review team chair assign criteria to team members (including himself)
     Route::post('/review-team-chair/proper-evaluation/assign-criteria', 'ReviewTeamChairController@assignReviewTeamMembersCriteriaForProperEvaluation')->middleware('auth');
     //review team chair view review team desk evaluation progress
-    Route::get('/reviewer-team-chair/desk-evaluation/view-progress/{reviewTeam}/{deskEvaluation}', 'ReviewTeamChairController@viewReviewTeamDeskEvaluationProgress')->middleware('auth');
+    Route::get('/review-team-chair/desk-evaluation/view-progress/{reviewTeam}/{deskEvaluation}', 'ReviewTeamChairController@viewReviewTeamDeskEvaluationProgress')->middleware('auth');
     //review team chair view review team proper evaluation progress
-    Route::get('/reviewer-team-chair/proper-evaluation/view-progress/{pgpr}/{reviewTeam}/{properEvaluation}', 'ReviewTeamChairController@viewReviewTeamProperEvaluationProgress')->middleware('auth');
+    Route::get('/review-team-chair/proper-evaluation/view-progress/{pgpr}/{reviewTeam}/{properEvaluation}', 'ReviewTeamChairController@viewReviewTeamProperEvaluationProgress')->middleware('auth');
 
     //REVIEW TEAM ENDPOINTS
     //reviewer view proper evaluation details of the review team (could be either review team head or a member)
