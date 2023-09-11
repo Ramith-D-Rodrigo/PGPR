@@ -20,6 +20,7 @@ import PGAssignments from './pages/Reviewer/PGAssignments';
 import ConductDE from './pages/Reviewer/ConductDE';
 import ConductPE from './pages/Reviewer/ConductPE';
 import SubmitDE from "./pages/Reviewer/SubmitDE";
+import SubmitPE from "./pages/Reviewer/SubmitPE";
 import { DrawerStateProvider } from './contexts/DrawerStateProvider';
 import { ReviewerRoleProvider } from "./contexts/ReviewerRoleProvider";
 import PGPRApplication from "./pages/Dean/PGPRApplication";
@@ -195,6 +196,10 @@ function App() {
                     <Route
                       path="Assigned_criteria/:pgprId/:criteriaId"
                       element={<EvaluateDE />}
+                    />
+                    <Route
+                      path="Submit_PE/:pgprId"
+                      element={< SubmitPE />}
                     />
                   </Route>
                 </Route>

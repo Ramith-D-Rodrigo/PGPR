@@ -21,7 +21,7 @@ import createSERRows from '../../assets/reviewer/createSERRows';
 import useReviewerRole from '../../hooks/useReviewerRole';
 import getAssignedPGPR from '../../api/Reviewer/getAssignedPGPR';
 
-const SubmitDE = () => {
+const SubmitPE = () => {
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
     const {pgprId} = useParams();
@@ -42,14 +42,14 @@ const SubmitDE = () => {
                 link: "/PG_Assignments/Conduct_DE/"+pgprId
             },
             {
-                name: "Submit DE",
-                link: "/PG_Assignments/Conduct_DE/Submit_DE/"+pgprId
+                name: "Submit PE",
+                link: "/PG_Assignments/Conduct_PE/Submit_PE/"+pgprId
             }
         ]
     );
 
     useEffect(() => {
-        document.title = "Submit Desk Evaluation";
+        document.title = "Submit Proper Evaluation";
         const getSERDetails = async () => {
             SetLoading(true);
             try {
@@ -78,12 +78,12 @@ const SubmitDE = () => {
         // getPGPRDetails();
     }, []);
 
-    function createData(criteriaData,DE_progress) {
+    function createData(criteriaData,PE_progress) {
         const Actions = [<Link key={1} to={`../${pgprId}/${criteriaData.id}`}><Button style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{"Update"}</Button></Link>]
-        return {criteria:criteriaData.name, DE_progress, Actions };
+        return {criteria:criteriaData.name, PE_progress, Actions };
     }
 
-    const handleSubmitDE_results = () => {
+    const handleSubmitPE_results = () => {
         // API call to submit the DE results
         setOpenDialog(false);
     };
@@ -167,14 +167,14 @@ const SubmitDE = () => {
                 </Grid>
             </DiscriptiveDiv>
 
-            <Divider style={{margin:"2rem 0 1rem"}} textAlign="center">Desk Evaluation</Divider>
+            <Divider style={{margin:"2rem 0 1rem"}} textAlign="center">Proper Evaluation</Divider>
     
             <TableContainer component={Paper} style={{height:"auto"}}>
                 <Table sx={{ height: 650 }} stickyHeader aria-label="sticky table">
                     <TableHead>
                         <TableRow>
                             <TableCell style={{backgroundColor:"#D8E6FC",}} align="left"><b>Criteria</b></TableCell>
-                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Desk Evaluation Progress</b></TableCell>
+                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Proper Evaluation Progress</b></TableCell>
                             <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Actions</b></TableCell>
                         </TableRow>
                     </TableHead>
@@ -200,7 +200,7 @@ const SubmitDE = () => {
                                 <TableCell component="th" scope="row">
                                     {row.criteria}
                                 </TableCell>
-                                <TableCell align="center">{row.DE_progress}</TableCell>
+                                <TableCell align="center">{row.PE_progress}</TableCell>
                                 <TableCell align="center">{row.Actions}</TableCell>
                             </TableRow>
                         ))}
@@ -209,28 +209,28 @@ const SubmitDE = () => {
             </TableContainer>
 
             <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', width: '100%', padding: '20px 0',height:"auto" }}>
-                    <Button onClick={()=>setOpenDialog(true)} variant="contained" size="small" style={{width:"300px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>Submit The Desk Evaluation Results</Button>
+                    <Button onClick={()=>setOpenDialog(true)} variant="contained" size="small" style={{width:"300px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>Submit The Proper Evaluation Results</Button>
             </Box>
 
             <Dialog
                 fullScreen={fullScreen}
                 open={openDialog}
                 onClose={()=>setOpen(false)}
-                aria-labelledby="submit-DE_results"
+                aria-labelledby="submit-PE_results"
             >
-                <DialogTitle id="submit-DE_results_ID">
+                <DialogTitle id="submit-PE_results_ID">
                 {"Are you sure that you want to Reject this postgraduate programme review assignment?"}
                 </DialogTitle>
                 <DialogContent>
                 <DialogContentText>
-                    Once you Submit the Desk Evaluation Results, you can't undo this action.
+                    Once you Submit the Proper Evaluation Results, you can't undo this action.
                 </DialogContentText>
                 </DialogContent>
                 <DialogActions>
                 <Button autoFocus onClick={()=>setOpenDialog(false)}>
                     cancel
                 </Button>
-                <Button onClick={()=>handleSubmitDE_results()} autoFocus>
+                <Button onClick={()=>handleSubmitPE_results()} autoFocus>
                     Submit
                 </Button>
                 </DialogActions>
@@ -239,5 +239,5 @@ const SubmitDE = () => {
     )
 }
 
-export default SubmitDE
+export default SubmitPE
 
