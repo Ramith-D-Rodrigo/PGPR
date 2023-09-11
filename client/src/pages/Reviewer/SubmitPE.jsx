@@ -38,8 +38,8 @@ const SubmitPE = () => {
               link: "/PG_Assignments"
             },
             {
-                name: "DE",
-                link: "/PG_Assignments/Conduct_DE/"+pgprId
+                name: "PE",
+                link: "/PG_Assignments/Conduct_PE/"+pgprId
             },
             {
                 name: "Submit PE",
@@ -84,7 +84,7 @@ const SubmitPE = () => {
     }
 
     const handleSubmitPE_results = () => {
-        // API call to submit the DE results
+        // API call to submit the PE results
         setOpenDialog(false);
     };
 
@@ -139,10 +139,6 @@ const SubmitPE = () => {
 
       const rows = [
         createData({name:"Programme Management",id:1}, "20/23" , [{action:'Update',allow:true}]),
-        createData({name:"P. Design and Development",id:1}, "20/23" , [{action:'Update',allow:true}]),
-        createData({name:"Human Physical Res. & LS",id:1}, "20/23" , [{action:'Update',allow:true}]),
-        createData({name:"Teaching Learning Research",id:1}, "20/23" , [{action:'Update',allow:true}]),
-        createData({name:"Programme Evaluation",id:1}, "20/23" , [{action:'Update',allow:true}]),
         createData({name:"Student Assessment & Awards",id:1}, "20/23" , [{action:'Update',allow:true}]),
         createData({name:"Innovative & Healthy Practices",id:1}, "20/23" , [{action:'Update',allow:true}]),
       ];
@@ -170,7 +166,7 @@ const SubmitPE = () => {
             <Divider style={{margin:"2rem 0 1rem"}} textAlign="center">Proper Evaluation</Divider>
     
             <TableContainer component={Paper} style={{height:"auto"}}>
-                <Table sx={{ height: 650 }} stickyHeader aria-label="sticky table">
+                <Table sx={{ minHeight: 300 }} stickyHeader aria-label="sticky table">
                     <TableHead>
                         <TableRow>
                             <TableCell style={{backgroundColor:"#D8E6FC",}} align="left"><b>Criteria</b></TableCell>
