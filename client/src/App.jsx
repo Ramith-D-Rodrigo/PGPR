@@ -19,6 +19,7 @@ import SetCriteria from './pages/ReviewerChair/SetCriteria';
 import PGAssignments from './pages/Reviewer/PGAssignments';
 import ConductDE from './pages/Reviewer/ConductDE';
 import ConductPE from './pages/Reviewer/ConductPE';
+import SubmitDE from "./pages/Reviewer/SubmitDE";
 import { DrawerStateProvider } from './contexts/DrawerStateProvider';
 import { ReviewerRoleProvider } from "./contexts/ReviewerRoleProvider";
 import PGPRApplication from "./pages/Dean/PGPRApplication";
@@ -179,6 +180,10 @@ function App() {
                     <Route
                       path="Summary_details/:pgprId"
                       element={<Summary_details />}
+                    />
+                    <Route
+                      path="Submit_DE/:pgprId"
+                      element={< SubmitDE />}
                     />
                   </Route>
                   <Route path="Conduct_PE/">
