@@ -106,8 +106,8 @@ class ReviewerController extends Controller
     public function downloadRoleAcceptanceDeclarationLetter(): BinaryFileResponse
     {
 
-        try{
-            $this -> authorize('downloadRoleAcceptanceDeclarationLetterAuthorize', Reviewer::class);
+        try {
+            $this->authorize('downloadRoleAcceptanceDeclarationLetterAuthorize', Reviewer::class);
 
             $headers = [
                 "Content-Type: application/octet-stream",
@@ -117,10 +117,9 @@ class ReviewerController extends Controller
             $path = "reviewer_role_declaration/Declaration.docx";
 
             return response()->download(Storage::disk('public')->path($path), 'Declaration.dox', $headers);
-        }
-        catch(AuthorizationException $e){
-            return response() -> json([
-                'message' => $e -> getMessage(),
+        } catch (AuthorizationException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
             ], 403);
         }
     }
@@ -131,7 +130,7 @@ class ReviewerController extends Controller
     public function acceptAppointment(UpdateAcceptAppointmentRequest $request): Response|JsonResponse
     {
         try {
-            $this -> authorize('acceptRejectAppointmentAuthorize', Reviewer::class);
+            $this->authorize('acceptRejectAppointmentAuthorize', Reviewer::class);
 
             // find the reviewer
             $reviewer = Reviewer::findOrFail(Auth::user()->id);
@@ -160,9 +159,9 @@ class ReviewerController extends Controller
             $reviewer->save();
 
             return response()->json(["message" => "Your declaration letter was successfully submitted."], 200);
-        }catch(AuthorizationException $e){
-            return response() -> json([
-                'message' => $e -> getMessage(),
+        } catch (AuthorizationException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
             ], 403);
         } catch (ModelNotFoundException $exception) {
             return response()->json(["message" => "The requested reviewer data cannot be found"], 400);
@@ -177,7 +176,7 @@ class ReviewerController extends Controller
     public function rejectAppointment(UpdateRejectAppointmentRequest $request): JsonResponse
     {
         try {
-            $this -> authorize('acceptRejectAppointmentAuthorize', Reviewer::class);
+            $this->authorize('acceptRejectAppointmentAuthorize', Reviewer::class);
 
             //get the reviewer
             $reviewer = Reviewer::findOrFail(Auth::user()->id);
@@ -208,23 +207,21 @@ class ReviewerController extends Controller
             $reviewer->save();
 
             return response()->json(["message" => "Your request was duly noted, thank you for responding."], 201);
-        }
-        catch(AuthorizationException $e){
-            return response() -> json([
-                'message' => $e -> getMessage(),
+        } catch (AuthorizationException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
             ], 403);
-        }
-        catch (ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return response()->json(["message" => "User has invalid credentials."], 401);
         } catch (Exception $exception) {
             return response()->json(["message" => "An internal server error occurred, user request cannot be full filled."], 500);
         }
     }
 
-    public function downloadReviewAppointmentDeclarationLetter(Request $request): BinaryFileResponse
+    public function downloadReviewAppointmentDeclarationLetter(Request $request): BinaryFileResponse|JsonResponse
     {
-        try{
-            $this -> authorize('downloadReviewAppointmentDeclarationLetterAuthorize', Reviewer::class);
+        try {
+            $this->authorize('downloadReviewAppointmentDeclarationLetterAuthorize', Reviewer::class);
 
             $headers = [
                 "Content-Type: application/octet-stream",
@@ -234,13 +231,13 @@ class ReviewerController extends Controller
             $path = "reviewer_review_team_declaration/Declaration.docx";
 
             return response()->download(Storage::disk('public')->path($path), 'Declaration.dox', $headers);
-        }
-        catch(AuthorizationException $e){
-            return response() -> json([
-                'message' => $e -> getMessage(),
+        } catch (AuthorizationException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
             ], 403);
+        } catch (Exception $exception) {
+            return response()->json(["message" => "An internal server error occurred, user request cannot be full filled."], 500);
         }
-
     }
 
     /**
@@ -251,7 +248,7 @@ class ReviewerController extends Controller
     {
         //get the review teams and get the PGPRs from them
         try {
-            $this -> authorize('browsePGPRsAuthorize', Reviewer::class);
+            $this->authorize('browsePGPRsAuthorize', Reviewer::class);
             //find the reviewer
             $reviewer = Reviewer::findOrFail(Auth::id());
 
@@ -265,13 +262,11 @@ class ReviewerController extends Controller
             }
 
             return new ReviewerBrowsePGPRCollection($review_teams);
-        }
-        catch(AuthorizationException $e){
-            return response() -> json([
-                'message' => $e -> getMessage(),
+        } catch (AuthorizationException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
             ], 403);
-        }
-        catch (ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return response()->json(["message" => "Your credentials are wrong, cannot be authorized for this action.", "data" => []], 401);
         } catch (Exception $exception) {
             return response()->json(["message" => "An internal server error occurred, user request cannot be full filled."], 500);
@@ -286,7 +281,7 @@ class ReviewerController extends Controller
     {
         try {
 
-            $this -> authorize('acceptRejectPGPRAssignmentAuthorize', Reviewer::class);
+            $this->authorize('acceptRejectPGPRAssignmentAuthorize', Reviewer::class);
             //get the declaration.
             $file = $request->file('file');
 
@@ -328,13 +323,11 @@ class ReviewerController extends Controller
             $review_team->pivot->save(); //save the data to the pivot table
 
             return response()->json(['message' => 'Your declaration was successfully uploaded.'], 201);
-        }
-        catch(AuthorizationException $e){
-            return response() -> json([
-                'message' => $e -> getMessage(),
+        } catch (AuthorizationException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
             ], 403);
-        }
-        catch (ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return response()->json(["message" => "Your credentials are wrong, cannot be authorized for this action.", "data" => []], 401);
         } catch (Exception $exception) {
             return response()->json(["message" => "An internal server error occurred, user request cannot be full filled."], 500);
@@ -348,7 +341,7 @@ class ReviewerController extends Controller
     public function rejectPGPRAssignment(UpdateRejectPGPRAssignmentRequest $request): JsonResponse
     {
         try {
-            $this -> authorize('acceptRejectPGPRAssignmentAuthorize', [Reviewer::class, $request]);
+            $this->authorize('acceptRejectPGPRAssignmentAuthorize', [Reviewer::class, $request]);
 
             //find the reviewer
             $reviewer = Reviewer::findOrFail(Auth::id());
@@ -402,13 +395,11 @@ class ReviewerController extends Controller
             } else {
                 return response()->json(["message" => "You have already made your decision about this review cannot change it now."], 400);
             }
-        }
-        catch(AuthorizationException $e){
-            return response() -> json([
-                'message' => $e -> getMessage(),
+        } catch (AuthorizationException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
             ], 403);
-        }
-        catch (ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $exception) {
             return response()->json(["message" => "Your credentials are wrong, cannot be authorized for this action.", "data" => []], 401);
         } catch (Exception $exception) {
             DB::rollBack();
@@ -451,6 +442,16 @@ class ReviewerController extends Controller
         }
     }
 
+    /**
+     * Reviewer can view the remarks that were provided for the sections A,B, and D
+     * for a given SER
+     * 
+     * GET request +>
+     *              serId=10
+     *
+     * @param ShowRemarksOfSERRequest $request
+     * @return JsonResponse
+     */
     public function viewRemarksOfSectionsABD(ShowRemarksOfSERRequest $request): JsonResponse
     {
         try {
@@ -490,11 +491,31 @@ class ReviewerController extends Controller
     /**
      * Use case 1.2.1
      * Update remarks of Section A, B and D
+     * 
+     * PATCH request +> 
+     *                {
+     *                      serId: 10,
+     *                      sections: [
+     *                          {
+     *                              section: "A",
+     *                              remark: "Hello, handsome",
+     *                          },
+     *                          {
+     *                              section: "B",
+     *                              remark: "Hello, gorgeous",
+     *                          },
+     *                          {
+     *                              section: "C",
+     *                              remark: "Hello, love",
+     *                          }
+     *                      ]
+     *                }
+     * 
      */
     public function updateRemarksOfSectionsABD(UpdateSERRemarksOfSectionsABDRequest $request): JsonResponse
     {
         try {
-            $this -> authorize('updateRemarksOfSectionsABDAuthorize', [Reviewer::class, $request]);
+            $this->authorize('updateRemarksOfSectionsABDAuthorize', [Reviewer::class, $request]);
 
             // TODO: check whether the review belongs to that particular review team before updating
             $reviewerId = Auth::id();
@@ -515,13 +536,11 @@ class ReviewerController extends Controller
             }
             DB::commit();
             return response()->json(['message' => 'Your remarks were successfully updated']);
-        }
-        catch(AuthorizationException $e){
-            return response() -> json([
-                'message' => $e -> getMessage(),
+        } catch (AuthorizationException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
             ], 403);
-        }
-        catch (Exception $exception) {
+        } catch (Exception $exception) {
             DB::rollBack();
             return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
         }
@@ -532,11 +551,11 @@ class ReviewerController extends Controller
      * Conduct desk evaluation
      *
      *      {
-     *          pgpr_id: 10,
-     *          criteria_id: 10,
-     *          standard_id: 10,
+     *          pgprId: 10,
+     *          criteriaId: 10,
+     *          standardId: 10,
      *          comment: "This is marvelous",
-     *          de_score: 0 <= x <= 3
+     *          score: 0 <= x <= 3
      *      }
      *
      *
@@ -584,11 +603,11 @@ class ReviewerController extends Controller
      * Conduct proper evaluation
      *
      *      {
-     *          pgpr_id: 10,
-     *          criteria_id: 10,
-     *          standard_id: 10,
+     *          pgprId: 10,
+     *          criteriaId: 10,
+     *          standardId: 10,
      *          comment: "This is marvelous",
-     *          pe_score: 0 <= x <= 3
+     *          score: 0 <= x <= 3
      *      }
      *
      *
@@ -734,7 +753,9 @@ class ReviewerController extends Controller
     /**
      * reviewer submit desk evaluation
      * POST request +>
-     *              deskEvaluation=10
+     *              {
+     *                  deskEvaluation=10
+     *              }
      */
     public function submitDeskEvaluation(ReviewerSubmitDeskEvaluation $request): JsonResponse
     {
@@ -797,11 +818,11 @@ class ReviewerController extends Controller
                 $reviewTeam = $postGraduateProgramReview->reviewTeam;
                 $reviewers = $reviewTeam->reviewers;
 
-               $reviewChair = User::find($reviewers->first(function ($reviewer) {
-                   return $reviewer->pivot->role == 'CHAIR';
-               })->id);
+                $reviewChair = User::find($reviewers->first(function ($reviewer) {
+                    return $reviewer->pivot->role == 'CHAIR';
+                })->id);
 
-               $reviewer = User::find(Auth::id());
+                $reviewer = User::find(Auth::id());
 
                 // Send the mail
                 Mail::to($reviewChair->official_email)->send(
@@ -819,7 +840,6 @@ class ReviewerController extends Controller
                     'data' => $data
                 ]);
             }
-
         } catch (Exception $exception) {
             return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
         }
@@ -828,7 +848,10 @@ class ReviewerController extends Controller
     /**
      * reviewer submit proper evaluation
      * POST request +>
-     *              pgpr=12&properEvaluation=10
+     *              {
+     *                  pgpr: 12,
+     *                  properEvaluation: 10
+     *              }
      */
     public function submitProperEvaluation(ReviewerSubmitProperEvaluation $request): JsonResponse
     {
@@ -836,7 +859,7 @@ class ReviewerController extends Controller
             $validated = $request->validated();
 
             // Get all criteria ids assigned to the reviewer
-            $criteria_ids = DB::table('reivewer_team_set_criteria')
+            $criteria_ids = DB::table('reviewer_team_set_criteria')
                 ->where([
                     'assigned_to_reviewer_id' => Auth::id(),
                     'pgpr_id' => $validated['pgpr_id'],
