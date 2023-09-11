@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Resources\V1\AcademicStaffResource;
 use App\Models\AcademicStaff;
-use App\Http\Requests\StoreAcademicStaffRequest;
-use App\Http\Requests\UpdateAcademicStaffRequest;
+use App\Http\Requests\V1\StoreAcademicStaffRequest;
+use App\Http\Requests\V1\UpdateAcademicStaffRequest;
 use App\Http\Controllers\Controller;
 use Illuminate\Auth\Access\AuthorizationException;
 

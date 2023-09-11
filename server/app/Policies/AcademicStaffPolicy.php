@@ -35,9 +35,12 @@ class AcademicStaffPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, AcademicStaff $academicStaff): bool
+    public function update(User $user, AcademicStaff $academicStaff): Response
     {
-        //
+        //only the academic staff can update their own profile
+        return $user -> id === $academicStaff -> id
+            ? Response::allow()
+            : Response::deny('You are not authorized to update this academic staff profile.');
     }
 
     /**
