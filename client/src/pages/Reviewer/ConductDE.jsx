@@ -14,7 +14,7 @@ import createSERRows from '../../assets/reviewer/createSERRows';
 const ConductDE = () => {
     const {pgprId} = useParams();
     const open = useDrawerState().drawerState.open;
-    const [SERDetails,setSERDetails] = useState({});
+    const [SERDetails,setSERDetails] = useState([]);
     const [loading,SetLoading] = useState(false);
 
     useSetUserNavigations(
@@ -76,17 +76,21 @@ const ConductDE = () => {
 
     const headerRowDivStyle = {width:'50%',textAlign:'left'};
 
+    const pgProgrammeDetails = SERDetails?.postGraduateProgramReview?.postGraduateProgramme;
+    const facultyDetails = pgProgrammeDetails?.faculty;
+    const universityDetails = facultyDetails?.university;
+    const pgCoordinatorDetails = pgProgrammeDetails?.programmeCoordinator?.academicStaff?.universitySide?.user;
     const headerInfo = [
-        { label: "University:", value: "University of Colombo" },
+        { label: "University:", value: universityDetails?.name?? "" },
         {
           label: "Faculty/Institute:",
-          value: "University of Colombo School of Computing",
+          value: facultyDetails?.name?? "",
         },
-        { label: "PGPR ID:", value: pgprId },
-        { label: "PGPR Name:", value: "MSc" },
+        { label: "PGPR ID:", value: `PGPR-${pgprId?? ""}` },
+        { label: "PGPR Name:", value: pgProgrammeDetails?.title?? "" },
         { label: "Application Start Date:", value: "12/12/2020" },
         { label: "Submission Date:", value: "01/01/2021" },
-        { label: "Program Coordinator:", value: "Mr. Smantha Karunanayake" },
+        { label: "Program Coordinator:", value: `${pgCoordinatorDetails?.initials?? ""} ${pgCoordinatorDetails?.surname?? ""}` },
       ];
 
       const Criterias = SERDetails?.criterias;

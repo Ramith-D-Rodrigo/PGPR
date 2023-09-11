@@ -83,16 +83,16 @@ const ViewSer = () => {
     const pgCoordinatorDetails = pgProgrammeDetails?.programmeCoordinator?.academicStaff?.universitySide?.user;
 
     const headerInfo = [
-        { label: "University:", value: universityDetails?.name },
+        { label: "University:", value: universityDetails?.name?? "" },
         {
           label: "Faculty/Institute:",
-          value: facultyDetails?.name,
+          value: facultyDetails?.name??"",
         },
-        { label: "PGPR ID:", value: `PGPR-${pgprId}` },
-        { label: "PG programme Name:", value: pgProgrammeDetails?.title },
+        { label: "PGPR ID:", value: `PGPR-${pgprId?? ""}` },
+        { label: "PG programme Name:", value: pgProgrammeDetails?.title?? "" },
         { label: "Application Start Date:", value: "12/12/2020" },
         { label: "Submission Date:", value: "01/01/2021" },
-        { label: "Program Coordinator:", value: `${pgCoordinatorDetails?.initials} ${pgCoordinatorDetails?.surname}` },
+        { label: "Program Coordinator:", value: `${pgCoordinatorDetails?.initials?? ""} ${pgCoordinatorDetails?.surname?? ""}` },
       ];
 
     const Criterias = SERDetails?.criterias;
