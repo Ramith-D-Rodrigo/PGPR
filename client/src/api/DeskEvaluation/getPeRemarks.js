@@ -8,10 +8,10 @@ import axios from "../api.js";
 
 const URL = SERVER_URL + SERVER_API_VERSION + '/reviewer/proper-evaluation/display-remarks';
 
-const GetPeEvaluationScores = async (postGraduateProgramData) => {
+const GetPeEvaluationScores = async () => {
 
     await axios.get("/sanctum/csrf-cookie"); //csrf-cookie is required for post requests
-    return await axios.post(URL, postGraduateProgramData);
+    return await axios.post(URL);
 }
 
 export default GetPeEvaluationScores;
