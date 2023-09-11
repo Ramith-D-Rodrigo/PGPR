@@ -18,6 +18,7 @@ use App\Models\ReviewTeam;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Exception;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Events\TransactionBeginning;
 use Illuminate\Http\JsonResponse;
@@ -38,6 +39,8 @@ class ReviewTeamController extends Controller
     {
         // TODO: ADD FILTERING
         try {
+            $this->authorize('viewAny', ReviewTeam::class);
+
             if (($pgprId = $request->query('pgprId')) !== null) {
                 try {
                     //find the pgpr
@@ -51,6 +54,8 @@ class ReviewTeamController extends Controller
                 $teams = ReviewTeam::all()->load('reviewers');
                 return new ReviewTeamCollection($teams);
             }
+        }catch(AuthorizationException $e){
+            return response()->json(["message" => $e -> getMessage()], 403);
         } catch (Exception $exception) {
             return response()->json(["message" => "Something bad happened!, We are working on it."], 500);
         }
@@ -66,6 +71,8 @@ class ReviewTeamController extends Controller
     public function store(StoreReviewTeamRequest $request): JsonResponse
     {
         try {
+            $this -> authorize('create', ReviewTeam::class);
+
             // get the id from logged-in user
             //(at this point the user is either a qac officer or a director it is validated)
             $qac = Auth::user(); // since the auth user must be a qac
@@ -141,6 +148,8 @@ class ReviewTeamController extends Controller
 
             DB::commit();
             return response()->json(["message" => "Review team was successfully added.", "data" => new ReviewTeamResource($reviewTeam->load('reviewers'))]);
+        }catch(AuthorizationException $exception){
+            return response()->json(["message" => $exception -> getMessage()], 403);
         } catch (Exception $exception) {
             DB::rollBack();
             return response()->json(["message" => "Something bad happened!, We are working on it."], 500);
@@ -153,9 +162,15 @@ class ReviewTeamController extends Controller
     public function show(string $id): JsonResponse|ReviewTeamResource
     {
         try {
+            $this->authorize('view', ReviewTeam::class);
+
             //find the review team
             $reviewTeam = ReviewTeam::findOrFail($id)->load('reviewers');
             return new ReviewTeamResource($reviewTeam);
+
+        }catch(AuthorizationException $e){
+            return response()->json(["message" => $e -> getMessage()], 403);
+
         } catch (ModelNotFoundException $exception) {
             return response()->json(["message" => "There is not such review program in our databases."], 400);
         } catch (Exception $exception) {
@@ -180,6 +195,8 @@ class ReviewTeamController extends Controller
     public function destroy(string $id): JsonResponse
     {
         try {
+            $this->authorize('forceDelete', ReviewTeam::class);
+
             // find the reviewer team
             $reviewTeam = ReviewTeam::findOrFail($id)->load('reviewers');
 
@@ -192,6 +209,8 @@ class ReviewTeamController extends Controller
             $reviewTeam->delete(); // delete the review team
             DB::commit();
             return response()->json(['message' => 'The requested review team was deleted from the database.', 'data' => new ReviewTeamResource($reviewTeam)]);
+        }catch(AuthorizationException $e){
+            return response()->json(["message" => $e -> getMessage()], 403);
         }  catch (ModelNotFoundException $exception) {
             DB::rollBack();
             return response()->json(["message" => "There is not such review team in our databases."], 400);
@@ -238,6 +257,10 @@ class ReviewTeamController extends Controller
             return response()->json(['message' => 'Successful', 'data' => $data]);
         } catch (Exception $exception) {
             return response()->json(['message' => 'Something bad happened!, We are working on it.'], 500);
+        }
+        catch (Exception $exception) {
+            DB::rollBack();
+            return response()->json(["message" => "Something bad happened!, We are working on it."], 500);
         }
     }
 }

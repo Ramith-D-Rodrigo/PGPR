@@ -28,7 +28,7 @@ class ProgrammeCoordinatorPolicy
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user): Response
+    public function create(User $user, StoreProgrammeCoordinatorRequest $request): Response
     {
         //only cqa director of the university can create a programme coordinator
 
@@ -39,7 +39,7 @@ class ProgrammeCoordinatorPolicy
         }
 
         //check if the postgraduate programme id belongs to the university of the cqa director
-        $postgraduateProgrammeId = request() -> post_grad_program_id;
+        $postgraduateProgrammeId = $request -> post_grad_program_id;
 
         $postgraduateProgramme = PostGraduateProgram::find($postgraduateProgrammeId);
 

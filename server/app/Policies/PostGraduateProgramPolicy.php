@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Http\Requests\V1\StoreFacultyRequest;
 use App\Models\Faculty;
 use App\Models\PostGraduateProgram;
 use App\Models\User;
@@ -28,7 +29,7 @@ class PostGraduateProgramPolicy
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user): Response
+    public function create(User $user, StoreFacultyRequest $request): Response
     {
         //only cqa director of a univeristy can create
 
@@ -44,7 +45,7 @@ class PostGraduateProgramPolicy
 
         //request has the faculty id
         //have to find the faculty from the faculty id
-        $faculty = Faculty::find(request() -> faculty_id);
+        $faculty = Faculty::find($request -> faculty_id);
 
         //compare the univeristy of the faculty with the university of the cqa director
         if($faculty -> university_id != $user -> universitySide

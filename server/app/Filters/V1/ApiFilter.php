@@ -26,6 +26,10 @@ class ApiFilter {
 
     protected $whereNotInQuery = []; //where not in query builder
 
+    protected $whereIsNullQuery = []; //where is null query builder
+
+    protected $whereIsNotNullQuery = []; //where is not null query builder
+
     public function transform(Request $request){
         foreach($this -> safeParams as $param => $operators){
             $query = $request -> query($param);
@@ -39,12 +43,22 @@ class ApiFilter {
             foreach($operators as $operator){
                 if(isset($query[$operator])){   //if the operator is set in the query
                     if($operator == 'in'){
-                        $this -> transfromWhereInQuery($column, $query[$operator]);
+                        $this -> transformWhereInQuery($column, $query[$operator]);
                         continue;
                     }
 
                     if($operator == 'nin'){
-                        $this -> transfromWhereNotInQuery($column, $query[$operator]);
+                        $this -> transformWhereNotInQuery($column, $query[$operator]);
+                        continue;
+                    }
+
+                    if($operator == 'null'){
+                        $this -> transformWhereIsNullQuery($column);
+                        continue;
+                    }
+
+                    if($operator == 'nnull'){
+                        $this -> transformWhereIsNotNullQuery($column);
                         continue;
                     }
 
@@ -56,12 +70,28 @@ class ApiFilter {
         return $this -> eloQuery;
     }
 
-    public function transfromWhereInQuery($column, $values){
+    public function transformWhereInQuery($column, $values){
         array_push($this -> whereInQuery, [$column, $values]);
     }
 
-    public function transfromWhereNotInQuery($column, $values){
+    public function transformWhereNotInQuery($column, $values){
         array_push($this -> whereNotInQuery, [$column, $values]);
+    }
+
+    public function transformWhereIsNullQuery($column){
+        array_push($this -> whereIsNullQuery, $column);
+    }
+
+    public function transformWhereIsNotNullQuery($column){
+        array_push($this -> whereIsNotNullQuery, $column);
+    }
+
+    public function getWhereIsNullQuery(){
+        return $this -> whereIsNullQuery;
+    }
+
+    public function getWhereIsNotNullQuery(){
+        return $this -> whereIsNotNullQuery;
     }
 
     public function getWhereInQuery(){

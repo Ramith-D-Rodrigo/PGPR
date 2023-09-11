@@ -4,6 +4,7 @@ import { Button, ButtonBase } from '@mui/material'
 import axios from '../../api/api.js'
 import { SERVER_API_VERSION, SERVER_URL } from '../../assets/constants'
 import { Box, CircularProgress, Divider, Typography } from '@mui/material'
+import getAllUniversities from '../../api/University/getAllUniversities.js'
 
 const UserDetailsForm = ({Loading,roleFieldsComponent}) => {
 
@@ -27,11 +28,11 @@ const UserDetailsForm = ({Loading,roleFieldsComponent}) => {
     const [universities, setUniversities] = React.useState([]);
 
     React.useEffect(() => {
-        const getUniversities = async () => {
-            const response = await axios.get(`${SERVER_URL}${SERVER_API_VERSION}universities`);
+        const handleGetUniversities = async () => {
+            const response = await getAllUniversities();
             setUniversities(response.data.data);
         }
-        getUniversities();
+        handleGetUniversities();
         // console.log(universities.viceChancellorId);
         // console.log(universities.qualityAssuranceCouncilDirectorId);
     }, []);

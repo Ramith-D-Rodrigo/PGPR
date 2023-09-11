@@ -60,6 +60,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::get('universities/{university}/currentViceChancellor', 'UniversityController@currentViceChancellor')->middleware('auth');
     //get faculties of a university
     Route::get('universities/{university}/faculties', 'UniversityController@faculties')->middleware('auth');
+    Route::get('universities/{university}/postGraduatePrograms/', 'UniversityController@postgraduatePrograms')->middleware('auth');
 
     Route::apiResource('standards', 'StandardController');
     Route::apiResource('selfEvaluationReports', 'SelfEvaluationReportController')->middleware('auth');
@@ -93,6 +94,8 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::get('faculties/{faculty}/currentDean', 'FacultyController@currentDean')->middleware('auth');
     //get the post graduate programs of the faculty
     Route::get('faculties/{faculty}/postGraduatePrograms', 'FacultyController@postGraduatePrograms')->middleware('auth');
+    //get the current iqau director of the faculty
+    Route::get('faculties/{faculty}/currentIQAUDirector', 'FacultyController@currentIQAUDirector')->middleware('auth');
 
 
     Route::apiResource('evidences', 'EvidenceController')->middleware('auth');
@@ -172,7 +175,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     //other routes for pgpr application
     Route::post('pgprApplications/{pgprApplication}/submit', 'PostGraduateProgramReviewApplicationController@submit')->middleware('auth');  //submit pgpr application by the dean
     Route::post('pgprApplications/{pgprApplication}/cqaDirectorApprove', 'PostGraduateProgramReviewApplicationController@cqaDirectorRecommendation')->middleware('auth'); //approve pgpr application by the cqa director
-    Route::post('pgprApplications/{pgprApplication}/qacOfficerApproval', 'PostGraduateProgramReviewApplicationController@qacOfficerApproval')->middleware('auth');//approve pgpr application by the qac officer
+    Route::post('pgprApplications/{pgprApplication}/qacOfficerApproval', 'PostGraduateProgramReviewApplicationController@qacOfficerApproval')->middleware('auth'); //approve pgpr application by the qac officer
 
     //routes for self evaluation report methods
     Route::post('selfEvaluationReports/{selfEvaluationReport}/addAdherenceToStandards', 'SelfEvaluationReportController@addAdherenceToStandards')->middleware('auth');

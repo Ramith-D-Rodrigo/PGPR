@@ -21,8 +21,8 @@ class InternalQualityAssuranceUnitFactory extends Factory
         return [
             //
             'address' => fake()->address(),
-            'contact_no' => json_encode(fake()->phoneNumber()),
-            'fax_no' => json_encode(fake()->e164PhoneNumber()),
+            'contact_no' => json_encode(['data'=>[fake()->phoneNumber()]]),
+            'fax_no' => json_encode(['data'=>[fake()->e164PhoneNumber()]]),
             'email' => fake()->email(),
         ];
     }

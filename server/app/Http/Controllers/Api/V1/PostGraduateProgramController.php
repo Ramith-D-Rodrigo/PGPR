@@ -106,7 +106,7 @@ class PostGraduateProgramController extends Controller
         //add authorized cqa director id to the request
         try{
             //authorize the request
-            $this -> authorize('store', PostGraduateProgram::class);
+            $this -> authorize('store', [PostGraduateProgram::class, $request]);
 
             //get validated data
             $validatedData = $request -> validated();
@@ -248,7 +248,7 @@ class PostGraduateProgramController extends Controller
                         $user = request() -> query('includeUser');
                         if($user){
                             $programmeCoordinator -> load(['academicStaff:id' => [
-                                'universitySide:id' => ['user:id,initials,surname']
+                                'universitySide:id' => ['user:id,initials,surname,profile_pic']
                                 ]
                             ]);
                         }

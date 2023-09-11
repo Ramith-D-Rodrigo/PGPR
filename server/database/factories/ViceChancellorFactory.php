@@ -25,7 +25,7 @@ class ViceChancellorFactory extends Factory
         return [
             'appointed_date' => fake()->date(),
             'term_date' => fake()->date(),
-            'vc_status' => fake()->randomElement(['ACTIVE', 'INACTIVE']),
+            'vc_status' => 'ACTIVE',
         ];
     }
 }

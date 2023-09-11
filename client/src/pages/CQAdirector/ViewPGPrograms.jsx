@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MainContent from "../../components/MainContent";
 import useSetUserNavigations from '../../hooks/useSetUserNavigations';
 import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box, TextField, Typography } from '@mui/material';
@@ -7,6 +7,12 @@ import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
+import useAuth from "../../hooks/useAuth";
+import { CircularProgress } from "@mui/material";
+import getCQADirectorUniversity from "../../api/CQADirector/getCQADirectorUniversity";
+import getUniversityPostGraduatePrograms from "../../api/University/getUniversityPostGraduatePrograms";
+import getCurrentCoordinator from "../../api/PostGraduateProgram/getCurrentCoordinator";
+
 
 const CustomTable = ({ tableData, openEditDialog }) => {
   return (
@@ -16,22 +22,23 @@ const CustomTable = ({ tableData, openEditDialog }) => {
           <Table sx={{ minWidth: 650 }} aria-label="simple table">
             <TableHead style={{ backgroundColor: "#D8E6FC" }}>
               <TableRow>
-                <TableCell align="center"><b>PGPR ID</b></TableCell>
-                <TableCell align="center"><b>Coordinator</b></TableCell>
-                <TableCell align="center"><b>Status</b></TableCell>
-                <TableCell align="center"><b>PGP</b></TableCell>
-                <TableCell align="center"><b>Status (of PGP)</b></TableCell>
+                <TableCell align="center"><b>Title</b></TableCell>
+                <TableCell align="center"><b>SLQF Level</b></TableCell>
+                <TableCell align="center"><b>Commencement Year</b></TableCell>
+                <TableCell align="center"><b>Is Proffessional Program</b></TableCell>
+                <TableCell align="center"><b>Program Coordinator</b></TableCell>
                 <TableCell align="center"><b>Actions</b></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {tableData.map((row, index) => (
                 <TableRow key={index}>
-                  <TableCell align="center">{row.pgprID}</TableCell>
-                  <TableCell align="center">{row.coordinator}</TableCell>
-                  <TableCell align="center">{row.status}</TableCell>
-                  <TableCell align="center">{row.pgp}</TableCell>
-                  <TableCell align="center">{row.pgpStatus}</TableCell>
+                  <TableCell align="center">{row.title}</TableCell>
+                  <TableCell align="center">{row.slqfLevel}</TableCell>
+                  <TableCell align="center">{row.commencementYear}</TableCell>
+                  <TableCell align="center">{row.isProfessionalPgProgramme === 1 ? "Yes" : "No"}</TableCell>
+                  <TableCell align="center">{row.coordinatorName.academicStaff.universitySide.user.initials +" " +
+                      row.coordinatorName.academicStaff.universitySide.user.surname}</TableCell>
                   <TableCell align="center">
                     <Button
                       style={{ margin: "0 8px" }}
@@ -68,58 +75,90 @@ const CustomTable = ({ tableData, openEditDialog }) => {
 
 const Coordinators = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
- // Hardcoded data for the table
-  const [tableData, setTableData] = useState([
-    {
-      pgprID: "UOC 12",
-      coordinator: "Dr. Manju",
-      status: "Recommended",
-      pgp: "MCS",
-      pgpStatus: "In Review",
-    },
-    {
-      pgprID: "UOC 12",
-      coordinator: "Dr. Pasindu",
-      status: "Pending",
-      pgp: "MCS",
-      pgpStatus: "Accepted",
-    },
-    {
-      pgprID: "UOC 12",
-      coordinator: "Dr. Thilini",
-      status: "Completed",
-      pgp: "MCS",
-      pgpStatus: "Completed",
-    },
-  ]);
-  const [selectedCoordinatorForEdit, setSelectedCoordinatorForEdit] = useState(
-    tableData[0]
-  );
+  const [isLoading, setIsLoading] = useState(true); // State to track loading
+  const { auth } = useAuth();
+  const [tableData, setTableData] = useState([]); // Initialize tableData as an empty array
+  const [university, setUniversity] = useState(null); // Add this state to store university data
+  
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        // Fetch data from the backend using API calls
+        const cqaDirectorId = auth.id;
+        console.log('cqaDirectorId:', cqaDirectorId); // Log cqaDirectorId
+        const response = await getCQADirectorUniversity(cqaDirectorId);
+        const universityData = response.data.data;
+        console.log('universityData:', universityData); // Log universityData
+        setUniversity(universityData);
 
-    // Define openEditPopup function within the Coordinators component
-    const handleOpenEditDialog = (coordinator) => {
-      setSelectedCoordinatorForEdit(coordinator);
-      setIsEditDialogOpen(true);
-    };
-  
-    const handleSaveEdit = () => {
-      if (selectedCoordinatorForEdit) {
-        // Update the tableData with the edited coordinator details
-        const updatedTableData = tableData.map((coordinator) =>
-          coordinator.cid === selectedCoordinatorForEdit.cid
-            ? selectedCoordinatorForEdit
-            : coordinator
+        const universityId = universityData.id;
+        console.log('universityId:', universityId); // Log universityId
+
+        const queryParams = {
+          includeAcademicStaff: true,
+          includeUniversitySide: true,
+          includeUser: true,
+        };
+        // Fetch postgraduate programs of the university
+        const programsResponse = await getUniversityPostGraduatePrograms(universityId);
+        const programsData = programsResponse.data.data;
+        console.log('programsData:', programsData); // Log programsData
+
+
+        // Fetch coordinators for each postgraduate program and update the tableData
+        const updatedTableData = await Promise.all(
+          programsData.map(async (program) => {
+            const coordinatorResponse = await getCurrentCoordinator(program.id,queryParams); // Pass the postgraduate program id
+            const coordinatorData = coordinatorResponse.data.data;
+            console.log('coordinatorData for program', program.id, ':', coordinatorData); // Log coordinatorData
+            program.coordinatorName = coordinatorData; // Store coordinator name
+            return program;
+          })
         );
-  
+
+        // Log the updated tableData
+        console.log('updatedTableData:', updatedTableData);
+
+        // Set the updated tableData to the state
         setTableData(updatedTableData);
-        handleCloseEditDialog();
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setIsLoading(false);
       }
-    };
+    }
+
+    fetchData();
+  }, []);
+   
+  // const [selectedCoordinatorForEdit, setSelectedCoordinatorForEdit] = useState(
+  //   tableData[0]
+  // );
+
+  //   // Define openEditPopup function within the Coordinators component
+  //   const handleOpenEditDialog = (coordinator) => {
+  //     setSelectedCoordinatorForEdit(coordinator);
+  //     setIsEditDialogOpen(true);
+  //   };
   
-    const handleCloseEditDialog = () => {
-      setSelectedCoordinatorForEdit(null);
-      setIsEditDialogOpen(false);
-    };
+  //   const handleSaveEdit = () => {
+  //     if (selectedCoordinatorForEdit) {
+  //       // Update the tableData with the edited coordinator details
+  //       const updatedTableData = tableData.map((coordinator) =>
+  //         coordinator.cid === selectedCoordinatorForEdit.cid
+  //           ? selectedCoordinatorForEdit
+  //           : coordinator
+  //       );
+  
+  //       setTableData(updatedTableData);
+  //       handleCloseEditDialog();
+  //     }
+  //   };
+  
+  //   const handleCloseEditDialog = () => {
+  //     setSelectedCoordinatorForEdit(null);
+  //     setIsEditDialogOpen(false);
+  //   };
     useSetUserNavigations([
       {
         name: "View Program Coordinators",
@@ -127,13 +166,6 @@ const Coordinators = () => {
       },
     ]);
   
-    const [searchedUniversity, setSearchedUniversity] = useState("");
-    const [searchedFaculty, setSearchedFaculty] = useState("");
-  
-    const handleSearch = (universityName, facultyName) => {
-      setSearchedUniversity(universityName);
-      setSearchedFaculty(facultyName);
-    };
 
   return (
     <>
@@ -141,165 +173,32 @@ const Coordinators = () => {
         <h2 className="text-2xl font-bold text-center">Browse PG Programs </h2>
         <hr className="border-t-2 border-black my-4 opacity-50" />
         <div className="grid grid-cols-2 gap-4">
-          <div className="flex flex-col">
-            <label htmlFor="university" className="block font-medium text-gray-700">
-              University Name :
-            </label>
-            <input
-              type="text"
-              id="university"
-              className="form-input border border-black p-1"
-            />
-          </div>
-          <div className="flex flex-col">
-            <label htmlFor="faculty" className="block font-medium text-gray-700">
-              Faculty/Institute Name :
-            </label>
-            <input
-              type="text"
-              id="faculty"
-              className="form-input border border-black p-1"
-            />
-          </div>
-          <div className="flex justify-center items-end col-span-2">
-            <Button variant="contained" color="primary" onClick={handleSearch}>
-              Search
-            </Button>
+         
+         </div>
+      </div>
+        {/* Conditionally render the loading indicator */}
+      {isLoading ? (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center", // Horizontally center
+            alignItems: "center", // Vertically center
+            height: "60vh", // Adjust the height as needed
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <p>Loading ...</p>
+            <CircularProgress style={{ marginLeft: "8px" }} />
           </div>
         </div>
-      </div>
-      <CustomTable  tableData={tableData}
-        openEditDialog={handleOpenEditDialog}
-      />
+      ) : (
+        // Render the table when not loading
+        <CustomTable
+          tableData={tableData}
+         
+        />
+      )}
 
-<Dialog
-  open={isEditDialogOpen}
-  onClose={handleCloseEditDialog}
-  maxWidth="md" // Adjust the width as needed
-  fullWidth // Take up the full width
->
-  <DialogTitle style={{ fontSize: '24px', fontWeight: 'bold' }}>
-  Edit PG Program Details
-  </DialogTitle>
-        <DialogContent className="w-full">
-          <form className="dialog-form space-y-4">
-          <div className="flex flex-col">
-              <label
-                htmlFor="pgrpID"
-                className="text-sm font-medium text-gray-700"
-              >
-                PGPR-ID:
-              </label>
-              <input
-                type="text"
-                id="pgprID"
-                className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={selectedCoordinatorForEdit.pgprID}
-                // Add an onChange handler to update selectedCoordinatorForEdit.cid
-                onChange={(e) =>
-                  setSelectedCoordinatorForEdit((prevState) => ({
-                    ...prevState,
-                    pgprID: e.target.value,
-                  }))
-                }
-              />
-            </div>
-
-            <div className="flex flex-col">
-              <label
-                htmlFor="coordinator"
-                className="text-sm font-medium text-gray-700"
-              >
-                Coordinator Name:
-              </label>
-              <input
-                type="text"
-                id="coordinator"
-                className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={selectedCoordinatorForEdit.coordinator}
-                // Add an onChange handler to update selectedCoordinatorForEdit.name
-                onChange={(e) =>
-                  setSelectedCoordinatorForEdit((prevState) => ({
-                    ...prevState,
-                    coordinator: e.target.value,
-                  }))
-                }
-              />
-            </div>
-
-            <div className="flex flex-col">
-              <label
-                htmlFor="status"
-                className="text-sm font-medium text-gray-700"
-              >
-                Status:
-              </label>
-              <input
-                type="text"
-                id="status"
-                className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={selectedCoordinatorForEdit.status}
-                // Add an onChange handler to update selectedCoordinatorForEdit.pgCount
-                onChange={(e) =>
-                  setSelectedCoordinatorForEdit((prevState) => ({
-                    ...prevState,
-                    status: e.target.value,
-                  }))
-                }
-              />
-            </div>
-
-            <div className="flex flex-col">
-              <label
-                htmlFor="pgp"
-                className="text-sm font-medium text-gray-700"
-              >
-                PGP :
-              </label>
-              <input
-                type="text"
-                id="pgp"
-                className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={selectedCoordinatorForEdit.pgp}
-                // Add an onChange handler to update selectedCoordinatorForEdit.pgCount
-                onChange={(e) =>
-                  setSelectedCoordinatorForEdit((prevState) => ({
-                    ...prevState,
-                    pgp: e.target.value,
-                  }))
-                }
-              />
-            </div>
-            <div className="flex flex-col">
-              <label
-                htmlFor="pgpStatus"
-                className="text-sm font-medium text-gray-700"
-              >
-                Status of (PGP) :
-              </label>
-              <input
-                type="text"
-                id="pgpStatus"
-                className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={selectedCoordinatorForEdit.pgpStatus}
-                // Add an onChange handler to update selectedCoordinatorForEdit.pgCount
-                onChange={(e) =>
-                  setSelectedCoordinatorForEdit((prevState) => ({
-                    ...prevState,
-                    pgpStatus: e.target.value,
-                  }))
-                }
-              />
-            </div>
-          </form>
-        </DialogContent>
-        <DialogActions className="mt-4 space-x-2">
-          <Button onClick={handleCloseEditDialog}>Cancel</Button>
-          <Button onClick={handleSaveEdit} color="primary">
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
     </>
   );
 };

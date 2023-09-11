@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Http\Requests\V1\StorePostGraduateProgramReviewApplicationRequest;
 use App\Models\PostGraduateProgram;
 use App\Models\PostGraduateProgramReviewApplication;
 use App\Models\User;
@@ -109,7 +110,7 @@ class PostGraduateProgramReviewApplicationPolicy
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user): Response
+    public function create(User $user, StorePostGraduateProgramReviewApplicationRequest $request): Response
     {
         //only dean can create applications
         $currUserRole = request() -> session() -> get('authRole');
@@ -122,7 +123,7 @@ class PostGraduateProgramReviewApplicationPolicy
         $deanFaculty = $user -> universitySide -> academicStaff -> dean -> faculty -> id;
 
         //get the faculty of the application
-        $pgpId = request() -> input('post_graduate_program_id');
+        $pgpId = $request -> post_graduate_program_id;
 
         $pgpFaculty = PostGraduateProgram::find($pgpId) -> faculty -> id;
 

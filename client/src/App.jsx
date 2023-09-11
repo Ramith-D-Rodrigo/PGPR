@@ -49,9 +49,14 @@ import UpdateABC from "./pages/Reviewer/UpdateABC";
 import Summary_details from "./pages/Reviewer/Summary_details";
 import SelfEvaluationReport from "./pages/ViceChancellor/SelfEvaluationReport";
 import View from './pages/ViceChancellor/View';
+import PostGraduateProgramReviewApplications from './pages/QACOfficer/PostGraduateProgramReviewApplications'
+import Reviewers from "./pages/QACOfficer/Reviewers";
+import ImportReviewers from "./pages/QACOfficer/ImportReviewers";
 // import UpdateEvidence from './pages/ProgrammeCoordinator/UpdateEvidence';
 // import ViewSummary from './pages/ProgrammeCoordinator/ViewSummary';
 import "./App.css";
+import PostGraduateProgramReviews from "./pages/QACOfficer/PostGraduateProgramReviews";
+import ViewPGPR from "./pages/QACOfficer/ViewPGPR";
 
 /* 
   important: 
@@ -94,6 +99,15 @@ function App() {
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="universities" element={<Universities />} />
                 <Route path="createAccounts/" element={<CreateAccounts />} />
+                <Route path="PGPRApplications" element={<PostGraduateProgramReviewApplications />} />
+                <Route path='reviewers/'>
+                  <Route path='' element={<Reviewers/>}/>
+                  <Route path='import' element={<ImportReviewers/>}/>
+                </Route>
+                <Route path='PGPRs/'>
+                  <Route path='' element={<PostGraduateProgramReviews/>}/>
+                  <Route path='view/:id' element={<ViewPGPR/>}/>
+                </Route>
               </Route>
             </Route>
 
