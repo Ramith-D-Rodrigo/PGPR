@@ -13,6 +13,7 @@ import { Link } from 'react-router-dom';
 
 const Ser = () => {
     const { uniId } = useParams();
+    const { id } = useParams();
     const open = useDrawerState().drawerState.open;
 
     useSetUserNavigations(
@@ -100,11 +101,9 @@ const Ser = () => {
                 <Button variant="contained" color="primary" size="small" onClick={() => openViewSummary(row)}>
                     View
                 </Button>
-                <Link to={`/edit-ser/${uniId}`}>
-                <Button variant="contained" color="info" size="small">
+                <Button variant="contained" color="info" size="small" component={Link} to={"EditSer/" + id}>
                     Edit
                 </Button>
-                </Link>
                 <Button variant="contained" color="error" size="small">
                     Delete
                 </Button>

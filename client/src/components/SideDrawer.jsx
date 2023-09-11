@@ -86,8 +86,11 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
     const qacOfficerRoutes = [
       {route:"DashBoard",link: "/qac_officer/dashboard"},
       {route:"Universities" ,link: "/qac_officer/universities"},
+      {route:"Create Accounts" ,link: "/qac_officer/createAccounts"},
       {route:"CQA Offices" ,link: "/qac_officer/cqa_offices"},
-      {route:"Reviewers" ,link: "/qac_officer/importreviewers"},
+      {route:"Reviewers" ,link: "/qac_officer/reviewers"},
+      {route:"Post Graduate Program Review Applications" ,link: "/qac_officer/PGPRApplications"},
+      {route:"Post Graduate Program Reviews" ,link: "/qac_officer/PGPRs"},
   ]
 
     const cqaDirectorRoutes = [
@@ -95,12 +98,15 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
       {route:"Add PG Program" ,link: "/cqa_director/AddPGProgramPage"},
       {route:"Add Accounts" ,link: "/cqa_director/AddAccounts"},
       {route:"Edit PG Program" ,link: "/cqa_director/EditPGProgram"},
+      {route:"View PG Programs" ,link: "/cqa_director/ViewPGPrograms"},
+      {route:"View Coordinators" ,link: "/cqa_director/ViewCoordinators"},
+      {route:"Faculties" ,link: "/cqa_director/faculties"},
     ]
 
     const deanDirectorRoutes = [
       {route:"DashBoard",link: "/dean/dashboard"},
-      {route:"Submit Intent Letter" ,link: "/dean/SubmitIntent"},
       {route:"Submit Consent" ,link: "/dean/SubmitConsent"},
+      {route:"PGPR Applications" ,link: "/dean/PGPRApplications"},
     ]
 
     const iqauDirectorRoutes = [
@@ -113,12 +119,13 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
       {route:"Submit PGPR",link: "/programme_coordinator/SubmitPGPR"},
       {route:"Edit Ser",link: "/programme_coordinator/EditSer"},
       {route:"Add Evidence",link: "/programme_coordinator/AddEvidence"},
-      {route:"Update Evidence",link: "/programme_coordinator/UpdateEvidence"},
       {route:"View Summary",link: "/programme_coordinator/ViewSummary"},
     ]
 
     const viceChancellorRoutes = [
       {route:"DashBoard",link: "/vice_chancellor/dashboard"},
+      {route:"SelfEvaluationReport",link: "/vice_chancellor/SelfEvaluationReport"},
+      {route:"View",link: "/vice_chancellor/View"},
     ]
 
     //set user routes based on user role
@@ -214,7 +221,10 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
                       Log Out
                     </Typography>
                   : 
-                    <CircularProgress size={30}/>
+                    <Typography gutterBottom variant='body1' component='div'>
+                      Logging Out
+                      <CircularProgress size={15} sx={{marginLeft:"5px"}}/>
+                    </Typography>
                 }
             </Box>
           </Link>
