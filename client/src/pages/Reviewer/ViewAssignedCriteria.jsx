@@ -122,10 +122,16 @@ const ViewAssignedCriteria = () => {
     //   title: "View Summary Details of Criteria",
     //   to: `../Summary_details/${decodedPgprId}`,
     // },
+    
+    //only for chairperson
+    {
+      title: "End The Proper Evaluation",
+      to: `../End_PE/${decodedPgprId}`,
+    },
     {
       title: "Submit the Evaluated Final Results",
       to: `../Submit_PE/${decodedPgprId}`,
-    }
+    },
   ];
 
   useEffect(() => {
