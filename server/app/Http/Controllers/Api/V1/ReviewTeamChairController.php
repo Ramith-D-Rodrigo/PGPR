@@ -153,8 +153,8 @@ class ReviewTeamChairController extends Controller
             $reviewer_ids = DB::table('reviewer_review_teams')
                 ->where([
                     'review_team_id' => $validated['review_team_id'],
-                    'role' => 'MEMBER',
                 ])
+                ->whereIn('role', ['MEMBER', 'CHAIR'])
                 ->pluck('reviewer_id');
 
             $data = [];
