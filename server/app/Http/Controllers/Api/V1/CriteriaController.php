@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Requests\V1\StoreCriteriaRequest;
+use App\Http\Requests\V1\UpdateCriteriaRequest;
 use App\Models\Criteria;
-use App\Http\Requests\StoreCriteriaRequest;
-use App\Http\Requests\UpdateCriteriaRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\V1\CriteriaCollection;
 use App\Http\Resources\V1\CriteriaResource;
@@ -17,14 +17,6 @@ class CriteriaController extends Controller
     public function index()
     {
         return new CriteriaCollection(Criteria::all());
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -41,14 +33,6 @@ class CriteriaController extends Controller
     public function show(Criteria $criteria)
     {
         return new CriteriaResource($criteria);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Criteria $criteria)
-    {
-        //
     }
 
     /**
