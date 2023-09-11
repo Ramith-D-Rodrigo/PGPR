@@ -10,12 +10,15 @@ import { Link } from 'react-router-dom';
 import useDrawerState from '../../hooks/useDrawerState';
 import getSelfEvaluationReport from '../../api/SelfEvaluationReport/getSelfEvaluationReport';
 import createSERRows from '../../assets/reviewer/createSERRows';
+import useReviewerRole from '../../hooks/useReviewerRole';
+import getAssignedPGPR from '../../api/Reviewer/getAssignedPGPR';
 
 const ConductDE = () => {
     const {pgprId} = useParams();
     const open = useDrawerState().drawerState.open;
     const [SERDetails,setSERDetails] = useState([]);
     const [loading,SetLoading] = useState(false);
+    const {reviewerRole, setReviewerRole} = useReviewerRole();
 
     useSetUserNavigations(
         [
@@ -44,7 +47,20 @@ const ConductDE = () => {
                 SetLoading(false);
             }
         };
+        const getPGPRDetails = async () => {
+            SetLoading(true);
+            try {
+                const response = await getAssignedPGPR(pgprId);
+                console.log("PGPR Details : ",response?.data?.data);
+                setReviewerRole(response?.data?.data?.reviewerRole);
+                SetLoading(false);
+            } catch (err) {
+                console.error(err);
+                SetLoading(false);
+            }
+        };
         getSERDetails();
+        // getPGPRDetails();
     }, []);
 
     function createData(criteriaData,submitted_standards, y1,y2,y3,y4,y5) {
@@ -127,7 +143,7 @@ const ConductDE = () => {
                 </Box>
             </DiscriptiveDiv> */}
             <DiscriptiveDiv
-                description="chair Reviewer"
+                description={`${reviewerRole?? ""}`}
                 width="100%"
                 height="auto"
                 backgroundColor="#D8E6FC"
