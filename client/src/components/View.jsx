@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Button from '@mui/material/Button';
 
-const ViewSummary = ({ isOpen, onClose }) => {
+const View = ({ isOpen, onClose }) => {
   // Create state variables for the input fields
   const [completedStandards, setCompletedStandards] = useState('X1/27');
   const [yearlyEvidences, setYearlyEvidences] = useState({
@@ -55,4 +55,4 @@ const ViewSummary = ({ isOpen, onClose }) => {
   );
 };
 
-export default ViewSummary;
+export default View;

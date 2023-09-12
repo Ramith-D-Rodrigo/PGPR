@@ -101,7 +101,7 @@ const Ser = () => {
                 <Button variant="contained" color="primary" size="small" onClick={() => openViewSummary(row)}>
                     View
                 </Button>
-                <Button variant="contained" color="info" size="small" component={Link} to={"EditSer/" + id}>
+                <Button variant="contained" color="info" size="small" component={Link} to={"../EditSer/" + id}>
                     Edit
                 </Button>
                 <Button variant="contained" color="error" size="small">
@@ -137,7 +137,7 @@ const Ser = () => {
             </DiscriptionDiv>
             
             <TableContainer component={Paper} style={{height:"auto",margin:"2rem 0"}}>
-                <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table">
+                <Table sx={{ minWidth: 650 }}  aria-label="sticky table">
                     <TableHead>
                         <TableRow>
                             <TableCell style={{backgroundColor:"#D8E6FC",}} align="left"><b>Criteria</b></TableCell>
