@@ -118,9 +118,19 @@ const ViewAssignedCriteria = () => {
       title: "View Standards Wise Details of Proper Review",
       to: `../Standardwise_details/${decodedPgprId}`,
     },
+    // {
+    //   title: "View Summary Details of Criteria",
+    //   to: `../Summary_details/${decodedPgprId}`,
+    // },
+    
+    //only for chairperson
     {
-      title: "View Summary Details of Criteria",
-      to: `../Summary_details/${decodedPgprId}`,
+      title: "End The Proper Evaluation",
+      to: `../End_PE/${decodedPgprId}`,
+    },
+    {
+      title: "Submit the Evaluated Final Results",
+      to: `../Submit_PE/${decodedPgprId}`,
     },
   ];
 

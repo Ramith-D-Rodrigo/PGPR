@@ -19,7 +19,12 @@ import SetCriteria from './pages/ReviewerChair/SetCriteria';
 import PGAssignments from './pages/Reviewer/PGAssignments';
 import ConductDE from './pages/Reviewer/ConductDE';
 import ConductPE from './pages/Reviewer/ConductPE';
+import SubmitDE from "./pages/Reviewer/SubmitDE";
+import SubmitPE from "./pages/Reviewer/SubmitPE";
+import EndDE from "./pages/ReviewerChair/EndDE";
+import EndPE from "./pages/ReviewerChair/EndPE";
 import { DrawerStateProvider } from './contexts/DrawerStateProvider';
+import { ReviewerRoleProvider } from "./contexts/ReviewerRoleProvider";
 import PGPRApplication from "./pages/Dean/PGPRApplication";
 import PGPRApplications from "./pages/Dean/PGPRApplications";
 import EditPGPRApplication from "./pages/Dean/EditPGPRApplication";
@@ -160,7 +165,7 @@ function App() {
               </Route>
             </Route>
 
-            <Route element={<Authenticate allowedRoles={["reviewer"]} />}>
+            <Route element={<ReviewerRoleProvider><Authenticate allowedRoles={["reviewer"]} /></ReviewerRoleProvider>}>
               <Route path="reviewer/">
                 <Route path="" element={<ReviewerDashboard />} />
                 <Route path="dashboard" element={<ReviewerDashboard />} />
@@ -179,6 +184,14 @@ function App() {
                       path="Summary_details/:pgprId"
                       element={<Summary_details />}
                     />
+                    <Route
+                      path="Submit_DE/:pgprId"
+                      element={< SubmitDE />}
+                    />
+                    <Route
+                      path="End_DE/:pgprId"
+                      element={< EndDE />}
+                    />
                   </Route>
                   <Route path="Conduct_PE/">
                     <Route path=":pgprId" element={<ConductPE />} />
@@ -189,6 +202,14 @@ function App() {
                     <Route
                       path="Assigned_criteria/:pgprId/:criteriaId"
                       element={<EvaluateDE />}
+                    />
+                    <Route
+                      path="Submit_PE/:pgprId"
+                      element={< SubmitPE />}
+                    />
+                    <Route
+                      path="End_PE/:pgprId"
+                      element={< EndPE />}
                     />
                   </Route>
                 </Route>

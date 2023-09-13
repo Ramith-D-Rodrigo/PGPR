@@ -7,18 +7,29 @@ import { useState, useEffect } from 'react';
 import Button from '@mui/material/Button';
 import { Grid,Typography,Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box, Divider, CircularProgress } from '@mui/material';
 import { Link } from 'react-router-dom';
+import CloseIcon from '@mui/icons-material/Close';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 import useDrawerState from '../../hooks/useDrawerState';
 import getSelfEvaluationReport from '../../api/SelfEvaluationReport/getSelfEvaluationReport';
 import createSERRows from '../../assets/reviewer/createSERRows';
 import useReviewerRole from '../../hooks/useReviewerRole';
 import getAssignedPGPR from '../../api/Reviewer/getAssignedPGPR';
 
-const ConductDE = () => {
+const SubmitPE = () => {
+    const theme = useTheme();
+    const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
     const {pgprId} = useParams();
     const open = useDrawerState().drawerState.open;
     const [SERDetails,setSERDetails] = useState([]);
     const [loading,SetLoading] = useState(false);
     const {reviewerRole, setReviewerRole} = useReviewerRole();
+    const [openDialog, setOpenDialog] = useState(false);
 
     useSetUserNavigations(
         [
@@ -27,14 +38,18 @@ const ConductDE = () => {
               link: "/PG_Assignments"
             },
             {
-                name: "DE",
-                link: "/PG_Assignments/Conduct_DE/"+pgprId
+                name: "PE",
+                link: "/PG_Assignments/Conduct_PE/"+pgprId
+            },
+            {
+                name: "Submit PE",
+                link: "/PG_Assignments/Conduct_PE/Submit_PE/"+pgprId
             }
         ]
     );
 
     useEffect(() => {
-        document.title = "Conduct Desk Evaluation";
+        document.title = "Submit Proper Evaluation";
         const getSERDetails = async () => {
             SetLoading(true);
             try {
@@ -63,10 +78,15 @@ const ConductDE = () => {
         // getPGPRDetails();
     }, []);
 
-    function createData(criteriaData,submitted_standards, y1,y2,y3,y4,y5) {
-        const Actions = [<Link key={1} to={`${criteriaData.id}`}><Button style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{"Evaluate"}</Button></Link>]
-        return {criteria:criteriaData.name, submitted_standards, y1,y2,y3,y4,y5, Actions };
+    function createData(criteriaData,PE_progress) {
+        const Actions = [<Link key={1} to={`../${pgprId}/${criteriaData.id}`}><Button style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{"Update"}</Button></Link>]
+        return {criteria:criteriaData.name, PE_progress, Actions };
     }
+
+    const handleSubmitPE_results = () => {
+        // API call to submit the PE results
+        setOpenDialog(false);
+    };
 
     let descriptionWidth = 30;
 
@@ -115,33 +135,16 @@ const ConductDE = () => {
       console.log("Criterias : ",Criterias);
         console.log("evidencesForGivenStandards : ",evidencesForGivenStandards);
   
-      const rows = Criterias? createSERRows(SERDetails?.criterias,SERDetails?.evidenceGivenStandards,createData) : [];
+    //   const rows = Criterias? createSERRows(SERDetails?.criterias,SERDetails?.evidenceGivenStandards,createData) : [];
 
-    //   const rows = [
-    //     createData("Programme Management",'X1/27', "x11","x12","x12", 'x12','x12', [{action:'Evaluate',allow:true}]),
-    //     createData("P. Design and Development",'X1/27', "x11","x12","x12", 'x12','x12', [{action:'Evaluate',allow:true}]),
-    //     createData("Human Physical Res. & LS",'X1/27', "x11","x12","x12", 'x12','x12', [{action:'Evaluate',allow:true}]),
-    //     createData("Teaching Learning Research",'X1/27', "x11","x12","x12", 'x12','x12', [{action:'Evaluate',allow:true}]),
-    //     createData("Programme Evaluation","X1/27", "x11","x12","x12", 'x12','x12', [{action:'Evaluate',allow:true}]),
-    //     createData("Student Assessment & Awards","X1/27", "x11","x12","x12", 'x12','x12', [{action:'Evaluate',allow:true}]),
-    //     createData("Innovative & Healthy Practices","X1/27", "x11","x12","x12", 'x12','x12', [{action:'Evaluate',allow:true}]),
-    //   ];
+      const rows = [
+        createData({name:"Programme Management",id:1}, "20/23" , [{action:'Update',allow:true}]),
+        createData({name:"Student Assessment & Awards",id:1}, "20/23" , [{action:'Update',allow:true}]),
+        createData({name:"Innovative & Healthy Practices",id:1}, "20/23" , [{action:'Update',allow:true}]),
+      ];
 
     return (
         <>
-            {/* <DiscriptiveDiv onClick={handleClick} expand={expand==8? 1:2} description="Reviewer" width='100%' height={`${expand}%`} backgroundColor="#D9D9D9" >
-                <Box sx={{ 
-                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' 
-                }}>
-                    <Box style={headerRowStyle}><div style={headerRowDivStyle}>University :</div><div style={headerRowDivStyle}>University of Colombo</div></Box>
-                    <Box style={headerRowStyle}><div style={headerRowDivStyle}>Faculty/Institute :</div><div style={headerRowDivStyle}>University of Colombo School of Computing</div></Box>
-                    <Box style={headerRowStyle}><div style={headerRowDivStyle}>PGPR ID :</div><div style={headerRowDivStyle}>{pgprId}</div></Box>
-                    <Box style={headerRowStyle}><div style={headerRowDivStyle}>PGPR Name :</div><div style={headerRowDivStyle}>MSc</div></Box>
-                    <Box style={headerRowStyle}><div style={headerRowDivStyle}>Application Start Date :</div><div style={headerRowDivStyle}>12/12/2020</div></Box>
-                    <Box style={headerRowStyle}><div style={headerRowDivStyle}>Submission Date :</div><div style={headerRowDivStyle}>01/01/2021</div></Box>
-                    <Box style={headerRowStyle}><div style={headerRowDivStyle}>Program Coordinator :</div><div style={headerRowDivStyle}>Mr. Smantha Karunanayake</div></Box>
-                </Box>
-            </DiscriptiveDiv> */}
             <DiscriptiveDiv
                 description={`${reviewerRole?? ""}`}
                 width="100%"
@@ -160,30 +163,15 @@ const ConductDE = () => {
                 </Grid>
             </DiscriptiveDiv>
 
-            <Divider style={{margin:"2rem 0 1rem"}} textAlign="center">Desk Evaluation</Divider>
+            <Divider style={{margin:"2rem 0 1rem"}} textAlign="center">Proper Evaluation</Divider>
     
             <TableContainer component={Paper} style={{height:"auto"}}>
-                <Table sx={{ height: 650 }} stickyHeader aria-label="sticky table">
+                <Table sx={{ minHeight: 300 }} stickyHeader aria-label="sticky table">
                     <TableHead>
                         <TableRow>
                             <TableCell style={{backgroundColor:"#D8E6FC",}} align="left"><b>Criteria</b></TableCell>
-                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Submitted Standards</b></TableCell>
-                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b></b></TableCell>
-                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b></b></TableCell>
-                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Evidences</b></TableCell>
-                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b></b></TableCell>
-                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b></b></TableCell>
+                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Proper Evaluation Progress</b></TableCell>
                             <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Actions</b></TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="left"><b></b></TableCell>
-                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b></b></TableCell>
-                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Y1</b></TableCell>
-                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Y2</b></TableCell>
-                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Y3</b></TableCell>
-                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Y4</b></TableCell>
-                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Y5</b></TableCell>
-                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b></b></TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -208,12 +196,7 @@ const ConductDE = () => {
                                 <TableCell component="th" scope="row">
                                     {row.criteria}
                                 </TableCell>
-                                <TableCell align="center">{row.submitted_standards}</TableCell>
-                                <TableCell align="center">{row.y1}</TableCell>
-                                <TableCell align="center">{row.y2}</TableCell>
-                                <TableCell align="center">{row.y3}</TableCell>
-                                <TableCell align="center">{row.y4}</TableCell>
-                                <TableCell align="center">{row.y5}</TableCell>
+                                <TableCell align="center">{row.PE_progress}</TableCell>
                                 <TableCell align="center">{row.Actions}</TableCell>
                             </TableRow>
                         ))}
@@ -222,15 +205,35 @@ const ConductDE = () => {
             </TableContainer>
 
             <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', width: '100%', padding: '20px 0',height:"auto" }}>
-                    <Link to = {`../UpdateABC/${pgprId}`}><Button variant="contained" size="small" style={{width:"250px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>Update Part A, B, D</Button></Link>
-                    <Link to = {`../Standardwise_details/${pgprId}`}><Button variant="contained" size="small" style={{width:"250px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>View Standards Wise Details of Desk Review</Button></Link>
-                    <Link to = {`../Submit_DE/${pgprId}`}><Button variant="contained" size="small" style={{width:"250px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>Proceed to Submit The Desk Evaluation</Button></Link>
-                    {/* only for chair */}
-                    <Link to = {`../End_DE/${pgprId}`}><Button variant="contained" size="small" style={{width:"250px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>End The Desk Evaluation</Button></Link>
+                    <Button onClick={()=>setOpenDialog(true)} variant="contained" size="small" style={{width:"300px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>Submit The Proper Evaluation Results</Button>
             </Box>
+
+            <Dialog
+                fullScreen={fullScreen}
+                open={openDialog}
+                onClose={()=>setOpen(false)}
+                aria-labelledby="submit-PE_results"
+            >
+                <DialogTitle id="submit-PE_results_ID">
+                {"Are you sure that you want to Submit the Proper Evaluation Results?"}
+                </DialogTitle>
+                <DialogContent>
+                <DialogContentText>
+                    Once you Submit the Proper Evaluation Results, you can't undo this action.
+                </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                <Button autoFocus onClick={()=>setOpenDialog(false)}>
+                    cancel
+                </Button>
+                <Button onClick={()=>handleSubmitPE_results()} autoFocus>
+                    Submit
+                </Button>
+                </DialogActions>
+            </Dialog>
         </>
     )
 }
 
-export default ConductDE
+export default SubmitPE
 
