@@ -20,6 +20,7 @@ use App\Models\DeskEvaluation;
 use App\Models\Faculty;
 use App\Models\ReviewTeam;
 use App\Services\V1\DeanService;
+use App\Services\V1\PostGraduateProgramReviewService;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
@@ -208,8 +209,8 @@ class DeanController extends Controller
             $creatorOfReviewTeam = $reviewTeam->qualityAssuranceCouncilOfficer;
             $creatorOfReviewTeam = $creatorOfReviewTeam->user;
 
-            $postGraduateProgram = $reviewTeam->postGraduateReviewProgram;
-            $postGraduateProgram = $postGraduateProgram->postGraduateProgram;
+            $pgpr = $reviewTeam->postGraduateReviewProgram;
+            $postGraduateProgram = $pgpr->postGraduateProgram;
 
             $faculty = $postGraduateProgram->faculty;
 
@@ -238,13 +239,31 @@ class DeanController extends Controller
             );
             $reviewTeam->save();
 
-            $deskEvaluation = new DeskEvaluation();
-            $deskEvaluation->pgpr_id = $reviewTeam->pgpr_id;
-            $deskEvaluation->start_date = NULL; // or to set this is current time use => Carbon::now()
-            $deskEvaluation->end_date = NULL;
+            //check whether self evaluation is submitted or not
+            if($pgpr -> status_of_pgpr == 'SUBMITTED'){ //ser is submitted, and review team accepted
+                //then we have to store the evidences in the google drive
+                $flag = PostGraduateProgramReviewService::StoreEvidencesInSystemDrive($pgpr);
+                if($flag){
+                    //if the evidences are stored successfully, then we can create the desk evaluation
 
-            $deskEvaluation->save();
+                    //after storing, we can create the desk evaluation
+                    $deskEvaluation = new DeskEvaluation();
+                    $deskEvaluation->pgpr_id = $reviewTeam->pgpr_id;
+                    $deskEvaluation->start_date = NULL; // or to set this is current time use => Carbon::now()
+                    $deskEvaluation->end_date = NULL;
+                    $deskEvaluation->save();
 
+                    DB::commit();
+
+                    return response()->json(['message' => 'Your request is duly noted.']);
+                }
+
+                //if the evidences are not stored successfully, then we have to rollback the transaction
+                DB::rollBack();
+                return response()->json(['message' => 'An Error occurred while processing your request. Please Try again'], 500);
+
+            }
+            //no need to store the evidences in the system drive, because the ser is not submitted yet thus no desk evaluation is created
             DB::commit();
             return response()->json(['message' => 'Your request is duly noted.']);
         } catch (ModelNotFoundException $exception) {
