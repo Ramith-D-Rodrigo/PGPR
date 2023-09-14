@@ -283,14 +283,22 @@ class PostGraduateProgramController extends Controller
                 //check if university is included
                 $university = request() -> query('includeUniversity');
                 if($university){
-                    $reviews -> with(['postGraduateProgram:id,faculty_id' => [
+                    $reviews = $reviews -> load(['postGraduateProgram:id,faculty_id' => [
                         'faculty:id,name,university_id' => ['university:id,name']
                         ]
                     ]);
                 }
                 else{
-                    $reviews -> with(['postGraduateProgram:id,faculty_id' => ['faculty:id,name']]);
+                    $reviews = $reviews -> load(['postGraduateProgram:id,faculty_id' => ['faculty:id,name']]);
                 }
+            }
+
+            $ser = request() -> query('includeSelfEvaluationReport');
+
+            if($ser){
+                $reviews -> load([  //always get only the id, use view endpoint to get the full SER (because SER has a lot of data)
+                    'selfEvaluationReport:id,post_graduate_program_review_id'
+                ]);
             }
 
             return new PostGraduateProgramReviewCollection($reviews);
