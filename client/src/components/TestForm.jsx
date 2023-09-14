@@ -26,7 +26,7 @@ const TestForm = ({topic, fields, cancelButtonText, submitButtonText, onCancel, 
             <hr className="border-t-2 border-black my-4 opacity-50" />
             <form onSubmit={handleSubmit}>
                 {fields.map((field) => (
-                    <FormField key={field.name} label={field.label} name={field.name} type={field.type} isReadonly={field.isReadonly} options={field.options}/>
+                    <FormField key={field.name} label={field.label} name={field.name} type={field.type} isReadonly={field.isReadonly} options={field.options} value={field.value} onChange={field.onchange}/>
                 )
                 )}
                 <div className="flex justify-end">

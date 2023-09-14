@@ -1,18 +1,24 @@
+import { SERVER_URL, SERVER_API_VERSION } from '../../assets/constants';
 import React from 'react'
 import { useParams } from 'react-router-dom'
 import useSetUserNavigations from '../../hooks/useSetUserNavigations';
 import ScrollableDiv from '../../components/ScrollableDiv';
 import DiscriptiveDiv from '../../components/DiscriptiveDiv';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Button from '@mui/material/Button';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box } from '@mui/material';
+import { Grid, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box, CircularProgress } from '@mui/material';
 import { Link } from 'react-router-dom';
 import useDrawerState from '../../hooks/useDrawerState';
+import axios from '../../api/api';
+import getSelfEvaluationReport from '../../api/SelfEvaluationReport/getSelfEvaluationReport';
+import createSERRows from '../../assets/reviewer/createSERRows';
 
 
 const ViewSer = () => {
-    const {uniId} = useParams();
+    const {pgprId} = useParams();
     const open = useDrawerState().drawerState.open;
+    const [SERDetails,setSERDetails] = useState({});
+    const [loading,SetLoading] = useState(false);
 
     useSetUserNavigations(
         [
@@ -22,10 +28,27 @@ const ViewSer = () => {
             },
             {
                 name: "View SER",
-                link: "/PG_Assignments/ViewSer/"+uniId
+                link: "/PG_Assignments/ViewSer/"+pgprId
             }
         ]
     );
+
+    useEffect(() => {
+        document.title = "View SELF EVALUATION REPORT";
+        const getSERDetails = async () => {
+            SetLoading(true);
+            try {
+                const response = await getSelfEvaluationReport(pgprId);
+                console.log("SER Details : ",response?.data?.data);
+                setSERDetails(response?.data?.data);
+                SetLoading(false);
+            } catch (err) {
+                console.error(err);
+                SetLoading(false);
+            }
+        };
+        getSERDetails();
+    }, []);
 
     let descriptionWidth = 30;
 
@@ -43,9 +66,9 @@ const ViewSer = () => {
     };
     let tableHeight = expand ==8? {} : {height:'300px'};
 
-    function createData(criteria,submitted_standards, y1,y2,y3,y4,y5) {
+    function createData(criteriaData,submitted_standards, y1,y2,y3,y4,y5) {
         
-        return {criteria, submitted_standards, y1,y2,y3,y4,y5};
+        return {criteria:criteriaData.name, submitted_standards, y1,y2,y3,y4,y5};
     }
 
     const headerRowStyle = {
@@ -54,78 +77,107 @@ const ViewSer = () => {
 
     const headerRowDivStyle = {width:'50%',textAlign:'left'};
 
-    const rows = [
-        createData("Programme Management",'X1/27', "x11","x12","x12", 'x12','x12'),
-        createData("P. Design and Development",'X1/27', "x11","x12","x12", 'x12','x12'),
-        createData("Human Physical Res. & LS",'X1/27', "x11","x12","x12", 'x12','x12'),
-        createData("Teaching Learning Research",'X1/27', "x11","x12","x12", 'x12','x12'),
-        createData("Programme Evaluation","X1/27", "x11","x12","x12", 'x12','x12'),
-        createData("Student Assessment & Awards","X1/27", "x11","x12","x12", 'x12','x12'),
-        createData("Innovative & Healthy Practices","X1/27", "x11","x12","x12", 'x12','x12'),
+    const pgProgrammeDetails = SERDetails?.postGraduateProgramReview?.postGraduateProgramme;
+    const facultyDetails = pgProgrammeDetails?.faculty;
+    const universityDetails = facultyDetails?.university;
+    const pgCoordinatorDetails = pgProgrammeDetails?.programmeCoordinator?.academicStaff?.universitySide?.user;
+
+    const headerInfo = [
+        { label: "University:", value: universityDetails?.name },
+        {
+          label: "Faculty/Institute:",
+          value: facultyDetails?.name,
+        },
+        { label: "PGPR ID:", value: `PGPR-${pgprId}` },
+        { label: "PG programme Name:", value: pgProgrammeDetails?.title },
+        { label: "Application Start Date:", value: "12/12/2020" },
+        { label: "Submission Date:", value: "01/01/2021" },
+        { label: "Program Coordinator:", value: `${pgCoordinatorDetails?.initials} ${pgCoordinatorDetails?.surname}` },
       ];
+
+    const Criterias = SERDetails?.criterias;
+    const evidencesForGivenStandards = SERDetails?.evidenceGivenStandards;
+
+    const rows = Criterias? createSERRows(Criterias,evidencesForGivenStandards,createData) : [];
 
     return (
         <>
-            <DiscriptiveDiv onClick={handleClick} expand={expand==8? 1:2} description="Reviewer" width='100%' height={`${expand}%`} backgroundColor="#D9D9D9" >
-                <Box sx={{ 
-                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' 
-                }}>
-                    <Box style={headerRowStyle}><div style={headerRowDivStyle}>University :</div><div style={headerRowDivStyle}>University of Colombo</div></Box>
-                    <Box style={headerRowStyle}><div style={headerRowDivStyle}>Faculty/Institute :</div><div style={headerRowDivStyle}>University of Colombo School of Computing</div></Box>
-                    <Box style={headerRowStyle}><div style={headerRowDivStyle}>PGPR ID :</div><div style={headerRowDivStyle}>{uniId}</div></Box>
-                    <Box style={headerRowStyle}><div style={headerRowDivStyle}>PGPR Name :</div><div style={headerRowDivStyle}>MSc</div></Box>
-                    <Box style={headerRowStyle}><div style={headerRowDivStyle}>Application Start Date :</div><div style={headerRowDivStyle}>12/12/2020</div></Box>
-                    <Box style={headerRowStyle}><div style={headerRowDivStyle}>Submission Date :</div><div style={headerRowDivStyle}>01/01/2021</div></Box>
-                    <Box style={headerRowStyle}><div style={headerRowDivStyle}>Program Coordinator :</div><div style={headerRowDivStyle}>Mr. Smantha Karunanayake</div></Box>
-                </Box>
+            <DiscriptiveDiv
+                description="Reviewer"
+                width="100%"
+                height="auto"
+                backgroundColor="#D8E6FC"
+                sx={{marginBottom:'20px'}}
+            >
+                <Grid container spacing={2}>
+                {headerInfo.map((infoItem, index) => (
+                    <Grid item xs={6} sm={3} key={index}>
+                    <Typography align='left' variant="subtitle1">
+                        <b>{infoItem.label}</b>
+                    </Typography>
+                    <Typography align='left'>{infoItem.value}</Typography>
+                    </Grid>
+                ))}
+                </Grid>
             </DiscriptiveDiv>
-            
-            <ScrollableDiv sx={{marginTop:'10px'}} width='100%' height={bodyHeight} backgroundColor="#D9D9D9" >
-                
-                    <TableContainer component={Paper} style={tableHeight}>
-                        <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table">
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell style={{backgroundColor:"#D8E6FC",}} align="left"><b>Criteria</b></TableCell>
-                                    <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Submitted Standards</b></TableCell>
-                                    <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b></b></TableCell>
-                                    <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b></b></TableCell>
-                                    <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Evidences</b></TableCell>
-                                    <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b></b></TableCell>
-                                    <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b></b></TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell style={{backgroundColor:"#D8E6FC",}} align="left"><b></b></TableCell>
-                                    <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b></b></TableCell>
-                                    <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Y1</b></TableCell>
-                                    <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Y2</b></TableCell>
-                                    <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Y3</b></TableCell>
-                                    <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Y4</b></TableCell>
-                                    <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Y5</b></TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {rows.map((row) => (
-                                    <TableRow
-                                    key={row.criteria}
-                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                    >
-                                        <TableCell component="th" scope="row">
-                                            {row.criteria}
-                                        </TableCell>
-                                        <TableCell align="center">{row.submitted_standards}</TableCell>
-                                        <TableCell align="center">{row.y1}</TableCell>
-                                        <TableCell align="center">{row.y2}</TableCell>
-                                        <TableCell align="center">{row.y3}</TableCell>
-                                        <TableCell align="center">{row.y4}</TableCell>
-                                        <TableCell align="center">{row.y5}</TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                
-            </ScrollableDiv>
+            <Typography align='center' fontWeight={600} variant="h6" gutterBottom component="div" style={{marginRight:'20px'}}>
+                View Self Evaluation Report
+            </Typography>
+            <TableContainer component={Paper} style={{height:"auto",margin:"2rem 0"}}>
+                <Table sx={{ height: 650 }} stickyHeader aria-label="sticky table">
+                    <TableHead>
+                        <TableRow>
+                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="left"><b>Criteria</b></TableCell>
+                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Submitted Standards</b></TableCell>
+                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b></b></TableCell>
+                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b></b></TableCell>
+                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Evidences</b></TableCell>
+                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b></b></TableCell>
+                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b></b></TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="left"><b></b></TableCell>
+                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b></b></TableCell>
+                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Y1</b></TableCell>
+                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Y2</b></TableCell>
+                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Y3</b></TableCell>
+                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Y4</b></TableCell>
+                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Y5</b></TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {
+                             loading?
+                                <div style={{position:'absolute',left:50,right:50,margin:"0 auto",display:"flex",justifyContent:"center",alignItems:"center"}}> 
+                                    <Typography variant="h6" style={{ margin: "0 0 0 20px" }}>
+                                        Loading ...
+                                    </Typography>
+                                    <CircularProgress
+                                    style={{ margin: "0 0 0 20px", color: "darkblue" }}
+                                    thickness={5}
+                                    size={24}
+                                    />
+                                </div>
+                                :
+                        rows.map((row) => (
+                            <TableRow
+                            key={row.criteria}
+                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                            >
+                                <TableCell component="th" scope="row">
+                                    {row.criteria}
+                                </TableCell>
+                                <TableCell align="center">{row.submitted_standards}</TableCell>
+                                <TableCell align="center">{row.y1}</TableCell>
+                                <TableCell align="center">{row.y2}</TableCell>
+                                <TableCell align="center">{row.y3}</TableCell>
+                                <TableCell align="center">{row.y4}</TableCell>
+                                <TableCell align="center">{row.y5}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
         </>
     )
 }

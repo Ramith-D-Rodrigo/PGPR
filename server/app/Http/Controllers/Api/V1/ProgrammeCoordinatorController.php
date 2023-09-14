@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Filters\V1\ProgrammeCoordinatorFilter;
+use App\Http\Resources\V1\PostGraduateProgramResource;
 use App\Http\Resources\V1\ProgrammeCoordinatorCollection;
 use App\Http\Resources\V1\ProgrammeCoordinatorResource;
 use App\Mail\sendPassword;
@@ -13,6 +14,7 @@ use App\Http\Controllers\Controller;
 use App\Models\PostGraduateProgram;
 use App\Services\V1\ProgrammeCoordinatorService;
 use Exception;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -27,52 +29,28 @@ class ProgrammeCoordinatorController extends Controller
      */
     public function index(Request $request)
     {
-        $filter = new ProgrammeCoordinatorFilter();
 
-        $queryItems = $filter -> transform($request);   //[column, operator, value]
 
         try{
-            $role = $request -> session() -> get('authRole');
 
-            if(in_array($role, ['cqa_director', 'vice_chancellor'])){   //these two can view only their university coordinators
-                //get the facultyid in query items
-                $facultyIdIndex = array_search('faculty_id', array_column($queryItems, 0));
+            $filter = new ProgrammeCoordinatorFilter($request -> session() -> get('authRole'), $request);
 
-                //change the operator to = and value to faculties of the university
-                if($facultyIdIndex !== false){
-                    $queryItems[$facultyIdIndex][1] = '=';
-                    $queryItems[$facultyIdIndex][2] = Auth::user() -> universitySide -> university -> faculties -> pluck('id') -> toArray();
-                }
-                else{
-                    $queryItems[] = ['faculty_id', '=', Auth::user() -> universitySide -> university -> faculties -> pluck('id') -> toArray()];
-                }
-            }
-            else if(in_array($role, ['dean', 'iqau_director'])){ //these two can view only their faculty coordinators
-                //get the facultyid in query items
-                $facultyIdIndex = array_search('faculty_id', array_column($queryItems, 0));
-                $facultyId = null;
-                if($role === 'dean'){
-                    $facultyId = Auth::user() -> universitySide -> academicStaff -> dean -> faculty -> id;
-                }
-                else{
-                    $facultyId = Auth::user() -> universitySide -> qualityAssuranceStaff -> internalQualityAssuranceUnitDirector -> internalQualityAssuranceUnit -> faculty -> id;
-                }
-
-                //change the operator to = and value to faculty of the user
-                if($facultyIdIndex !== false){
-                    $queryItems[$facultyIdIndex][1] = '=';
-                    $queryItems[$facultyIdIndex][2] = $facultyId;
-                }
-                else{
-                    $queryItems[] = ['faculty_id', '=', $facultyId];
-                }
-            }
-            else if(in_array($role, ['qac_officer', 'qac_director', 'reviewer'])){
-                //they have no restrictions
-                //so do nothing
-            }
+            $queryItems = $filter -> getEloQuery();   //[column, operator, value]
 
             $programmeCoordinators = ProgrammeCoordinator::where($queryItems);
+
+            //where in and where not in query
+            $whereInQueryItems = $filter -> getWhereInQuery();
+
+            foreach($whereInQueryItems as $whereInQueryItem){
+                $programmeCoordinators = $programmeCoordinators -> whereIn($whereInQueryItem[0], $whereInQueryItem[1]);
+            }
+
+            $whereNotInQueryItems = $filter -> getWhereNotInQuery();
+
+            foreach($whereNotInQueryItems as $whereNotInQueryItem){
+                $programmeCoordinators = $programmeCoordinators -> whereNotIn($whereNotInQueryItem[0], $whereNotInQueryItem[1]);
+            }
 
             //check for flag for getting related data
             //related data will be -> academic staff -> university side -> user, post graduate programme
@@ -89,7 +67,7 @@ class ProgrammeCoordinatorController extends Controller
                     $user = $request -> query('includeUser');
                     if($user){
                         $programmeCoordinators = $programmeCoordinators -> with(['academicStaff' => [
-                            'universitySide' => ['user']
+                            'universitySide' => ['user:id,intials,surname,profile_pic']
                             ]
                         ]);
                     }
@@ -100,7 +78,7 @@ class ProgrammeCoordinatorController extends Controller
                 $programmeCoordinators = $programmeCoordinators -> with('postGraduateProgram');
             }
 
-            return new ProgrammeCoordinatorCollection($programmeCoordinators -> paginate() -> appends($request -> query()));
+            return new ProgrammeCoordinatorCollection($programmeCoordinators -> get());
         }
         catch(Exception $e){
             return response() -> json([
@@ -123,18 +101,23 @@ class ProgrammeCoordinatorController extends Controller
      */
     public function store(StoreProgrammeCoordinatorRequest $request)
     {
-        $validatedData = $request -> validated();
-
-        //store the other required data
-        $validatedData['status'] = 'Pending';
-        $validatedData['current_status'] = 'Active';
-        $validatedData['roles'] = ['programme_coordinator'];
-
-        $password = Str::random(8);
-
-        $validatedData['password'] = Hash::make($password);
-
         try{
+            //authorize the action
+            $this -> authorize('create', [ProgrammeCoordinator::class, $request]);
+
+
+            $validatedData = $request -> validated();
+
+            //store the other required data
+            $validatedData['status'] = 'Pending';
+            $validatedData['current_status'] = 'Active';
+            $validatedData['roles'] = ['programme_coordinator'];
+
+            $password = Str::random(8);
+
+            $validatedData['password'] = Hash::make($password);
+
+
             DB::beginTransaction();
 
             //store the files
@@ -153,6 +136,11 @@ class ProgrammeCoordinatorController extends Controller
             DB::commit();   //commit the changes if all of them were successful
             return new ProgrammeCoordinatorResource($programmeCoordinator);
         }
+        catch(AuthorizationException $e){
+            return response() -> json([
+                'message' => $e -> getMessage(),
+            ], 403);
+        }
         catch(Exception $e){
             DB::rollBack(); //discard the changes if any of them failed
             return response() -> json([
@@ -167,7 +155,29 @@ class ProgrammeCoordinatorController extends Controller
      */
     public function show(ProgrammeCoordinator $programmeCoordinator)
     {
-        //
+        //include the related data
+        $academicStaff = request() -> query('includeAcademicStaff');
+
+        if($academicStaff){
+            //check for university side
+            $universitySide = request() -> query('includeUniversitySide');
+            if($universitySide){
+                //check for user
+                $user = request() -> query('includeUser');
+                if($user){
+                    $programmeCoordinator = $programmeCoordinator -> load(['academicStaff' => [
+                        'universitySide' => ['user:id,surname,initials,profile_pic']
+                        ]
+                    ]);
+                }
+                else{
+                    $programmeCoordinator = $programmeCoordinator -> load(['academicStaff' => ['universitySide']]);
+                }
+            }
+            else{
+                $programmeCoordinator = $programmeCoordinator -> loadMissing('academicStaff');
+            }
+        }
     }
 
     /**
@@ -192,5 +202,50 @@ class ProgrammeCoordinatorController extends Controller
     public function destroy(ProgrammeCoordinator $programmeCoordinator)
     {
         //
+    }
+
+    //get the post graduate program of the programme coordinator
+    public function postGraduateProgram(ProgrammeCoordinator $programmeCoordinator){
+        try{
+            $pgp = $programmeCoordinator -> postGraduateProgram;
+
+            return new PostGraduateProgramResource($pgp);
+        }
+        catch(Exception $e){
+            return response() -> json([
+                'message' => 'Failed to retrieve the post graduate programme',
+                'error' => $e -> getMessage()
+            ], 500);
+        }
+    }
+
+    //function to remove the role of programme coordinator (after the term date or if the programme coordinator has ended the term)
+    public function removeRole(ProgrammeCoordinator $programmeCoordinator){
+        try{
+            //authorize the action
+            $this -> authorize('removeRole', $programmeCoordinator);
+
+            DB::beginTransaction();
+
+            $result = ProgrammeCoordinatorService::removeRole($programmeCoordinator);
+
+            DB::commit();
+
+            return response() -> json([
+                'message' => 'Programme coordinator role removed successfully',
+            ], 200);
+        }
+        catch(AuthorizationException $e){
+            return response() -> json([
+                'message' => $e -> getMessage()
+            ], 403);
+        }
+        catch(Exception $e){
+            DB::rollBack();
+            return response() -> json([
+                'message' => 'Failed to remove programme coordinator role',
+                'error' => $e -> getMessage()
+            ], 500);
+        }
     }
 }

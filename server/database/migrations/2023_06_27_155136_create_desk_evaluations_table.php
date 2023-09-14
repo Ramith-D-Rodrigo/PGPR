@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('desk_evaluations', function (Blueprint $table) {
           $table->id();
           $table->foreignId('pgpr_id');
-          $table->date('start_date');
-          $table->date('end_date');
+          $table->date('start_date')->nullable();
+          $table->date('end_date')->nullable();
+          $table->enum("status", ['ONGOING', 'COMPLETED'])->default('ONGOING');
           $table->timestamps();
-
 
           // indices
           $table->index('pgpr_id');

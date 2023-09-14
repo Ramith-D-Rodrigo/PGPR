@@ -1,11 +1,10 @@
 import React from 'react';
 import ScrollableDiv from '../../components/ScrollableDiv';
 import { Typography } from '@mui/material';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import useSetUserNavigations from '../../hooks/useSetUserNavigations';
-
-// import axios from 'axios';
-// import { SERVER_API_VERSION, SERVER_URL } from '../../assets/constants';
+import axios from '../../api/api';
+import { SERVER_API_VERSION, SERVER_URL } from '../../assets/constants';
 import IconButton from '@mui/material/IconButton';
 import Button from '@mui/material/Button';
 import Table from '@mui/material/Table';
@@ -15,12 +14,21 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import { Box } from '@mui/material';
+import { Alert, Snackbar } from '@mui/material';
+import { Box, CircularProgress } from '@mui/material';
 import {Link} from 'react-router-dom';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import useAuth from "../../hooks/useAuth.js";
 import CloseIcon from '@mui/icons-material/Close';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
+import getAssignedPGPRs from '../../api/Reviewer/getAssignedPGPRs';
 
 const pgAssignments = () => {
     const {auth} = useAuth();
@@ -32,20 +40,116 @@ const pgAssignments = () => {
             }
         ]
     );
-
+    
+    const theme = useTheme();
+    const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
     const [selectedFilterKeys, setSelectedFilterKeys] = useState([{ title: 'In-review' }]);
     const [AcceptClicked, setAcceptClicked] = useState(false);
     const [acceptAssignment, setAcceptAssignment] = useState(false);
     const [selectedPGPRID, setSelectedPGPRID] = useState(null);
+    const [appointmentLetter, setAppointmentLetter] = useState(null);
+    const [open, setOpen] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [errorMsg, setErrorMsg] = useState("");
+    const [success, setSuccess] = useState(false);
+    const [assignedPGPRs, setAssignedPGPRs] = useState([]);
 
-    function handleSubmitAssignment() {
+    useEffect(() => {
+        document.title = "PG Assignments";
+        const getPGPRAssignments = async () => {
+            try {
+                setLoading(true);
+                setErrorMsg("");
+                const response = await getAssignedPGPRs();
+                console.log("PGPR Assignments : ",response?.data?.data);
+                setAssignedPGPRs(response?.data?.data);
+                setLoading(false);
+            } catch (err) {
+                console.error(err);
+                setLoading(false);
+            }
+        };
+        getPGPRAssignments();
+    }, []);
+
+    async function handleSubmitAssignment() {
         console.log("Accept Clicked : ",selectedPGPRID);
+        if(appointmentLetter === null)
+        {
+            setErrorMsg("Please upload the appointment letter");
+            return;
+        }
+        setAcceptAssignment(false);
+        setAcceptClicked(false);
+        setLoading(true);
+        setErrorMsg("");
+        const formData = new FormData();
+        formData.append('pgprID',selectedPGPRID);
+        formData.append('file',appointmentLetter);
+        axios.post(`${SERVER_URL}${SERVER_API_VERSION}reviewers/accept-pgpr-assignment`,formData,{
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        }).then((response) => {
+            console.log("Response : ",response);
+            setLoading(false);
+            setSuccess(true);
+            setErrorMsg("Accepted Successfully!");
+            //TODO : reload current assignment data
+        }).catch((error) => {
+            if(error.response.status === 401)
+            {
+                setErrorMsg(error.response.data.message);
+                
+            }
+            else if(error.response.status === 404)
+            {
+                setErrorMsg(error.response.data.message);
+            }
+            else{
+                console.log("Error : ",error);
+                setErrorMsg(error.response.data.message);
+            }
+            setLoading(false);
+        });
     }
 
-    function handleRejectAssignment() {
-        console.log("Reject Clicked : ",selectedPGPRID);
+    async function handleRejectAssignment() {
+        //http://localhost:8000/api/v1/reviewers/reject-pgpr-assignment
+        setOpen(false);
         setAcceptClicked(false);
-        setSelectedPGPRID(null);
+        try{
+            setLoading(true);
+            setErrorMsg("");
+            await axios.get("/sanctum/csrf-cookie");
+            const response = await axios.post(`${SERVER_URL}${SERVER_API_VERSION}reviewers/reject-pgpr-assignment`,{
+                pgprID: selectedPGPRID,
+                comment: `Rejected PGPR ${selectedPGPRID} by ${auth.fullName}`,
+            });
+            console.log("Response : ",response);
+            setLoading(false);
+            setSuccess(true);
+            setErrorMsg("Rejected Successfully!");
+            //TODO : reload current assignment data
+        }
+        catch(error){
+            if(error.response.status === 401)
+            {
+                setErrorMsg(error.response.data.message);
+                
+            }
+            else if(error.response.status === 404)
+            {
+                setErrorMsg(error.response.data.message);
+            }
+            else{
+                console.log("Error : ",error);
+                setErrorMsg(error.response.data.message);
+            }
+            setLoading(false);
+            
+        }
+
     }
 
     function handleClickCancel() {
@@ -54,20 +158,17 @@ const pgAssignments = () => {
         setSelectedPGPRID(null);
     }
 
-    function handleDownloadLetter() {
-        console.log("Download Letter Clicked : ",selectedPGPRID);
-    }
-
     function handleClickAccept(pgprID) {
         setAcceptClicked(true);
         setSelectedPGPRID(pgprID);
-        // console.log("Accept Clicked : ",pgprID);
+        console.log("Accept Clicked : ",pgprID);
     }
 
     function createData(pgprID,University_Name, faculty_Name, pgp, Role, status, Actions) {
         Actions = Actions.map((action,index) => {
             
             let allow = action.allow? {disabled:false} : {disabled:true};
+            allow = loading? {disabled:true} : allow;
             if(action.action === 'View')
             {
                 return <Link key={index} to={action.allow? 'ViewSer/'+pgprID:''}><Button {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button></Link>
@@ -86,16 +187,51 @@ const pgAssignments = () => {
             }
             
         });
-        return {pgprID, University_Name, faculty_Name, pgp, Role, status, Actions };
+        return {pgprID:`PGPR-${pgprID}`, University_Name, faculty_Name, pgp, Role, status, Actions };
     }
 
-    const rows = [
-        createData("Uoc-11",'University of Colombo', "UCSC","MCS","Chairman", 'In-review', [{action:'Accept',allow:false},{action:'View',allow:true}, {action:'DE',allow:false}, {action:'PE',allow:false}]),
-        createData("Uoc-13",'University of Colombo', "FOC","MCS", "Reviewer", 'In-review', [{action:'Accept',allow:true},{action:'View',allow:true}, {action:'DE',allow:false}, {action:'PE',allow:false}]),
-        createData("Uom-17",'University of Moratuwa', "FOE","MCS", "Chairman",'In-review', [{action:'Accept',allow:false},{action:'View',allow:true}, {action:'DE',allow:true}, {action:'PE',allow:false}]),
-        createData("Uok-10",'University of Kelaniya', "FOCS","MCS","Chairman", 'In-review', [{action:'Accept',allow:false},{action:'View',allow:true}, {action:'DE',allow:false}, {action:'PE',allow:false}]),
-        createData("Uop-16","University of Peradeniya", "FIT","MCS","Reviewer", 'In-review', [{action:'Accept',allow:true},{action:'View',allow:true}, {action:'DE',allow:true}, {action:'PE',allow:true}]),
-      ];
+    
+
+    const rows = assignedPGPRs? assignedPGPRs?.map((pgpr,index) => {
+        const PGPRDetails = pgpr?.postGraduateReviewProgram;
+        const pgProggramme = PGPRDetails?.post_graduate_program;
+        const faculty = pgProggramme?.faculty;
+        const university = faculty?.university;
+        let actions = [];
+        if(PGPRDetails?.status_of_pgpr === 'SUBMITTED')
+        {
+            actions = [{action:'Accept',allow:true},{action:'View',allow:false},{action:'DE',allow:false},{action:'PE',allow:false}]
+        }
+        else if(PGPRDetails?.status_of_pgpr === 'DE')
+        {
+            actions = [{action:'Accept',allow:false},{action:'View',allow:true},{action:'DE',allow:true},{action:'PE',allow:false}]
+        }
+        else if(PGPRDetails?.status_of_pgpr === 'PE')
+        {
+            actions = [{action:'Accept',allow:false},{action:'View',allow:true},{action:'DE',allow:false},{action:'PE',allow:true}]
+        }
+        else if(PGPRDetails?.status_of_pgpr === 'FINAL')
+        {
+            actions = [{action:'Accept',allow:false},{action:'View',allow:true},{action:'DE',allow:false},{action:'PE',allow:false}]
+        }
+        else if(PGPRDetails?.status_of_pgpr === 'COMPLETED')
+        {
+            actions = [{action:'Accept',allow:false},{action:'View',allow:true},{action:'DE',allow:false},{action:'PE',allow:false}];
+        }
+        else{
+            actions = [{action:'Accept',allow:false},{action:'View',allow:false},{action:'DE',allow:false},{action:'PE',allow:false}];
+        }
+
+        return createData(PGPRDetails?.id,university?.name,faculty?.name,pgProggramme?.title,pgpr?.role,PGPRDetails?.status_of_pgpr,actions);
+    }) : [];
+
+    // const rows = [
+    //     createData("Uoc-11",'University of Colombo', "UCSC","MCS","Chairman", 'In-review', [{action:'Accept',allow:false},{action:'View',allow:true}, {action:'DE',allow:false}, {action:'PE',allow:false}]),
+    //     createData("Uoc-13",'University of Colombo', "FOC","MCS", "Reviewer", 'In-review', [{action:'Accept',allow:true},{action:'View',allow:true}, {action:'DE',allow:false}, {action:'PE',allow:false}]),
+    //     createData("Uom-17",'University of Moratuwa', "FOE","MCS", "Chairman",'In-review', [{action:'Accept',allow:false},{action:'View',allow:true}, {action:'DE',allow:true}, {action:'PE',allow:false}]),
+    //     createData("Uok-10",'University of Kelaniya', "FOCS","MCS","Chairman", 'In-review', [{action:'Accept',allow:false},{action:'View',allow:true}, {action:'DE',allow:false}, {action:'PE',allow:false}]),
+    //     createData("Uop-16","University of Peradeniya", "FIT","MCS","Reviewer", 'In-review', [{action:'Accept',allow:true},{action:'View',allow:true}, {action:'DE',allow:true}, {action:'PE',allow:true}]),
+    //   ];
 
       const statuses = [
         { title: 'In-review' },
@@ -112,8 +248,23 @@ const pgAssignments = () => {
 
     return (
         <>
+            {loading &&
+                <div style={{position:'absolute',left:0,margin:"0 auto",display:"flex",justifyContent:"center",alignItems:"center"}}> 
+                    <Typography variant="h6" style={{ margin: "0 0 0 20px" }}>
+                        Loading ...
+                    </Typography>
+                    <CircularProgress
+                    style={{ margin: "0 0 0 20px", color: "darkblue" }}
+                    thickness={5}
+                    size={24}
+                    />
+                </div>
+            }
+            <Typography align='center' fontWeight={600} variant="h5" gutterBottom component="div" style={{marginRight:'20px'}}>
+                Postgraduate programme review Assignments
+            </Typography>
             <Box sx={{
-                display:'flex',alignItems:'center',justifyContent:'center',width:'100%'
+                display:'flex',alignItems:'center',justifyContent:'center',width:'100%',marginTop:'20px',
             }}>
                 <Autocomplete
                     sx={{width:'50%',marginBottom:'20px',}}
@@ -182,7 +333,7 @@ const pgAssignments = () => {
                     }}
                 >
                     <Typography variant="h5" gutterBottom component="div" style={{marginRight:'20px'}}>
-                            {acceptAssignment? "Upload the Appointment Letter" : "Accept Chairman Assignment"}
+                            {acceptAssignment? "Upload the Appointment Letter" : "Accept Review Assignment"}
                     </Typography>
                     {!acceptAssignment &&
                     <>
@@ -192,14 +343,14 @@ const pgAssignments = () => {
                         <Typography variant="h6" gutterBottom component="div" style={{marginRight:'20px'}}>
                             It's happy to inform you that you have been appointed as a reviewer/Chairman for postgraduate programs by QAC. Click below to download the appointment letter.
                         </Typography>
-                        <Button variant="contained" color="primary" size="large" onClick={handleDownloadLetter}>
+                        <Link to={`${SERVER_URL}${SERVER_API_VERSION}reviewers/download-pgpr-declaration`} ><Button variant="contained" color="primary" size="large">
                             Download Appointment Letter
-                        </Button>
+                        </Button></Link>
                         <Box sx={{display:'flex',justifyContent:'space-around',width:'100%'}}>
                             <Button variant="contained" color="primary" size="large" onClick={()=>setAcceptAssignment(true)}>
                                 Accept Assignment
                             </Button>
-                            <Button variant="contained" color="primary" size="large" onClick={handleRejectAssignment}>
+                            <Button variant="contained" color="primary" size="large" onClick={()=>setOpen(true)}>
                                 Reject Assignment
                             </Button>
                         </Box>
@@ -210,7 +361,9 @@ const pgAssignments = () => {
                         <TextField
                             sx={{margin:"15px 0",width:"100%",height:"100%"}}
                             id="letter"
-                            type='file' 
+                            type='file'
+                            required
+                            onChange={(e)=>{setAppointmentLetter(e.target.files[0])}}
                         />
                         <Box sx={{display:'flex',justifyContent:'space-around',width:'100%'}}>
                             <Button variant="contained" color="primary" size="large" onClick={handleSubmitAssignment}>
@@ -227,6 +380,52 @@ const pgAssignments = () => {
                     </IconButton>
                 </Box>
             }
+
+            <Snackbar
+                open={errorMsg == "" || success ? false : true}
+                anchorOrigin={{ vertical: "top", horizontal: "center" }}
+                onClose={() => setErrorMsg("")}
+            >
+                <Alert onClose={() => setErrorMsg("")} severity="error">
+                    {errorMsg}
+                </Alert>
+            </Snackbar>
+
+            <Snackbar
+                open={success}
+                autoHideDuration={1500}
+                onClose={() => setSuccess(false)}
+                anchorOrigin={{ vertical: "top", horizontal: "center" }}
+                >
+                <Alert onClose={() => setSuccess(false)} severity="success">
+                    {errorMsg}  //on success
+                </Alert>
+            </Snackbar>
+            
+            <Dialog
+                fullScreen={fullScreen}
+                open={open}
+                onClose={()=>setOpen(false)}
+                aria-labelledby="submit-assignment"
+            >
+                <DialogTitle id="submit-assignmentID">
+                {"Are you sure that you want to Reject this postgraduate programme review assignment?"}
+                </DialogTitle>
+                <DialogContent>
+                <DialogContentText>
+                    Once you reject this assignment, you can't undo this action.
+                </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                <Button autoFocus onClick={()=>setOpen(false)}>
+                    cancel
+                </Button>
+                <Button onClick={()=>handleRejectAssignment()} autoFocus>
+                    Reject
+                </Button>
+                </DialogActions>
+            </Dialog>
+
         </>
     )
 }

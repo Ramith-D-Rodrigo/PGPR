@@ -13,7 +13,7 @@ class ViceChancellorPolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -21,15 +21,24 @@ class ViceChancellorPolicy
      */
     public function view(User $user, ViceChancellor $viceChancellor): bool
     {
-        //
+        return true;
     }
 
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user): bool
+    public function create(User $user): Response
     {
-        //
+        //only qac_officer can create vice chancellor
+        //since qac_director is also a qac_officer, both roles are authorized
+
+        $authRole = request() -> session() -> get('authRole');
+
+        if($authRole == 'qac_officer' || $authRole == 'qac_director'){
+            return Response::allow();
+        }
+
+        return Response::deny('You are not authorized to create a vice chancellor.');
     }
 
     /**
@@ -62,5 +71,19 @@ class ViceChancellorPolicy
     public function forceDelete(User $user, ViceChancellor $viceChancellor): bool
     {
         //
+    }
+
+    public function removeRole(User $user, ViceChancellor $viceChancellor): Response
+    {
+        //only qac_officer can remove the role of vice chancellor
+        //since qac_director is also a qac_officer, both roles are authorized
+
+        $authRole = request() -> session() -> get('authRole');
+
+        if($authRole == 'qac_officer' || $authRole == 'qac_director'){
+            return Response::allow();
+        }
+
+        return Response::deny('You are not authorized to remove the role of vice chancellor.');
     }
 }

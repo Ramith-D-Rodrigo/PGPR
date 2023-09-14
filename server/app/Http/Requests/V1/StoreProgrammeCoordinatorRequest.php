@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\V1;
 
+use App\Models\PostGraduateProgram;
+use App\Rules\V1\ProgrammeCoordinatorExists;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -13,17 +15,6 @@ class StoreProgrammeCoordinatorRequest extends StoreAcademicStaffRequest
      */
     public function authorize(): bool
     {
-        //already authorized as a cqa director from the middleware
-
-        //get the university side of the user
-        $uniSide = Auth::user() -> universitySide ?? null;
-
-        //only can create for his university
-        $universityId = $this -> university_id;
-        if($universityId != $uniSide -> university_id){
-            return false;
-        }
-
         return true;
     }
 
@@ -45,6 +36,8 @@ class StoreProgrammeCoordinatorRequest extends StoreAcademicStaffRequest
         $arr['faculty_id'] = ['required', 'integer', Rule::exists('faculties', 'id')->where(function ($query) {
             $query->where('university_id', $this -> university_id);
         })];
+
+        $arr['current_programme_coordinator_id'] = ['nullable', 'integer', new ProgrammeCoordinatorExists()]; //this is the current programme coordinator id
 
         return $arr;
     }
@@ -69,5 +62,22 @@ class StoreProgrammeCoordinatorRequest extends StoreAcademicStaffRequest
 
     public function prepareForValidation() {
         parent::prepareForValidation();
+
+        //merge the faculty id from the post graduate program id
+        $faculty = PostGraduateProgram::find($this -> post_grad_program_id) -> faculty;
+        $this -> merge([
+            'faculty_id' => $faculty -> id,
+        ]);
+
+        //merge the university id from the faculty id
+        $this -> merge([
+            'university_id' => $faculty -> university_id,
+        ]);
+
+        //merge the current programme coordinator id from the post graduate program ii
+        $postGraduateProgram = PostGraduateProgram::findOrFail($this -> post_grad_program_id);
+        $this -> merge([
+            'current_programme_coordinator_id' => $postGraduateProgram -> programme_coordinator_id,
+        ]);
     }
 }

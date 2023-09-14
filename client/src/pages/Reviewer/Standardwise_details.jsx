@@ -11,7 +11,7 @@ import Select from '@mui/material/Select';
 import { Link } from 'react-router-dom';
 
 function Standardwise_details() {
-    const {uniId} = useParams();
+    const {pgprId} = useParams();
     const [criteriaId, setCriteriaId] = useState(1);
     const [standards, setStandards] = useState([]);
     useSetUserNavigations(
@@ -22,11 +22,11 @@ function Standardwise_details() {
             },
             {
                 name: "DE",
-                link: "/PG_Assignments/Conduct_DE/"+uniId
+                link: "/PG_Assignments/Conduct_DE/"+pgprId
             },
             {
                 name: "Standard Wise Details",
-                link: "/PG_Assignments/Conduct_DE/Standardwise_details/"+uniId
+                link: "/PG_Assignments/Conduct_DE/Standardwise_details/"+pgprId
             },
         ]
     );
@@ -59,10 +59,10 @@ function Standardwise_details() {
       <>
       <Box sx={{display:'flex',flexDirection:'column',justifyContent:'space-between',maxHeight:'100%',height:'100%',alignItems:'center',margin:'10px'}}>
         <Box sx={{display:'flex',flexDirection:'column',justifyContent:'center',width:"100%",alignItems:"center",margin:'10px'}}>
-            <Typography variant="h5" component="h2" gutterBottom>
-                Standard Wise Details
+            <Typography align='center' fontWeight={600} variant="h6" gutterBottom component="div" style={{marginRight:'20px'}}>
+                Standard Wise Details of Postgraduate programme review
             </Typography>
-            <FormControl style={{margin:"10px 0",width:"50%"}} variant="standard" sx={{ m: 1, minWidth: 120 }}>
+            <FormControl style={{margin:"3rem 0 2rem",width:"50%"}} variant="standard" sx={{ m: 1, minWidth: 120 }}>
               <InputLabel id="select-criteria">Criteria</InputLabel>
               <Select
                 labelId="select-criteria"
@@ -105,7 +105,7 @@ function Standardwise_details() {
             </Table>
         </TableContainer>
         <Box sx={{display:'flex',justifyContent:'center',margin:'10px'}}>
-            <Link to={`../Summary_details/${uniId}`}><Button variant="contained" color="primary" style={{margin:'0 10px'}}>View Summary Details of Criteria Wise</Button></Link>
+            <Link to={`../Summary_details/${pgprId}`}><Button variant="contained" color="primary" style={{margin:'0 10px'}}>View Summary Details of Criteria Wise</Button></Link>
         </Box>
       </Box>
       </>

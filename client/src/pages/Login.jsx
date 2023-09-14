@@ -82,6 +82,7 @@ const Login = () => {
           officialEmail: email,
           password,
           loginAs: role,
+          remember_me: rememberMe,
         }
       );
       // don't wrap the return value in the backend with the Response()
@@ -112,6 +113,8 @@ const Login = () => {
 
   useEffect(() => {
     document.title = "Login | QAF for Postgraduate Programs";
+    const root = document.querySelector("#root");
+    root.style.backgroundImage = "linear-gradient(to right, #6194e7, #adcbfc)";
     //redirect if logged in (auth object is not null)
     let from =
       location.state?.from?.pathname || auth?.authRole[0]
@@ -161,14 +164,14 @@ const Login = () => {
   };
 
   const allUserTypes = [
-    "reviewer",
-    "programme_coordinator",
-    "iqau_director",
-    "cqa_director",
-    "qac_director",
-    "qac_officer",
-    "dean/director",
-    "vice_chancellor",
+    {name:"Reviewer",value:"reviewer"},
+    {name:"Programme Coordinator",value:"programme_coordinator"},
+    {name:"IQAU Director",value:"iqau_director"},
+    {name:"CQA Director",value:"cqa_director"},
+    {name:"QAC Director",value:"qac_director"},
+    {name:"QAC Officer",value:"qac_officer"},
+    {name:"Dean/Director",value:"dean"},
+    {name:"Vice Chancellor",value:"vice_chancellor"},
   ];
 
   return (
@@ -330,15 +333,20 @@ const Login = () => {
                     label="Role"
                   >
                     {allUserTypes.map((userType, index) => (
-                      <MenuItem value={userType} key={index}>
-                        {userType}
+                      <MenuItem value={userType.value} key={index}>
+                        {userType.name}
                       </MenuItem>
                     ))}
                   </Select>
                 </FormControl>
                 <FormGroup style={{ margin: "20px 0 0" }}>
                   <FormControlLabel
-                    control={<Checkbox defaultChecked value={rememberMe} />}
+                    control={
+                        <Checkbox
+                          value={rememberMe}
+                          onChange={(e) => setRememberMe(e.target.checked)}
+                        />
+                      }
                     label="Remember me"
                   />
                 </FormGroup>

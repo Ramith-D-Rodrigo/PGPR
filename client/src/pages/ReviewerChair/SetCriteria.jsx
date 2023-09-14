@@ -2,19 +2,91 @@ import React from "react";
 import MainContent from "../../components/MainContent";
 import ScrollableDiv from "../../components/ScrollableDiv";
 import useSetUserNavigations from '../../hooks/useSetUserNavigations';
+import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box } from '@mui/material';
+import { Link } from "react-router-dom";
+
+const CustomTable = ({ tableData }) => {
+  return (
+    <div className="mt-6">
+      <div className="overflow-x-auto">
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 650 }} aria-label="simple table">
+            <TableHead style={{ backgroundColor: "#D8E6FC" }}>
+              <TableRow>
+                <TableCell align="center">
+                  <b>Name</b>
+                </TableCell>
+                <TableCell align="center">
+                  <b>Designation</b>
+                </TableCell>
+                <TableCell align="center">
+                  <b>Status</b>
+                </TableCell>
+                <TableCell align="center">
+                  <b>List of Criterias</b>
+                </TableCell>
+                <TableCell align="center">
+                  <b>Actions</b>
+                </TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {tableData.map((row, index) => (
+                <TableRow key={index}>
+                  <TableCell align="center">{row.name}</TableCell>
+                  <TableCell align="center">{row.designation}</TableCell>
+                  <TableCell align="center">{row.status}</TableCell>
+                  <TableCell align="center">{row.criterias}</TableCell>
+                  <TableCell align="center">
+                    <Link to={"/edit/" + row.name}>
+                      <Button
+                        style={{ margin: "0 8px" }}
+                        variant="contained"
+                        color="primary"
+                        size="small"
+                      >
+                        Edit
+                      </Button>
+                    </Link>
+                    <Link to={"/view/" + row.name}>
+                      <Button
+                        style={{ margin: "0 8px" }}
+                        variant="contained"
+                        color="primary"
+                        size="small"
+                      >
+                        View
+                      </Button>
+                    </Link>
+                    <Link to={"/add/" + row.name}>
+                      <Button
+                        style={{ margin: "0 8px" }}
+                        variant="contained"
+                        color="primary"
+                        size="small"
+                      >
+                        Add
+                      </Button>
+                    </Link>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </div>
+    </div>
+  );
+};
 
 const SetDateForm = () => {
-  /*
- * * all pages should do this
-*/
-  useSetUserNavigations(
-    [
-      {
-        name: "SetCriteria",
-        link: "/SetCriteria"
-      },
-    ] 
-  );
+  useSetUserNavigations([
+    {
+      name: "SetCriteria",
+      link: "/SetCriteria"
+    },
+  ]);
+
   const handleSubmit = (formValues) => {
     // Handle form submission
     console.log(formValues);
@@ -28,10 +100,7 @@ const SetDateForm = () => {
       <hr className="border-t-2 border-black my-4 opacity-50" />
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label
-            htmlFor="pgProgram"
-            className="block font-medium text-gray-700"
-          >
+          <label htmlFor="pgProgram" className="block font-medium text-gray-700">
             PG Program:
           </label>
           <input
@@ -61,10 +130,7 @@ const SetDateForm = () => {
           />
         </div>
         <div>
-          <label
-            htmlFor="university"
-            className="block font-medium text-gray-700"
-          >
+          <label htmlFor="university" className="block font-medium text-gray-700">
             University Name:
           </label>
           <input
@@ -75,10 +141,7 @@ const SetDateForm = () => {
         </div>
 
         <div>
-          <label
-            htmlFor="properEvalStart"
-            className="block font-medium text-gray-700"
-          >
+          <label htmlFor="properEvalStart" className="block font-medium text-gray-700">
             Proper Evaluation Start:
           </label>
           <input
@@ -88,10 +151,7 @@ const SetDateForm = () => {
           />
         </div>
         <div>
-          <label
-            htmlFor="properEvalEnd"
-            className="block font-medium text-gray-700"
-          >
+          <label htmlFor="properEvalEnd" className="block font-medium text-gray-700">
             Proper Evaluation End:
           </label>
           <input
@@ -105,87 +165,33 @@ const SetDateForm = () => {
   );
 };
 
-const Table = () => {
-    const tableData = [
-        {
-          name: "Reviewer 1",
-          designation: "Professor",
-          status: "Chairman",
-          criterias: "1, 2, 3",
-          actions: "add , edit, view",
-        },
-        {
-          name: "Reviewer 2",
-          designation: "Professor",
-          status: "Reviewer",
-          criterias: "2, 3, 4",
-          actions: "add, edit, view",
-        },
-        {
-          name: "Reviewer 2",
-          designation: "Senior Lecturer",
-          status: "Reviewer",
-          criterias: "5, 6, 7",
-          actions: "add, edit, view",
-        },
+const SetCriteria = () => {
+  const tableData = [
+    {
+      name: "Reviewer 1",
+      designation: "Professor",
+      status: "Chairman",
+      criterias: "1, 2, 3",
+    },
+    {
+      name: "Reviewer 2",
+      designation: "Professor",
+      status: "Reviewer",
+      criterias: "2, 3, 4",
+    },
+    {
+      name: "Reviewer 2",
+      designation: "Senior Lecturer",
+      status: "Reviewer",
+      criterias: "5, 6, 7",
+    },
   ];
 
   return (
-    <div className="mt-6">
-      <div className="overflow-x-auto">
-        <table className="min-w-full border-collapse border border-black">
-          <thead>
-            <tr>
-              <th className="border border-black px-4 py-2">Name</th>
-              <th className="border border-black px-4 py-2">Designation</th>
-              <th className="border border-black px-4 py-2">Status</th>
-              <th className="border border-black px-4 py-2">
-                List of Criterias
-              </th>
-              <th className="border border-black px-4 py-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tableData.map((row, index) => (
-              <tr key={index}>
-                <td className="border border-black px-4 py-2 text-center">
-                  {row.name}
-                </td>
-                <td className="border border-black px-4 py-2 text-center">
-                  {row.designation}
-                </td>
-                <td className="border border-black px-4 py-2 text-center">
-                  {row.status}
-                </td>
-                <td className="border border-black px-4 py-2 text-center">
-                  {row.criterias}
-                </td>
-                <td className="border border-black px-4 py-2 flex justify-center">
-                  <button className="mr-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                    Edit
-                  </button>
-                  <button className="mr-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
-                    View
-                  </button>
-                  <button className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
-                    Add
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
-
-const SetCriteria = () => {
-  return (
-    <ScrollableDiv height="600px">
+    <div height="auto">
       <SetDateForm />
-      <Table />
-    </ScrollableDiv>
+      <CustomTable tableData={tableData} />
+    </div>
   );
 };
 

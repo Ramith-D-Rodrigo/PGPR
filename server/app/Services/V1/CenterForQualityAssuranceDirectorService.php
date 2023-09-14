@@ -20,4 +20,19 @@ class CenterForQualityAssuranceDirectorService extends QualityAssuranceStaffServ
 
         return $CQADirector; //return the cqa director model
     }
+
+    public static function removeRole(CenterForQualityAssuranceDirector $cqaDirector) : bool {
+        $user = $cqaDirector -> qualityAssuranceStaff -> universitySide -> user;
+
+        //remove the role
+        $roles = json_decode($user -> roles);
+        $roles = array_diff($roles, ['cqa_director']);
+        $user -> update(['roles' => json_encode(array_values($roles))]);
+
+        //update the center for quality assurance director id in the center for quality assurance table (set it to null)
+        $cqa = $cqaDirector -> centerForQualityAssurance;
+        $cqa -> update(['center_for_quality_assurance_director_id' => null]);
+
+        return true;
+    }
 }

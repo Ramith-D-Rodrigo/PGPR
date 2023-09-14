@@ -7,6 +7,7 @@ use App\Http\Resources\V1\EvidenceResource;
 use App\Models\Evidence;
 use Illuminate\Http\Request;
 use App\Http\Requests\V1\StoreEvidenceRequest;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 
 class EvidenceController extends Controller
@@ -33,6 +34,10 @@ class EvidenceController extends Controller
     public function store(StoreEvidenceRequest $request)
     {
         try{
+            //authorize the action
+            $this->authorize('create', [Evidence::class, $request]);
+
+
             $validatedData = $request->validated();
             //convert applicable years to json
             $validatedData['applicable_years'] = json_encode($validatedData['applicable_years']);
@@ -61,7 +66,7 @@ class EvidenceController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Unable to create evidence',
-                'data' => $e->getMessage()
+                'error' => $e->getMessage()
             ], 500);
         }
     }
@@ -96,9 +101,12 @@ class EvidenceController extends Controller
     public function destroy(Evidence $evidence)
     {
         try{
+            //authorize the action
+            $this->authorize('forceDelete', $evidence);
+
             //remove the pivot record from ser_evidence_standard table
             $evidence -> standards() -> detach();
-            
+
             $evidence->delete();
 
             return response()->json([
@@ -107,11 +115,17 @@ class EvidenceController extends Controller
                 'data' => null
             ], 200);
         }
+        catch(AuthorizationException $e){
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 403);
+        }
         catch(\Exception $e){
             return response()->json([
                 'success' => false,
                 'message' => 'Unable to delete evidence',
-                'data' => $e->getMessage()
+                'error' => $e->getMessage()
             ], 500);
         }
     }

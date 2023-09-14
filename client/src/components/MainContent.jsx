@@ -21,11 +21,13 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
           easing: theme.transitions.easing.easeOut,
           duration: theme.transitions.duration.enteringScreen,
         }),
-        margin: "80px 15px 15px 15px",
+        margin: "80px 15px 10px 15px",
         borderRadius:5,
       }),
       backgroundColor:'white',
-      height: open? '90%' : '100%',
+      // height: open? '92%' : '95%',
+      height: '100%',
+      overflowY:'auto',
       boxShadow: !open? "none" : "0px 2px 4px -1px rgba(0,0,0,0.2), 0px 4px 5px 0px rgba(0,0,0,0.14), 0px 1px 10px 0px rgba(0,0,0,0.12)",
     }),
   );
@@ -41,9 +43,9 @@ const MainContent = ({open, drawerWidthInput}) => {
 
     drawerWidth = drawerWidthInput;
     return (
-        <Box sx={{display: 'flex', flexDirection: 'column', width: '100%', position: 'relative', minHeight:'100vh'}}>  
+        <Box sx={{display: 'flex', flexDirection: 'column', width: '100%', position: 'relative', minHeight:'100vh',maxHeight:'100vh',}}>
+          {!open && <DrawerHeader/>} 
             <Main open={open} style={{position:'relative'}}>
-                {!open && <DrawerHeader/>}
 
                 {/* {content} content according to the page */}
                 <Outlet />

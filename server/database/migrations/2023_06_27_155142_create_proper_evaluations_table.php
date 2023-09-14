@@ -16,7 +16,7 @@ return new class extends Migration
           $table->foreignId('pgpr_id');
           $table->date('start_date');
           $table->date('end_date');
-          $table->enum("stage", ['1', '2', 'COMPLETED']);
+          $table->enum("stage", ['1', '2', 'COMPLETED'])->default('1');
           $table->timestamps();
 
           // indices

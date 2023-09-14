@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Resources\V1\CenterForQualityAssuranceDirectorResource;
+use App\Http\Resources\V1\UniversityResource;
 use App\Models\CenterForQualityAssurance;
 use App\Models\CenterForQualityAssuranceDirector;
 use App\Http\Requests\V1\StoreCenterForQualityAssuranceDirectorRequest;
 use App\Http\Requests\V1\UpdateCenterForQualityAssuranceDirectorRequest;
 use App\Http\Controllers\Controller;
 use App\Services\V1\CenterForQualityAssuranceDirectorService;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -36,15 +38,19 @@ class CenterForQualityAssuranceDirectorController extends Controller
      */
     public function store(StoreCenterForQualityAssuranceDirectorRequest $request)
     {
-        $validatedData = $request->validated();
-        $validatedData['status'] = 'pending'; //set the status to pending
-        $validatedData['roles'] = ['cqa_director']; //set the roles to cqa director
-
-        //random password
-        $password = Str::random(8);
-        $validatedData['password'] = Hash::make($password); //hash the password
-
         try{
+            //authorize the action
+            $this -> authorize('create', CenterForQualityAssuranceDirector::class);
+
+
+            $validatedData = $request->validated();
+            $validatedData['status'] = 'pending'; //set the status to pending
+            $validatedData['roles'] = ['cqa_director']; //set the roles to cqa director
+
+            //random password
+            $password = Str::random(8);
+            $validatedData['password'] = Hash::make($password); //hash the password
+
             DB::beginTransaction();
 
             //store the files (profile pic)
@@ -61,7 +67,11 @@ class CenterForQualityAssuranceDirectorController extends Controller
             CenterForQualityAssuranceDirectorService::sendAccountCreateMail($validatedDataWithFiles, $password);
 
             DB::commit();
-            return new CenterForQualityAssuranceDirectorResource($cqaDirector);
+
+            return response()->json([
+                'message' => 'CQA director account created successfully',
+                'data' => new CenterForQualityAssuranceDirectorResource($cqaDirector)
+            ], 201);
         }
         catch(\Exception $e){
             DB::rollBack();
@@ -100,5 +110,49 @@ class CenterForQualityAssuranceDirectorController extends Controller
     public function destroy(CenterForQualityAssuranceDirector $centerForQualityAssuranceDirector)
     {
         //
+    }
+
+    public function removeRole(CenterForQualityAssuranceDirector $cqaDirector) {
+        try{
+            //authorize the action
+            $this -> authorize('removeRole', $cqaDirector);
+
+            DB::beginTransaction();
+
+            $result = CenterForQualityAssuranceDirectorService::removeRole($cqaDirector);
+
+            DB::commit();
+
+            return response() -> json([
+                'message' => 'Role removed successfully',
+            ], 200);
+        }
+        catch(AuthorizationException $e){
+            return response() -> json([
+                'message' => $e -> getMessage()
+            ], 403);
+        }
+        catch(\Exception $e){
+            DB::rollBack();
+            return response() -> json([
+                'message' => 'Failed to remove Center For Quality Assurance Director role',
+                'error' => $e -> getMessage()
+            ], 500);
+        }
+    }
+
+    //get the university of the cqa director
+    public function university(CenterForQualityAssuranceDirector $cqaDirector) {
+        try{
+            $university = $cqaDirector -> centerForQualityAssurance -> university;
+
+            return new UniversityResource($university);
+        }
+        catch(\Exception $e){
+            return response() -> json([
+                'message' => 'Failed to retrieve university',
+                'error' => $e -> getMessage()
+            ], 500);
+        }
     }
 }

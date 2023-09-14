@@ -27,15 +27,15 @@ class PostGraduateProgramReviewApplication extends Model
 
     //dean submits many post graduate program review applications (intent letter)
     public function deans(){
-        return $this->belongsTo(Dean::class);
+        return $this->belongsTo(Dean::class, 'dean_id', 'id');
     }
     //application is given approval by one qac officer
     public function qualityAssuranceCouncilOfficer(){
         return $this->belongsTo(QualityAssuranceCouncilOfficer::class);
     }
 
-    //review application has many post graduate programs and post graduate programs belong to many review applications
-    public function postGraduatePrograms(){
+    //review application has a post graduate program and post graduate programs belong to many review applications
+    public function postGraduateProgram(){
         return $this->belongsTo(PostGraduateProgram::class, 'post_graduate_program_id');
     }
 

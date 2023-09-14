@@ -6,12 +6,30 @@
     box-sizing: border-box;
 }
 
+input::-webkit-file-upload-button {
+  visibility: hidden;
+  display: none;
+}
+
 #root{
     min-height: 100vh;
+    max-height: 100vh;
     background-image: linear-gradient(to right, #6194e7, #adcbfc);
-    /* background-color: #6a98e2; */
-    /* background-color: rgb(197 218 251); */
-    /* #041734 */
+    /* background-image: linear-gradient(to right, #3d73c8, #adcbfc); */
+    /* background-image: linear-gradient(to left, #C8A2C8,#D8E6FC); */
+    /* background-image: linear-gradient(to left, #FFFDD0,#DCAE96); */
+    /* background-image: linear-gradient(to left, #E5F8F1,#7DDEB8); */
+    /* midnight blue */
+    /* background-color: #191970; */
+    /* lilac */
+    /* background-color: #C8A2C8; */
+    /* dusty rose */
+    /* background-color: #DCAE96; */
+    /* peach */
+    /* background-color: #FFE5B4; */
+    /* cream */
+    /* background-color: #FFFDD0; */
+    /* default light blue */
     /* #D8E6FC */
 }
 
@@ -29,8 +47,22 @@ a{
     user-select: none;
 }
 ::-webkit-scrollbar{
-    display: none;
+    /* display: none; */
+    width: 10px;
 }
+::-webkit-scrollbar-track{
+    background: #D8E6FC;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb{
+    background: #191970;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #000000;
+}
+
 .ScrollableDiv .scroll-indicator {
     /* rotate: 90 degree; */
     rotate: 90deg;

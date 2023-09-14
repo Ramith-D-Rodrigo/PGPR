@@ -50,6 +50,7 @@ import Summary_details from "./pages/Reviewer/Summary_details";
 import SelfEvaluationReport from "./pages/ViceChancellor/SelfEvaluationReport";
 import View from './components/View';
 import ViewPGProgrammesInUniversities from "./pages/ViceChancellor/ViewPGProgrammesInUniversities";
+//import View from './pages/ViceChancellor/View';
 import PostGraduateProgramReviewApplications from './pages/QACOfficer/PostGraduateProgramReviewApplications'
 import Reviewers from "./pages/QACOfficer/Reviewers";
 import ImportReviewers from "./pages/QACOfficer/ImportReviewers";
@@ -98,7 +99,10 @@ function App() {
               <Route path="qac_officer/">
                 <Route path="" element={<Dashboard />} />
                 <Route path="dashboard" element={<Dashboard />} />
-                <Route path="universities" element={<Universities />} />
+                <Route path="universities/">
+                  <Route path="" element={<Universities />} />
+                  <Route path="view/:id" element={<ViewUniversity />} />
+                </Route>
                 <Route path="createAccounts/" element={<CreateAccounts />} />
                 <Route path="PGPRApplications" element={<PostGraduateProgramReviewApplications />} />
                 <Route path='reviewers/'>
@@ -164,17 +168,17 @@ function App() {
                 <Route path="dashboard" element={<ReviewerDashboard />} />
                 <Route path="PG_Assignments/">
                   <Route path="" element={<PGAssignments />} />
-                  <Route path="ViewSer/:uniId" element={<ViewSer />} />
+                  <Route path="ViewSer/:pgprId" element={<ViewSer />} />
                   <Route path="Conduct_DE/">
-                    <Route path=":uniId" element={<ConductDE />} />
-                    <Route path=":uniId/:criteriaId" element={<EvaluateDE />} />
-                    <Route path="UpdateABC/:uniId" element={<UpdateABC />} />
+                    <Route path=":pgprId" element={<ConductDE />} />
+                    <Route path=":pgprId/:criteriaId" element={<EvaluateDE />} />
+                    <Route path="UpdateABC/:pgprId" element={<UpdateABC />} />
                     <Route
-                      path="Standardwise_details/:uniId"
+                      path="Standardwise_details/:pgprId"
                       element={<Standardwise_details />}
                     />
                     <Route
-                      path="Summary_details/:uniId"
+                      path="Summary_details/:pgprId"
                       element={<Summary_details />}
                     />
                   </Route>

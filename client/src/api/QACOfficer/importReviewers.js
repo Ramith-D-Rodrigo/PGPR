@@ -2,6 +2,8 @@ import axios from 'axios';
 import { SERVER_URL, SERVER_API_VERSION } from '../../assets/constants.js';
 
 
+//DEPRECATED FUNCTION
+
 const URL = SERVER_URL + SERVER_API_VERSION + 'reviewers/import/'; // build URL based on server URL and API
 
 const importReviewers = async (file) => {

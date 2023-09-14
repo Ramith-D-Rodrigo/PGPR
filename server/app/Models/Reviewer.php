@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Reviewer extends Model
 {
@@ -15,17 +17,33 @@ class Reviewer extends Model
         'reviewer_status' //pending, accepted, rejected, suspended
     ];
 
-    //reviewer is an academic staff
-    public function academicStaff(){
-        return $this->belongsTo(AcademicStaff::class);
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id', 'id');
     }
 
-    public function reviewTeams(){
-        return $this -> belongsToMany(ReviewTeam::class, 'reviewer_review_teams');
+    //reviewer is an academic staff
+    public function academicStaff(): BelongsTo
+    {
+        return $this->belongsTo(AcademicStaff::class, 'id', 'id');
+    }
+
+    public function reviewTeams(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            ReviewTeam::class,
+            'reviewer_review_teams',
+            'reviewer_id',
+            'review_team_id'
+        )->withPivot([
+            'role',
+            'declaration_letter',
+            'reviewer_confirmation',
+        ])->with('postGraduateReviewProgram.postGraduateProgram.faculty.university');
     }
 
     // reviewers can score for many standards
-    public function standards(string $type) // $type should be either one of them => ['DESK', 'PROPER']
+    public function standards(string $type): BelongsToMany // $type should be either one of them => ['DESK', 'PROPER']
     {
         if ($type === "DESK") {
             return $this->belongsToMany(
@@ -45,7 +63,8 @@ class Reviewer extends Model
     }
 
     //reviewer working faculty
-    public function workingFaculty(){
-        return $this -> belongsTo(Faculty::class, 'working_faculty');
+    public function workingFaculty(): BelongsTo
+    {
+        return $this->belongsTo(Faculty::class, 'working_faculty', 'id')->with('university');
     }
 }

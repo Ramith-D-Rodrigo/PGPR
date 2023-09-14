@@ -22,7 +22,7 @@ class InternalQualityAssuranceUnitDirector extends Model
     // An IQAUDirector belongs to an IQAU
     public function internalQualityAssuranceUnit()
     {
-      return $this->belongsTo(InternalQualityAssuranceUnit::class, 'iqau_id', 'id');
+      return $this->hasOne(InternalQualityAssuranceUnit::class, 'iqau_dir_id', 'id');
     }
 
     // IQAUDirectors can can approve many self evaluation reports

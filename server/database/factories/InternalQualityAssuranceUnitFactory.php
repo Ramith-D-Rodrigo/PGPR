@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Faculty;
+use Cassandra\UuidInterface;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,6 +20,10 @@ class InternalQualityAssuranceUnitFactory extends Factory
     {
         return [
             //
+            'address' => fake()->address(),
+            'contact_no' => json_encode(['data'=>[fake()->phoneNumber()]]),
+            'fax_no' => json_encode(['data'=>[fake()->e164PhoneNumber()]]),
+            'email' => fake()->email(),
         ];
     }
 }

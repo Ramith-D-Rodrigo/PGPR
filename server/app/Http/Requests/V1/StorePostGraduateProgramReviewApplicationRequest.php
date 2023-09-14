@@ -3,6 +3,8 @@
 namespace App\Http\Requests\V1;
 
 use App\Models\PostGraduateProgram;
+use App\Models\PostGraduateProgramReviewApplication;
+use App\Policies\PostGraduateProgramReviewApplicationPolicy;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
@@ -15,40 +17,6 @@ class StorePostGraduateProgramReviewApplicationRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        $user = Auth::user();
-        if(!$user){
-            return false;
-        }
-
-        //a user is logged in
-
-        //only dean can create a post graduate program review application
-        $dean = $user -> universitySide -> academicStaff -> dean ?? null;
-
-        if(!$dean){
-            return false;
-        }
-
-        //a dean is logged in
-        //check if the dean is adding the post graduate program review application for his faculty
-        $deanFacultyID = $dean -> faculty -> id;
-
-        //compare the dean's faculty id with the faculty id of the post graduate program
-
-        //get the post graduate program id from the request
-        $pgpID = $this -> post_graduate_program_id;
-
-        //find the post graduate program
-        $postGraduateProgram = PostGraduateProgram::find($pgpID);
-
-        //get the faculty id of the post graduate program
-        $postGraduateProgramFacultyID = $postGraduateProgram -> faculty -> id ?? null;
-
-        if($deanFacultyID !== $postGraduateProgramFacultyID){
-            return false;
-        }
-
-        //the dean is adding the post graduate program review application for his faculty
         return true;
     }
 

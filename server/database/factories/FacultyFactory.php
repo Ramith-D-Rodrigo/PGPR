@@ -17,7 +17,11 @@ class FacultyFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'name' => fake()->name(),
+            'website' => fake()->url(),
+            'address' => fake()->address(),
+            'contact_no' => json_encode(['data'=>[fake()->phoneNumber()]]),
+            'fax_no' => json_encode(['data'=>[fake()->e164PhoneNumber()]]),
         ];
     }
 }

@@ -41,4 +41,55 @@ class GoogleDriveController extends Controller
         }
 
     }
+
+    public function isFolder(Request $request){
+        $url = $request -> url;
+        $DriveManager = new DriveManager();
+        $isFolder = $DriveManager -> isFolder($url);
+        return response() -> json([
+            'isFolder' => $isFolder
+        ], 200);
+    }
+
+    public function checkPermission(Request $request){
+        $url = $request -> url;
+        $DriveManager = new DriveManager();
+        $fileId = $DriveManager -> getFileId($url);
+        $permission = $DriveManager -> getPermissions($fileId);
+        return response() -> json([
+            'permission' => $permission
+        ], 200);
+    }
+
+    public function createFolder(Request $request){
+        $folderName = $request -> folderName;
+        $DriveManager = new DriveManager();
+        $folder = $DriveManager -> createFolder($folderName);
+
+        return response() -> json([
+            'folderId' => $folder -> getId(),
+            'webViewLink' => $folder -> getWebViewLink()
+        ], 200);
+    }
+
+    public function copyContent(Request $request){
+        $url = $request -> url;
+        $DriveManager = new DriveManager();
+
+        if($DriveManager -> isFolder($request -> url)){ //copying content is a folder
+            $fileId = $DriveManager -> getFolderId($url);
+            $newFile = $DriveManager -> copyFolder($fileId);
+        }
+        else{   //a file
+            $fileId = $DriveManager -> getFileId($url);
+            $newFile = $DriveManager -> copyFile($fileId);
+        }
+
+        $DriveManager -> removePermissionIdWise($newFile -> getId(), 'anyoneWithLink'); //remove public access
+
+        return response() -> json([
+            'newFileId' => $newFile -> getId(),
+            //'webViewLink' => $newFile -> getWebContentLink()
+        ], 200);
+    }
 }

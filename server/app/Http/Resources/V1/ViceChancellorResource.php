@@ -28,6 +28,9 @@ class ViceChancellorResource extends JsonResource
             }
         }
 
+        //include related data
+        $returnArr['universitySide'] = new UniversitySideResource($this -> whenLoaded('universitySide'));
+
         return $returnArr;
     }
 }
