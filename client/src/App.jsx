@@ -48,7 +48,9 @@ import Standardwise_details from "./pages/Reviewer/Standardwise_details";
 import UpdateABC from "./pages/Reviewer/UpdateABC";
 import Summary_details from "./pages/Reviewer/Summary_details";
 import SelfEvaluationReport from "./pages/ViceChancellor/SelfEvaluationReport";
-import View from './pages/ViceChancellor/View';
+import View from './components/View';
+import ViewPGProgrammesInUniversities from "./pages/ViceChancellor/ViewPGProgrammesInUniversities";
+//import View from './pages/ViceChancellor/View';
 import PostGraduateProgramReviewApplications from './pages/QACOfficer/PostGraduateProgramReviewApplications'
 import Reviewers from "./pages/QACOfficer/Reviewers";
 import ImportReviewers from "./pages/QACOfficer/ImportReviewers";
@@ -208,7 +210,7 @@ function App() {
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="ser" element={<Ser />} />
                 <Route path="submitpgpr" element={<SubmitPGPR />} />
-                <Route path="editser" element={<EditSer />} />
+                <Route path="editser/:id" element={<EditSer />} />
                 <Route path="addevidence" element={<AddEvidence />} />
               </Route>
             </Route>
@@ -237,6 +239,7 @@ function App() {
                 <Route path="dashboard" element={<Dashboard/>}/>
                 <Route path="selfevaluationreport" element={<SelfEvaluationReport/>}/>
                 <Route path="view" element={<View/>}/>
+                <Route path="pgprogrammes" element={<ViewPGProgrammesInUniversities/>}/>
               </Route>
             </Route>
 
