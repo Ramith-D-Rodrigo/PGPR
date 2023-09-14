@@ -226,7 +226,7 @@ const ConductDE = () => {
                     <Link to = {`../Standardwise_details/${pgprId}`}><Button variant="contained" size="small" style={{width:"250px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>View Standards Wise Details of Desk Review</Button></Link>
                     <Link to = {`../Submit_DE/${pgprId}`}><Button variant="contained" size="small" style={{width:"250px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>Proceed to Submit The Desk Evaluation</Button></Link>
                     {/* only for chair */}
-                    <Link to = {`../End_DE/${pgprId}`}><Button variant="contained" size="small" style={{width:"250px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>End The Desk Evaluation</Button></Link>
+                    <Link to = {`../Finalize_DE/${pgprId}`}><Button variant="contained" size="small" style={{width:"250px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>Finalize The Desk Evaluation</Button></Link>
             </Box>
         </>
     )
