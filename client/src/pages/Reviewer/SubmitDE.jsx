@@ -215,7 +215,7 @@ const SubmitDE = () => {
             <Dialog
                 fullScreen={fullScreen}
                 open={openDialog}
-                onClose={()=>setOpen(false)}
+                onClose={()=>setOpenDialog(false)}
                 aria-labelledby="submit-DE_results"
             >
                 <DialogTitle id="submit-DE_results_ID">
