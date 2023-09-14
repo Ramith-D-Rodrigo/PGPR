@@ -19,8 +19,8 @@ class ShowProperEvaluationDetailsOfReviewTeamRequest extends FormRequest
     /**
      * Reviewer views PE details of review team
      * {
-     *     reviewTeamId: 12,
-     *     pgprId: 1,
+     *     reviewTeam: 12,
+     *     pgpr: 1,
      * }
      *
      */
@@ -47,8 +47,8 @@ class ShowProperEvaluationDetailsOfReviewTeamRequest extends FormRequest
     {
         $this->merge(
             [
-                'pgpr_id' => $this->pgprId,
-                'review_team_id' => $this->reviewTeamId,
+                'pgpr_id' => $this->pgpr,
+                'review_team_id' => $this->reviewTeam,
             ]
         );
     }

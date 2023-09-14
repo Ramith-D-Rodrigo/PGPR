@@ -64,7 +64,6 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
 
     Route::apiResource('standards', 'StandardController');
     Route::apiResource('selfEvaluationReports', 'SelfEvaluationReportController')->middleware('auth');
-    Route::apiResource('reviewTeams', 'ReviewTeamController');
     Route::apiResource('qualityAssuranceStaffs', 'QualityAssuranceStaffController');
     Route::apiResource('qacOfficers', 'QualityAssuranceCouncilOfficerController');
     Route::apiResource('qacDirectors', 'QualityAssuranceCouncilDirectorController');
@@ -99,7 +98,6 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
 
 
     Route::apiResource('evidences', 'EvidenceController')->middleware('auth');
-    Route::apiResource('deskEvaluations', 'DeskEvaluationController');
 
     Route::apiResource('deans', 'DeanController');
     //other routes of the deans
@@ -121,8 +119,10 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     //ROUTES OF THE REVIEWER ACTOR
     //get the appointment declaration
     Route::get('reviewers/download-declaration', 'ReviewerController@downloadRoleAcceptanceDeclarationLetter')->middleware('auth');
-    //get the prgprs of the reviewer
+    //get the pgprs of the reviewer
     Route::get('reviewers/pgprs', 'ReviewerController@browsePGPRs')->middleware('auth');
+    //get the specific pgpr of the reviewer
+    Route::get('reviewers/pgprs/{pgprId}', 'ReviewerController@viewSpecificPGPR')->middleware('auth');
     //upload the declaration letter
     Route::post('reviewers/accept-appointment', 'ReviewerController@acceptAppointment')->middleware('auth');
     //reject the appointment
@@ -151,16 +151,52 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::get('/reviewer/submit-desk-evaluation', 'ReviewerController@submitDeskEvaluation')->middleware('auth');
     //reviewer submit proper evaluation
     Route::get('/reviewer/submit-proper-evaluation', 'ReviewerController@submitProperEvaluation')->middleware('auth');
+    //reviewer view remarks of the sections A,B, and D in the SER
+    Route::get('/reviewer/pgpr/ser-remarks/view/{serId}', 'ReviewerController@viewRemarksOfSectionsABD')->middleware('auth');
+    //reviewer update remarks of the sections A,B, and D in the SER
+    Route::post('/reviewer/pgpr/ser-remarks/update', 'ReviewerController@viewRemarksOfSectionsABD')->middleware('auth');
+    //reviewer conduct desk evaluation
+    Route::post('/reviewer/conduct/desk-evaluation', 'ReviewerController@conductDeskEvaluation')->middleware('auth');
+    //reviewer conduct proper evaluation
+    Route::post('/reviewer/conduct/proper-evaluation', 'ReviewerController@conductProperEvaluation')->middleware('auth');
+    //reviewer view own desk evaluation criteria
+    Route::get('/reviewer/view/own-desk-evaluation-criteria/{deskEvaluation}/{criteria}', 'ReviewerController@viewOwnDeskEvaluationCriteria')->middleware('auth');
+    //reviewer view own proper evaluation criteria
+    Route::get('/reviewer/view/own-proper-evaluation-criteria/{pgpr}/{properEvaluation}/{criteria}', 'ReviewerController@viewOwnProperEvaluationCriteria')->middleware('auth');
+    //reviewer submit desk evaluation
+    Route::post('/reviewer/submit/desk-evaluation', 'ReviewerController@submitDeskEvaluation')->middleware('auth');
+    //reviewer submit proper evaluation
+    Route::post('/reviewer/submit/proper-evaluation', 'ReviewerController@submitProperEvaluation')->middleware('auth');
+
+    //REVIEW TEAM CHAIR ENDPOINTS
+    //review team chair assign criteria to team members (including himself)
+    Route::post('/review-team-chair/proper-evaluation/assign-criteria', 'ReviewTeamChairController@assignReviewTeamMembersCriteriaForProperEvaluation')->middleware('auth');
+    //review team chair view review team desk evaluation progress
+    Route::get('/review-team-chair/desk-evaluation/view-progress/{reviewTeam}/{deskEvaluation}', 'ReviewTeamChairController@viewReviewTeamDeskEvaluationProgress')->middleware('auth');
+    //review team chair view review team proper evaluation progress
+    Route::get('/review-team-chair/proper-evaluation/view-progress/{pgpr}/{reviewTeam}/{properEvaluation}', 'ReviewTeamChairController@viewReviewTeamProperEvaluationProgress')->middleware('auth');
+
+    //REVIEW TEAM ENDPOINTS
+    //reviewer view proper evaluation details of the review team (could be either review team head or a member)
+    Route::get('/review-team/proper-evaluation/view-details/{pgpr}/{reviewTeam}', 'ReviewTeamChairController@viewProperEvaluationDetails')->middleware('auth');
+    //api resource of the review team
+    Route::apiResource('review-team', 'ReviewTeamController');
+
+    //DESK EVALUATION ENDPOINTS
+    //reviewer view standard wise details of desk evaluation
+    Route::get('/reviewer/desk-evaluation/view-standard-wise-details/{deskEvaluation}/{criteria}', 'DeskEvaluationController@viewStandardWiseDetailsOfEachCriteriaInDE')->middleware('auth');
+    //reviewer get desk evaluation remark and score for a standard
+    Route::get('/reviewer/desk-evaluation/view-standard-wise-evaluation/{deskEvaluation}/{criteria}/{standard}', 'DeskEvaluationController@getDeskEvaluationRemarkAndScoreForStandard')->middleware('auth');
+    //api resource of the desk evaluation
+    Route::apiResource('desk-evaluation', 'DeskEvaluationController');
 
     // api resource => this must come here otherwise the declaration doc will have problems
     Route::apiResource('reviewers', 'ReviewerController')->middleware('auth');
 
     // dean accepts an appointed review team
     Route::post('/deans/acceptReviewTeam', 'DeanController@acceptReviewTeam')->middleware('auth');
-
     // dean rejects an appointed review team
     Route::post('/deans/rejectReviewTeam', 'DeanController@rejectReviewTeam')->middleware('auth');
-
     // dean api resources
     Route::apiResource('deans', 'DeanController');
 
