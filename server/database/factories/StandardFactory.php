@@ -1017,7 +1017,7 @@ class StandardFactory extends Factory
                 'standard_no' => 4.1,
                 'criteria_id' => 4, 'description' => 'The PGPMU ensures that the conducted programme of study is consistent with detailed programme and course specifications/ research proposal specifications.',
                 'valid_slqf_levels' => json_encode([
-                    'all' //all slqf levels
+                    'all' //all slqf levels (book has said 7,8,9,10 only but later, 11,12 also have the same definition)
                 ])
             ];
         });
@@ -1031,7 +1031,7 @@ class StandardFactory extends Factory
                 'criteria_id' => 4,
                 'description' => 'The PGPMU ensures that teaching-learning and research activities are consistent with and facilitates the achievement of programme learning outcomes by all postgraduate students.',
                 'valid_slqf_levels' => json_encode([
-                    'all'
+                    'all' //(book has said 7,8,9,10 only but later, 11,12 also have the same definition)
                 ])
             ];
         });
@@ -1466,7 +1466,7 @@ class StandardFactory extends Factory
                 'criteria_id' => 5,
                 'description' => 'The PGPP ensures that all decisions related to assessments and awards are documented accurately and systematically.',
                 'valid_slqf_levels' => json_encode([
-                    '11', '12'
+                    'all'
                 ])
             ];
         });
@@ -1479,7 +1479,7 @@ class StandardFactory extends Factory
                 'criteria_id' => 5,
                 'description' => 'The PGPP has a clearly defined policy of disclosure on the level of details of assessment outcomes that are made available to the students and other specified parties, and PGPMU ensures implementation of the policy.',
                 'valid_slqf_levels' => json_encode([
-                    '11', '12'
+                    'all'
                 ])
             ];
         });
@@ -1492,7 +1492,7 @@ class StandardFactory extends Factory
                 'criteria_id' => 5,
                 'description' => 'The PGPP has regulations that stipulate the criteria and procedure for nomination and appointment of both internal and external examiners and the first and second examiners, and appointment of examiners under special situations, and the PGPMU implements these regulations accordingly',
                 'valid_slqf_levels' => json_encode([
-                    '11', '12'
+                    'all'
                 ])
             ];
         });
@@ -1505,7 +1505,7 @@ class StandardFactory extends Factory
                 'criteria_id' => 5,
                 'description' => 'The PGPP maintains a regularly updated database / registry of eligible examiners that includes their qualifications, specializations, affiliations and experience, and the PGPMU nominates examiners from the database ensuring regular rotation of examiners',
                 'valid_slqf_levels' => json_encode([
-                    '11', '12'
+                    'all'
                 ])
             ];
         });
@@ -1518,7 +1518,7 @@ class StandardFactory extends Factory
                 'criteria_id' => 5,
                 'description' => 'The PGPMU ensures that selected examiners possess no conflicts of interest with respect to examination of candidates',
                 'valid_slqf_levels' => json_encode([
-                    '11', '12'
+                    'all'
                 ])
             ];
         });
@@ -1531,7 +1531,7 @@ class StandardFactory extends Factory
                 'criteria_id' => 5,
                 'description' => 'The services of the examiners nominated by the PGPMU are obtained following the approval of PGPP and the HEI.',
                 'valid_slqf_levels' => json_encode([
-                    '11', '12'
+                    'all'
                 ])
             ];
         });
@@ -1544,7 +1544,7 @@ class StandardFactory extends Factory
                 'criteria_id' => 5,
                 'description' => 'The PGPP has established disciplinary procedures for handling examination malpractices, and ensures its strict enforcement',
                 'valid_slqf_levels' => json_encode([
-                    '11', '12'
+                    'all'
                 ])
             ];
         });
@@ -1557,7 +1557,7 @@ class StandardFactory extends Factory
                 'criteria_id' => 5,
                 'description' => 'The PGPMU and PGPP use the approved formats and templates to document the results of assessment, including the official transcript.',
                 'valid_slqf_levels' => json_encode([
-                    '11', '12'
+                    'all'
                 ])
             ];
         });
@@ -1570,7 +1570,7 @@ class StandardFactory extends Factory
                 'criteria_id' => 5,
                 'description' => 'The HEI establishes a smooth and efficient procedure for issuing and authenticating official transcripts at the request of the students, other HEIs or employers.',
                 'valid_slqf_levels' => json_encode([
-                    '11', '12'
+                    'all'
                 ])
             ];
         });
@@ -1583,7 +1583,7 @@ class StandardFactory extends Factory
                 'criteria_id' => 5,
                 'description' => 'The PGPMU ensures that the ‘Schedule of Assessment’ is made known to the students at the beginning of a course / module / program of research.',
                 'valid_slqf_levels' => json_encode([
-                    '11', '12'
+                    'all'
                 ])
             ];
         });
@@ -1596,7 +1596,7 @@ class StandardFactory extends Factory
                 'criteria_id' => 5,
                 'description' => 'The PGPMU ensures that students are provided with regular, appropriate and timely feedback on formative assessments in compliance with the Schedule of Assessment.',
                 'valid_slqf_levels' => json_encode([
-                    '11', '12'
+                    'all'
                 ])
             ];
         });
@@ -1609,7 +1609,7 @@ class StandardFactory extends Factory
                 'criteria_id' => 5,
                 'description' => 'The PGPP and PGPMU ensure that the final results of a course/ module are released within three months from the date of examination and where applicable, Thesis / Dissertation / Research Project defense examination is conducted within six months of the date of submission of the Thesis / Dissertation / Research Report',
                 'valid_slqf_levels' => json_encode([
-                    '11', '12'
+                    'all'
                 ])
             ];
         });
@@ -1622,7 +1622,7 @@ class StandardFactory extends Factory
                 'criteria_id' => 5,
                 'description' => 'The PGPP has established procedures to handle students’ complaints and academic appeals in a fair and effective manner without risk of disadvantage, and the PGPP promptly deals with them, and deliver timely responses',
                 'valid_slqf_levels' => json_encode([
-                    '11', '12'
+                    'all'
                 ])
             ];
         });
@@ -1635,7 +1635,7 @@ class StandardFactory extends Factory
                 'criteria_id' => 5,
                 'description' => 'The PGPMU ensures that assessment tasks and tools used are valid, reliable, and appropriately weighted to measure the level of achievement of the desired ILOs.',
                 'valid_slqf_levels' => json_encode([
-                    '11', '12'
+                    'all'
                 ])
             ];
         });
@@ -1648,7 +1648,7 @@ class StandardFactory extends Factory
                 'criteria_id' => 5,
                 'description' => 'The PGPP and PGPMU ensure that the facilities used for examinations and other assessments are appropriate, secure and comfortable (e.g., spacious, quiet) and include basic sanitary facilities.',
                 'valid_slqf_levels' => json_encode([
-                    '11', '12'
+                    'all'
                 ])
             ];
         });
@@ -1661,7 +1661,7 @@ class StandardFactory extends Factory
                 'criteria_id' => 5,
                 'description' => 'The PGPP and PGPMU ensure that appropriate arrangements / adjustments / facilities are made available to provide the students with special needs with the same opportunity as their peers to demonstrate the achievement of learning outcomes.',
                 'valid_slqf_levels' => json_encode([
-                    '11', '12'
+                    'all'
                 ])
             ];
         });
