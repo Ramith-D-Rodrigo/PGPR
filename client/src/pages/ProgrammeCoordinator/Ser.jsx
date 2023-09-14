@@ -2,7 +2,7 @@ import React from 'react'
 import { useParams } from 'react-router-dom'
 import useSetUserNavigations from '../../hooks/useSetUserNavigations';
 import ScrollableDiv from '../../components/ScrollableDiv';
-import DiscriptionDiv from '../../components/DiscriptionDiv';
+import DiscriptiveDiv from '../../components/DiscriptiveDiv';
 import { useState } from 'react';
 import Button from '@mui/material/Button';
 import { Grid, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box } from '@mui/material';
@@ -117,7 +117,7 @@ const Ser = () => {
 
     return (
         <>
-            <DiscriptionDiv
+            <DiscriptiveDiv
                 
                 width="100%"
                 height="auto"
@@ -134,7 +134,7 @@ const Ser = () => {
                     </Grid>
                 ))}
                 </Grid>
-            </DiscriptionDiv>
+            </DiscriptiveDiv>
             
             <TableContainer component={Paper} style={{height:"auto",margin:"2rem 0"}}>
                 <Table sx={{ minWidth: 650 }}  aria-label="sticky table">

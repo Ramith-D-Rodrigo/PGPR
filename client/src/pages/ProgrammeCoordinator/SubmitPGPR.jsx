@@ -4,7 +4,7 @@ import { useState } from 'react'; // Import useState hook
 import Button from '@mui/material/Button';
 import { Grid, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box } from '@mui/material';
 import useSetUserNavigations from '../../hooks/useSetUserNavigations';
-import DiscriptionDiv from '../../components/DiscriptionDiv';
+import DiscriptiveDiv from '../../components/DiscriptiveDiv';
 import useDrawerState from '../../hooks/useDrawerState';
 
 const SubmitPGPR = () => {
@@ -63,7 +63,7 @@ const SubmitPGPR = () => {
   return (
     <>
       
-      <DiscriptionDiv
+      <DiscriptiveDiv
                 
                 width="100%"
                 height="auto"
@@ -80,7 +80,7 @@ const SubmitPGPR = () => {
                     </Grid>
                 ))}
                 </Grid>
-            </DiscriptionDiv>
+            </DiscriptiveDiv>
 
       <br></br>
       <div style={{ textAlign: 'center', fontWeight: 'bold', textDecoration: 'underline' }}>
