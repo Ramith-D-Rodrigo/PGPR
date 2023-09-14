@@ -200,6 +200,10 @@ function EndDE() {
                     </TableBody>
                 </Table>
             </TableContainer>
+
+            <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', width: '100%', padding: '20px 0',height:"auto" }}>
+                    <Button variant="contained" size="small" style={{width:"300px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}><Link to={`../finalize_DE/${pgprId}`}>Finalize the Desk Evaluation</Link></Button>
+            </Box>
       </>
     )
 }
