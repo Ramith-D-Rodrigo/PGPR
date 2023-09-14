@@ -21,6 +21,10 @@ import ConductDE from './pages/Reviewer/ConductDE';
 import ConductPE from './pages/Reviewer/ConductPE';
 import SubmitDE from "./pages/Reviewer/SubmitDE";
 import SubmitPE from "./pages/Reviewer/SubmitPE";
+import FinalizeDE from "./pages/ReviewerChair/FinalizeDE";
+import FinalizePE from "./pages/ReviewerChair/FinalizePE";
+import DEProgress from "./pages/ReviewerChair/DEProgress";
+import PEProgress from "./pages/ReviewerChair/PEProgress";
 import EndDE from "./pages/ReviewerChair/EndDE";
 import EndPE from "./pages/ReviewerChair/EndPE";
 import { DrawerStateProvider } from './contexts/DrawerStateProvider';
@@ -189,6 +193,14 @@ function App() {
                       element={< SubmitDE />}
                     />
                     <Route
+                      path="Finalize_DE/:pgprId"
+                      element={< FinalizeDE />}
+                    />
+                    <Route
+                      path="view_DE_progress/:pgprId/:reviewerId"
+                      element={< DEProgress />}
+                    />
+                    <Route
                       path="End_DE/:pgprId"
                       element={< EndDE />}
                     />
@@ -206,6 +218,14 @@ function App() {
                     <Route
                       path="Submit_PE/:pgprId"
                       element={< SubmitPE />}
+                    />
+                    <Route
+                      path="Finalize_PE/:pgprId"
+                      element={< FinalizePE />}
+                    />
+                    <Route
+                      path="view_PE_progress/:pgprId/:reviewerId"
+                      element={< PEProgress />}
                     />
                     <Route
                       path="End_PE/:pgprId"
