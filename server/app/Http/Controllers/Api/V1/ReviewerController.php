@@ -371,12 +371,12 @@ class ReviewerController extends Controller
                 $review_team->pivot->reviewer_confirmation = 'REJECTED';
                 $review_team->pivot->save();
 
-                //add the reviewer when rejecting the review to the reviewer_reject_post_graduate_program_review table
+                /* //add the reviewer when rejecting the review to the reviewer_reject_post_graduate_program_review table
                 DB::table('reviewer_reject_post_graduate_program_review')->insert([
                     'pgpr_id' => $review_team->pgpr_id,
                     'reviewer_id' => $reviewer->id,
                     'comment' => $request->comment ?? "",
-                ]);
+                ]); */
 
                 Mail::to($creatorOfReviewTeam->official_email)
                     ->send(
