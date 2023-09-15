@@ -1117,6 +1117,10 @@ class ReviewerController extends Controller
                         subject: 'Review team rejected the post graduate program review',
                         content: 'mail.informToOfficialsAboutReviewTeamPGPRRejection',
                     ));
+
+                //set the pgpr status as rejected/suspended
+                $postGraduateProgramReview->status_of_pgpr = 'SUSPENDED';
+                $postGraduateProgramReview->save();
             }
             // inform the other reviewers
             $reviewers = $postGraduateProgramReview->reviewTeam->reviewers; // get the review team
@@ -1137,10 +1141,6 @@ class ReviewerController extends Controller
                         );
                 }
             }
-
-            //set the pgpr status as rejected/suspended
-            $postGraduateProgramReview->status_of_pgpr = 'SUSPENDED';
-            $postGraduateProgramReview->save();
             DB::commit();
             return response()->json(['message' => 'Your request is duly noted, thank you for responding.']);
         } catch (Exception $exception) {
