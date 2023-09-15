@@ -206,6 +206,20 @@ class ReviewTeamChairController extends Controller
         }
     }
 
+    // review chair can view summary of desk evaluation grades of each member of the team(including himself)
+    public function viewDEScoresOfEachStandardOfEachProjectMember()
+    {
+        // TODO: COMPLETE THE FUNCTION
+    }
+
+
+    // review chair can view summary of proper evaluation grades of each member of the team(including himself)
+    public function viewPEScoresOfEachStandardOfEachProjectMember()
+    {
+        // TODO: COMPLETE THE FUNCTION
+    }
+
+
     public function viewPreliminaryReport(ShowPreliminaryReportRequest $request)
     {
         // TODO: COMPLETE THE FUNCTION
