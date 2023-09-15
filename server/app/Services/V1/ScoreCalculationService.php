@@ -10,12 +10,12 @@ use Illuminate\Support\Facades\DB;
 
 class ScoreCalculationService
 {
-    public static function calculateRawCriterionWiseScore(string|int $pgprId, string $stage): array
+    private static function calculateCriterionWiseScores(string|int $pgprId, string $stage): array
     {
         $postGraduateReviewProgram = PostGraduateProgramReview::find($pgprId);
         $deskEvaluation = $postGraduateReviewProgram->deskEvaluation;
 
-        // if there is no desk evaluation then there cannot be a proper evaluation
+        // if there is no desk evaluation, then there cannot be a proper evaluation
         if (!$deskEvaluation) {
             return [];
         }
@@ -46,6 +46,8 @@ class ScoreCalculationService
                     $score = DB::table('proper_evaluation_score')
                         ->where('proper_evaluation_id', $properEvaluation->id)
                         ->first();
+                } else {
+                    return [];
                 }
 
                 if (!$score) {
@@ -57,28 +59,83 @@ class ScoreCalculationService
                 $score = NULL;
             }
 
+            $maximumCriterionScore = $standards->count() * 3;
+            $minimumCriterionScore = $maximumCriterionScore / 2;
+            $actualCriterionWiseScore = ($totalScore / $maximumCriterionScore) * $criterion->weightage_on_thousand;
+
             // Add to data
             $data[] = [
-                'criteria_id' => $criteria->id,
-                'raw_score' => $totalScore,
+                'criteriaId' => $criteria->id,
+                'maximumCriterionScore' => $maximumCriterionScore,
+                'minimumCriterionScore' => $minimumCriterionScore,
+                'rawScore' => $totalScore,
+                'actualScore' => $actualCriterionWiseScore,
+                'isActualCriterionWiseScoreIsLessThanMinCriterionScore' => $actualCriterionWiseScore < $minimumCriterionScore,
             ];
         }
         return $data;
     }
 
-    public static function calculateActualCriterionWiseScore(): array
+    public static function calculateOverallStudyProgramScores(string|int $pgprId, string $stage): array
     {
-        // TODO: COMPLETE THE FUNCTION
-        return [];
+        $criteriaScores = self::calculateCriterionWiseScores($pgprId, $stage);
+        if (!$criteriaScores) {
+            return [];
+        }
+
+        $totalOfActualCriterionWiseScores = 0;
+        $numberOfCriteriaLessThanMinimumCriterionScore = 0;
+
+        foreach ($criteriaScores as $criterionScore) {
+            $totalOfActualCriterionWiseScores += $criterionScore['actual_score'];
+            if ($criterionScore['isActualCriterionWiseScoreIsLessThanMinCriterionScore']) $numberOfCriteriaLessThanMinimumCriterionScore += 1;
+        }
+
+        $percentageOfActualCriterionWiseScores = $totalOfActualCriterionWiseScores / 100;
+        $criteriaScores['percentageOfActualCriterionWiseScores'] = $percentageOfActualCriterionWiseScores;
+        $criteriaScores['numberOfCriteriaLessThanMinimumCriteria_score'] = $numberOfCriteriaLessThanMinimumCriterionScore;
+
+        return $criteriaScores;
     }
 
-    public static function calculateOverallStudyProgramScore()
+    public static function gradeObtainedByTheProgramOfStudy(string|int $pgprId, string $stage): array
     {
-        // TODO: COMPLETE THE FUNCTION
-    }
 
-    public static function gradeObtainedByTheProgramOfStudy()
-    {
-        // TODO: COMPLETE THE FUNCTION
+        $performanceScores = self::calculateOverallStudyProgramScores($pgprId, $stage);
+        if (!$performanceScores) {
+            return [];
+        }
+
+        $numberOfCriteriaLessThanMinimumCriterionScore = $performanceScores[''];
+        $percentageOfActualCriterionWiseScores = $performanceScores[''];
+
+        if ($numberOfCriteriaLessThanMinimumCriterionScore == 0) {
+            if ($percentageOfActualCriterionWiseScores >= 80) {
+                $performanceScores['overallPerformanceOfStudyScore'] = 'A';
+            } else if (70 <= $percentageOfActualCriterionWiseScores && $percentageOfActualCriterionWiseScores <= 79) {
+                $performanceScores['overallPerformanceOfStudyScore'] = 'B';
+            } else if (60 <= $percentageOfActualCriterionWiseScores && $percentageOfActualCriterionWiseScores <= 69) {
+                $performanceScores['overallPerformanceOfStudyScore'] = 'C';
+            } else {
+                $criteriaScores['overallPerformanceOfStudyScore'] = 'D';
+            }
+        } else if ($numberOfCriteriaLessThanMinimumCriterionScore == 6) {
+            if ($percentageOfActualCriterionWiseScores >= 70) {
+                $performanceScores['overallPerformanceOfStudyScore'] = 'B';
+            } else if (60 <= $percentageOfActualCriterionWiseScores && $percentageOfActualCriterionWiseScores <= 69) {
+                $performanceScores['overallPerformanceOfStudyScore'] = 'C';
+            } else {
+                $criteriaScores['overallPerformanceOfStudyScore'] = 'D';
+            }
+        } else if ($numberOfCriteriaLessThanMinimumCriterionScore == 5) {
+            if ($percentageOfActualCriterionWiseScores >= 60) {
+                $performanceScores['overallPerformanceOfStudyScore'] = 'C';
+            } else {
+                $performanceScores['overallPerformanceOfStudyScore'] = 'D';
+            }
+        } else {
+            $performanceScores['overallPerformanceOfStudyScore'] = 'D';
+        }
+        return $performanceScores;
     }
 }
