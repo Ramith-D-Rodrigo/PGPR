@@ -13,7 +13,7 @@ import getSelfEvaluationReport from '../../api/SelfEvaluationReport/getSelfEvalu
 
 
 const Ser = () => {
-    const { id } = useParams();
+    const { serId } = useParams();
     
     const open = useDrawerState().drawerState.open;
 
@@ -26,7 +26,7 @@ const Ser = () => {
     useEffect(() => {
         const getPGPRData = async () => {
             try {
-                const response = await getSelfEvaluationReport(id);
+                const response = await getSelfEvaluationReport(serId);
                 if (response && response.status === 200) {
                     setSer(response.data.data);
                     const ser = response.data.data;
@@ -39,7 +39,7 @@ const Ser = () => {
                               label: "Faculty/Institute:",
                               value: ser.postGraduateProgramReview.postGraduateProgramme.faculty.name,
                             },
-                            { label: "PGPR ID:", value: "PGPR-" + id },
+                            { label: "PGPR ID:", value: "PGPR-" + ser.postGraduateProgramReview.id },
                             { label: "PGPR Name:", value: ser.postGraduateProgramReview.postGraduateProgramme.title },
                             { label: "Application Start Date:", value: ser.postGraduateProgramReview.postGraduateProgramReviewApplication.applicationDate },
                             { label: "Requested Date:", value: ser.postGraduateProgramReview.postGraduateProgramReviewApplication.requestDate },
@@ -58,7 +58,7 @@ const Ser = () => {
         }
         getPGPRData();
 
-    }, [id]);
+    }, [serId]);
 
 
     useSetUserNavigations(
@@ -69,7 +69,7 @@ const Ser = () => {
             },
             {
                 name: "Self Evaluation Report",
-                link: "/PG_Assignments/Ser/"+id
+                link: "/PG_Assignments/Ser/"+serId
             }
         ]
     );
@@ -124,7 +124,7 @@ const Ser = () => {
                 <Button variant="contained" color="primary" size="small" onClick={() => openViewSummary(row)}>
                     View
                 </Button>
-                <Button variant="contained" color="info" size="small" component={Link} to={"../EditSer/" + id}>
+                <Button variant="contained" color="info" size="small" component={Link} to={"/programme_coordinator/pgprs/"+serId+"/EditSer/" + row.id}>
                     Edit
                 </Button>
             </div>
@@ -187,24 +187,26 @@ const Ser = () => {
                                 }</TableCell>
                                 <TableCell align="center">
                                 {
-                                    row.standards.filter(standard => ser.evidenceGivenStandards.filter(evidenceStandard => evidenceStandard.id === standard.id).applicableYears?.includes(1)).length
+                                    ser.evidenceGivenStandards.filter(standard => row.standards.map(standard => standard.id).includes(standard.id)).flatMap(standard => standard.evidences).filter(evidence => evidence.applicableYears?.includes(1)).length 
                                 }
                                 </TableCell>
                                 <TableCell align="center">
                                 {
-                                    row.standards.filter(standard => ser.evidenceGivenStandards.filter(evidenceStandard => evidenceStandard.id === standard.id).applicableYears?.includes(2)).length
+                                    ser.evidenceGivenStandards.filter(standard => row.standards.map(standard => standard.id).includes(standard.id)).flatMap(standard => standard.evidences).filter(evidence => evidence.applicableYears?.includes(2)).length 
                                 }</TableCell>
                                 <TableCell align="center">
                                 {
-                                    row.standards.filter(standard => ser.evidenceGivenStandards.filter(evidenceStandard => evidenceStandard.id === standard.id).applicableYears?.includes(3)).length
+                                    ser.evidenceGivenStandards.filter(standard => row.standards.map(standard => standard.id).includes(standard.id)).flatMap(standard => standard.evidences).filter(evidence => evidence.applicableYears?.includes(3)).length 
                                 }</TableCell>
                                 <TableCell align="center">
                                 {
-                                    row.standards.filter(standard => ser.evidenceGivenStandards.filter(evidenceStandard => evidenceStandard.id === standard.id).applicableYears?.includes(4)).length
+                                    ser.evidenceGivenStandards.filter(standard => row.standards.map(standard => standard.id).includes(standard.id)).flatMap(standard => standard.evidences).filter(evidence => evidence.applicableYears?.includes(4)).length 
+
                                 }</TableCell>
                                 <TableCell align="center">
                                 {
-                                    row.standards.filter(standard => ser.evidenceGivenStandards.filter(evidenceStandard => evidenceStandard.id === standard.id).applicableYears?.includes(5)).length
+                                    ser.evidenceGivenStandards.filter(standard => row.standards.map(standard => standard.id).includes(standard.id)).flatMap(standard => standard.evidences).filter(evidence => evidence.applicableYears?.includes(5)).length 
+
                                 }</TableCell>
                                 <TableCell align="center">{renderActions(row)}</TableCell>
                         </TableRow>
