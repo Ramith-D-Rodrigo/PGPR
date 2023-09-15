@@ -180,7 +180,11 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
 
     //REVIEW TEAM ENDPOINTS
     //reviewer view proper evaluation details of the review team (could be either review team head or a member)
-    Route::get('/review-team/proper-evaluation/view-details/{pgpr}/{reviewTeam}', 'ReviewTeamChairController@viewProperEvaluationDetails')->middleware('auth');
+    Route::get('/review-team/proper-evaluation/view-details/{pgpr}/{reviewTeam}', 'ReviewTeamController@viewProperEvaluationDetails')->middleware('auth');
+    //reviewer view final grades of the desk evaluation given by the review team
+    Route::get('/review-team/desk-evaluation/view-final-grades/{pgpr}', 'ReviewTeamController@viewFinalGradesOfDeskEvaluation')->middleware('auth');
+    //reviewer view final grades of the proper evaluation given by the review team
+    Route::get('/review-team/proper-evaluation/view-final-grades/{pgpr}', 'ReviewTeamController@viewFinalGradesOfProperEvaluation')->middleware('auth');
     //api resource of the review team
     Route::apiResource('review-team', 'ReviewTeamController');
 
