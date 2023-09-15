@@ -168,7 +168,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     //reviewer submit proper evaluation
     Route::post('reviewer/submit/proper-evaluation', 'ReviewerController@submitProperEvaluation')->middleware('auth');
     //reviewer reject pgpr in de if the evidences aren't up to the standards
-    Route::post('reviewer/reject-pgpr', 'ReviewerController@rejectPGPRInDE')->middleware('auth');
+    Route::post('reviewer/reject-pgpr-in-evaluation', 'ReviewerController@rejectPGPRInEvaluation')->middleware('auth');
 
     //REVIEW TEAM CHAIR ENDPOINTS
     //review team chair assign criteria to team members (including himself)

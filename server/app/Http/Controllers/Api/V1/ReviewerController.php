@@ -1054,7 +1054,7 @@ class ReviewerController extends Controller
     /**
      * Reviewer reject PGPR in desk evaluation if the evidences aren't up to expected standard
      */
-    public function rejectPGPRInDE(UpdateRejectPGPRRequest $request): JsonResponse
+    public function rejectPGPRInEvaluation(UpdateRejectPGPRRequest $request): JsonResponse
     {
         try {
             $validated = $request->validated();
