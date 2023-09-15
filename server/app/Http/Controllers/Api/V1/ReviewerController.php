@@ -13,7 +13,7 @@ use App\Http\Requests\V1\UpdateAcceptAppointmentRequest;
 use App\Http\Requests\V1\UpdateAcceptPGPRRequest;
 use App\Http\Requests\V1\UpdateRejectAppointmentRequest;
 use App\Http\Requests\V1\UpdateRejectPGPRAssignmentRequest;
-use App\Http\Requests\V1\UpdateRejectPGPRInDERequest;
+use App\Http\Requests\V1\UpdateRejectPGPRRequest;
 use App\Http\Requests\V1\UpdateSERRemarksOfSectionsABDRequest;
 use App\Http\Resources\V1\DeskEvaluationCollection;
 use App\Http\Resources\V1\ProperEvaluationCollection;
@@ -1054,7 +1054,7 @@ class ReviewerController extends Controller
     /**
      * Reviewer reject PGPR in desk evaluation if the evidences aren't up to expected standard
      */
-    public function rejectPGPRInDE(UpdateRejectPGPRInDERequest $request): JsonResponse
+    public function rejectPGPRInDE(UpdateRejectPGPRRequest $request): JsonResponse
     {
         try {
             $validated = $request->validated();
