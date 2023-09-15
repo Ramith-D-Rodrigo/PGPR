@@ -250,11 +250,11 @@ function App() {
               <Route path="programme_coordinator/">
                 <Route path="" element={<Dashboard />} />
                 <Route path="dashboard" element={<Dashboard />} />
-                <Route path="pgprs/:id" element={<Ser />} />
+                <Route path="pgprs/:serId" element={<Ser />} />
                 <Route path="submitpgpr" element={<SubmitPGPR />} />
-                <Route path="editser/:id" element={<EditSer />} />
                 <Route path="addevidence" element={<AddEvidence />} />
                 <Route path="pgprs/" element={<PGPRs />} />
+                <Route path="pgprs/:serId/EditSer/:criteriaId" element={<EditSer />} />
               </Route>
             </Route>
 
