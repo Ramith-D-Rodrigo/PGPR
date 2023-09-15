@@ -26,7 +26,7 @@ class ScoreCalculationService
             } else if (60 <= $percentageOfActualCriterionWiseScores && $percentageOfActualCriterionWiseScores <= 69) {
                 $performanceScores['overallPerformanceOfStudyScore'] = 'C';
             } else {
-                $criteriaScores['overallPerformanceOfStudyScore'] = 'D';
+                $performanceScores['overallPerformanceOfStudyScore'] = 'D';
             }
         } else if ($numberOfCriteriaLessThanMinimumCriterionScore == 6) {
             if ($percentageOfActualCriterionWiseScores >= 70) {
@@ -34,7 +34,7 @@ class ScoreCalculationService
             } else if (60 <= $percentageOfActualCriterionWiseScores && $percentageOfActualCriterionWiseScores <= 69) {
                 $performanceScores['overallPerformanceOfStudyScore'] = 'C';
             } else {
-                $criteriaScores['overallPerformanceOfStudyScore'] = 'D';
+                $performanceScores['overallPerformanceOfStudyScore'] = 'D';
             }
         } else if ($numberOfCriteriaLessThanMinimumCriterionScore == 5) {
             if ($percentageOfActualCriterionWiseScores >= 60) {
@@ -83,7 +83,11 @@ class ScoreCalculationService
         }
 
         $properEvaluation = $postGraduateReviewProgram->properEvaluation;
-        $reviewerId = Auth::id();
+        $reviewerId = DB::table('reviewer_review_teams')
+            ->select('reviewer_id')
+            ->where('id', $postGraduateReviewProgram->reviewTeam->id)
+            ->where('role', 'CHAIR')
+            ->first();
         $data = [];
 
         // Get all criteria
