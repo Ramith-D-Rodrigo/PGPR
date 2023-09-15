@@ -172,27 +172,35 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
 
     //REVIEW TEAM CHAIR ENDPOINTS
     //review team chair assign criteria to team members (including himself)
-    Route::post('/review-team-chair/proper-evaluation/assign-criteria', 'ReviewTeamChairController@assignReviewTeamMembersCriteriaForProperEvaluation')->middleware('auth');
+    Route::post('review-team-chair/proper-evaluation/assign-criteria', 'ReviewTeamChairController@assignReviewTeamMembersCriteriaForProperEvaluation')->middleware('auth');
     //review team chair view review team desk evaluation progress
-    Route::get('/review-team-chair/desk-evaluation/view-progress/{reviewTeam}/{deskEvaluation}', 'ReviewTeamChairController@viewReviewTeamDeskEvaluationProgress')->middleware('auth');
+    Route::get('review-team-chair/desk-evaluation/view-progress/{reviewTeam}/{deskEvaluation}', 'ReviewTeamChairController@viewReviewTeamDeskEvaluationProgress')->middleware('auth');
     //review team chair view review team proper evaluation progress
-    Route::get('/review-team-chair/proper-evaluation/view-progress/{pgpr}/{reviewTeam}/{properEvaluation}', 'ReviewTeamChairController@viewReviewTeamProperEvaluationProgress')->middleware('auth');
+    Route::get('review-team-chair/proper-evaluation/view-progress/{pgpr}/{reviewTeam}/{properEvaluation}', 'ReviewTeamChairController@viewReviewTeamProperEvaluationProgress')->middleware('auth');
+    //review team chair view review team desk evaluation scores
+    Route::get('review-team-chair/desk-evaluation/view-scores//{pgpr}/{criteria}/{standard}', 'ReviewTeamChairController@viewDEScoresOfEachStandardOfEachProjectMember')->middleware('auth');
+    //review team chair view review team proper evaluation scores
+    Route::get('review-team-chair/proper-evaluation/view-scores/{pgpr}/{criteria}/{standard}', 'ReviewTeamChairController@viewPEScoresOfEachStandardOfEachProjectMember')->middleware('auth');
+    //review team chair update review team desk evaluation scores
+    Route::post('review-team-chair/desk-evaluation/update-scores', 'ReviewTeamChairController@updateDEScoresOfEachStandard')->middleware('auth');
+    //review team chair update review team proper evaluation scores
+    Route::post('review-team-chair/proper-evaluation/update-scores', 'ReviewTeamChairController@updatePEScoresOfEachStandard')->middleware('auth');
 
     //REVIEW TEAM ENDPOINTS
     //reviewer view proper evaluation details of the review team (could be either review team head or a member)
-    Route::get('/review-team/proper-evaluation/view-details/{pgpr}/{reviewTeam}', 'ReviewTeamController@viewProperEvaluationDetails')->middleware('auth');
+    Route::get('review-team/proper-evaluation/view-details/{pgpr}/{reviewTeam}', 'ReviewTeamController@viewProperEvaluationDetails')->middleware('auth');
     //reviewer view final grades of the desk evaluation given by the review team
-    Route::get('/review-team/desk-evaluation/view-final-grades/{pgpr}', 'ReviewTeamController@viewFinalGradesOfDeskEvaluation')->middleware('auth');
+    Route::get('review-team/desk-evaluation/view-final-grades/{pgpr}', 'ReviewTeamController@viewFinalGradesOfDeskEvaluation')->middleware('auth');
     //reviewer view final grades of the proper evaluation given by the review team
-    Route::get('/review-team/proper-evaluation/view-final-grades/{pgpr}', 'ReviewTeamController@viewFinalGradesOfProperEvaluation')->middleware('auth');
+    Route::get('review-team/proper-evaluation/view-final-grades/{pgpr}', 'ReviewTeamController@viewFinalGradesOfProperEvaluation')->middleware('auth');
     //api resource of the review team
     Route::apiResource('review-team', 'ReviewTeamController');
 
     //DESK EVALUATION ENDPOINTS
     //reviewer view standard wise details of desk evaluation
-    Route::get('/reviewer/desk-evaluation/view-standard-wise-details/{deskEvaluation}/{criteria}', 'DeskEvaluationController@viewStandardWiseDetailsOfEachCriteriaInDE')->middleware('auth');
+    Route::get('reviewer/desk-evaluation/view-standard-wise-details/{deskEvaluation}/{criteria}', 'DeskEvaluationController@viewStandardWiseDetailsOfEachCriteriaInDE')->middleware('auth');
     //reviewer get desk evaluation remark and score for a standard
-    Route::get('/reviewer/desk-evaluation/view-standard-wise-evaluation/{deskEvaluation}/{criteria}/{standard}', 'DeskEvaluationController@getDeskEvaluationRemarkAndScoreForStandard')->middleware('auth');
+    Route::get('reviewer/desk-evaluation/view-standard-wise-evaluation/{deskEvaluation}/{criteria}/{standard}', 'DeskEvaluationController@getDeskEvaluationRemarkAndScoreForStandard')->middleware('auth');
     //api resource of the desk evaluation
     Route::apiResource('desk-evaluation', 'DeskEvaluationController');
 
@@ -200,9 +208,9 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::apiResource('reviewers', 'ReviewerController')->middleware('auth');
 
     // dean accepts an appointed review team
-    Route::post('/deans/acceptReviewTeam', 'DeanController@acceptReviewTeam')->middleware('auth');
+    Route::post('deans/acceptReviewTeam', 'DeanController@acceptReviewTeam')->middleware('auth');
     // dean rejects an appointed review team
-    Route::post('/deans/rejectReviewTeam', 'DeanController@rejectReviewTeam')->middleware('auth');
+    Route::post('deans/rejectReviewTeam', 'DeanController@rejectReviewTeam')->middleware('auth');
     // dean api resources
     Route::apiResource('deans', 'DeanController');
 
