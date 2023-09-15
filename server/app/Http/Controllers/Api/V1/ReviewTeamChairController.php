@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\V1\ShowDEScoresOfReviewTeamRequest;
 use App\Http\Requests\V1\ShowFinalReportRequest;
+use App\Http\Requests\V1\ShowPEScoresOfReviewTeamRequest;
 use App\Http\Requests\V1\ShowPreliminaryReportRequest;
 use App\Http\Requests\V1\ShowReviewTeamDeskEvaluationProgressRequest;
 use App\Http\Requests\V1\ShowReviewTeamProperEvaluationProgressRequest;
@@ -212,25 +214,73 @@ class ReviewTeamChairController extends Controller
     public function submitDeskEvaluation()
     {
         // TODO: COMPLETE THE FUNCTION
+        try {
+        } catch (Exception $exception) {
+            return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+        }
     }
 
     public function submitProperEvaluation()
     {
         // TODO: COMPLETE THE FUNCTION
+        try {
+        } catch (Exception $exception) {
+            return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+        }
     }
 
     // review chair can view summary of desk evaluation grades of each member of the team(including himself)
     // /{pgpr}/{criteria}/{standard}
-    public function viewDEScoresOfEachStandardOfEachProjectMember()
+    public function viewDEScoresOfEachStandardOfEachTeamMember(ShowDEScoresOfReviewTeamRequest $request): \Illuminate\Http\JsonResponse
     {
-        // TODO: COMPLETE THE FUNCTION
+        try {
+            $validated = $request->validated();
+            $postGraduateProgramReview = PostGraduateProgramReview::find($validated['pgpr_id']);
+            $deskEvaluation = $postGraduateProgramReview->deskEvaluation();
+
+            if ($deskEvaluation) {
+                $data = DB::table('desk_evaluation_score')
+                    ->select('reviewer_id', 'de_score', 'comment')
+                    ->where('desk_evaluation_id', $deskEvaluation->id)
+                    ->where('standard_id', $validated['standard_id'])
+                    ->get();
+                return response()->json(['message' => 'Successful', 'data' => $data]);
+            } else {
+                return response()->json(
+                    ['message' => 'Desk evaluation for this postgraduate program is not scheduled yet, will be informed when scheduled'],
+                    422
+                );
+            }
+        } catch (Exception $exception) {
+            return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+        }
     }
 
     // review chair can view summary of proper evaluation grades of each member of the team(including himself)
     // /{pgpr}/{criteria}/{standard}
-    public function viewPEScoresOfEachStandardOfEachProjectMember()
+    public function viewPEScoresOfEachStandardOfEachTeamMember(ShowPEScoresOfReviewTeamRequest $request): \Illuminate\Http\JsonResponse
     {
-        // TODO: COMPLETE THE FUNCTION
+        try {
+            $validated = $request->validated();
+            $postGraduateProgramReview = PostGraduateProgramReview::find($validated['pgpr_id']);
+            $properEvaluation = $postGraduateProgramReview->properEvaluation();
+
+            if ($properEvaluation) {
+                $data = DB::table('proper_evaluation_score')
+                    ->select('reviewer_id', 'pe_score', 'comment')
+                    ->where('proper_evaluation_id', $properEvaluation->id)
+                    ->where('standard_id', $validated['standard_id'])
+                    ->get();
+                return response()->json(['message' => 'Successful', 'data' => $data]);
+            } else {
+                return response()->json(
+                    ['message' => 'Proper evaluation for this postgraduate program is not scheduled yet, will be informed when scheduled'],
+                    422
+                );
+            }
+        } catch (Exception $exception) {
+            return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+        }
     }
 
     /**
