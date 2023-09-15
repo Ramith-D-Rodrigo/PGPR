@@ -13,12 +13,15 @@ use App\Http\Requests\V1\UpdateAcceptAppointmentRequest;
 use App\Http\Requests\V1\UpdateAcceptPGPRRequest;
 use App\Http\Requests\V1\UpdateRejectAppointmentRequest;
 use App\Http\Requests\V1\UpdateRejectPGPRAssignmentRequest;
+use App\Http\Requests\V1\UpdateRejectPGPRInDERequest;
 use App\Http\Requests\V1\UpdateSERRemarksOfSectionsABDRequest;
 use App\Http\Resources\V1\DeskEvaluationCollection;
 use App\Http\Resources\V1\ProperEvaluationCollection;
 use App\Http\Resources\V1\ReviewerBrowsePGPRCollection;
 use App\Http\Resources\V1\ReviewerCollection;
 use App\Http\Resources\V1\ReviewerResource;
+use App\Mail\InformReviewerOfPGPRRejection;
+use App\Mail\InformToOfficialsOfPGPRRejection;
 use App\Mail\RejectReviewerRole;
 use App\Mail\ReviewerRejectReviewAssignment;
 use App\Models\DeskEvaluation;
@@ -47,6 +50,8 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Validation\ValidationException as ValidationValidationException;
 use Maatwebsite\Excel\Validators\ValidationException;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use function Laravel\Prompts\select;
 
 class ReviewerController extends Controller
 {
@@ -103,7 +108,7 @@ class ReviewerController extends Controller
     /**
      * Downloading the appointment declaration letter
      */
-    public function downloadRoleAcceptanceDeclarationLetter(): BinaryFileResponse
+    public function downloadRoleAcceptanceDeclarationLetter(): BinaryFileResponse|JsonResponse
     {
 
         try {
@@ -121,6 +126,8 @@ class ReviewerController extends Controller
             return response()->json([
                 'message' => $e->getMessage(),
             ], 403);
+        } catch (Exception $exception) {
+            return response()->json(["message" => "Your request was duly noted, thank you for responding."], 201);
         }
     }
 
@@ -445,7 +452,7 @@ class ReviewerController extends Controller
     /**
      * Reviewer can view the remarks that were provided for the sections A,B, and D
      * for a given SER
-     * 
+     *
      * GET request +>
      *              serId=10
      *
@@ -491,8 +498,8 @@ class ReviewerController extends Controller
     /**
      * Use case 1.2.1
      * Update remarks of Section A, B and D
-     * 
-     * PATCH request +> 
+     *
+     * PATCH request +>
      *                {
      *                      serId: 10,
      *                      sections: [
@@ -510,7 +517,7 @@ class ReviewerController extends Controller
      *                          }
      *                      ]
      *                }
-     * 
+     *
      */
     public function updateRemarksOfSectionsABD(UpdateSERRemarksOfSectionsABDRequest $request): JsonResponse
     {
@@ -1045,6 +1052,104 @@ class ReviewerController extends Controller
     }
 
     /**
+     * Reviewer reject PGPR in desk evaluation if the evidences aren't up to expected standard
+     */
+    public function rejectPGPRInDE(UpdateRejectPGPRInDERequest $request): JsonResponse
+    {
+        try {
+            $validated = $request->validated();
+
+            DB::beginTransaction();
+
+            DB::table('reviewer_reject_post_graduate_program_review')->insert([
+                'reviewer_id' => Auth::id(),
+                'pgpr_id' => $validated['pgpr_id'],
+                'comment' => $validated["comment"] ?? "",
+            ]);
+
+            // check whether all the members have submitted rejections
+            $rejections = DB::table('reviewer_reject_post_graduate_program_review')
+                ->select('pgpr_id', 'reviewer_id', 'comment')
+                ->where([
+                    'pgpr_id' => $validated['pgpr_id'],
+                ])
+                ->get();
+
+            $postGraduateProgramReview = PostGraduateProgramReview::find($validated['pgpr_id']);
+            $postGraduateProgram = $postGraduateProgramReview->postGraduateProgram;
+
+            if ($rejections->count() >= 3) {
+                $qacDirector = User::find($postGraduateProgramReview->qac_dir_id);
+                $programCoodinator = User::find($postGraduateProgram->currentProgrammeCoordinator->id);
+                $dean = User::find($postGraduateProgram->faculty->currentDean->id);
+
+                $data = [];
+                $data['postGraduateProgram'] = $postGraduateProgram;
+                $data['reviewers'] = [];
+                foreach ($rejections as $rejection) {
+                    $data['reviewers'][] = [
+                        'reviewer' => User::find($rejection['reviewer_id']),
+                        'comment' => $rejection['comment'],
+                    ];
+                }
+
+                //sending the mail to the dean
+                Mail::to($dean->official_email)
+                    ->send(new InformToOfficialsOfPGPRRejection(
+                        recipient: $dean,
+                        data: $data,
+                        subject: 'Review team rejected the post graduate program review',
+                        content: 'mail.informToOfficialsAboutReviewTeamPGPRRejection',
+                    ));
+                //sending the mail to the program coordinator
+                Mail::to($programCoodinator->official_email)
+                    ->send(new InformToOfficialsOfPGPRRejection(
+                        recipient: $programCoodinator,
+                        data: $data,
+                        subject: 'Review team rejected the post graduate program review',
+                        content: 'mail.informToOfficialsAboutReviewTeamPGPRRejection',
+                    ));
+                //sending the mail to the qac director
+                Mail::to($qacDirector->official_email)
+                    ->send(new InformToOfficialsOfPGPRRejection(
+                        recipient: $qacDirector,
+                        data: $data,
+                        subject: 'Review team rejected the post graduate program review',
+                        content: 'mail.informToOfficialsAboutReviewTeamPGPRRejection',
+                    ));
+            }
+            // inform the other reviewers
+            $reviewers = $postGraduateProgramReview->reviewTeam->reviewers; // get the review team
+            $rejectedReviewer = Auth::user();
+            foreach ($reviewers as $reviewer) {
+                if ($reviewer->id != Auth::id()) {
+                    $user = User::find($reviewer->id);
+                    Mail::to($user->official_email)
+                        ->send(
+                            new InformReviewerOfPGPRRejection(
+                                recipient: $user,
+                                rejectedBy: $rejectedReviewer,
+                                content: 'mail.reviewerRejectedPGPRInEvaluation',
+                                subject: 'Reviewer rejected the post graduate program',
+                                comment: $validated['comment'],
+                                postGraduateProgram: $postGraduateProgram,
+                            )
+                        );
+                }
+            }
+
+            //set the pgpr status as rejected/suspended
+            $postGraduateProgramReview->status_of_pgpr = 'SUSPENDED';
+            $postGraduateProgramReview->save();
+            DB::commit();
+            return response()->json(['message' => 'Your request is duly noted, thank you for responding.']);
+        } catch (Exception $exception) {
+            DB::rollBack();
+            return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+        }
+    }
+
+    /**
      * Update the specified resource in storage.
      */
     public function update(UpdateReviewerRequest $request, Reviewer $reviewer)
@@ -1060,7 +1165,7 @@ class ReviewerController extends Controller
         //remove the user's reviewer role
     }
 
-    public function downloadExcelFile(): \Symfony\Component\HttpFoundation\StreamedResponse|JsonResponse
+    public function downloadExcelFile(): StreamedResponse|JsonResponse
     {
         try {
             return Storage::download('public/reviewer-excel-template.xlsx');
