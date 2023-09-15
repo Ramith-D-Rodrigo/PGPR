@@ -8,7 +8,10 @@ use App\Http\Requests\V1\ShowPreliminaryReportRequest;
 use App\Http\Requests\V1\ShowReviewTeamDeskEvaluationProgressRequest;
 use App\Http\Requests\V1\ShowReviewTeamProperEvaluationProgressRequest;
 use App\Http\Requests\V1\StoreAssignReviewTeamMemberCriteriaRequest;
+use App\Http\Requests\V1\StoreConductDeskEvaluationRequest;
+use App\Http\Requests\V1\StoreConductProperEvaluationRequest;
 use App\Http\Resources\V1\ReviewTeamResource;
+use App\Models\PostGraduateProgramReview;
 use App\Models\ReviewTeam;
 use App\Models\User;
 use Exception;
@@ -201,6 +204,110 @@ class ReviewTeamChairController extends Controller
                 ];
             }
             return response()->json(['message' => 'Successful', 'data' => $data]);
+        } catch (Exception $exception) {
+            return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+        }
+    }
+
+    public function submitDeskEvaluation()
+    {
+        // TODO: COMPLETE THE FUNCTION
+    }
+
+    public function submitProperEvaluation()
+    {
+        // TODO: COMPLETE THE FUNCTION
+    }
+
+    // review chair can view summary of desk evaluation grades of each member of the team(including himself)
+    // /{pgpr}/{criteria}/{standard}
+    public function viewDEScoresOfEachStandardOfEachProjectMember()
+    {
+        // TODO: COMPLETE THE FUNCTION
+    }
+
+    // review chair can view summary of proper evaluation grades of each member of the team(including himself)
+    // /{pgpr}/{criteria}/{standard}
+    public function viewPEScoresOfEachStandardOfEachProjectMember()
+    {
+        // TODO: COMPLETE THE FUNCTION
+    }
+
+    /**
+     * POST request +>
+     *       {
+     *           pgprId: 10,
+     *           criteriaId: 10,
+     *           standardId: 10,
+     *           observations: "This is marvelous",
+     *           score: 0 <= x <= 3
+     *       }
+     */
+    public function updateDEScoresOfEachStandard(StoreConductDeskEvaluationRequest $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $validated = $request->validated();
+            $postGraduateReviewProgram = PostGraduateProgramReview::findOrFail($validated['pgpr_id']);
+            $properEvaluation = $postGraduateReviewProgram->properEvaluation;
+
+            if ($properEvaluation) {
+                DB::table('proper_evaluation_score')
+                    ->where('proper_evaluation_id', $properEvaluation->id)
+                    ->where('standard_id', $validated['standard_id'])
+                    ->update(['pe_score' => $validated['pe_score']]);
+
+                return response()->json(['message' => 'Successful, added the data']);
+            } else {
+                return response()->json(
+                    ['message' => 'Proper evaluation for this postgraduate program is not scheduled yet, will be informed when scheduled'],
+                    422
+                );
+            }
+        } catch (ModelNotFoundException $exception) {
+            return response()->json(
+                ['message' => 'We could find the requested post graduate review program, please check and retry'],
+                500
+            );
+        } catch (Exception $exception) {
+            return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+        }
+    }
+
+    /**
+     * POST request +>
+     *       {
+     *           pgprId: 10,
+     *           criteriaId: 10,
+     *           standardId: 10,
+     *           observations: "This is marvelous",
+     *           score: 0 <= x <= 3
+     *       }
+     */
+    public function updatePEScoresOfEachStandard(StoreConductProperEvaluationRequest $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $validated = $request->validated();
+            $postGraduateReviewProgram = PostGraduateProgramReview::findOrFail($validated['pgpr_id']);
+            $deskEvaluation = $postGraduateReviewProgram->deskEvaluation;
+
+            if ($deskEvaluation) {
+                DB::table('desk_evaluation_score')
+                    ->where('desk_evaluation_id', $deskEvaluation->id)
+                    ->where('standard_id', $validated['standard_id'])
+                    ->update(['de_score' => $validated['de_score']]);
+
+                return response()->json(['message' => 'Successful, added the data']);
+            } else {
+                return response()->json(
+                    ['message' => 'Desk evaluation for this postgraduate program is not scheduled yet, will be informed when scheduled'],
+                    422
+                );
+            }
+        } catch (ModelNotFoundException $exception) {
+            return response()->json(
+                ['message' => 'We could find the requested post graduate review program, please check and retry'],
+                500
+            );
         } catch (Exception $exception) {
             return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
         }
