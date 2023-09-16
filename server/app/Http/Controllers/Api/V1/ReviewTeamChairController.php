@@ -35,7 +35,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class ReviewTeamChairController extends Controller
 {
@@ -833,13 +835,210 @@ class ReviewTeamChairController extends Controller
         }
     }
 
-    public function submitPreliminaryReport(Request $request)
+    /**
+     * POST request +>
+     *                {
+     *                    pgpr: 10,
+     *                }
+     * @throws ValidationException
+     */
+    public function submitPreliminaryReport(Request $request): \Illuminate\Http\JsonResponse
     {
-        // TODO: COMPLETE THE FUNCTION
+        $validator = Validator::make($request->all(), [
+            'pgpr' => [
+                'required',
+                'exists:post_graduate_program_reviews,id',
+                function ($attribute, $value, $fail) {
+                    $pgpr = PostGraduateProgramReview::find($value);
+                    if ($pgpr->status_of_pgpr != 'PE2') {
+                        $fail('The post graduate review program is not in an updatable state.');
+                    }
+                },
+                function ($attribute, $value, $fail) {
+                    $pgpr = PostGraduateProgramReview::find($value);
+                    $reviewTeam = $pgpr->reviewTeam;
+
+                    $report = DB::table('final_reports')
+                        ->select('preliminary_report')
+                        ->where('pgpr_id', $pgpr->id)
+                        ->where('reviewer_team_id', $reviewTeam->id)
+                        ->first();
+                    if (!$report) {
+                        $fail('The post graduate review program does not have a preliminary report for you to submit.');
+                    }
+                },
+            ],
+        ], [
+            'pgpr_id.required' => 'The post graduate program review id is required.',
+            'pgpr_id.exists' => 'The post graduate program review does not exist in our database.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+
+        $validated = $validator->validated();
+        try {
+            $pgpr = PostGraduateProgramReview::find($validated['pgpr_id']);
+            $qacDir = User::find($pgpr->qac_dir_id);
+            $pgp = $pgpr->postGraduateProgram;
+            $programCoordinator = User::find($pgp->programme_coordinator_id);
+            $faculty = $pgp->faculty;
+            $university = $faculty->university;
+            $dean = User::find($faculty->dean->id);
+
+            // qac director
+            Mail::to($qacDir->official_email)->send(
+                new InformReportUploadsToOfficials(
+                    recipient: $qacDir,
+                    subject: "Final report of the post-graduate program reivew {$pgp->title}",
+                    content: 'mail.informOfficialsAboutOfficialDocumentSubmissions',
+                    pgp: $pgp,
+                    university: $university,
+                    faculty: $faculty,
+                    type: 'PRELIMINARY'
+                )
+            );
+
+            // dean
+            Mail::to($dean->official_email)->send(
+                new InformReportUploadsToOfficials(
+                    recipient: $dean,
+                    subject: "Final report of the post-graduate program reivew {$pgp->title}",
+                    content: 'mail.informOfficialsAboutOfficialDocumentSubmissions',
+                    pgp: $pgp,
+                    university: $university,
+                    faculty: $faculty,
+                    type: 'PRELIMINARY'
+                )
+            );
+
+            // program coordinator
+            Mail::to($programCoordinator->official_email)->send(
+                new InformReportUploadsToOfficials(
+                    recipient: $programCoordinator,
+                    subject: "Final report of the post-graduate program reivew {$pgp->title}",
+                    content: 'mail.informOfficialsAboutOfficialDocumentSubmissions',
+                    pgp: $pgp,
+                    university: $university,
+                    faculty: $faculty,
+                    type: 'PRELIMINARY'
+                )
+            );
+            $pgpr->status_of_pgpr = 'FINAL';
+            $pgpr->save();
+            DB::commit();
+
+            return response()->json(['message' => 'File successfully submitted.']);
+
+        } catch (Exception $exception) {
+            DB::rollBack();
+            return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+        }
     }
 
-    public function submitFinalReport(Request $request)
+    /**
+     * POST request +>
+     *                {
+     *                    pgpr: 10,
+     *                }
+     * @throws ValidationException
+     */
+    public function submitFinalReport(Request $request): \Illuminate\Http\JsonResponse
     {
-        // TODO: COMPLETE THE FUNCTION
+        $validator = Validator::make($request->all(), [
+            'pgpr' => [
+                'required',
+                'exists:post_graduate_program_reviews,id',
+                function ($attribute, $value, $fail) {
+                    $pgpr = PostGraduateProgramReview::find($value);
+                    if ($pgpr->status_of_pgpr != 'FINAL') {
+                        $fail('The post graduate review program is not in an updatable state.');
+                    }
+                },
+                function ($attribute, $value, $fail) {
+                    $pgpr = PostGraduateProgramReview::find($value);
+                    $reviewTeam = $pgpr->reviewTeam;
+
+                    $report = DB::table('final_reports')
+                        ->select('final_report')
+                        ->where('pgpr_id', $pgpr->id)
+                        ->where('reviewer_team_id', $reviewTeam->id)
+                        ->first();
+                    if (!$report) {
+                        $fail('The post graduate review program does not have a final report for you to submit.');
+                    }
+                },
+            ],
+        ], [
+            'pgpr_id.required' => 'The post graduate program review id is required.',
+            'pgpr_id.exists' => 'The post graduate program review does not exist in our database.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+
+        $validated = $validator->validated();
+        try {
+            $pgpr = PostGraduateProgramReview::find($validated['pgpr_id']);
+            $reviewTeam = $pgpr->reviewTeam;
+            $qacDir = User::find($pgpr->qac_dir_id);
+            $pgp = $pgpr->postGraduateProgram;
+            $programCoordinator = User::find($pgp->programme_coordinator_id);
+            $faculty = $pgp->faculty;
+            $university = $faculty->university;
+            $dean = User::find($faculty->dean->id);
+
+            // qac director
+            Mail::to($qacDir->official_email)->send(
+                new InformReportUploadsToOfficials(
+                    recipient: $qacDir,
+                    subject: "Final report of the post-graduate program reivew {$pgp->title}",
+                    content: 'mail.informOfficialsAboutOfficialDocumentSubmissions',
+                    pgp: $pgp,
+                    university: $university,
+                    faculty: $faculty,
+                    type: 'FINAL'
+                )
+            );
+
+            // dean
+            Mail::to($dean->official_email)->send(
+                new InformReportUploadsToOfficials(
+                    recipient: $dean,
+                    subject: "Final report of the post-graduate program reivew {$pgp->title}",
+                    content: 'mail.informOfficialsAboutOfficialDocumentSubmissions',
+                    pgp: $pgp,
+                    university: $university,
+                    faculty: $faculty,
+                    type: 'FINAL'
+                )
+            );
+
+            // program coordinator
+            Mail::to($programCoordinator->official_email)->send(
+                new InformReportUploadsToOfficials(
+                    recipient: $programCoordinator,
+                    subject: "Final report of the post-graduate program reivew {$pgp->title}",
+                    content: 'mail.informOfficialsAboutOfficialDocumentSubmissions',
+                    pgp: $pgp,
+                    university: $university,
+                    faculty: $faculty,
+                    type: 'FINAL'
+                )
+            );
+
+            DB::table('final_reports')
+                ->where('pgpr_id', $pgpr->id)
+                ->where('review_team_id', $reviewTeam->id)
+                ->update(['type' => 'SUBMITTED']);
+
+            DB::commit();
+            return response()->json(['message' => 'File successfully submitted.']);
+        } catch (Exception $exception) {
+            DB::rollBack();
+            return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+        }
     }
 }
