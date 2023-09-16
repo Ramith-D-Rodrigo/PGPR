@@ -84,7 +84,14 @@ class SelfEvaluationReportController extends Controller
                         ]
                     ],
                 ],
-                'postGraduateProgramReviewApplication:id,application_date'
+                'postGraduateProgramReviewApplication:id,application_date,request_date'
+            ],
+            'programmeCoordinator:id' => [
+                'academicStaff:id' => [
+                    'universitySide:id' => [
+                        'user:id,initials,surname'
+                    ]
+                ]
             ],
             'standards' => function ($query) {
                 $query->whereHas('evidences')->select('standards.id')

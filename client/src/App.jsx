@@ -68,6 +68,7 @@ import ImportReviewers from "./pages/QACOfficer/ImportReviewers";
 import "./App.css";
 import PostGraduateProgramReviews from "./pages/QACOfficer/PostGraduateProgramReviews";
 import ViewPGPR from "./pages/QACOfficer/ViewPGPR";
+import PGPRs from "./pages/ProgrammeCoordinator/PGPRs";
 
 /* 
   important: 
@@ -249,10 +250,11 @@ function App() {
               <Route path="programme_coordinator/">
                 <Route path="" element={<Dashboard />} />
                 <Route path="dashboard" element={<Dashboard />} />
-                <Route path="ser" element={<Ser />} />
-                <Route path="submitpgpr" element={<SubmitPGPR />} />
-                <Route path="editser/:id" element={<EditSer />} />
+                <Route path="pgprs/:serId" element={<Ser />} />
+                <Route path="pgprs/:serId/submitSER" element={<SubmitPGPR />} />
                 <Route path="addevidence" element={<AddEvidence />} />
+                <Route path="pgprs/" element={<PGPRs />} />
+                <Route path="pgprs/:serId/EditSer/:criteriaId" element={<EditSer />} />
               </Route>
             </Route>
 

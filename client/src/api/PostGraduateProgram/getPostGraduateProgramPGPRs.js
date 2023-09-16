@@ -8,6 +8,7 @@ import axios from "../api.js";
 //possible query params:
 //1 - includeFaculty (boolean -> true if you want to include the faculty of the pgpr)
 //2 - includeUniversity (boolean -> true if you want to include the university of the pgpr) (must request includeFaculty)
+//3 - includeSelfEvaluationReport (boolean -> true if you want to include the self evaluation report of the pgpr)
 
 const getPostGraduateProgramPGPRs = async (postGraduateProgramId, queryParams = null) => {  //queryParams should be an object
     const URL = SERVER_URL + SERVER_API_VERSION + 'postGraduatePrograms/' + postGraduateProgramId + '/reviews';
