@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Requests\V1\ShowFinalGradeOfDeskEvaluationRequest;
+use App\Http\Requests\V1\ShowFinalGradeOfProperEvaluationRequest;
 use App\Http\Requests\V1\ShowProperEvaluationDetailsOfReviewTeamRequest;
 use App\Http\Requests\V1\StoreReviewTeamRequest;
 use App\Http\Requests\V1\UpdateReviewTeamRequest;
@@ -17,13 +19,12 @@ use App\Models\Reviewer;
 use App\Models\ReviewTeam;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\V1\ScoreCalculationService;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Database\Events\TransactionBeginning;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -37,7 +38,6 @@ class ReviewTeamController extends Controller
      */
     public function index(Request $request): JsonResponse|ReviewTeamCollection|ReviewTeamResource
     {
-        // TODO: ADD FILTERING
         try {
             $this->authorize('viewAny', ReviewTeam::class);
 
@@ -54,8 +54,8 @@ class ReviewTeamController extends Controller
                 $teams = ReviewTeam::all()->load('reviewers');
                 return new ReviewTeamCollection($teams);
             }
-        }catch(AuthorizationException $e){
-            return response()->json(["message" => $e -> getMessage()], 403);
+        } catch (AuthorizationException $e) {
+            return response()->json(["message" => $e->getMessage()], 403);
         } catch (Exception $exception) {
             return response()->json(["message" => "Something bad happened!, We are working on it."], 500);
         }
@@ -71,7 +71,7 @@ class ReviewTeamController extends Controller
     public function store(StoreReviewTeamRequest $request): JsonResponse
     {
         try {
-            $this -> authorize('create', ReviewTeam::class);
+            $this->authorize('create', ReviewTeam::class);
 
             // get the id from logged-in user
             //(at this point the user is either a qac officer or a director it is validated)
@@ -107,7 +107,8 @@ class ReviewTeamController extends Controller
             // add the reviewer data to the pivot table
             foreach ($validatedReviewers as $reviewer) {
                 $reviewTeam->reviewers()->attach(
-                    $reviewer['reviewer_id'], [
+                    $reviewer['reviewer_id'],
+                    [
                         'role' => $reviewer['position'],
                         'review_team_id' => $reviewTeam->id,
                         'reviewer_confirmation' => 'PENDING',
@@ -148,8 +149,8 @@ class ReviewTeamController extends Controller
 
             DB::commit();
             return response()->json(["message" => "Review team was successfully added.", "data" => new ReviewTeamResource($reviewTeam->load('reviewers'))]);
-        }catch(AuthorizationException $exception){
-            return response()->json(["message" => $exception -> getMessage()], 403);
+        } catch (AuthorizationException $exception) {
+            return response()->json(["message" => $exception->getMessage()], 403);
         } catch (Exception $exception) {
             DB::rollBack();
             return response()->json(["message" => "Something bad happened!, We are working on it."], 500);
@@ -167,10 +168,8 @@ class ReviewTeamController extends Controller
             //find the review team
             $reviewTeam = ReviewTeam::findOrFail($id)->load('reviewers');
             return new ReviewTeamResource($reviewTeam);
-
-        }catch(AuthorizationException $e){
-            return response()->json(["message" => $e -> getMessage()], 403);
-
+        } catch (AuthorizationException $e) {
+            return response()->json(["message" => $e->getMessage()], 403);
         } catch (ModelNotFoundException $exception) {
             return response()->json(["message" => "There is not such review program in our databases."], 400);
         } catch (Exception $exception) {
@@ -209,9 +208,9 @@ class ReviewTeamController extends Controller
             $reviewTeam->delete(); // delete the review team
             DB::commit();
             return response()->json(['message' => 'The requested review team was deleted from the database.', 'data' => new ReviewTeamResource($reviewTeam)]);
-        }catch(AuthorizationException $e){
-            return response()->json(["message" => $e -> getMessage()], 403);
-        }  catch (ModelNotFoundException $exception) {
+        } catch (AuthorizationException $e) {
+            return response()->json(["message" => $e->getMessage()], 403);
+        } catch (ModelNotFoundException $exception) {
             DB::rollBack();
             return response()->json(["message" => "There is not such review team in our databases."], 400);
         } catch (Exception $exception) {
@@ -222,11 +221,11 @@ class ReviewTeamController extends Controller
     /**
      * Reviewer views PE details of review team
      * {
-     *     reviewTeamId: 12,
-     *     pgprId: 1,
+     *     reviewTeam: 12,
+     *     pgpr: 1,
      * }
      *
-    */
+     */
 
     public function viewProperEvaluationDetails(ShowProperEvaluationDetailsOfReviewTeamRequest $request): JsonResponse
     {
@@ -258,9 +257,32 @@ class ReviewTeamController extends Controller
         } catch (Exception $exception) {
             return response()->json(['message' => 'Something bad happened!, We are working on it.'], 500);
         }
-        catch (Exception $exception) {
-            DB::rollBack();
-            return response()->json(["message" => "Something bad happened!, We are working on it."], 500);
+    }
+
+    // To view the grades, the review must have completed the desk evaluation phase of the review
+    public function viewFinalGradesOfDeskEvaluation(ShowFinalGradeOfDeskEvaluationRequest $request): JsonResponse
+    {
+        try {
+            $validated = $request->validated();
+            return response()->json([
+                'message' => 'Successful',
+                'data' => ScoreCalculationService::gradeObtainedByTheProgramOfStudy(pgprId: $validated['pgpr_id'], stage: 'DE')
+            ]);
+        } catch (Exception $exception) {
+            return response()->json(['message' => 'Something bad happened!, We are working on it.'], 500);
+        }
+    }
+
+    public function viewFinalGradesOfProperEvaluation(ShowFinalGradeOfProperEvaluationRequest $request): JsonResponse
+    {
+        try {
+            $validated = $request->validated();
+            return response()->json([
+                'message' => 'Successful',
+                'data' => ScoreCalculationService::gradeObtainedByTheProgramOfStudy(pgprId: $validated['pgpr_id'], stage: 'PE')
+            ]);
+        } catch (Exception $exception) {
+            return response()->json(['message' => 'Something bad happened!, We are working on it.'], 500);
         }
     }
 }
