@@ -19,8 +19,10 @@ class UpdateReviewChairSubmitDERequest extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
-     * GET request +>
-     *              /{pgpr}/{deskEvaluation}
+     * POST request +>
+     *              {
+     *                  pgpr: 10
+     *              }
      *
      * @return array<string, ValidationRule|array|string>
      */
@@ -32,21 +34,11 @@ class UpdateReviewChairSubmitDERequest extends FormRequest
                 'exists:post_graduate_program_reviews,id',
                 function ($attribute, $value, $fail) {
                     $pgpr = PostGraduateProgramReview::find($value);
-                    if ($pgpr->state != 'DE') {
+                    if ($pgpr->status_of_pgpr != 'DE') {
                         $fail('The post graduate program review is not in an updatable state.');
                     }
                 }
             ],
-            'desk_evaluation_id' => [
-                'required',
-                'exists:desk_evaluations,id',
-                function ($attribute, $value, $fail) {
-                    $deskEvaluation = DeskEvaluation::find($value);
-                    if ($deskEvaluation->state != 'ONGOING') {
-                        $fail('The desk evaluation is not in an updatable state.');
-                    }
-                }
-            ]
         ];
     }
 
@@ -55,8 +47,6 @@ class UpdateReviewChairSubmitDERequest extends FormRequest
         return [
             'pgpr_id.required' => 'The post graduate program review id is required.',
             'pgpr_id.exists' => 'The post graduate program review does not exist in our database.',
-            'desk_evaluation_id.required' => 'The desk evaluation id is required',
-            'desk_evaluation_id.exists' => 'The desk evaluation does not exist in our database',
         ];
     }
 
@@ -65,7 +55,6 @@ class UpdateReviewChairSubmitDERequest extends FormRequest
         $this->merge(
             [
                 'pgpr_id' => $this->pgpr,
-                'desk_evaluation_id' => $this->deskEvaluation,
             ]
         );
     }
