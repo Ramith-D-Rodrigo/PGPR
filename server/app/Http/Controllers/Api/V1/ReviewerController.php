@@ -13,12 +13,16 @@ use App\Http\Requests\V1\UpdateAcceptAppointmentRequest;
 use App\Http\Requests\V1\UpdateAcceptPGPRRequest;
 use App\Http\Requests\V1\UpdateRejectAppointmentRequest;
 use App\Http\Requests\V1\UpdateRejectPGPRAssignmentRequest;
+use App\Http\Requests\V1\UpdateRejectPGPRRequest;
 use App\Http\Requests\V1\UpdateSERRemarksOfSectionsABDRequest;
 use App\Http\Resources\V1\DeskEvaluationCollection;
+use App\Http\Resources\V1\PostGraduateProgramReviewResource;
 use App\Http\Resources\V1\ProperEvaluationCollection;
 use App\Http\Resources\V1\ReviewerBrowsePGPRCollection;
 use App\Http\Resources\V1\ReviewerCollection;
 use App\Http\Resources\V1\ReviewerResource;
+use App\Mail\InformReviewerOfPGPRRejection;
+use App\Mail\InformToOfficialsOfPGPRRejection;
 use App\Mail\RejectReviewerRole;
 use App\Mail\ReviewerRejectReviewAssignment;
 use App\Models\DeskEvaluation;
@@ -30,6 +34,7 @@ use App\Http\Requests\V1\UpdateReviewerRequest;
 use App\Http\Controllers\Controller;
 use App\Models\SelfEvaluationReport;
 use App\Models\User;
+use App\Services\V1\StandardService;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
@@ -47,6 +52,8 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Validation\ValidationException as ValidationValidationException;
 use Maatwebsite\Excel\Validators\ValidationException;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use function Laravel\Prompts\select;
 
 class ReviewerController extends Controller
 {
@@ -103,7 +110,7 @@ class ReviewerController extends Controller
     /**
      * Downloading the appointment declaration letter
      */
-    public function downloadRoleAcceptanceDeclarationLetter(): BinaryFileResponse
+    public function downloadRoleAcceptanceDeclarationLetter(): BinaryFileResponse|JsonResponse
     {
 
         try {
@@ -121,6 +128,8 @@ class ReviewerController extends Controller
             return response()->json([
                 'message' => $e->getMessage(),
             ], 403);
+        } catch (Exception $exception) {
+            return response()->json(["message" => "Your request was duly noted, thank you for responding."], 201);
         }
     }
 
@@ -285,9 +294,6 @@ class ReviewerController extends Controller
             //get the declaration.
             $file = $request->file('file');
 
-            /* echo json_encode($file);
-             exit;*/
-
             if (!$file) {
                 return response()->json(["message" => "The signed declaration letter must be submitted."], 400);
             }
@@ -371,12 +377,12 @@ class ReviewerController extends Controller
                 $review_team->pivot->reviewer_confirmation = 'REJECTED';
                 $review_team->pivot->save();
 
-                //add the reviewer when rejecting the review to the reviewer_reject_post_graduate_program_review table
+                /* //add the reviewer when rejecting the review to the reviewer_reject_post_graduate_program_review table
                 DB::table('reviewer_reject_post_graduate_program_review')->insert([
                     'pgpr_id' => $review_team->pgpr_id,
                     'reviewer_id' => $reviewer->id,
                     'comment' => $request->comment ?? "",
-                ]);
+                ]); */
 
                 Mail::to($creatorOfReviewTeam->official_email)
                     ->send(
@@ -431,7 +437,7 @@ class ReviewerController extends Controller
                     ->reviewTeams
                     ->where('pgpr_id', $validator->validated()['pgprId'])->load('postGraduateReviewProgram');
 
-                return response()->json(['message' => 'successful', 'data' => $reviewTeams->postGraduateReviewProgram]);
+                return response()->json(['message' => 'successful', 'data' => new PostGraduateProgramReviewResource($reviewTeams->postGraduateReviewProgram)]);
             } catch (ModelNotFoundException $exception) {
                 return response()->json(['message' => 'Hmm. we dont have such reviewer in our system, how did you get in?'], 403);
             } catch (Exception $exception) {
@@ -445,7 +451,7 @@ class ReviewerController extends Controller
     /**
      * Reviewer can view the remarks that were provided for the sections A,B, and D
      * for a given SER
-     * 
+     *
      * GET request +>
      *              serId=10
      *
@@ -491,8 +497,8 @@ class ReviewerController extends Controller
     /**
      * Use case 1.2.1
      * Update remarks of Section A, B and D
-     * 
-     * PATCH request +> 
+     *
+     * POST request +>
      *                {
      *                      serId: 10,
      *                      sections: [
@@ -510,7 +516,7 @@ class ReviewerController extends Controller
      *                          }
      *                      ]
      *                }
-     * 
+     *
      */
     public function updateRemarksOfSectionsABD(UpdateSERRemarksOfSectionsABDRequest $request): JsonResponse
     {
@@ -666,6 +672,9 @@ class ReviewerController extends Controller
             $validated = $request->validated();
             $criteria_ids = DB::table('criterias')->pluck('id');
 
+            $deskEvaluation = DeskEvaluation::find($validated['desk_evaluation_id']);
+            $pgp = $deskEvaluation->postGraduateProgramReview->postGraduateProgram;
+
             $data = [];
 
             foreach ($criteria_ids as $criteria_id) {
@@ -673,7 +682,11 @@ class ReviewerController extends Controller
                 $criteria_name = DB::table('criterias')->where('id', $criteria_id)->value('name');
 
                 // Count total number of standards for this criteria
-                $total_standards = DB::table('standards')->where('criteria_id', $criteria_id)->count();
+                $total_standards = count(StandardService::getApplicableStandards(
+                    $pgp->slqf_level,
+                    $pgp->is_professional_pg_programme,
+                    $criteria_id
+                ));
 
                 // Count number of evaluated standards for this criteria
                 $evaluated_standards = DB::table('desk_evaluation_scores')
@@ -709,6 +722,9 @@ class ReviewerController extends Controller
 
             $validated = $request->validated();
 
+            $properEvaluation = ProperEvaluation::find($validated['proper_evaluation_id']);
+            $pgp = $properEvaluation->postGraduateProgramReview->postGraduateProgram;
+
             $criteria_ids = DB::table('reviewer_team_set_criteria')
                 ->where([
                     'assigned_to_reviewer_id' => Auth::id(),
@@ -723,7 +739,11 @@ class ReviewerController extends Controller
                 $criteria_name = DB::table('criterias')->where('id', $criteria_id)->value('name');
 
                 // Count total number of standards for this criteria
-                $total_standards = DB::table('standards')->where('criteria_id', $criteria_id)->count();
+                $total_standards = count(StandardService::getApplicableStandards(
+                    $pgp->slqf_level,
+                    $pgp->is_professional_pg_programme,
+                    $criteria_id
+                ));
 
                 // Count number of evaluated standards for this criteria
                 $evaluated_standards = DB::table('proper_evaluation_score')
@@ -765,6 +785,9 @@ class ReviewerController extends Controller
             // Get all criteria ids
             $criteria_ids = DB::table('criterias')->pluck('id');
 
+            $deskEvaluation = DeskEvaluation::find($validated['desk_evaluation_id']);
+            $pgp = $deskEvaluation->postGraduateProgramReview->postGraduateProgram;
+
             $data = [];
 
             foreach ($criteria_ids as $criteria_id) {
@@ -772,8 +795,11 @@ class ReviewerController extends Controller
                 $criteria_name = DB::table('criterias')->where('id', $criteria_id)->value('name');
 
                 // Count total number of standards for this criteria
-                $total_standards = DB::table('standards')->where('criteria_id', $criteria_id)->count();
-
+                $total_standards = count(StandardService::getApplicableStandards(
+                    $pgp->slqf_level,
+                    $pgp->is_professional_pg_programme,
+                    $criteria_id
+                ));
                 // Count number of evaluated standards for this criteria
                 $evaluated_standards = DB::table('desk_evaluation_scores')
                     ->join('standards', 'desk_evaluation_scores.standard_id', '=', 'standards.id')
@@ -810,12 +836,9 @@ class ReviewerController extends Controller
             // else +> Not all standards have been evaluated, inform reviewer about pending standards
             if ($all_evaluated) {
                 // Get the post graduate program review and the review team
-                $deskEvaluation = DeskEvaluation::find($validated['desk_evaluation_id']);
-                $postGraduateProgramReview = $deskEvaluation->postGraduateProgramReview;
-                $postGraduateProgram = $postGraduateProgramReview->postGraduateProgram;
-                $faculty = $postGraduateProgram->faculty;
+                $faculty = $pgp->faculty;
                 $university = $faculty->university;
-                $reviewTeam = $postGraduateProgramReview->reviewTeam;
+                $reviewTeam = $pgp->reviewTeam;
                 $reviewers = $reviewTeam->reviewers;
 
                 $reviewChair = User::find($reviewers->first(function ($reviewer) {
@@ -866,6 +889,10 @@ class ReviewerController extends Controller
                 ])
                 ->pluck('criteria_id');
 
+            $properEvaluation = ProperEvaluation::find($validated['proper_evaluation_id']);
+            $postGraduateProgramReview = $properEvaluation->postGraduateProgramReview;
+            $pgp = $postGraduateProgramReview->postGraduateProgram;
+
             $data = [];
 
             $all_evaluated = true;
@@ -874,8 +901,17 @@ class ReviewerController extends Controller
                 // Get criteria name
                 $criteria_name = DB::table('criterias')->where('id', $criteria_id)->value('name');
 
-                // Get all standard ids for this criteria
-                $standard_ids = DB::table('standards')->where('criteria_id', $criteria_id)->pluck('id');
+                // Count total number of standards for this criteria
+                $standard_ids = array_map(
+                    function ($standard) {
+                        return $standard->id;
+                    },
+                    StandardService::getApplicableStandards(
+                        $pgp->slqf_level,
+                        $pgp->is_professional_pg_programme,
+                        $criteria_id
+                    )
+                );
 
                 $standards_data = [];
 
@@ -904,19 +940,16 @@ class ReviewerController extends Controller
                 }
 
                 $data[] = [
-                    'criteria_id' => $criteria_id,
-                    'criteria_name' => $criteria_name,
-                    'pending_standards' => $standards_data,
+                    'criteriaId' => $criteria_id,
+                    'criteriaName' => $criteria_name,
+                    'pendingStandards' => $standards_data,
                 ];
             }
 
             if ($all_evaluated) {
                 // All standards have been evaluated, reviewer can submit proper evaluation
                 // Get the post graduate program review and the review team
-                $properEvaluation = ProperEvaluation::find($validated['proper_evaluation_id']);
-                $postGraduateProgramReview = $properEvaluation->postGraduateProgramReview;
-                $postGraduateProgram = $postGraduateProgramReview->postGraduateProgram;
-                $faculty = $postGraduateProgram->faculty;
+                $faculty = $pgp->faculty;
                 $university = $faculty->university;
                 $reviewTeam = $postGraduateProgramReview->reviewTeam;
                 $reviewers = $reviewTeam->reviewers;
@@ -1045,6 +1078,104 @@ class ReviewerController extends Controller
     }
 
     /**
+     * Reviewer reject PGPR in desk evaluation if the evidences aren't up to expected standard
+     */
+    public function rejectPGPRInEvaluation(UpdateRejectPGPRRequest $request): JsonResponse
+    {
+        try {
+            $validated = $request->validated();
+
+            DB::beginTransaction();
+
+            DB::table('reviewer_reject_post_graduate_program_review')->insert([
+                'reviewer_id' => Auth::id(),
+                'pgpr_id' => $validated['pgpr_id'],
+                'comment' => $validated["comment"] ?? "",
+            ]);
+
+            // check whether all the members have submitted rejections
+            $rejections = DB::table('reviewer_reject_post_graduate_program_review')
+                ->select('pgpr_id', 'reviewer_id', 'comment')
+                ->where([
+                    'pgpr_id' => $validated['pgpr_id'],
+                ])
+                ->get();
+
+            $postGraduateProgramReview = PostGraduateProgramReview::find($validated['pgpr_id']);
+            $postGraduateProgram = $postGraduateProgramReview->postGraduateProgram;
+
+            if ($rejections->count() >= 3) {
+                $qacDirector = User::find($postGraduateProgramReview->qac_dir_id);
+                $programCoodinator = User::find($postGraduateProgram->currentProgrammeCoordinator->id);
+                $dean = User::find($postGraduateProgram->faculty->currentDean->id);
+
+                $data = [];
+                $data['postGraduateProgram'] = $postGraduateProgram;
+                $data['reviewers'] = [];
+                foreach ($rejections as $rejection) {
+                    $data['reviewers'][] = [
+                        'reviewer' => User::find($rejection['reviewer_id']),
+                        'comment' => $rejection['comment'],
+                    ];
+                }
+
+                //sending the mail to the dean
+                Mail::to($dean->official_email)
+                    ->send(new InformToOfficialsOfPGPRRejection(
+                        recipient: $dean,
+                        data: $data,
+                        subject: 'Review team rejected the post graduate program review',
+                        content: 'mail.informToOfficialsAboutReviewTeamPGPRRejection',
+                    ));
+                //sending the mail to the program coordinator
+                Mail::to($programCoodinator->official_email)
+                    ->send(new InformToOfficialsOfPGPRRejection(
+                        recipient: $programCoodinator,
+                        data: $data,
+                        subject: 'Review team rejected the post graduate program review',
+                        content: 'mail.informToOfficialsAboutReviewTeamPGPRRejection',
+                    ));
+                //sending the mail to the qac director
+                Mail::to($qacDirector->official_email)
+                    ->send(new InformToOfficialsOfPGPRRejection(
+                        recipient: $qacDirector,
+                        data: $data,
+                        subject: 'Review team rejected the post graduate program review',
+                        content: 'mail.informToOfficialsAboutReviewTeamPGPRRejection',
+                    ));
+
+                //set the pgpr status as rejected/suspended
+                $postGraduateProgramReview->status_of_pgpr = 'SUSPENDED';
+                $postGraduateProgramReview->save();
+            }
+            // inform the other reviewers
+            $reviewers = $postGraduateProgramReview->reviewTeam->reviewers; // get the review team
+            $rejectedReviewer = Auth::user();
+            foreach ($reviewers as $reviewer) {
+                if ($reviewer->id != Auth::id()) {
+                    $user = User::find($reviewer->id);
+                    Mail::to($user->official_email)
+                        ->send(
+                            new InformReviewerOfPGPRRejection(
+                                recipient: $user,
+                                rejectedBy: $rejectedReviewer,
+                                content: 'mail.reviewerRejectedPGPRInEvaluation',
+                                subject: 'Reviewer rejected the post graduate program',
+                                comment: $validated['comment'],
+                                postGraduateProgram: $postGraduateProgram,
+                            )
+                        );
+                }
+            }
+            DB::commit();
+            return response()->json(['message' => 'Your request is duly noted, thank you for responding.']);
+        } catch (Exception $exception) {
+            DB::rollBack();
+            return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+        }
+    }
+
+    /**
      * Update the specified resource in storage.
      */
     public function update(UpdateReviewerRequest $request, Reviewer $reviewer)
@@ -1060,7 +1191,7 @@ class ReviewerController extends Controller
         //remove the user's reviewer role
     }
 
-    public function downloadExcelFile(): \Symfony\Component\HttpFoundation\StreamedResponse|JsonResponse
+    public function downloadExcelFile(): StreamedResponse|JsonResponse
     {
         try {
             return Storage::download('public/reviewer-excel-template.xlsx');

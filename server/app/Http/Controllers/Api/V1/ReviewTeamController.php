@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Requests\V1\ShowFinalGradeOfDeskEvaluationRequest;
+use App\Http\Requests\V1\ShowFinalGradeOfProperEvaluationRequest;
+use App\Http\Requests\V1\ShowFinalReportRequest;
+use App\Http\Requests\V1\ShowPreliminaryReportRequest;
 use App\Http\Requests\V1\ShowProperEvaluationDetailsOfReviewTeamRequest;
 use App\Http\Requests\V1\StoreReviewTeamRequest;
 use App\Http\Requests\V1\UpdateReviewTeamRequest;
@@ -17,13 +21,12 @@ use App\Models\Reviewer;
 use App\Models\ReviewTeam;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\V1\ScoreCalculationService;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Database\Events\TransactionBeginning;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -37,7 +40,6 @@ class ReviewTeamController extends Controller
      */
     public function index(Request $request): JsonResponse|ReviewTeamCollection|ReviewTeamResource
     {
-        // TODO: ADD FILTERING
         try {
             $this->authorize('viewAny', ReviewTeam::class);
 
@@ -256,9 +258,91 @@ class ReviewTeamController extends Controller
             return response()->json(['message' => 'Successful', 'data' => $data]);
         } catch (Exception $exception) {
             return response()->json(['message' => 'Something bad happened!, We are working on it.'], 500);
+        }
+    }
+
+    // To view the grades, the review must have completed the desk evaluation phase of the review
+    public function viewFinalGradesOfDeskEvaluation(ShowFinalGradeOfDeskEvaluationRequest $request): JsonResponse
+    {
+        try {
+            $validated = $request->validated();
+            return response()->json([
+                'message' => 'Successful',
+                'data' => ScoreCalculationService::gradeObtainedByTheProgramOfStudy(pgprId: $validated['pgpr_id'], stage: 'DE')
+            ]);
         } catch (Exception $exception) {
-            DB::rollBack();
-            return response()->json(["message" => "Something bad happened!, We are working on it."], 500);
+            return response()->json(['message' => 'Something bad happened!, We are working on it.'], 500);
+        }
+    }
+
+    public function viewFinalGradesOfProperEvaluation(ShowFinalGradeOfProperEvaluationRequest $request): JsonResponse
+    {
+        try {
+            $validated = $request->validated();
+            return response()->json([
+                'message' => 'Successful',
+                'data' => ScoreCalculationService::gradeObtainedByTheProgramOfStudy(pgprId: $validated['pgpr_id'], stage: 'PE')
+            ]);
+        } catch (Exception $exception) {
+            return response()->json(['message' => 'Something bad happened!, We are working on it.'], 500);
+        }
+    }
+
+    /**
+     * If the preliminary report is uploaded, then it can be downloaded
+     * GET request +>
+     *                /{pgpr}
+     */
+    public function viewPreliminaryReport(ShowPreliminaryReportRequest $request): JsonResponse
+    {
+        try {
+            $validated = $request->validated();
+            $pgpr = PostGraduateProgramReview::find($validated['pgpr_id']);
+            $reviewTeam = $pgpr->reviewTeam;
+
+            $data = DB::table('final_reports')
+                ->select('preliminary_report as preliminaryReport', 'created_at as createdAt', 'updated_at as updatedAt')
+                ->where('pgpr_id', $pgpr->id)
+                ->where('review_team_id', $reviewTeam->id)
+                ->first();
+
+            if (!$data) {
+                return response()->json(['message' => 'The preliminary report is not yet uploaded.']);
+            }
+
+            return response()->json(['message' => 'Success', 'data' => $data]);
+
+        } catch (Exception $exception) {
+            return response()->json(['message' => 'Something bad happened!, We are working on it.'], 500);
+        }
+    }
+
+    /**
+     * If the final report is uploaded then it can be downloaded
+     * GET request +>
+     *                /{pgpr}
+     */
+    public function viewFinalReport(ShowFinalReportRequest $request): JsonResponse
+    {
+        try {
+            $validated = $request->validated();
+            $pgpr = PostGraduateProgramReview::find($validated['pgpr_id']);
+            $reviewTeam = $pgpr->reviewTeam;
+
+            $data = DB::table('final_reports')
+                ->select('final_report as finalReport', 'created_at as createdAt', 'updated_at as updatedAt')
+                ->where('pgpr_id', $pgpr->id)
+                ->where('review_team_id', $reviewTeam->id)
+                ->first();
+
+            if (!$data) {
+                return response()->json(['message' => 'The final report is not yet uploaded.']);
+            }
+
+            return response()->json(['message' => 'Success', 'data' => $data]);
+
+        } catch (Exception $exception) {
+            return response()->json(['message' => 'Something bad happened!, We are working on it.'], 500);
         }
     }
 }

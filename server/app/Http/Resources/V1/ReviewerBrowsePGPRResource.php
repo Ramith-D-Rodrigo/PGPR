@@ -15,8 +15,8 @@ class ReviewerBrowsePGPRResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'postGraduateReviewProgram' => $this->whenLoaded('postGraduateReviewProgram'),
-            'postGraduateProgram' => $this->whenLoaded('postGraduateReviewProgram.postGraduateProgram'),
+            'postGraduateReviewProgram' => new PostGraduateProgramReviewResource($this->whenLoaded('postGraduateReviewProgram')),
+            'postGraduateProgram' => new PostGraduateProgramResource($this->whenLoaded('postGraduateReviewProgram.postGraduateProgram')),
             'role' => $this->pivot->role,
             'reviewerConfirmation' => $this->pivot->reviewer_confirmation,
         ];
