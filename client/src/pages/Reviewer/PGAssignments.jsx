@@ -43,6 +43,7 @@ const pgAssignments = () => {
     
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+    const [openDEDialog, setOpenDEDialog] = useState(false);
     const [selectedFilterKeys, setSelectedFilterKeys] = useState([{ title: 'In-review' }]);
     const [AcceptClicked, setAcceptClicked] = useState(false);
     const [acceptAssignment, setAcceptAssignment] = useState(false);
@@ -53,22 +54,24 @@ const pgAssignments = () => {
     const [errorMsg, setErrorMsg] = useState("");
     const [success, setSuccess] = useState(false);
     const [assignedPGPRs, setAssignedPGPRs] = useState([]);
+    const [DeEndDate, setDeEndDate] = useState('');
+
+    const getPGPRAssignments = async () => {
+        try {
+            setLoading(true);
+            setErrorMsg("");
+            const response = await getAssignedPGPRs();
+            console.log("PGPR Assignments : ",response?.data?.data);
+            setAssignedPGPRs(response?.data?.data);
+            setLoading(false);
+        } catch (err) {
+            console.error(err);
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
         document.title = "PG Assignments";
-        const getPGPRAssignments = async () => {
-            try {
-                setLoading(true);
-                setErrorMsg("");
-                const response = await getAssignedPGPRs();
-                console.log("PGPR Assignments : ",response?.data?.data);
-                setAssignedPGPRs(response?.data?.data);
-                setLoading(false);
-            } catch (err) {
-                console.error(err);
-                setLoading(false);
-            }
-        };
         getPGPRAssignments();
     }, []);
 
@@ -164,7 +167,38 @@ const pgAssignments = () => {
         console.log("Accept Clicked : ",pgprID);
     }
 
+    function setDate(dates) {
+        console.log("DE Clicked : ",dates);
+        setOpenDEDialog(dates);
+    }
+
+    function handleSetDate(dates) {
+        if(DeEndDate === '')
+        {
+            setErrorMsg("Please select the end date for the Desk Evaluation");
+            setDeEndDate('');
+            return;
+        }
+        else if(DeEndDate < dates.startDate)
+        {
+            setErrorMsg("Please select a valid end date for the Desk Evaluation");
+            setDeEndDate('');
+            return;
+        }
+        else if(DeEndDate - dates.startDate < 30)
+        {
+            setErrorMsg("Desk Evaluation should allocate at least a month");
+            setDeEndDate('');
+            return;
+        }
+        console.log("set Dates Clicked : ",dates, DeEndDate);
+        setDeEndDate('');
+        setOpenDEDialog(false);
+        getPGPRAssignments();
+    }
+
     function createData(pgprID,University_Name, faculty_Name, pgp, Role, status, Actions) {
+        const dates = {id:pgprID,startDate:"2020.12.23",endDate:"Not Set yet"}
         Actions = Actions.map((action,index) => {
             
             let allow = action.allow? {disabled:false} : {disabled:true};
@@ -179,7 +213,8 @@ const pgAssignments = () => {
             }
             else if(action.action === 'DE')
             {
-                return <Link key={index} to={action.allow? 'Conduct_DE/'+pgprID : ''}><Button {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button></Link>
+                action.allow = false;
+                return <Link key={index} to={action.allow? 'Conduct_DE/'+pgprID : ''}><Button onClick={()=>setDate(dates)} {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button></Link>
             }
             else if(action.action === 'PE')
             {
@@ -422,6 +457,39 @@ const pgAssignments = () => {
                 </Button>
                 <Button onClick={()=>handleRejectAssignment()} autoFocus>
                     Reject
+                </Button>
+                </DialogActions>
+            </Dialog>
+
+            <Dialog
+                fullScreen={fullScreen}
+                open={openDEDialog? true : false}
+                onClose={()=>setOpenDEDialog(false)}
+                aria-labelledby="Set-DE-Date"
+            >
+                <DialogTitle id="Set-De-Date-ID">
+                {`Set the Desk Evaluation Date for ${openDEDialog.id} postgraduate programme review`}
+                </DialogTitle>
+                <DialogContent>
+                    <p>Start Date : <strong>{openDEDialog.startDate}</strong></p>
+                    <p>End Date : <strong>{openDEDialog.endDate}</strong></p>
+                    <Box sx={{display:'flex',flexDirection:'column',justifyContent:'space-around',alignItems:'center',width:'100%',height:'100%',margin:"1rem 0"}}>
+                        <TextField
+                            id="setEndDate"
+                            value={DeEndDate}
+                            helperText="Please select the end date for the Desk Evaluation"
+                            variant="standard"
+                            onChange={(e)=>setDeEndDate(e.target.value)}
+                            type="date"
+                        />
+                    </Box>
+                </DialogContent>
+                <DialogActions>
+                <Button autoFocus onClick={()=>setOpenDEDialog(false)}>
+                    cancel
+                </Button>
+                <Button onClick={()=>handleSetDate(openDEDialog)} autoFocus>
+                    Set Date
                 </Button>
                 </DialogActions>
             </Dialog>
