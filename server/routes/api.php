@@ -185,6 +185,10 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::post('review-team-chair/desk-evaluation/update-scores', 'ReviewTeamChairController@updateDEScoresOfEachStandard')->middleware('auth');
     //review team chair update review team proper evaluation scores
     Route::post('review-team-chair/proper-evaluation/update-scores', 'ReviewTeamChairController@updatePEScoresOfEachStandard')->middleware('auth');
+    //review team chair submit desk evaluation
+    Route::post('review-team-chair/proper-evaluation/submit', 'ReviewTeamChairController@submitDeskEvaluation')->middleware('auth');
+    //review team chair submit proper evaluation
+    Route::post('review-team-chair/proper-evaluation/submit', 'ReviewTeamChairController@submitProperEvaluation')->middleware('auth');
 
     //REVIEW TEAM ENDPOINTS
     //reviewer view proper evaluation details of the review team (could be either review team head or a member)
