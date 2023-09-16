@@ -45,17 +45,7 @@ const PGPRs = () => {
 
   const [viewingApplication, setViewingApplication] = React.useState(null);
 
-  const style = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 400,
-    bgcolor: 'background.paper',
-    border: '2px solid #000',
-    boxShadow: 24,
-    p: 4,
-  };
+
 
   const [open, setOpen] = React.useState(false);
 
@@ -92,7 +82,17 @@ const PGPRs = () => {
   }, [viewingApplication]);
 
 
-
+  const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+  };
 
   //create a simple modal using material ui
   const ApplicationPopUp = () => {
@@ -106,7 +106,7 @@ const PGPRs = () => {
           <Typography id="modal-modal-title" variant="h6" component="h2">
             Post Graduate Programme Review Application
           </Typography>
-          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }} component='div'>
             <Typography>
               Application ID: {viewingApplicationData?.id}
             </Typography>
