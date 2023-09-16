@@ -33,6 +33,7 @@ use App\Http\Requests\V1\UpdateReviewerRequest;
 use App\Http\Controllers\Controller;
 use App\Models\SelfEvaluationReport;
 use App\Models\User;
+use App\Services\V1\StandardService;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
@@ -673,6 +674,9 @@ class ReviewerController extends Controller
             $validated = $request->validated();
             $criteria_ids = DB::table('criterias')->pluck('id');
 
+            $deskEvaluation = DeskEvaluation::find($validated['desk_evaluation_id']);
+            $pgp = $deskEvaluation->postGraduateProgramReview->postGraduateProgram;
+
             $data = [];
 
             foreach ($criteria_ids as $criteria_id) {
@@ -680,7 +684,11 @@ class ReviewerController extends Controller
                 $criteria_name = DB::table('criterias')->where('id', $criteria_id)->value('name');
 
                 // Count total number of standards for this criteria
-                $total_standards = DB::table('standards')->where('criteria_id', $criteria_id)->count();
+                $total_standards = count(StandardService::getApplicableStandards(
+                    $pgp->slqf_level,
+                    $pgp->is_professional_pg_programme,
+                    $criteria_id
+                ));
 
                 // Count number of evaluated standards for this criteria
                 $evaluated_standards = DB::table('desk_evaluation_scores')
@@ -716,6 +724,9 @@ class ReviewerController extends Controller
 
             $validated = $request->validated();
 
+            $properEvaluation = ProperEvaluation::find($validated['proper_evaluation_id']);
+            $pgp = $properEvaluation->postGraduateProgramReview->postGraduateProgram;
+
             $criteria_ids = DB::table('reviewer_team_set_criteria')
                 ->where([
                     'assigned_to_reviewer_id' => Auth::id(),
@@ -730,7 +741,11 @@ class ReviewerController extends Controller
                 $criteria_name = DB::table('criterias')->where('id', $criteria_id)->value('name');
 
                 // Count total number of standards for this criteria
-                $total_standards = DB::table('standards')->where('criteria_id', $criteria_id)->count();
+                $total_standards = count(StandardService::getApplicableStandards(
+                    $pgp->slqf_level,
+                    $pgp->is_professional_pg_programme,
+                    $criteria_id
+                ));
 
                 // Count number of evaluated standards for this criteria
                 $evaluated_standards = DB::table('proper_evaluation_score')
@@ -772,6 +787,9 @@ class ReviewerController extends Controller
             // Get all criteria ids
             $criteria_ids = DB::table('criterias')->pluck('id');
 
+            $deskEvaluation = DeskEvaluation::find($validated['desk_evaluation_id']);
+            $pgp = $deskEvaluation->postGraduateProgramReview->postGraduateProgram;
+
             $data = [];
 
             foreach ($criteria_ids as $criteria_id) {
@@ -779,8 +797,11 @@ class ReviewerController extends Controller
                 $criteria_name = DB::table('criterias')->where('id', $criteria_id)->value('name');
 
                 // Count total number of standards for this criteria
-                $total_standards = DB::table('standards')->where('criteria_id', $criteria_id)->count();
-
+                $total_standards = count(StandardService::getApplicableStandards(
+                    $pgp->slqf_level,
+                    $pgp->is_professional_pg_programme,
+                    $criteria_id
+                ));
                 // Count number of evaluated standards for this criteria
                 $evaluated_standards = DB::table('desk_evaluation_scores')
                     ->join('standards', 'desk_evaluation_scores.standard_id', '=', 'standards.id')
@@ -817,12 +838,9 @@ class ReviewerController extends Controller
             // else +> Not all standards have been evaluated, inform reviewer about pending standards
             if ($all_evaluated) {
                 // Get the post graduate program review and the review team
-                $deskEvaluation = DeskEvaluation::find($validated['desk_evaluation_id']);
-                $postGraduateProgramReview = $deskEvaluation->postGraduateProgramReview;
-                $postGraduateProgram = $postGraduateProgramReview->postGraduateProgram;
-                $faculty = $postGraduateProgram->faculty;
+                $faculty = $pgp->faculty;
                 $university = $faculty->university;
-                $reviewTeam = $postGraduateProgramReview->reviewTeam;
+                $reviewTeam = $pgp->reviewTeam;
                 $reviewers = $reviewTeam->reviewers;
 
                 $reviewChair = User::find($reviewers->first(function ($reviewer) {
@@ -873,6 +891,10 @@ class ReviewerController extends Controller
                 ])
                 ->pluck('criteria_id');
 
+            $properEvaluation = ProperEvaluation::find($validated['proper_evaluation_id']);
+            $postGraduateProgramReview = $properEvaluation->postGraduateProgramReview;
+            $pgp = $postGraduateProgramReview->postGraduateProgram;
+
             $data = [];
 
             $all_evaluated = true;
@@ -881,8 +903,17 @@ class ReviewerController extends Controller
                 // Get criteria name
                 $criteria_name = DB::table('criterias')->where('id', $criteria_id)->value('name');
 
-                // Get all standard ids for this criteria
-                $standard_ids = DB::table('standards')->where('criteria_id', $criteria_id)->pluck('id');
+                // Count total number of standards for this criteria
+                $standard_ids = array_map(
+                    function ($standard) {
+                        return $standard->id;
+                    },
+                    StandardService::getApplicableStandards(
+                        $pgp->slqf_level,
+                        $pgp->is_professional_pg_programme,
+                        $criteria_id
+                    )
+                );
 
                 $standards_data = [];
 
@@ -911,19 +942,16 @@ class ReviewerController extends Controller
                 }
 
                 $data[] = [
-                    'criteria_id' => $criteria_id,
-                    'criteria_name' => $criteria_name,
-                    'pending_standards' => $standards_data,
+                    'criteriaId' => $criteria_id,
+                    'criteriaName' => $criteria_name,
+                    'pendingStandards' => $standards_data,
                 ];
             }
 
             if ($all_evaluated) {
                 // All standards have been evaluated, reviewer can submit proper evaluation
                 // Get the post graduate program review and the review team
-                $properEvaluation = ProperEvaluation::find($validated['proper_evaluation_id']);
-                $postGraduateProgramReview = $properEvaluation->postGraduateProgramReview;
-                $postGraduateProgram = $postGraduateProgramReview->postGraduateProgram;
-                $faculty = $postGraduateProgram->faculty;
+                $faculty = $pgp->faculty;
                 $university = $faculty->university;
                 $reviewTeam = $postGraduateProgramReview->reviewTeam;
                 $reviewers = $reviewTeam->reviewers;

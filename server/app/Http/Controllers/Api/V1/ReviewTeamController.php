@@ -38,7 +38,6 @@ class ReviewTeamController extends Controller
      */
     public function index(Request $request): JsonResponse|ReviewTeamCollection|ReviewTeamResource
     {
-        // TODO: ADD FILTERING
         try {
             $this->authorize('viewAny', ReviewTeam::class);
 

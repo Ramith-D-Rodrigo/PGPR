@@ -11,12 +11,12 @@ class ScoreCalculationService
     public static function gradeObtainedByTheProgramOfStudy(string|int $pgprId, string $stage): array
     {
         $performanceScores = self::calculateOverallStudyProgramScores($pgprId, $stage);
-        if (!$performanceScores) {
+        if (!$performanceScores || $performanceScores['scores']) {
             return [];
         }
 
-        $numberOfCriteriaLessThanMinimumCriterionScore = $performanceScores[''];
-        $percentageOfActualCriterionWiseScores = $performanceScores[''];
+        $numberOfCriteriaLessThanMinimumCriterionScore = $performanceScores['numberOfCriteriaLessThanMinimumCriteriaScore'];
+        $percentageOfActualCriterionWiseScores = $performanceScores['percentageOfActualCriterionWiseScores'];
 
         if ($numberOfCriteriaLessThanMinimumCriterionScore == 0) {
             if ($percentageOfActualCriterionWiseScores >= 80) {
@@ -52,22 +52,22 @@ class ScoreCalculationService
     private static function calculateOverallStudyProgramScores(string|int $pgprId, string $stage): array
     {
         $criteriaScores = self::calculateCriterionWiseScores($pgprId, $stage);
-        if (!$criteriaScores) {
+        if (!$criteriaScores || !$criteriaScores['scores']) {
             return [];
         }
 
         $totalOfActualCriterionWiseScores = 0;
         $numberOfCriteriaLessThanMinimumCriterionScore = 0;
 
-        foreach ($criteriaScores as $criterionScore) {
-            $totalOfActualCriterionWiseScores += $criterionScore['actual_score'];
+        foreach ($criteriaScores['scores'] as $criterionScore) {
+            $totalOfActualCriterionWiseScores += $criterionScore['actualScore'];
             if ($criterionScore['isActualCriterionWiseScoreIsLessThanMinCriterionScore'])
                 $numberOfCriteriaLessThanMinimumCriterionScore += 1;
         }
 
         $percentageOfActualCriterionWiseScores = $totalOfActualCriterionWiseScores / 100;
         $criteriaScores['percentageOfActualCriterionWiseScores'] = $percentageOfActualCriterionWiseScores;
-        $criteriaScores['numberOfCriteriaLessThanMinimumCriteria_score'] = $numberOfCriteriaLessThanMinimumCriterionScore;
+        $criteriaScores['numberOfCriteriaLessThanMinimumCriteriaScore'] = $numberOfCriteriaLessThanMinimumCriterionScore;
 
         return $criteriaScores;
     }
@@ -75,6 +75,7 @@ class ScoreCalculationService
     private static function calculateCriterionWiseScores(string|int $pgprId, string $stage): array
     {
         $postGraduateReviewProgram = PostGraduateProgramReview::find($pgprId);
+        $pgp = $postGraduateReviewProgram->postGraduateProgram;
         $deskEvaluation = $postGraduateReviewProgram->deskEvaluation;
 
         // if there is no desk evaluation, then there cannot be a proper evaluation
@@ -89,13 +90,18 @@ class ScoreCalculationService
             ->where('role', 'CHAIR')
             ->first();
         $data = [];
+        $data['scores'] = [];
 
         // Get all criteria
         $criteria = DB::table('criterias')->get();
 
         foreach ($criteria as $criterion) {
             // Get all standards for this criteria
-            $standards = DB::table('standards')->where('criteria_id', $criterion->id)->get();
+            $standards = StandardService::getApplicableStandards(
+                $pgp->slqf_level,
+                $pgp->is_professional_pg_programme,
+                $criterion->id
+            );
 
             $totalScore = 0;
             $score = NULL;
@@ -125,13 +131,14 @@ class ScoreCalculationService
                 $score = NULL;
             }
 
-            $maximumCriterionScore = $standards->count() * 3;
+            $maximumCriterionScore = count($standards) * 3;
             $minimumCriterionScore = $maximumCriterionScore / 2;
             $actualCriterionWiseScore = ($totalScore / $maximumCriterionScore) * $criterion->weightage_on_thousand;
 
             // Add to data
-            $data[] = [
+            $data['scores'][] = [
                 'criteriaId' => $criteria->id,
+                'criteriaName' => $criteria->name,
                 'maximumCriterionScore' => $maximumCriterionScore,
                 'minimumCriterionScore' => $minimumCriterionScore,
                 'rawScore' => $totalScore,

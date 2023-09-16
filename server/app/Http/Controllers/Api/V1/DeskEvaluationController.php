@@ -187,15 +187,6 @@ class DeskEvaluationController extends Controller
     }
 
     /**
-     * Reviewer Use case 1.6
-     * View summary of DE grade
-     */
-    public function viewSummaryOfDEGrade()
-    {
-    }
-
-
-    /**
      * Remove the specified resource from storage.
      */
     public function destroy(DeskEvaluation $deskEvaluation)
