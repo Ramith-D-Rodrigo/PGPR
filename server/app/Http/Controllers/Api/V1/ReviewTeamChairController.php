@@ -349,7 +349,9 @@ class ReviewTeamChairController extends Controller
     private function canSubmitDeskEvaluation($pgprId): bool
     {
         $reviewTeam = DB::table('review_teams')->where('pgpr_id', $pgprId)->first();
-        $pgp = PostGraduateProgramReview::find($pgprId)->postGraduateProgram;
+        $pgpr = PostGraduateProgramReview::find($pgprId);
+        $pgp = $pgpr->postGraduateProgram;
+        $deskEvaluation = $pgpr->deskEvaluation;
 
         if (!$reviewTeam) {
             return false;
@@ -371,10 +373,11 @@ class ReviewTeamChairController extends Controller
                 // Get all scores for this standard
                 $scores = DB::table('desk_evaluation_score')
                     ->whereIn('reviewer_id', $reviewers)
+                    ->where('desk_evaluation_id', $deskEvaluation->id)
                     ->where('standard_id', $standard->id)
                     ->pluck('de_score');
 
-                if ($scores->isEmpty() || $scores->unique()->count() > 1) {
+                if ($scores->isEmpty() || $scores->count() != 3 || $scores->unique()->count() > 1) {
                     return false;
                 }
             }
@@ -477,7 +480,9 @@ class ReviewTeamChairController extends Controller
     {
         $reviewTeam = DB::table('review_teams')->where('pgpr_id', $pgprId)->first();
         $reviewers = DB::table('reviewer_review_teams')->where('review_team_id', $reviewTeam->id)->pluck('reviewer_id');
-        $pgp = PostGraduateProgramReview::find($pgprId)->postGraduateProgram;
+        $pgpr = PostGraduateProgramReview::find($pgprId);
+        $pgp = $pgpr->postGraduateProgram;
+        $properEvaluation = $pgpr->properEvaluation;
 
         if (!$reviewTeam) {
             return false;
@@ -497,9 +502,10 @@ class ReviewTeamChairController extends Controller
                 // Get all scores for this standard
                 $scores = DB::table('proper_evaluation_score')
                     ->whereIn('reviewer_id', $reviewers)
+                    ->where('proper_evaluation_id', $properEvaluation->id)
                     ->where('standard_id', $standard->id)
                     ->pluck('pe_score');
-                if ($scores->isEmpty() || $scores->unique()->count() > 1) {
+                if ($scores->isEmpty()) {
                     return false;
                 }
             }
