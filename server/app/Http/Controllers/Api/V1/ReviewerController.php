@@ -293,9 +293,6 @@ class ReviewerController extends Controller
             //get the declaration.
             $file = $request->file('file');
 
-            /* echo json_encode($file);
-             exit;*/
-
             if (!$file) {
                 return response()->json(["message" => "The signed declaration letter must be submitted."], 400);
             }
