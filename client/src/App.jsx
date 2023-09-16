@@ -251,7 +251,7 @@ function App() {
                 <Route path="" element={<Dashboard />} />
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="pgprs/:serId" element={<Ser />} />
-                <Route path="submitpgpr" element={<SubmitPGPR />} />
+                <Route path="pgprs/:serId/submitSER" element={<SubmitPGPR />} />
                 <Route path="addevidence" element={<AddEvidence />} />
                 <Route path="pgprs/" element={<PGPRs />} />
                 <Route path="pgprs/:serId/EditSer/:criteriaId" element={<EditSer />} />
