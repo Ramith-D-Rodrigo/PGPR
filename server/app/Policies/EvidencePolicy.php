@@ -116,12 +116,12 @@ class EvidencePolicy
         $currRole = request() -> session() -> get('authRole');
 
         if(!in_array($currRole, ['programme_coordinator','iqau_director'])){
-            return Response::deny('You are not allowed to create evidence');
+            return Response::deny('You are not allowed to delete evidence');
         }
 
         //find the faculty from the evidence
         $faculty = $evidence
-                        -> selfEvaluationReport
+                        -> selfEvaluationReport[0] //only one should be there
                         -> postGraduateProgramReview
                         -> postGraduateProgram
                         -> faculty;
