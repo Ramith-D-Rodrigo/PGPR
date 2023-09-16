@@ -66,7 +66,6 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::apiResource('selfEvaluationReports', 'SelfEvaluationReportController')->middleware('auth');
     Route::apiResource('qualityAssuranceStaffs', 'QualityAssuranceStaffController');
     Route::apiResource('qacOfficers', 'QualityAssuranceCouncilOfficerController');
-    Route::apiResource('qacDirectors', 'QualityAssuranceCouncilDirectorController');
     Route::apiResource('properEvaluations', 'ProperEvaluationController');
     Route::apiResource('programmeCoordinators', 'ProgrammeCoordinatorController')->middleware('auth');
     //other routes of the programmeCoordinators
@@ -178,7 +177,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     //review team chair view review team proper evaluation progress
     Route::get('review-team-chair/proper-evaluation/view-progress/{pgpr}/{reviewTeam}/{properEvaluation}', 'ReviewTeamChairController@viewReviewTeamProperEvaluationProgress')->middleware('auth');
     //review team chair view review team desk evaluation scores
-    Route::get('review-team-chair/desk-evaluation/view-scores//{pgpr}/{criteria}/{standard}', 'ReviewTeamChairController@viewDEScoresOfEachStandardOfEachProjectMember')->middleware('auth');
+    Route::get('review-team-chair/desk-evaluation/view-scores/{pgpr}/{criteria}/{standard}', 'ReviewTeamChairController@viewDEScoresOfEachStandardOfEachProjectMember')->middleware('auth');
     //review team chair view review team proper evaluation scores
     Route::get('review-team-chair/proper-evaluation/view-scores/{pgpr}/{criteria}/{standard}', 'ReviewTeamChairController@viewPEScoresOfEachStandardOfEachProjectMember')->middleware('auth');
     //review team chair update review team desk evaluation scores
@@ -193,6 +192,12 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::post('review-team-chair/upload/preliminary-report', 'ReviewTeamChairController@uploadPreliminaryReport')->middleware('auth');
     //review team chair upload final report
     Route::post('review-team-chair/upload/final-report', 'ReviewTeamChairController@uploadFinalReport')->middleware('auth');
+    //review team chair submit preliminary report
+    Route::post('review-team-chair/upload/preliminary-report', 'ReviewTeamChairController@uploadPreliminaryReport')->middleware('auth');
+    //review team chair submit preliminary report
+    Route::post('review-team-chair/submit/preliminary-report', 'ReviewTeamChairController@submitFinalReport')->middleware('auth');
+    //review team chair submit final report
+    Route::post('review-team-chair/submit/final-report', 'ReviewTeamChairController@submitFinalReport')->middleware('auth');
 
     //REVIEW TEAM ENDPOINTS
     //reviewer view proper evaluation details of the review team (could be either review team head or a member)
@@ -215,16 +220,22 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::get('reviewer/desk-evaluation/view-standard-wise-evaluation/{deskEvaluation}/{criteria}/{standard}', 'DeskEvaluationController@getDeskEvaluationRemarkAndScoreForStandard')->middleware('auth');
     //api resource of the desk evaluation
     Route::apiResource('desk-evaluation', 'DeskEvaluationController');
-
     // api resource => this must come here otherwise the declaration doc will have problems
     Route::apiResource('reviewers', 'ReviewerController')->middleware('auth');
 
+    //DEAN ENDPOINTS
     // dean accepts an appointed review team
     Route::post('deans/acceptReviewTeam', 'DeanController@acceptReviewTeam')->middleware('auth');
     // dean rejects an appointed review team
     Route::post('deans/rejectReviewTeam', 'DeanController@rejectReviewTeam')->middleware('auth');
     // dean api resources
     Route::apiResource('deans', 'DeanController');
+
+    //QAC DIRECTOR END POINTS
+    // qac director conclude a review
+    Route::post('qac-director/conclude-review', 'QualityAssuranceCouncilDirectorController@markReviewProcessAsCompleted')->middleware('auth');
+    // qac director api resources
+    Route::apiResource('qacDirectors', 'QualityAssuranceCouncilDirectorController');
 
     //route for google drive file info (for now, only the metadata is returned (testing))
     Route::post('driveFileInfo', 'GoogleDriveController@getFileInfo');
