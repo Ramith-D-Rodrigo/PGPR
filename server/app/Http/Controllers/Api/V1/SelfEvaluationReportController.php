@@ -7,6 +7,7 @@ use App\Http\Requests\V1\SubmitSelfEvaluationReportRequest;
 use App\Http\Resources\V1\SelfEvaluationReportResource;
 use App\Http\Resources\V1\StandardCollection;
 use App\Models\Criteria;
+use App\Models\DeskEvaluation;
 use App\Models\SelfEvaluationReport;
 use App\Http\Requests\V1\StoreSelfEvaluationReportRequest;
 use App\Http\Requests\V1\UpdateSelfEvaluationReportRequest;
@@ -83,7 +84,14 @@ class SelfEvaluationReportController extends Controller
                         ]
                     ],
                 ],
-                'postGraduateProgramReviewApplication:id,application_date'
+                'postGraduateProgramReviewApplication:id,application_date,request_date'
+            ],
+            'programmeCoordinator:id' => [
+                'academicStaff:id' => [
+                    'universitySide:id' => [
+                        'user:id,initials,surname'
+                    ]
+                ]
             ],
             'standards' => function ($query) {
                 $query->whereHas('evidences')->select('standards.id')
@@ -380,8 +388,6 @@ class SelfEvaluationReportController extends Controller
                     'updated_at' => now(),
                 ]);
 
-                //commit the transaction of recommending the self evaluation report
-                DB::commit();
 
                 //check if reviewer team has been assigned to the postgraduate programme review
                 $pgpr = $selfEvaluationReport -> postGraduateProgramReview;
@@ -392,17 +398,30 @@ class SelfEvaluationReportController extends Controller
                     $flag = PostGraduateProgramReviewService::StoreEvidencesInSystemDrive($pgpr);
 
                     if($flag){  //successfully stored the evidences in system drive
+                        //create the desk evaluation now (since the self evaluation report is submitted and there is an accepted review team)
+
+                        //after storing, we can create the desk evaluation
+                        $deskEvaluation = new DeskEvaluation();
+                        $deskEvaluation->pgpr_id = $reviewTeam->pgpr_id;
+                        $deskEvaluation->start_date = NULL; // or to set this is current time use => Carbon::now()
+                        $deskEvaluation->end_date = NULL;
+                        $deskEvaluation->save();
+
+                        DB::commit();
+
                         return response()->json([
                             'message' => 'Self evaluation report recommended successfully',
                         ], 200);
                     }
 
+                    DB::rollBack();
                     //if failed to store the evidences in system drive
                     return response()->json([
-                        'message' => 'Self evaluation report recommended successfully. But failed to store the evidences in system drive',
+                        'message' => 'Error occurred while recommending the self evaluation report. Failed to store the evidences in system drive. Please try again',
                     ], 200);
                 }
                 else{
+                    DB::commit();
                     //if no review team is assigned to the postgraduate programme review
                     return response()->json([
                         'message' => 'Self evaluation report recommended successfully. But no review team is assigned to the postgraduate programme review',

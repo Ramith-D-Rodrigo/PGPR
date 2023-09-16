@@ -12,7 +12,7 @@ import { Link } from 'react-router-dom';
 import DiscriptiveDiv from '../../components/DiscriptiveDiv';
 
 function Summary_details() {
-    const {uniId} = useParams();
+    const {pgprId} = useParams();
     const [reviewerId, setReviewerId] = useState(1);
     const [standards, setStandards] = useState([]);
     const [DEScore, setDEScore] = useState("D");
@@ -24,11 +24,11 @@ function Summary_details() {
             },
             {
                 name: "DE",
-                link: "/PG_Assignments/Conduct_DE/"+uniId
+                link: "/PG_Assignments/Conduct_DE/"+pgprId
             },
             {
                 name: "Summary Details",
-                link: "/PG_Assignments/Conduct_DE/Summary_details/"+uniId
+                link: "/PG_Assignments/Conduct_DE/Summary_details/"+pgprId
             },
         ]
     );

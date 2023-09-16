@@ -22,7 +22,7 @@ class PostGraduateProgramReviewService {
             $evidences = $pgpr -> selfEvaluationReport -> evidences;
 
             //begin transaction
-            DB::beginTransaction();
+            //DB::beginTransaction(); //transaction is handled by the controller
 
             //go through each evidence
             foreach($evidences as $evidence){
@@ -93,11 +93,11 @@ class PostGraduateProgramReviewService {
             }
 
             //commit the transaction
-            DB::commit();
+            //DB::commit(); //transaction is handled by the controller
             return true;
         }
         catch(\Exception $e){
-            DB::rollback();
+            //DB::rollback(); //transaction is handled by the controller
             //if an error occurs, delete all the files and folders created
             $driveManager -> deleteFile($pgprFolder -> id);
             throw $e;

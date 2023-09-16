@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 
 import { DrawerStateProvider } from './contexts/DrawerStateProvider';
+import { ReviewerRoleProvider } from "./contexts/ReviewerRoleProvider";
 
 import Dashboard from "./components/Dashboard";
 import MainLayout from "./components/MainLayout";
@@ -8,6 +9,7 @@ import Authenticate from "./components/Authenticate";
 import Unauthorized from "./components/Unauthorized";
 import LoginPersist from "./components/LoginPersist.jsx";
 import ResetInitialPassword from "./components/ResetInitialPassword.jsx";
+import View from './components/View';
 
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
@@ -46,10 +48,18 @@ import EditPGPRApplication from "./pages/Dean/EditPGPRApplication";
 
 import SetDate from './pages/ReviewerChair/SetDate';
 import SetCriteria from './pages/ReviewerChair/SetCriteria';
+import FinalizeDE from "./pages/ReviewerChair/FinalizeDE";
+import FinalizePE from "./pages/ReviewerChair/FinalizePE";
+import DEProgress from "./pages/ReviewerChair/DEProgress";
+import PEProgress from "./pages/ReviewerChair/PEProgress";
+import EndDE from "./pages/ReviewerChair/EndDE";
+import EndPE from "./pages/ReviewerChair/EndPE";
 
 import PGAssignments from './pages/Reviewer/PGAssignments';
 import ConductDE from './pages/Reviewer/ConductDE';
 import ConductPE from './pages/Reviewer/ConductPE';
+import SubmitDE from "./pages/Reviewer/SubmitDE";
+import SubmitPE from "./pages/Reviewer/SubmitPE";
 import AcceptAppointment from "./pages/Reviewer/AcceptAppointment";
 import ViewSer from "./pages/Reviewer/ViewSer";
 import EvaluateDE from "./pages/Reviewer/EvaluateDE";
@@ -66,6 +76,9 @@ import Ser from "./pages/ProgrammeCoordinator/Ser";
 import SubmitPGPR from "./pages/ProgrammeCoordinator/SubmitPGPR";
 import EditSer from "./pages/ProgrammeCoordinator/EditSer";
 import AddEvidence from "./pages/ProgrammeCoordinator/AddEvidence";
+import PGPRs from "./pages/ProgrammeCoordinator/PGPRs";
+// import UpdateEvidence from './pages/ProgrammeCoordinator/UpdateEvidence';
+// import ViewSummary from './pages/ProgrammeCoordinator/ViewSummary';
 
 import ViewPGPs from "./pages/IQAUdirector/ViewPGPrograms";
 import IQAUSer from "./pages/IQAUdirector/Ser";
@@ -73,13 +86,10 @@ import IQAUEditSer from "./pages/IQAUdirector/EditSer";
 import IQAUProgramDetails from "./pages/IQAUdirector/ViewProgramDetails";
 
 import SelfEvaluationReport from "./pages/ViceChancellor/SelfEvaluationReport";
-import View from './pages/ViceChancellor/View';
+import ViewPGProgrammesInUniversities from "./pages/ViceChancellor/ViewPGProgrammesInUniversities";
+//import View from './pages/ViceChancellor/View';
 
 import "./App.css";
-
-// import UpdateEvidence from './pages/ProgrammeCoordinator/UpdateEvidence';
-// import ViewSummary from './pages/ProgrammeCoordinator/ViewSummary';
-
 
 
 /* 
@@ -121,7 +131,10 @@ function App() {
               <Route path="qac_officer/">
                 <Route path="" element={<Dashboard />} />
                 <Route path="dashboard" element={<Dashboard />} />
-                <Route path="universities" element={<Universities />} />
+                <Route path="universities/">
+                  <Route path="" element={<Universities />} />
+                  <Route path="view/:id" element={<ViewUniversity />} />
+                </Route>
                 <Route path="createAccounts/" element={<CreateAccounts />} />
                 <Route path="PGPRApplications" element={<PostGraduateProgramReviewApplications />} />
                 <Route path='reviewers/'>
@@ -181,24 +194,40 @@ function App() {
               </Route>
             </Route>
 
-            <Route element={<Authenticate allowedRoles={["reviewer"]} />}>
+            <Route element={<ReviewerRoleProvider><Authenticate allowedRoles={["reviewer"]} /></ReviewerRoleProvider>}>
               <Route path="reviewer/">
                 <Route path="" element={<ReviewerDashboard />} />
                 <Route path="dashboard" element={<ReviewerDashboard />} />
                 <Route path="PG_Assignments/">
                   <Route path="" element={<PGAssignments />} />
-                  <Route path="ViewSer/:uniId" element={<ViewSer />} />
+                  <Route path="ViewSer/:pgprId" element={<ViewSer />} />
                   <Route path="Conduct_DE/">
-                    <Route path=":uniId" element={<ConductDE />} />
-                    <Route path=":uniId/:criteriaId" element={<EvaluateDE />} />
-                    <Route path="UpdateABC/:uniId" element={<UpdateABC />} />
+                    <Route path=":pgprId" element={<ConductDE />} />
+                    <Route path=":pgprId/:criteriaId" element={<EvaluateDE />} />
+                    <Route path="UpdateABC/:pgprId" element={<UpdateABC />} />
                     <Route
-                      path="Standardwise_details/:uniId"
+                      path="Standardwise_details/:pgprId"
                       element={<Standardwise_details />}
                     />
                     <Route
-                      path="Summary_details/:uniId"
+                      path="Summary_details/:pgprId"
                       element={<Summary_details />}
+                    />
+                    <Route
+                      path="Submit_DE/:pgprId"
+                      element={< SubmitDE />}
+                    />
+                    <Route
+                      path="Finalize_DE/:pgprId"
+                      element={< FinalizeDE />}
+                    />
+                    <Route
+                      path="view_DE_progress/:pgprId/:reviewerId"
+                      element={< DEProgress />}
+                    />
+                    <Route
+                      path="End_DE/:pgprId"
+                      element={< EndDE />}
                     />
                   </Route>
                   <Route path="Conduct_PE/">
@@ -219,6 +248,22 @@ function App() {
                       path="Standardwise_details/:pgprId"
                       element={<PEStandardwiseDetails />}
                     />
+                    <Route
+                      path="Submit_PE/:pgprId"
+                      element={< SubmitPE />}
+                    />
+                    <Route
+                      path="Finalize_PE/:pgprId"
+                      element={< FinalizePE />}
+                    />
+                    <Route
+                      path="view_PE_progress/:pgprId/:reviewerId"
+                      element={< PEProgress />}
+                    />
+                    <Route
+                      path="End_PE/:pgprId"
+                      element={< EndPE />}
+                    />
                   </Route>
                 </Route>
                 <Route path="SetDate" element={<SetDate />} />
@@ -235,10 +280,11 @@ function App() {
               <Route path="programme_coordinator/">
                 <Route path="" element={<Dashboard />} />
                 <Route path="dashboard" element={<Dashboard />} />
-                <Route path="ser" element={<Ser />} />
-                <Route path="submitpgpr" element={<SubmitPGPR />} />
-                <Route path="editser" element={<EditSer />} />
+                <Route path="pgprs/:serId" element={<Ser />} />
+                <Route path="pgprs/:serId/submitSER" element={<SubmitPGPR />} />
                 <Route path="addevidence" element={<AddEvidence />} />
+                <Route path="pgprs/" element={<PGPRs />} />
+                <Route path="pgprs/:serId/EditSer/:criteriaId" element={<EditSer />} />
               </Route>
             </Route>
 
@@ -266,6 +312,7 @@ function App() {
                 <Route path="dashboard" element={<Dashboard/>}/>
                 <Route path="selfevaluationreport" element={<SelfEvaluationReport/>}/>
                 <Route path="view" element={<View/>}/>
+                <Route path="pgprogrammes" element={<ViewPGProgrammesInUniversities/>}/>
               </Route>
             </Route>
 

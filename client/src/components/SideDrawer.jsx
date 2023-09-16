@@ -115,17 +115,15 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
     ];
 
     const programmeCoordinatorRoutes = [
-      {route:"DashBoard",link: "/programme_coordinator/dashboard"},
-      {route:"Ser",link: "/programme_coordinator/Ser"},
-      {route:"Submit PGPR",link: "/programme_coordinator/SubmitPGPR"},
-      {route:"Edit Ser",link: "/programme_coordinator/EditSer"},
-      {route:"Add Evidence",link: "/programme_coordinator/AddEvidence"},
+      {route:"Dashboard",link: "/programme_coordinator/dashboard"},
+      {route:"Postgraduate Programme Reviews",link: "/programme_coordinator/pgprs"},
+      
     ]
 
     const viceChancellorRoutes = [
       {route:"DashBoard",link: "/vice_chancellor/dashboard"},
       {route:"SelfEvaluationReport",link: "/vice_chancellor/SelfEvaluationReport"},
-      {route:"View",link: "/vice_chancellor/View"},
+      {route:"PGProgrammes",link: "/vice_chancellor/ViewPGProgrammesInUniversities"},
     ]
 
     //set user routes based on user role

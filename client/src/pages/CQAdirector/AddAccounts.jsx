@@ -113,6 +113,12 @@ const handleDeanSubmit = async(evt) => {
   const form = evt.target;
   let formData = new FormData(form);
 
+  //change contact number to json
+  const contactNo = formData.get("contactNo");
+
+  formData.delete("contactNo");
+
+  formData.append("contactNo",JSON.stringify(contactNo));
   // for (const [key,value] of formData.entries()){
   //     console.log(`Key: ${key}, Value: ${value}`);
   // }
@@ -136,6 +142,13 @@ const handleProgrammeCoordinatorSubmit = async(evt) => {
 
   const form = evt.target;
   let formData = new FormData(form);
+
+  //change contact number to json
+  const contactNo = formData.get("contactNo");
+
+  formData.delete("contactNo");
+
+  formData.append("contactNo",JSON.stringify(contactNo));
 
   // for (const [key,value] of formData.entries()){
   //     console.log(`Key: ${key}, Value: ${value}`);
@@ -161,6 +174,13 @@ const handleIQAUDirectorSubmit = async(evt) => {
 
   const form = evt.target;
   let formData = new FormData(form);
+
+  //change contact number to json
+  const contactNo = formData.get("contactNo");
+
+  formData.delete("contactNo");
+
+  formData.append("contactNo",JSON.stringify(contactNo));
 
   // for (const [key,value] of formData.entries()){
   //     console.log(`Key: ${key}, Value: ${value}`);

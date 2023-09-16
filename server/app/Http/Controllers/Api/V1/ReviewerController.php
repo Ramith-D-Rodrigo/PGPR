@@ -145,14 +145,14 @@ class ReviewerController extends Controller
             $reviewer = Reviewer::findOrFail(Auth::user()->id);
 
             //reviewer can on submit one declaration per role acceptance
-            if ($reviewer->status != 'pending') {
+            if ($reviewer->reviewer_status != 'pending') {
                 return response()->json(["message" => "Declarations can only be submitted only once."], 400);
             }
 
             //get the file
             $file = $request->file('file');
 
-            if ($file) {
+            if (!$file) {
                 return response("The submission must have a pdf that contains the signed declaration.", 400);
             }
 
@@ -264,7 +264,7 @@ class ReviewerController extends Controller
             //find the review teams
             $review_teams = $reviewer
                 ->reviewTeams
-                ->whereIn('status', ['PENDING', 'APPROVED']); //only get either pending or accepted review teams only
+                ->whereIn('status', ['PENDING', 'ACCEPTED']); //only get either pending or accepted review teams only
 
             if (!count($review_teams)) {
                 return response()->json(["message" => "Currently you don't have any reviews", "data" => []]);
