@@ -138,6 +138,7 @@ class ScoreCalculationService
             // Add to data
             $data['scores'][] = [
                 'criteriaId' => $criteria->id,
+                'criteriaName' => $criteria->name,
                 'maximumCriterionScore' => $maximumCriterionScore,
                 'minimumCriterionScore' => $minimumCriterionScore,
                 'rawScore' => $totalScore,
