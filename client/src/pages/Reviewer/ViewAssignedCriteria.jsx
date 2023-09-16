@@ -12,6 +12,8 @@ import {
   TableRow,
   TableCell,
   Typography,
+  Divider,
+  Chip
 } from "@mui/material";
 import useSetUserNavigations from "../../hooks/useSetUserNavigations";
 import DiscriptiveDiv from "../../components/DiscriptiveDiv";
@@ -20,7 +22,6 @@ const ViewAssignedCriteria = () => {
   const buttonGridRef = useRef(null);
   const { pgprId } = useParams();
   const decodedPgprId = decodeURIComponent(pgprId);
-  console.log(pgprId);
   useSetUserNavigations([
     {
       name: "PG Assignments",
@@ -63,7 +64,7 @@ const ViewAssignedCriteria = () => {
       let allow = action.allow ? { disabled: false } : { disabled: true };
       if (action.action === "Evaluate") {
         return (
-          <Link key={index} to={action.allow ? criteria : ""}>
+          <Link key={index} to={action.allow ? `../${pgprId}/${index+1}` : ""}>
             <Button
               {...allow}
               style={{ margin: "0 8px" }}
@@ -113,10 +114,18 @@ const ViewAssignedCriteria = () => {
     ),
   ];
 
+  const handleSubmit = () => {
+    console.log("Submit");
+  };
+
   const finalButtons = [
     {
       title: "View Standards Wise Details of Proper Review",
       to: `../Standardwise_details/${decodedPgprId}`,
+    },
+    {
+      title: "End Proper Evaluation",
+      onClick: handleSubmit,
     },
     {
       title: "View Summary Details of Criteria",
@@ -170,134 +179,87 @@ const ViewAssignedCriteria = () => {
         </Grid>
       </DiscriptiveDiv>
 
-      <DiscriptiveDiv
-        description="Proper Evaluation"
-        width="100%"
-        height="auto"
-        backgroundColor="#D9D9D9"
-      >
-        <TableContainer component={Paper}>
-          <Table sx={{ minWidth: 650 }} stickyHeader>
-            <TableHead>
-              <TableRow>
-                <TableCell style={{ backgroundColor: "#D8E6FC" }} align="left">
-                  <b>Criteria</b>
+      <Divider textAlign="left" sx={{ marginY: "1rem" }}>
+        <Chip label="Assigned Criteria" />
+      </Divider>
+
+      <TableContainer component={Paper}>
+        <Table sx={{ minWidth: 650 }} stickyHeader>
+          <TableHead>
+            <TableRow>
+              <TableCell style={{ backgroundColor: "#D8E6FC" }} align="left">
+                <b>Criteria</b>
+              </TableCell>
+              <TableCell style={{ backgroundColor: "#D8E6FC" }} align="center">
+                <b>Submitted Standards</b>
+              </TableCell>
+              <TableCell style={{ backgroundColor: "#D8E6FC" }} align="center">
+                <b></b>
+              </TableCell>
+              <TableCell style={{ backgroundColor: "#D8E6FC" }} align="center">
+                <b></b>
+              </TableCell>
+              <TableCell style={{ backgroundColor: "#D8E6FC" }} align="center">
+                <b>Evidences</b>
+              </TableCell>
+              <TableCell style={{ backgroundColor: "#D8E6FC" }} align="center">
+                <b></b>
+              </TableCell>
+              <TableCell style={{ backgroundColor: "#D8E6FC" }} align="center">
+                <b></b>
+              </TableCell>
+              <TableCell style={{ backgroundColor: "#D8E6FC" }} align="center">
+                <b>Actions</b>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell style={{ backgroundColor: "#D8E6FC" }} align="left">
+                <b></b>
+              </TableCell>
+              <TableCell style={{ backgroundColor: "#D8E6FC" }} align="center">
+                <b></b>
+              </TableCell>
+              <TableCell style={{ backgroundColor: "#D8E6FC" }} align="center">
+                <b>Y1</b>
+              </TableCell>
+              <TableCell style={{ backgroundColor: "#D8E6FC" }} align="center">
+                <b>Y2</b>
+              </TableCell>
+              <TableCell style={{ backgroundColor: "#D8E6FC" }} align="center">
+                <b>Y3</b>
+              </TableCell>
+              <TableCell style={{ backgroundColor: "#D8E6FC" }} align="center">
+                <b>Y4</b>
+              </TableCell>
+              <TableCell style={{ backgroundColor: "#D8E6FC" }} align="center">
+                <b>Y5</b>
+              </TableCell>
+              <TableCell style={{ backgroundColor: "#D8E6FC" }} align="center">
+                <b></b>
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {rows.map((row) => (
+              <TableRow
+                key={row.criteria}
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
+                <TableCell component="th" scope="row">
+                  {row.criteria}
                 </TableCell>
-                <TableCell
-                  style={{ backgroundColor: "#D8E6FC" }}
-                  align="center"
-                >
-                  <b>Submitted Standards</b>
-                </TableCell>
-                <TableCell
-                  style={{ backgroundColor: "#D8E6FC" }}
-                  align="center"
-                >
-                  <b></b>
-                </TableCell>
-                <TableCell
-                  style={{ backgroundColor: "#D8E6FC" }}
-                  align="center"
-                >
-                  <b></b>
-                </TableCell>
-                <TableCell
-                  style={{ backgroundColor: "#D8E6FC" }}
-                  align="center"
-                >
-                  <b>Evidences</b>
-                </TableCell>
-                <TableCell
-                  style={{ backgroundColor: "#D8E6FC" }}
-                  align="center"
-                >
-                  <b></b>
-                </TableCell>
-                <TableCell
-                  style={{ backgroundColor: "#D8E6FC" }}
-                  align="center"
-                >
-                  <b></b>
-                </TableCell>
-                <TableCell
-                  style={{ backgroundColor: "#D8E6FC" }}
-                  align="center"
-                >
-                  <b>Actions</b>
-                </TableCell>
+                <TableCell align="center">{row.submitted_standards}</TableCell>
+                <TableCell align="center">{row.y1}</TableCell>
+                <TableCell align="center">{row.y2}</TableCell>
+                <TableCell align="center">{row.y3}</TableCell>
+                <TableCell align="center">{row.y4}</TableCell>
+                <TableCell align="center">{row.y5}</TableCell>
+                <TableCell align="center">{row.Actions}</TableCell>
               </TableRow>
-              <TableRow>
-                <TableCell style={{ backgroundColor: "#D8E6FC" }} align="left">
-                  <b></b>
-                </TableCell>
-                <TableCell
-                  style={{ backgroundColor: "#D8E6FC" }}
-                  align="center"
-                >
-                  <b></b>
-                </TableCell>
-                <TableCell
-                  style={{ backgroundColor: "#D8E6FC" }}
-                  align="center"
-                >
-                  <b>Y1</b>
-                </TableCell>
-                <TableCell
-                  style={{ backgroundColor: "#D8E6FC" }}
-                  align="center"
-                >
-                  <b>Y2</b>
-                </TableCell>
-                <TableCell
-                  style={{ backgroundColor: "#D8E6FC" }}
-                  align="center"
-                >
-                  <b>Y3</b>
-                </TableCell>
-                <TableCell
-                  style={{ backgroundColor: "#D8E6FC" }}
-                  align="center"
-                >
-                  <b>Y4</b>
-                </TableCell>
-                <TableCell
-                  style={{ backgroundColor: "#D8E6FC" }}
-                  align="center"
-                >
-                  <b>Y5</b>
-                </TableCell>
-                <TableCell
-                  style={{ backgroundColor: "#D8E6FC" }}
-                  align="center"
-                >
-                  <b></b>
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {rows.map((row) => (
-                <TableRow
-                  key={row.criteria}
-                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                >
-                  <TableCell component="th" scope="row">
-                    {row.criteria}
-                  </TableCell>
-                  <TableCell align="center">
-                    {row.submitted_standards}
-                  </TableCell>
-                  <TableCell align="center">{row.y1}</TableCell>
-                  <TableCell align="center">{row.y2}</TableCell>
-                  <TableCell align="center">{row.y3}</TableCell>
-                  <TableCell align="center">{row.y4}</TableCell>
-                  <TableCell align="center">{row.y5}</TableCell>
-                  <TableCell align="center">{row.Actions}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </DiscriptiveDiv>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
 
       <Grid
         container
@@ -308,7 +270,24 @@ const ViewAssignedCriteria = () => {
       >
         {finalButtons.map((buttonItem, index) => (
           <Grid ref={buttonGridRef} item xs={12} sm={4} key={index}>
-            <Button
+            {buttonItem.to ? (
+              <Button
+                variant="contained"
+                size="small"
+                fullWidth
+                style={{
+                  backgroundColor: "#A2CBEA",
+                  color: "black",
+                  fontWeight: "bold",
+                  textAlign: "center",
+                }}
+                component={Link}
+                to={buttonItem.to}
+              >
+                {buttonItem.title}
+              </Button>
+            ) : (
+              <Button
               variant="contained"
               size="small"
               fullWidth
@@ -318,11 +297,11 @@ const ViewAssignedCriteria = () => {
                 fontWeight: "bold",
                 textAlign: "center",
               }}
-              component={Link}
-              to={buttonItem.to}
+              onClick={buttonItem.onClick}
             >
               {buttonItem.title}
             </Button>
+            )}
           </Grid>
         ))}
       </Grid>
