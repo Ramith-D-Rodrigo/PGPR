@@ -3,7 +3,7 @@ import Button from '@mui/material/Button';
 import createEvidence from '../api/Evidence/createEvidence';
 import { useParams } from 'react-router-dom';
 
-const PopupAdd = ({ toggle, closeToggle, standard }) => {
+const PopupAdd = ({ toggle, closeToggle, standard, refreshEvidences }) => {
 
   const standardId = standard?.id;
 
@@ -53,6 +53,7 @@ const PopupAdd = ({ toggle, closeToggle, standard }) => {
       if(resultRes && resultRes.status === 201){
         console.log(resultRes);
         alert('Evidence added successfully');
+        refreshEvidences(); //to display the newly added evidence
         closeToggle();
       }
     }

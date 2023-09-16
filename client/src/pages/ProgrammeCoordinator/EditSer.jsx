@@ -43,24 +43,24 @@ const EditSer = () => {
 
   const [selectedStandard, setSelectedStandard] = useState(null);
 
-  useEffect(() => {
-    const getEvidencesAdherence = async () => {
-      try {
-        if (selectedStandard == null) {
-          return;
-        }
-        const response = await getStandardEvidencesAndAdherenceForSER(serId, selectedStandard.id);
-
-        if (response && response.status === 200) {
-          console.log(response.data.data);
-          setStandardEvidencesAndAdherence(response.data.data);
-        }
+  const getEvidencesAdherence = async () => {
+    try {
+      if (selectedStandard == null) {
+        return;
       }
-      catch (error) {
-        console.log(error);
+      const response = await getStandardEvidencesAndAdherenceForSER(serId, selectedStandard.id);
+
+      if (response && response.status === 200) {
+        console.log(response.data.data);
+        setStandardEvidencesAndAdherence(response.data.data);
       }
     }
+    catch (error) {
+      console.log(error);
+    }
+  }
 
+  useEffect(() => {
     getEvidencesAdherence();
   }, [selectedStandard, serId]);
 
@@ -75,7 +75,6 @@ const EditSer = () => {
   }
 
   //viewing evidence popup
-  //TODO:: Delete button inside the popup
   const [toggleEvidenceViewPopUp, setToggleEvidenceViewPopUp] = useState(false);
   const [viewingEvidence, setViewingEvidence] = useState(null);
 
@@ -123,13 +122,11 @@ const EditSer = () => {
     }
   }
 
-
-
   return (
     isLoaded &&
     <div className="app-container" style={{ display: 'flex', flexDirection: 'row' }}>
-      <PopupAdd closeToggle={closePopUp} toggle={toggleEvidencePopUp} standard={selectedStandard} />
-      <EvidencePopUp closeToggle={closeEvidenceViewPopUp} toggle={toggleEvidenceViewPopUp} standard={selectedStandard} evidence={viewingEvidence} />
+      <PopupAdd closeToggle={closePopUp} toggle={toggleEvidencePopUp} standard={selectedStandard} refreshEvidences={getEvidencesAdherence}/>
+      <EvidencePopUp closeToggle={closeEvidenceViewPopUp} toggle={toggleEvidenceViewPopUp} standard={selectedStandard} evidence={viewingEvidence} refreshEvidences={getEvidencesAdherence} />
       <Sidebar sideBarItems={applicableStandards} setSelectedStandard={setSelectedStandard} />
       <form className="content" style={{ marginTop: '20px', marginLeft: '40px' }} onSubmit={handleSaveAdherence}>
 
