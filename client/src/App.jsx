@@ -33,6 +33,7 @@ import ConductDE from "./pages/Reviewer/ConductDE";
 import ConductPE from "./pages/Reviewer/ConductPE";
 import EvaluatePE from "./pages/Reviewer/EvaluatePE";
 import PESummaryDetails from "./pages/Reviewer/PESummaryDetails";
+import PEStandardwiseDetails from "./pages/Reviewer/PEStandardWiseDetails";
 import ViewAssignedCriteria from "./pages/Reviewer/ViewAssignedCriteria";
 import ViewUniversities from "./pages/QACDirector/ViewUniversities";
 import ViewUniversity from "./pages/QACDirector/ViewUniversity";
@@ -49,6 +50,10 @@ import { DrawerStateProvider } from "./contexts/DrawerStateProvider";
 import EvaluateDE from "./pages/Reviewer/EvaluateDE";
 import "./App.css";
 import CreateAccounts from "./pages/QACOfficer/CreateAccounts";
+import ViewPGPs from "./pages/IQAUdirector/ViewPGPrograms";
+import IQAUSer from "./pages/IQAUdirector/Ser";
+import IQAUEditSer from "./pages/IQAUdirector/EditSer";
+import IQAUProgramDetails from "./pages/IQAUdirector/ViewProgramDetails";
 
 /* 
   important: 
@@ -154,12 +159,16 @@ function App() {
                       element={<ViewAssignedCriteria />}
                     />
                     <Route
-                      path="Assigned_criteria/:pgprId/:criteriaId"
+                      path=":pgprId/:criteriaId"
                       element={<EvaluatePE />}
                     />
                     <Route
-                      path="Summary_details/:pgprID"
+                      path="Summary_details/:pgprId"
                       element={<PESummaryDetails />}
+                    />
+                    <Route
+                      path="Standardwise_details/:pgprId"
+                      element={<PEStandardwiseDetails />}
                     />
                   </Route>
                 </Route>
@@ -207,6 +216,10 @@ function App() {
               <Route path="iqau_director/">
                 <Route path="" element={<Dashboard />} />
                 <Route path="dashboard" element={<Dashboard />} />
+                <Route path="pgPrograms" element={<ViewPGPs />} />
+                <Route path="ser" element={<IQAUSer />} />
+                <Route path="editSer" element={<IQAUEditSer />} />
+                <Route path="pgProgramDetails" element={<IQAUProgramDetails />} />
               </Route>
             </Route>
 
