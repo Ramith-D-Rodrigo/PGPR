@@ -169,8 +169,6 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::post('reviewer/submit/proper-evaluation', 'ReviewerController@submitProperEvaluation')->middleware('auth');
     //reviewer reject pgpr in de if the evidences aren't up to the standards
     Route::post('reviewer/reject-pgpr-in-evaluation', 'ReviewerController@rejectPGPRInEvaluation')->middleware('auth');
-    //reviewer create preliminary report
-    Route::post('reviewer/create-preliminary-report', 'ReviewerController@rejectPGPRInEvaluation')->middleware('auth');
 
     //REVIEW TEAM CHAIR ENDPOINTS
     //review team chair assign criteria to team members (including himself)
@@ -191,6 +189,10 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::post('review-team-chair/proper-evaluation/submit', 'ReviewTeamChairController@submitDeskEvaluation')->middleware('auth');
     //review team chair submit proper evaluation
     Route::post('review-team-chair/proper-evaluation/submit', 'ReviewTeamChairController@submitProperEvaluation')->middleware('auth');
+    //review team chair upload preliminary report
+    Route::post('review-team-chair/upload/preliminary-report', 'ReviewTeamChairController@uploadPreliminaryReport')->middleware('auth');
+    //review team chair upload final report
+    Route::post('review-team-chair/upload/final-report', 'ReviewTeamChairController@uploadFinalReport')->middleware('auth');
 
     //REVIEW TEAM ENDPOINTS
     //reviewer view proper evaluation details of the review team (could be either review team head or a member)
@@ -199,6 +201,10 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::get('review-team/desk-evaluation/view-final-grades/{pgpr}', 'ReviewTeamController@viewFinalGradesOfDeskEvaluation')->middleware('auth');
     //reviewer view final grades of the proper evaluation given by the review team
     Route::get('review-team/proper-evaluation/view-final-grades/{pgpr}', 'ReviewTeamController@viewFinalGradesOfProperEvaluation')->middleware('auth');
+    //reviewer view final report
+    Route::get('review-team/view/final-report/{pgpr}', 'ReviewTeamController@viewFinalReport')->middleware('auth');
+    //reviewer view preliminary report
+    Route::get('review-team/view/preliminary-report/{pgpr}', 'ReviewTeamController@viewPreliminaryReport')->middleware('auth');
     //api resource of the review team
     Route::apiResource('review-team', 'ReviewTeamController');
 
