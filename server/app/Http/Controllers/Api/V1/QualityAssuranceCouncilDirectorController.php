@@ -9,6 +9,7 @@ use App\Models\QualityAssuranceCouncilDirector;
 use App\Http\Controllers\Controller;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -93,6 +94,14 @@ class QualityAssuranceCouncilDirectorController extends Controller
                     if ($pgpr->status_of_pgpr != 'FINAL') {
                         $fail('The post graduate review program is not in an updatable state.');
                     }
+
+                },
+                function ($attribute, $value, $fail) {
+                    $pgpr = PostGraduateProgramReview::find($value);
+                    if ($pgpr->qac_dir_id != Auth::id()) {
+                        $fail('You cannot conclude this review only the creator can conclude this review.');
+                    }
+
                 },
                 function ($attribute, $value, $fail) {
                     $pgpr = PostGraduateProgramReview::find($value);
