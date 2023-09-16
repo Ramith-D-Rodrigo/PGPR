@@ -28,6 +28,6 @@ class InternalQualityAssuranceUnit extends Model
 
   // Internal Quality Assurance Unit has a faculty
     public function faculty(){
-        return $this->belongsTo(Faculty::class);
+        return $this->belongsTo(Faculty::class, 'faculty_id', 'id');
     }
 }

@@ -1,14 +1,16 @@
-import { SERVER_API_VERSION, SERVER_URL } from '../../assets/constants';
 import { TextField, Button, Checkbox, CircularProgress, FormControl, FormControlLabel, FormGroup, IconButton, Input, InputAdornment, InputLabel, MenuItem, Select,Snackbar,Alert, Box, Typography } from '@mui/material'
 import FormHelperText from '@mui/material/FormHelperText';
 import axios from '../../api/api.js';
-// import handlePGPRApplicationCreation from '../../api/Dean/handlePGPRApplicationCreation';
-import getPostGraduateProgrammes from '../../api/Dean/getPostGraduateProgrammes';
 import { useState, useEffect, useRef } from 'react';
 import useSetUserNavigations from '../../hooks/useSetUserNavigations';
 import { useNavigate } from 'react-router-dom';
+import getDeanFaculty from '../../api/Dean/getDeanFaculty';
+import getFacultyPostGraduatePrograms from '../../api/Faculty/getFacultyPostGraduatePrograms';
+import createPGPRApplication from '../../api/PostGraduateProgramApplication/createPGPRApplication';
+import useAuth from '../../hooks/useAuth';
 
 const PGPRApplication = () => {
+  const { auth } = useAuth();
 
   useSetUserNavigations(
     [
@@ -42,19 +44,36 @@ const PGPRApplication = () => {
     // let selectedSLQFLevel = useRef("");
 
     useEffect(() => {
-      setLoading(true);
-      setErrorMsg(false);
-      setSuccess(false);
-      getPostGraduateProgrammes().then((res) => {
-        setPGPs(res.data.data);
-        console.log("data : ",res.data.data); //data is an array of objects
+        const handleGetPGPs = async () => {
+          setLoading(true);
+          setErrorMsg(false);
+          setSuccess(false);
+    
+          try{
+            //first get the faculty of the dean 
+            const facultyResult = await getDeanFaculty(auth.id);
 
-        //set the default selc=ected pgp & SLQF level to 0th index of the array
-        // selectedPGP.current = res.data.data[0];
-        setSelectedPGP(res.data.data[0]);
-        setSelectedSLQFLevel(res.data.data[0]?.slqfLevel);
-        setLoading(false);
-      }) ;
+            const facultyId = facultyResult.data.data.id;
+              
+            //then get the postgraduate programmes of that faculty
+            const pgpResult = await getFacultyPostGraduatePrograms(facultyId);
+            
+            setPGPs(pgpResult.data.data);
+            console.log("data : ",pgpResult.data.data); //data is an array of objects
+    
+            //set the default selc=ected pgp & SLQF level to 0th index of the array
+            // selectedPGP.current = res.data.data[0];
+            setSelectedPGP(pgpResult.data.data[0]);
+            setSelectedSLQFLevel(pgpResult.data.data[0]?.slqfLevel);
+          }
+          catch(err){
+            console.log(err);
+            setErrorMsg(err?.response?.data?.message);
+          }
+          setLoading(false);
+        }
+
+        handleGetPGPs();
     }, []);
 
     useEffect(()=>{
@@ -90,7 +109,7 @@ const PGPRApplication = () => {
         setLoading(false);
         return;
       }
-      const URL = SERVER_URL + SERVER_API_VERSION + 'pgprApplications/';
+
       const data = {
         year_1: year1,
         year_2: year2,
@@ -101,8 +120,12 @@ const PGPRApplication = () => {
         postGraduateProgramId: PGPSelected.id,
       }
       console.log("data : ",data);
+      
+      //create the application
       await axios.get("/sanctum/csrf-cookie");
-      await axios.post(URL, data).then((res) => {
+      const creationResult = await createPGPRApplication(data);
+      
+      await creationResult.then((res) => {
         // console.log("res : ",res);
         setLoading(false);
         if(res.status == 201)
@@ -133,7 +156,6 @@ const PGPRApplication = () => {
           Request for Postgraduate Programme Review
         </Typography>
         <form onSubmit={handleSubmitApplication} style={{display:"flex",flexDirection:"column",flexWrap:'wrap',width:'100%',justifyContent:'center',alignItems:'center'}}>
-            
             <FormControl sx={{ m: 1, width:"50%" ,minWidth: 120 }}>
               <InputLabel id="pg_programme">Postgraduate Programme</InputLabel>
               <Select

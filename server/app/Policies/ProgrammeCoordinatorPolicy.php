@@ -28,7 +28,7 @@ class ProgrammeCoordinatorPolicy
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user): Response
+    public function create(User $user, StoreProgrammeCoordinatorRequest $request): Response
     {
         //only cqa director of the university can create a programme coordinator
 
@@ -39,7 +39,7 @@ class ProgrammeCoordinatorPolicy
         }
 
         //check if the postgraduate programme id belongs to the university of the cqa director
-        $postgraduateProgrammeId = request() -> post_grad_program_id;
+        $postgraduateProgrammeId = $request -> post_grad_program_id;
 
         $postgraduateProgramme = PostGraduateProgram::find($postgraduateProgrammeId);
 
@@ -84,5 +84,27 @@ class ProgrammeCoordinatorPolicy
     public function forceDelete(User $user, ProgrammeCoordinator $programmeCoordinator): bool
     {
         //
+    }
+
+    public function removeRole(User $user, ProgrammeCoordinator $programmeCoordinator): Response
+    {
+        //only cqa director of the university can remove a programme coordinator
+
+        $currRole = request() -> session() -> get('authRole');
+
+        if($currRole != 'cqa_director'){
+            return Response::deny('You are not allowed to remove a programme coordinator role');
+        }
+
+
+        $pgpUniId =  $programmeCoordinator -> postGraduateProgram -> faculty -> university_id;
+
+        $cqaDirectorUniId = $user -> universitySide -> university_id;
+
+        if($pgpUniId != $cqaDirectorUniId){
+            return Response::deny('You are not allowed to remove a programme coordinator role for a postgraduate programme that does not belong to your university');
+        }
+
+        return Response::allow();
     }
 }

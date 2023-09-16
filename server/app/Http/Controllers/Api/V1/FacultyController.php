@@ -5,10 +5,13 @@ namespace App\Http\Controllers\Api\V1;
 use App\Filters\V1\FacultyFilter;
 use App\Http\Resources\V1\FacultyCollection;
 use App\Http\Resources\V1\FacultyResource;
+use App\Http\Resources\V1\PostGraduateProgramCollection;
+use App\Http\Resources\V1\UniversityResource;
 use App\Models\Faculty;
 use App\Http\Requests\V1\StoreFacultyRequest;
 use App\Http\Requests\V1\UpdateFacultyRequest;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\V1\DeanResource;
 use App\Models\InternalQualityAssuranceUnit;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
@@ -68,7 +71,7 @@ class FacultyController extends Controller
                 }
             }
 
-            return new FacultyCollection($faculties -> paginate() -> appends($request -> query()));
+            return new FacultyCollection($faculties -> get());
         }
         catch(\Exception $e){
             return response() -> json([
@@ -114,6 +117,7 @@ class FacultyController extends Controller
 
             return response()->json([
                 'message' => 'Faculty created successfully',
+                'data' => new FacultyResource($faculty)
             ], 201);
 
         }
@@ -191,20 +195,54 @@ class FacultyController extends Controller
         }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Faculty $faculty)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
      */
     public function update(UpdateFacultyRequest $request, Faculty $faculty)
     {
-        //
+        try{
+            //authorize the request
+            $this -> authorize('update', $faculty);
+
+            $validatedData = $request -> validated();
+
+            //get the iqau data from the validated data (prefix with iqau_)
+            $iqauDetails = [];
+
+            foreach ($validatedData as $key => $value) {
+                if (Str::startsWith($key, 'iqau_')) {
+                    $iqauDetails[Str::after($key, 'iqau_')] = $value;
+                }
+            }
+
+            DB::beginTransaction();
+
+            //update the faculty
+            $faculty -> update($validatedData);
+
+            //update the iqau
+            $faculty -> internalQualityAssuranceUnit -> update($iqauDetails);
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Faculty updated successfully',
+                'data' => new FacultyResource($faculty)
+            ], 200);
+        }
+        catch(AuthorizationException $e){
+            return response()->json([
+                'message' => $e->getMessage()
+            ], 403);
+        }
+        catch(\Exception $e){
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -213,5 +251,128 @@ class FacultyController extends Controller
     public function destroy(Faculty $faculty)
     {
         //
+    }
+
+    //get all post graduate programs of a faculty
+    public function postGraduatePrograms(Faculty $faculty){
+        try{
+            return new PostGraduateProgramCollection($faculty -> postGraduatePrograms);
+        }
+        catch(\Exception $e){
+            return response() -> json([
+                'message' => 'Failed to retrieve the post graduate programs',
+                'error' => $e -> getMessage()
+            ], 500);
+        }
+    }
+
+    //get current dean of a faculty
+    public function currentDean(Faculty $faculty){
+        try{
+            $dean = $faculty -> currentDean;
+
+            if($dean){
+                //related data
+                $academicStaff = request() -> query('includeAcademicStaff');
+                if($academicStaff){
+                    //check if university side is included
+                    $universitySide = request() -> query('includeUniversitySide');
+                    if($universitySide){
+                        //check if user is included
+                        $user = request() -> query('includeUser');
+                        if($user){
+                            $dean = $dean -> load(['academicStaff:id' => [
+                                'universitySide:id' => ['user:id,initials,surname,profile_pic']
+                                ]
+                            ]);
+                        }
+                        else{
+                            $dean = $dean -> load(['academicStaff:id' => ['universitySide:id']]);
+                        }
+                    }
+                    else{
+                        $dean = $dean -> loadMissing('academicStaff:id');
+                    }
+                }
+                return new DeanResource($dean);
+            }
+            else{
+                return response() -> json([
+                    'message' => 'The faculty does not have a dean'
+                ], 404);
+            }
+        }
+        catch(\Exception $e){
+            return response() -> json([
+                'message' => 'Failed to retrieve the dean',
+                'error' => $e -> getMessage()
+            ], 500);
+        }
+    }
+
+    //get the university of a faculty
+    public function university(Faculty $faculty){
+        try{
+            $university = $faculty -> university;
+
+            if($university){
+                //related data
+                return new UniversityResource($university);
+            }
+            else{
+                return response() -> json([
+                    'message' => 'The faculty does not have a university'
+                ], 404);
+            }
+        }
+        catch(\Exception $e){
+            return response() -> json([
+                'message' => 'Failed to retrieve the university',
+                'error' => $e -> getMessage()
+            ], 500);
+        }
+    }
+
+    public function currentIQAUDirector(Faculty $faculty){
+        try{
+            $iqauDirector = $faculty -> internalQualityAssuranceUnit -> internalQualityAssuranceUnitDirector;
+
+            if($iqauDirector){
+                //related data
+                $qualityAssuranceStaff = request() -> query('includeQualityAssuranceStaff');
+                if($qualityAssuranceStaff){
+                    //check if university side is included
+                    $universitySide = request() -> query('includeUniversitySide');
+                    if($universitySide){
+                        //check if user is included
+                        $user = request() -> query('includeUser');
+                        if($user){
+                            $iqauDirector = $iqauDirector -> load(['qualityAssuranceStaff:id' => [
+                                'universitySide:id' => ['user:id,initials,surname,profile_pic']
+                                ]
+                            ]);
+                        }
+                        else{
+                            $iqauDirector = $iqauDirector -> load(['qualityAssuranceStaff:id' => ['universitySide:id']]);
+                        }
+                    }
+                    else{
+                        $iqauDirector = $iqauDirector -> loadMissing('qualityAssuranceStaff:id');
+                    }
+                }
+                return new DeanResource($iqauDirector);
+            }
+            else{
+                return response() -> json([
+                    'message' => 'The faculty does not have an IQAU director'
+                ], 404);
+            }
+        }
+        catch(\Exception $e){
+            return response() -> json([
+                'message' => 'Failed to retrieve the IQAU director',
+                'error' => $e -> getMessage()
+            ], 500);
+        }
     }
 }

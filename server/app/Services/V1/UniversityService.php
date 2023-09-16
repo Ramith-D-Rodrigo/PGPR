@@ -31,4 +31,22 @@ class UniversityService {
 
         return $universityModel;
     }
+
+    public static function update(array $validatedData, University $universityModel): Model {
+        //make sure the array has validated Data
+
+        //first update cqa entry
+        //get the cqa details from the validated data (cqa prefix)
+        $cqaDetails = [];
+        foreach($validatedData as $key => $val){
+            if(Str::startsWith($key, 'cqa_')){
+                $cqaDetails[Str::after($key, 'cqa_')] = $val;
+            }
+        }
+
+        $universityModel -> centerForQualityAssurance -> update($cqaDetails); //update cqa
+        $universityModel -> update($validatedData); //update university
+
+        return $universityModel;
+    }
 }

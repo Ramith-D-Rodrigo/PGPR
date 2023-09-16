@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Filters\V1\ProgrammeCoordinatorFilter;
+use App\Http\Resources\V1\PostGraduateProgramResource;
 use App\Http\Resources\V1\ProgrammeCoordinatorCollection;
 use App\Http\Resources\V1\ProgrammeCoordinatorResource;
 use App\Mail\sendPassword;
@@ -66,7 +67,7 @@ class ProgrammeCoordinatorController extends Controller
                     $user = $request -> query('includeUser');
                     if($user){
                         $programmeCoordinators = $programmeCoordinators -> with(['academicStaff' => [
-                            'universitySide' => ['user']
+                            'universitySide' => ['user:id,intials,surname,profile_pic']
                             ]
                         ]);
                     }
@@ -77,7 +78,7 @@ class ProgrammeCoordinatorController extends Controller
                 $programmeCoordinators = $programmeCoordinators -> with('postGraduateProgram');
             }
 
-            return new ProgrammeCoordinatorCollection($programmeCoordinators -> paginate() -> appends($request -> query()));
+            return new ProgrammeCoordinatorCollection($programmeCoordinators -> get());
         }
         catch(Exception $e){
             return response() -> json([
@@ -102,7 +103,7 @@ class ProgrammeCoordinatorController extends Controller
     {
         try{
             //authorize the action
-            $this -> authorize('create', ProgrammeCoordinator::class);
+            $this -> authorize('create', [ProgrammeCoordinator::class, $request]);
 
 
             $validatedData = $request -> validated();
@@ -165,7 +166,7 @@ class ProgrammeCoordinatorController extends Controller
                 $user = request() -> query('includeUser');
                 if($user){
                     $programmeCoordinator = $programmeCoordinator -> load(['academicStaff' => [
-                        'universitySide' => ['user']
+                        'universitySide' => ['user:id,surname,initials,profile_pic']
                         ]
                     ]);
                 }
@@ -201,5 +202,50 @@ class ProgrammeCoordinatorController extends Controller
     public function destroy(ProgrammeCoordinator $programmeCoordinator)
     {
         //
+    }
+
+    //get the post graduate program of the programme coordinator
+    public function postGraduateProgram(ProgrammeCoordinator $programmeCoordinator){
+        try{
+            $pgp = $programmeCoordinator -> postGraduateProgram;
+
+            return new PostGraduateProgramResource($pgp);
+        }
+        catch(Exception $e){
+            return response() -> json([
+                'message' => 'Failed to retrieve the post graduate programme',
+                'error' => $e -> getMessage()
+            ], 500);
+        }
+    }
+
+    //function to remove the role of programme coordinator (after the term date or if the programme coordinator has ended the term)
+    public function removeRole(ProgrammeCoordinator $programmeCoordinator){
+        try{
+            //authorize the action
+            $this -> authorize('removeRole', $programmeCoordinator);
+
+            DB::beginTransaction();
+
+            $result = ProgrammeCoordinatorService::removeRole($programmeCoordinator);
+
+            DB::commit();
+
+            return response() -> json([
+                'message' => 'Programme coordinator role removed successfully',
+            ], 200);
+        }
+        catch(AuthorizationException $e){
+            return response() -> json([
+                'message' => $e -> getMessage()
+            ], 403);
+        }
+        catch(Exception $e){
+            DB::rollBack();
+            return response() -> json([
+                'message' => 'Failed to remove programme coordinator role',
+                'error' => $e -> getMessage()
+            ], 500);
+        }
     }
 }

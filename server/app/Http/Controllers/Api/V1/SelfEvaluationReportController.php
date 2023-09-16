@@ -13,6 +13,7 @@ use App\Http\Requests\V1\UpdateSelfEvaluationReportRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\V1\StandardResource;
 use App\Models\Standard;
+use App\Services\V1\PostGraduateProgramReviewService;
 use App\Services\V1\StandardService;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -27,14 +28,6 @@ class SelfEvaluationReportController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
     {
         //
     }
@@ -74,7 +67,7 @@ class SelfEvaluationReportController extends Controller
         //submitted standards count
         //evidence count for each applicable year of criteria
 
-        $selfEvaluationReport -> load([
+        $selfEvaluationReport->load([
             //call the whenLoaded method to load the relations only if they are loaded
             //load the following relations to get the needed details
             'postGraduateProgramReview:id,post_graduate_program_id,pgpr_application_id' => [
@@ -92,13 +85,13 @@ class SelfEvaluationReportController extends Controller
                 ],
                 'postGraduateProgramReviewApplication:id,application_date'
             ],
-            'standards' => function($query){
-                $query -> whereHas('evidences') -> select('standards.id')
-                -> distinct() //only get the distinct standards (because a standard can have multiple evidences)
-                -> with([
-                    'evidences:id,applicable_years',
-                    'selfEvaluationReportAdherences'
-                ]);
+            'standards' => function ($query) {
+                $query->whereHas('evidences')->select('standards.id')
+                    ->distinct() //only get the distinct standards (because a standard can have multiple evidences)
+                    ->with([
+                        'evidences:id,applicable_years',
+                        'selfEvaluationReportAdherences'
+                    ]);
             }
         ]);
 
@@ -106,17 +99,9 @@ class SelfEvaluationReportController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(SelfEvaluationReport $selfEvaluationReport)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateSelfEvaluationReportRequest $request, SelfEvaluationReport $selfEvaluationReport)
+    public function update(UpdateSelfEvaluationReportRequest $request, string $id)
     {
         //
     }
@@ -173,13 +158,15 @@ class SelfEvaluationReportController extends Controller
     }
 
     //get the standards of the self evaluation report by the criteria id sent by client
-    public function getStandards(SelfEvaluationReport $selfEvaluationReport, Criteria $criteria){
+    public function getStandards(SelfEvaluationReport $selfEvaluationReport, Criteria $criteria)
+    {
         //we need to get the standards that are applicable to the self evaluation report
-        $pgp = $selfEvaluationReport -> postGraduateProgramReview -> postGraduateProgram;
+        $pgp = $selfEvaluationReport->postGraduateProgramReview->postGraduateProgram;
         $applicableStandards = StandardService::getApplicableStandards(
-            $pgp -> slqf_level,
-            $pgp -> is_professional_pg_programme,
-            $criteria -> id);
+            $pgp->slqf_level,
+            $pgp->is_professional_pg_programme,
+            $criteria->id
+        );
 
 
         //return the standard resources
@@ -191,16 +178,15 @@ class SelfEvaluationReportController extends Controller
         try{
             //authorize the request
             $this -> authorize('getStandardEvidencesAndAdherenceAuthorize', $selfEvaluationReport);
-
             //get the evidences and adherence of the standard of the self evaluation report
-            $standard -> load([
-                'evidences' => function($query) use ($selfEvaluationReport, $standard){
-                    $query -> whereHas('selfEvaluationReport', function($query) use ($selfEvaluationReport, $standard){
-                        $query -> where('ser_id', $selfEvaluationReport -> id) -> where('standard_id', $standard -> id);
+            $standard->load([
+                'evidences' => function ($query) use ($selfEvaluationReport, $standard) {
+                    $query->whereHas('selfEvaluationReport', function ($query) use ($selfEvaluationReport, $standard) {
+                        $query->where('ser_id', $selfEvaluationReport->id)->where('standard_id', $standard->id);
                     });
                 },
-                'selfEvaluationReportAdherences' => function($query) use ($selfEvaluationReport, $standard){
-                    $query -> where('ser_id', $selfEvaluationReport -> id) -> where('standard_id', $standard -> id);
+                'selfEvaluationReportAdherences' => function ($query) use ($selfEvaluationReport, $standard) {
+                    $query->where('ser_id', $selfEvaluationReport->id)->where('standard_id', $standard->id);
                 }
             ]);
             //dd($standard);
@@ -214,7 +200,7 @@ class SelfEvaluationReportController extends Controller
         catch(Exception $e){
             return response()->json([
                 'message' => 'Error occurred while getting the standard evidences and adherence',
-                'error' => $e -> getTrace()
+                'error' => $e->getTrace()
             ], 500);
         }
     }
@@ -226,7 +212,7 @@ class SelfEvaluationReportController extends Controller
             $this -> authorize('submitSelfEvaluationReportAuthorize', $selfEvaluationReport);
 
             //get the validated data
-            $validatedData = $request -> validated();
+            $validatedData = $request->validated();
 
             //store the files in relevant folders
             $sectionA = $validatedData['section_a'];
@@ -236,39 +222,39 @@ class SelfEvaluationReportController extends Controller
             $finalSER = $validatedData['final_ser_report'];
 
             //store section a in sectionA folder
-            if(!File::exists(public_path('storage/ser/sectionA'))){
+            if (!File::exists(public_path('storage/ser/sectionA'))) {
                 File::makeDirectory(public_path('storage/ser/sectionA'), $mode = 0777, true, true); //mode is 0777 by default
             }
-            $sectionAFileName = $selfEvaluationReport -> id . '_sectionA.' . $sectionA -> getClientOriginalExtension();
-            Storage::put('public/ser/sectionA/' . $sectionAFileName, $sectionA -> getContent());
+            $sectionAFileName = $selfEvaluationReport->id . '_sectionA.' . $sectionA->getClientOriginalExtension();
+            Storage::put('public/ser/sectionA/' . $sectionAFileName, $sectionA->getContent());
 
             //store section b in sectionB folder
-            if(!File::exists(public_path('storage/ser/sectionB'))){
+            if (!File::exists(public_path('storage/ser/sectionB'))) {
                 File::makeDirectory(public_path('storage/ser/sectionB'), $mode = 0777, true, true); //mode is 0777 by default
             }
-            $sectionBFileName = $selfEvaluationReport -> id . '_sectionB.' . $sectionB -> getClientOriginalExtension();
-            Storage::put('public/ser/sectionB/' . $sectionBFileName, $sectionB -> getContent());
+            $sectionBFileName = $selfEvaluationReport->id . '_sectionB.' . $sectionB->getClientOriginalExtension();
+            Storage::put('public/ser/sectionB/' . $sectionBFileName, $sectionB->getContent());
 
             //store section d in sectionD folder
-            if(!File::exists(public_path('storage/ser/sectionD'))){
+            if (!File::exists(public_path('storage/ser/sectionD'))) {
                 File::makeDirectory(public_path('storage/ser/sectionD'), $mode = 0777, true, true); //mode is 0777 by default
             }
-            $sectionDFileName = $selfEvaluationReport -> id . '_sectionD.' . $sectionD -> getClientOriginalExtension();
-            Storage::put('public/ser/sectionD/' . $sectionDFileName, $sectionD -> getContent());
+            $sectionDFileName = $selfEvaluationReport->id . '_sectionD.' . $sectionD->getClientOriginalExtension();
+            Storage::put('public/ser/sectionD/' . $sectionDFileName, $sectionD->getContent());
 
             //store payment voucher in paymentVoucher folder
-            if(!File::exists(public_path('storage/ser/paymentVoucher'))){
+            if (!File::exists(public_path('storage/ser/paymentVoucher'))) {
                 File::makeDirectory(public_path('storage/ser/paymentVoucher'), $mode = 0777, true, true); //mode is 0777 by default
             }
-            $paymentVoucherFileName = $selfEvaluationReport -> id . '_paymentVoucher.' . $paymentVoucher -> getClientOriginalExtension();
-            Storage::put('public/ser/paymentVoucher/' . $paymentVoucherFileName, $paymentVoucher -> getContent());
+            $paymentVoucherFileName = $selfEvaluationReport->id . '_paymentVoucher.' . $paymentVoucher->getClientOriginalExtension();
+            Storage::put('public/ser/paymentVoucher/' . $paymentVoucherFileName, $paymentVoucher->getContent());
 
             //store final ser report in finalSER folder
-            if(!File::exists(public_path('storage/ser/finalSER'))){
+            if (!File::exists(public_path('storage/ser/finalSER'))) {
                 File::makeDirectory(public_path('storage/ser/finalSER'), $mode = 0777, true, true); //mode is 0777 by default
             }
-            $finalSERFileName = $selfEvaluationReport -> id . '_finalSER.' . $finalSER -> getClientOriginalExtension();
-            Storage::put('public/ser/finalSER/' . $finalSERFileName, $finalSER -> getContent());
+            $finalSERFileName = $selfEvaluationReport->id . '_finalSER.' . $finalSER->getClientOriginalExtension();
+            Storage::put('public/ser/finalSER/' . $finalSERFileName, $finalSER->getContent());
 
             //get the paths
             $validatedData['section_a'] = Storage::url('public/ser/sectionA/' . $sectionAFileName);
@@ -279,7 +265,7 @@ class SelfEvaluationReportController extends Controller
 
             //update the self evaluation report
             DB::beginTransaction();
-            $selfEvaluationReport -> update([
+            $selfEvaluationReport->update([
                 'section_a' => $validatedData['section_a'],
                 'section_b' => $validatedData['section_b'],
                 'section_d' => $validatedData['section_d'],
@@ -288,7 +274,7 @@ class SelfEvaluationReportController extends Controller
             ]);
 
             //update the payment voucher in postgraduate programme review
-            $selfEvaluationReport -> postGraduateProgramReview -> update([
+            $selfEvaluationReport->postGraduateProgramReview->update([
                 'payment_voucher' => $validatedData['payment_voucher'],
                 'updated_at' => now(),
             ]);
@@ -308,25 +294,25 @@ class SelfEvaluationReportController extends Controller
         catch(Exception $e){
             DB::rollBack();
             //delete the files if they are stored
-            if(Storage::exists('public/ser/sectionA/' . $sectionAFileName)){
+            if (Storage::exists('public/ser/sectionA/' . $sectionAFileName)) {
                 Storage::delete('public/ser/sectionA/' . $sectionAFileName);
             }
-            if(Storage::exists('public/ser/sectionB/' . $sectionBFileName)){
+            if (Storage::exists('public/ser/sectionB/' . $sectionBFileName)) {
                 Storage::delete('public/ser/sectionB/' . $sectionBFileName);
             }
-            if(Storage::exists('public/ser/sectionD/' . $sectionDFileName)){
+            if (Storage::exists('public/ser/sectionD/' . $sectionDFileName)) {
                 Storage::delete('public/ser/sectionD/' . $sectionDFileName);
             }
-            if(Storage::exists('public/ser/paymentVoucher/' . $paymentVoucherFileName)){
+            if (Storage::exists('public/ser/paymentVoucher/' . $paymentVoucherFileName)) {
                 Storage::delete('public/ser/paymentVoucher/' . $paymentVoucherFileName);
             }
-            if(Storage::exists('public/ser/finalSER/' . $finalSERFileName)){
+            if (Storage::exists('public/ser/finalSER/' . $finalSERFileName)) {
                 Storage::delete('public/ser/finalSER/' . $finalSERFileName);
             }
 
             return response()->json([
                 'message' => 'Error occurred while submitting the self evaluation report',
-                'error' => $e -> getTrace()
+                'error' => $e->getTrace()
             ], 500);
         }
     }
@@ -338,18 +324,20 @@ class SelfEvaluationReportController extends Controller
 
             //first check if the self evaluation report is submitted
             //checked using section_a, section_b, section_d, final_ser_report and payment_voucher
-            if($selfEvaluationReport -> section_a === null ||
-            $selfEvaluationReport -> section_b === null ||
-            $selfEvaluationReport -> section_d === null ||
-            $selfEvaluationReport -> final_ser_report === null ||
-            $selfEvaluationReport -> postGraduateProgramReview -> payment_voucher === null){
+            if (
+                $selfEvaluationReport->section_a === null ||
+                $selfEvaluationReport->section_b === null ||
+                $selfEvaluationReport->section_d === null ||
+                $selfEvaluationReport->final_ser_report === null ||
+                $selfEvaluationReport->postGraduateProgramReview->payment_voucher === null
+            ) {
                 return response()->json([
                     'message' => 'Self evaluation report is not submitted yet'
                 ], 400);
             }
 
             //check if the self evaluation report is already recommended
-            if($selfEvaluationReport -> postGraduateProgramReview -> status_of_pgpr !== 'PLANNING'){
+            if ($selfEvaluationReport->postGraduateProgramReview->status_of_pgpr !== 'PLANNING') {
                 //only in planning stage, self evaluation report can be recommended
                 return response()->json([
                     'message' => 'Cannot recommend Self Evaluation Report at this stage'
@@ -357,48 +345,78 @@ class SelfEvaluationReportController extends Controller
             }
 
             //get the requesting user role
-            $userRole = $request -> session() -> get('authRole');
+            $userRole = $request->session()->get('authRole');
             //role should be either iqau_director, cqa_director or vice_chancellor
             DB::beginTransaction();
-            if($userRole === 'iqau_director'){
+            if ($userRole === 'iqau_director') {
                 //we have to update iqau_dir_id in self evaluation report
-                $selfEvaluationReport -> update([
-                    'iqau_dir_id' => $request -> user() -> id,
+                $selfEvaluationReport->update([
+                    'iqau_dir_id' => $request->user()->id,
                     'updated_at' => now(),
                 ]);
-            }
-            else if($userRole === 'cqa_director'){
+            } else if ($userRole === 'cqa_director') {
                 //we have to update center_for_quality_assurance_director_id in self evaluation report
-                $selfEvaluationReport -> update([
-                    'center_for_quality_assurance_director_id' => $request -> user() -> id,
+                $selfEvaluationReport->update([
+                    'center_for_quality_assurance_director_id' => $request->user()->id,
                     'updated_at' => now(),
                 ]);
-            }
-            else if($userRole === 'vice_chancellor'){
+            } else if ($userRole === 'vice_chancellor') {
                 //we have to update vice_chancellor_id in self evaluation report
-                $selfEvaluationReport -> update([
-                    'vice_chancellor_id' => $request -> user() -> id,
+                $selfEvaluationReport->update([
+                    'vice_chancellor_id' => $request->user()->id,
                     'updated_at' => now(),
                 ]);
-            }
-            else{
+            } else {
                 return response()->json([
                     'message' => 'You are not authorized to recommend the self evaluation report',
                 ], 403);
             }
 
             //check whether all the three roles have recommended the self evaluation report
-            if($selfEvaluationReport -> iqau_dir_id !== null && $selfEvaluationReport -> center_for_quality_assurance_director_id !== null && $selfEvaluationReport -> vice_chancellor_id !== null){
+            if ($selfEvaluationReport->iqau_dir_id !== null && $selfEvaluationReport->center_for_quality_assurance_director_id !== null && $selfEvaluationReport->vice_chancellor_id !== null) {
                 //update the status of the postgraduate programme review
-                $selfEvaluationReport -> postGraduateProgramReview -> update([
+                $selfEvaluationReport->postGraduateProgramReview->update([
                     'status_of_pgpr' => 'SUBMITTED',
                     'updated_at' => now(),
                 ]);
 
-                //TODO: we have to extract the files from evidences urls and store them in system's google drive
-            }
+                //commit the transaction of recommending the self evaluation report
+                DB::commit();
 
-            DB::commit();
+                //check if reviewer team has been assigned to the postgraduate programme review
+                $pgpr = $selfEvaluationReport -> postGraduateProgramReview;
+                $reviewTeam = $pgpr -> acceptedReviewTeam;
+
+                if($reviewTeam){   //has an accepted review team
+                    //store the files in relevant folders
+                    $flag = PostGraduateProgramReviewService::StoreEvidencesInSystemDrive($pgpr);
+
+                    if($flag){  //successfully stored the evidences in system drive
+                        return response()->json([
+                            'message' => 'Self evaluation report recommended successfully',
+                        ], 200);
+                    }
+
+                    //if failed to store the evidences in system drive
+                    return response()->json([
+                        'message' => 'Self evaluation report recommended successfully. But failed to store the evidences in system drive',
+                    ], 200);
+                }
+                else{
+                    //if no review team is assigned to the postgraduate programme review
+                    return response()->json([
+                        'message' => 'Self evaluation report recommended successfully. But no review team is assigned to the postgraduate programme review',
+                    ], 200);
+                }
+            }
+            else{
+                //commit the transaction of recommending the self evaluation report
+                DB::commit();
+
+                return response()->json([
+                    'message' => 'Self evaluation report recommended successfully',
+                ], 200);
+            }
         }
         catch(AuthorizationException $e){
             return response()->json([
@@ -409,7 +427,7 @@ class SelfEvaluationReportController extends Controller
             DB::rollBack();
             return response()->json([
                 'message' => 'Error occurred while recommending the self evaluation report',
-                'error' => $e -> getTrace()
+                'error' => $e -> getMessage()
             ], 500);
         }
     }

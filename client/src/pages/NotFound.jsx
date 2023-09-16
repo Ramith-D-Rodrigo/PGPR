@@ -13,7 +13,6 @@ const NotFound = () => {
     const root = document.querySelector('#root');
     root.style.backgroundColor = '#fff';
     root.style.backgroundImage = 'none';
-    console.log(root)
   }, [])
 
   return (

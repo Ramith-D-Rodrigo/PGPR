@@ -5,10 +5,10 @@ import CQADirectorForm from './CQADirectorForm';
 import ViceChancellorForm from './ViceChancellorForm';
 import UserDetailsForm from './UserDetailsForm';
 import { Divider, Typography } from '@mui/material';
-import { SERVER_API_VERSION, SERVER_URL } from '../../assets/constants';
 import { Snackbar, Alert, CircularProgress, Button, Box } from '@mui/material';
-import axios from '../../api/api.js';
 import { useNavigate } from 'react-router-dom';
+import createViceChancellor from '../../api/viceChancellor/createViceChancellor.js';
+import createCQADirector from '../../api/cqaDirector/createCQADirector.js';
 
 const CreateAccounts = () => {
 
@@ -27,40 +27,45 @@ const CreateAccounts = () => {
     const handleVCSubmit = async(e) => {
         errorMsg && setErrorMsg("");
         setLoading(true);
-        axios.post(SERVER_URL + SERVER_API_VERSION + "viceChancellors", formData)
-            .then(res => {
-                console.log(res.data);
-                setLoading(false);
-                setSuccess(true);
-                setTimeout(() => {
-                    navigate("../");
-                }, 1500);
-            }
-        ).catch(err => {
+
+        try{
+            const vcCreationResult = await createViceChancellor(formData);
+
+            console.log(vcCreationResult.data);
+
+            setLoading(false);
+            setSuccess(true);
+            setTimeout(() => {
+                navigate("../");
+            }, 1500);
+        }
+        catch(err){
             console.log(err);
             setErrorMsg(err?.response?.data?.message);
             setLoading(false);
-        })
+        }
     }
 
     const handleCQASubmit = async(e) => {
         errorMsg && setErrorMsg("");
         setLoading(true);
-        axios.post(SERVER_URL + SERVER_API_VERSION + "cqaDirectors", formData)
-            .then(res => {
-                console.log(res.data);
-                setLoading(false);
-                setSuccess(true);
-                setTimeout(() => {
-                    navigate("../");
-                }, 1500);
-            }
-        ).catch(err => {
+
+        try{
+            const cqaCreationResult = await createCQADirector(formData);
+
+            console.log(cqaCreationResult.data);
+            setLoading(false);
+            setSuccess(true);
+            setTimeout(() => {
+                navigate("../");
+            }, 1500);
+        }
+        catch(err){
             console.log(err);
             setErrorMsg(err?.response?.data?.message);
             setLoading(false);
         }
-        )
+        
     }
 
     const handleSubmit = (e) => {
@@ -86,19 +91,23 @@ const CreateAccounts = () => {
     return (
         <>
                 <form style={{padding:"20px 40px"}} onSubmit={handleSubmit}>
-                    <FormField label={"Account For"} type={"select"} key={"VCCQA"} options={[
-                        {name: "vc", value: "vice_chancellor", label: "Vice Chancellor"},
-                        {name: "cqa", value: "cqa_director", label: "CQA Director"},
-                    ]} onChange={selectRole}/>
+                    <Box sx={{display:"flex",justifyContent:"center",alignItems:"center",flexWrap:"wrap"}}>
+                        <FormField required={true} label={"Account For"} type={"select"} key={"VCCQA"} options={[
+                            {name: "vc", value: "vice_chancellor", label: "Vice Chancellor"},
+                            {name: "cqa", value: "cqa_director", label: "CQA Director"},
+                        ]} onChange={selectRole}/>
+                    </Box>
                     <Divider sx={{marginTop: "1rem", marginBottom: "1rem"}}/>
-                    <UserDetailsForm roleFieldsComponent={role === "vice_chancellor" ? 
-                            <ViceChancellorForm/> : <CQADirectorForm/>    
-                        } 
-                    />
-                    <Box sx={{margin:"0.5rem 0",display:'flex',flexWrap:"wrap",justifyContent:'center',alignItems:'center',width:'100%'}}>
+                    <Box sx={{display:"flex",justifyContent:"center",alignItems:"center",flexWrap:"wrap"}}>
+                        <UserDetailsForm Loading={Loading} roleFieldsComponent={role === "vice_chancellor" ? 
+                                <ViceChancellorForm/> : <CQADirectorForm/>    
+                            } 
+                        />
+                    </Box>
+                    {/* <Box sx={{margin:"0.5rem 0",display:'flex',flexWrap:"wrap",justifyContent:'center',alignItems:'center',width:'100%'}}>
                         {Loading? "Processing " : ""}
                         {Loading && <CircularProgress style={{margin:"0 0.5rem"}} color="primary" size={24} />}
-                    </Box>
+                    </Box> */}
                 </form>
 
                 <Snackbar

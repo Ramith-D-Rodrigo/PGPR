@@ -4,14 +4,26 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Filters\V1\DeanFilter;
 use App\Http\Resources\V1\DeanCollection;
+use App\Http\Requests\V1\DeanAcceptReviewTeamRequest;
+use App\Http\Requests\V1\DeanRejectReviewTeamRequest;
 use App\Http\Resources\V1\DeanResource;
+use App\Mail\InformReviewTeamAcceptanceToQAC;
+use App\Mail\InformReviewTeamRejectionToQAC;
+use App\Mail\RejectReviewerRole;
+use App\Http\Resources\V1\FacultyResource;
 use App\Models\Dean;
 use App\Http\Requests\V1\StoreDeanRequest;
 use App\Http\Requests\V1\UpdateDeanRequest;
 use App\Http\Controllers\Controller;
 use App\Mail\sendPassword;
+use App\Models\DeskEvaluation;
 use App\Models\Faculty;
+use App\Models\ReviewTeam;
 use App\Services\V1\DeanService;
+use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -25,63 +37,53 @@ class DeanController extends Controller
      */
     public function index()
     {
-        try{
-            $filter = new DeanFilter(request() -> session() -> get('authRole'), request());
+        try {
+            $filter = new DeanFilter(request()->session()->get('authRole'), request());
 
-            $queryItems = $filter -> getEloQuery();
+            $queryItems = $filter->getEloQuery();
 
             $deans = Dean::where($queryItems);
 
             //where in and where not in query items
 
-            $whereInQueryItems = $filter -> getWhereInQuery();
-            foreach($whereInQueryItems as $whereInQueryItem){
-                $deans = $deans -> whereIn($whereInQueryItem[0], $whereInQueryItem[1]);
+            $whereInQueryItems = $filter->getWhereInQuery();
+            foreach ($whereInQueryItems as $whereInQueryItem) {
+                $deans = $deans->whereIn($whereInQueryItem[0], $whereInQueryItem[1]);
             }
 
-            $whereNotInQueryItems = $filter -> getWhereNotInQuery();
-            foreach($whereNotInQueryItems as $whereNotInQueryItem){
-                $deans = $deans -> whereNotIn($whereNotInQueryItem[0], $whereNotInQueryItem[1]);
+            $whereNotInQueryItems = $filter->getWhereNotInQuery();
+            foreach ($whereNotInQueryItems as $whereNotInQueryItem) {
+                $deans = $deans->whereNotIn($whereNotInQueryItem[0], $whereNotInQueryItem[1]);
             }
 
             //related data
 
-            $academicStaff = request() -> query('includeAcademicStaff');
-            if($academicStaff){
-                $deans = $deans -> with('academicStaff');
+            $academicStaff = request()->query('includeAcademicStaff');
+            if ($academicStaff) {
+                $deans = $deans->with('academicStaff');
 
-                $uniSide = request() -> query('includeUniversitySide');
+                $uniSide = request()->query('includeUniversitySide');
 
-                if($uniSide){
-                    $deans = $deans -> with(['academicStaff' => ['universitySide']]);
+                if ($uniSide) {
+                    $deans = $deans->with(['academicStaff' => ['universitySide']]);
 
-                    $user = request() -> query('includeUser');
+                    $user = request()->query('includeUser');
 
-                    if($user){
-                        $deans = $deans -> with(['academicStaff' => ['universitySide' => ['user']]]);
+                    if ($user) {
+                        $deans = $deans->with(['academicStaff' => ['universitySide' => ['user']]]);
                     }
                 }
             }
 
-            $faculty = request() -> query('includeFaculty');
+            $faculty = request()->query('includeFaculty');
 
-            if($faculty){
-                $deans = $deans -> with('faculty');
+            if ($faculty) {
+                $deans = $deans->with('faculty');
             }
-
-            return new DeanCollection($deans -> paginate() -> appends(request() -> query()));
+            return new DeanCollection($deans->get());
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
         }
-        catch(\Exception $e){
-            return response() -> json(['message' => $e -> getMessage()], 500);
-        }
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -89,12 +91,12 @@ class DeanController extends Controller
      */
     public function store(StoreDeanRequest $request)
     {
-        try{
-            $this -> authorize('create', Dean::class);
+        try {
+            $this->authorize('create', [Dean::class, $request]);
 
             //set needed additional fields
 
-            $validatedData = $request -> validated(); //get the validated data
+            $validatedData = $request->validated(); //get the validated data
 
             $validatedData['status'] = 'Pending'; //set the status (user account status)
             $validatedData['current_status'] = 'Active';   //set the current status (dean status)
@@ -116,70 +118,25 @@ class DeanController extends Controller
             //update the faculty dean id
             $faculty = Faculty::findOrFail($validatedData['faculty_id']);
 
-            $faculty -> update([
-                'dean_id' => $dean -> id
+            $faculty->update([
+                'dean_id' => $dean->id
             ]);
 
             //send the email
             DeanService::sendAccountCreateMail($validatedData, $password);
             DB::commit();   //commit the changes if all of them were successful
-            return new DeanResource($dean);
-        }
-        catch(AuthorizationException $e){
-            return response() -> json(['message' => $e -> getMessage()], 403);
-        }
-        catch(\Exception $e){
+
+            return response()->json([
+                'message' => 'Dean created successfully',
+                'data' => new DeanResource($dean)
+            ], 201);
+
+        } catch (AuthorizationException $e) {
+            return response()->json(['message' => $e->getMessage()], 403);
+        } catch (\Exception $e) {
             DB::rollBack();
-            return response() -> json(['message' => 'Failed to create dean', 'error' => $e -> getMessage()], 500);
+            return response()->json(['message' => 'Failed to create dean', 'error' => $e->getMessage()], 500);
         }
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Dean $dean)
-    {
-        try{
-            //include related data
-            $academicStaff = request() -> query('includeAcademicStaff');
-
-            if($academicStaff){
-                $uniSide = request() -> query('includeUniversitySide');
-
-                if($uniSide){
-                    $user = request() -> query('includeUser');
-
-                    if($user){
-                        $dean = $dean -> load(['academicStaff' => ['universitySide' => ['user']]]);
-                    }
-                    else{
-                        $dean = $dean -> load(['academicStaff' => ['universitySide']]);
-                    }
-                }
-                else{
-                    $dean = $dean -> loadMissing('academicStaff');
-                }
-            }
-
-            $faculty = request() -> query('includeFaculty');
-
-            if($faculty){
-                $dean = $dean -> loadMissing('faculty');
-            }
-
-            return new DeanResource($dean);
-        }
-        catch(\Exception $e){
-            return response() -> json(['message' => $e -> getMessage()], 500);
-        }
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Dean $dean)
-    {
-        //
     }
 
     /**
@@ -191,10 +148,210 @@ class DeanController extends Controller
     }
 
     /**
+     * Display the specified resource.
+     */
+    public function show(Dean $dean)
+    {
+        try {
+            //include related data
+            $academicStaff = request()->query('includeAcademicStaff');
+
+            if ($academicStaff) {
+                $uniSide = request()->query('includeUniversitySide');
+
+                if ($uniSide) {
+                    $user = request()->query('includeUser');
+
+                    if ($user) {
+                        $dean = $dean->load(['academicStaff' => ['universitySide' => ['user']]]);
+                    } else {
+                        $dean = $dean->load(['academicStaff' => ['universitySide']]);
+                    }
+                } else {
+                    $dean = $dean->loadMissing('academicStaff');
+                }
+            }
+
+            $faculty = request()->query('includeFaculty');
+
+            if ($faculty) {
+                $dean = $dean->loadMissing('faculty');
+            }
+
+            return new DeanResource($dean);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
      * Remove the specified resource from storage.
      */
     public function destroy(Dean $dean)
     {
         //
+    }
+
+    /**
+     * Dean accepts review teams assign for PGPRs
+     */
+    public function acceptReviewTeam(DeanAcceptReviewTeamRequest $request): JsonResponse
+    {
+        try {
+
+            $reviewTeam = ReviewTeam::findOrFail($request->id)->load(['reviewers']);
+
+            if ($reviewTeam->status != "PENDING") {
+                return response()->json(['message' => 'You cannot accept a previously accept or rejected review team'], 422);
+            }
+
+            $creatorOfReviewTeam = $reviewTeam->qualityAssuranceCouncilOfficer;
+            $creatorOfReviewTeam = $creatorOfReviewTeam->user;
+
+            $postGraduateProgram = $reviewTeam->postGraduateReviewProgram;
+            $postGraduateProgram = $postGraduateProgram->postGraduateProgram;
+
+            $faculty = $postGraduateProgram->faculty;
+
+            $dean = $faculty->deans[0];
+            $dean = $dean->user;
+
+            $university = $faculty->university;
+
+            // DB::beginTransaction();
+            $reviewTeam->status = 'ACCEPTED';
+            $reviewTeam->dean_decision = $request->dean_decision;
+            $reviewTeam->remarks = $request->remark ?? 'N/A';
+
+            // send the mail to the qac officer saying that the review team was accepted
+            Mail::to($creatorOfReviewTeam->official_email)->send(
+                new InformReviewTeamAcceptanceToQAC(
+                    $creatorOfReviewTeam,
+                    $reviewTeam,
+                    $dean,
+                    $postGraduateProgram,
+                    $faculty,
+                    $university,
+                    "Dean of $faculty->name in $university->name has accepted the appointed review team",
+                    "mail.informReviewTeamAcceptanceToQAC"
+                )
+            );
+            $reviewTeam->save();
+
+            $deskEvaluation = new DeskEvaluation();
+            $deskEvaluation->pgpr_id = $reviewTeam->pgpr_id;
+            $deskEvaluation->start_date = NULL; // or to set this is current time use => Carbon::now()
+            $deskEvaluation->end_date = NULL;
+
+            $deskEvaluation->save();
+
+            DB::commit();
+            return response()->json(['message' => 'Your request is duly noted.']);
+        } catch (ModelNotFoundException $exception) {
+            DB::rollBack();
+            return response()->json(
+                ['message' => 'Sorry we cannot find the review team that you requested in our database, please check and try again'],
+                422
+            );
+        } catch (Exception $exception) {
+            DB::rollBack();
+            return response()->json(['message' => 'Something bad has happened, we are working tirelessly to fix the issue.'], 500);
+        }
+    }
+
+    /**
+     * Dean rejects review teams assign for PGPRs
+     */
+    public function rejectReviewTeam(DeanRejectReviewTeamRequest $request): JsonResponse
+    {
+        try {
+
+            $reviewTeam = ReviewTeam::findOrFail($request->id)->load(['reviewers']);
+
+            if ($reviewTeam->status != "PENDING") {
+                return response()->json(['message' => 'You cannot reject a previously accept or rejected review team'], 422);
+            }
+
+            $creatorOfReviewTeam = $reviewTeam->qualityAssuranceCouncilOfficer;
+            $creatorOfReviewTeam = $creatorOfReviewTeam->user;
+
+            $postGraduateProgram = $reviewTeam->postGraduateReviewProgram;
+            $postGraduateProgram = $postGraduateProgram->postGraduateProgram;
+
+            $faculty = $postGraduateProgram->faculty;
+
+            $dean = $faculty->deans[0];
+            $dean = $dean->user;
+
+            $university = $faculty->university;
+
+            // DB::beginTransaction();
+            $reviewTeam->status = 'REJECTED';
+            $reviewTeam->dean_decision = $request->dean_decision;
+            $reviewTeam->remarks = $request->remark ?? 'N/A';
+
+            // send the mail to the qac officer saying that the review team was accepted
+            Mail::to($creatorOfReviewTeam->official_email)->send(
+                new InformReviewTeamRejectionToQAC(
+                    $creatorOfReviewTeam,
+                    $reviewTeam,
+                    $dean,
+                    $postGraduateProgram,
+                    $faculty,
+                    $university,
+                    "Dean of $faculty->name in $university->name has rejected the appointed review team",
+                    "mail.informReviewTeamRejectionToQAC"
+                )
+            );
+            $reviewTeam->save();
+            DB::commit();
+            return response()->json(['message' => 'Your request is duly noted.']);
+        } catch (ModelNotFoundException $exception) {
+            DB::rollBack();
+            return response()->json(
+                ['message' => 'Sorry we cannot find the review team that you requested in our database, please check and try again'],
+                422
+            );
+        } catch (Exception $exception) {
+            DB::rollBack();
+            return response()->json(['message' => 'Something bad has happened, we are working tirelessly to fix the issue.'], 500);
+        }
+    }
+
+
+    //get the faculty of the dean
+    public function faculty(Dean $dean)
+    {
+        try {
+            $faculty = $dean->faculty;
+
+            if ($faculty) {
+                return new FacultyResource($faculty);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to get the faculty of the dean', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function removeRole(Dean $dean)
+    {
+        try {
+            $this->authorize('removeRole', $dean);
+
+            DB::beginTransaction();
+
+            $result = DeanService::removeRole($dean);
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Dean role removed successfully',
+            ], 200);
+        } catch (AuthorizationException $e) {
+            return response()->json(['message' => $e->getMessage()], 403);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Failed to remove dean role', 'error' => $e->getMessage()], 500);
+        }
     }
 }

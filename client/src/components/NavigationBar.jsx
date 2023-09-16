@@ -9,6 +9,7 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import MenuIcon from '@mui/icons-material/Menu';
 import useAuth from '../hooks/useAuth';
 import { Link,useLocation, Navigate } from 'react-router-dom';
+import { SERVER_URL } from '../assets/constants';
 
 let drawerWidth = 240; //default value
 
@@ -41,6 +42,7 @@ const NavigationBar = ({open , openDrawer, drawerWidthInput, breadCrumbs}) => {
   {
     return <Navigate to="/login" state={{ from: location }} replace />
   }
+  console.log("Auth :",auth);
   drawerWidth = drawerWidthInput;
   return (
       <AppBar color='transparent' open={open} position='absolute'>
@@ -58,13 +60,13 @@ const NavigationBar = ({open , openDrawer, drawerWidthInput, breadCrumbs}) => {
               <Stack sx={{ justifyContent: "center", alignItems:"center" }} direction='row' spacing={2}>
                   <NotificationsIcon/>
                   <Typography variant='h6' color='black'>
-                      {auth.fullName}
+                      {auth.surname + " " + auth.initials}
                   </Typography>
                   <Divider orientation='vertical' flexItem color='black'/>
                   <Link to={`/${auth.authRole[0]}/profile`}>
                     <Avatar
                       alt={auth.fullName}
-                      src='https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=880&q=80'
+                      src={SERVER_URL.slice(0, -1) + auth.profilePic}
                     />
                   </Link>
               </Stack>

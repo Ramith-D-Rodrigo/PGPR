@@ -31,7 +31,7 @@ class UniversitySideResource extends JsonResource
         }
 
         //related data
-        $returnArr['User'] = new UserResource($this -> whenLoaded('user'));
+        $returnArr['user'] = new UserResource($this -> whenLoaded('user'));
         return $returnArr;
     }
 }

@@ -1,43 +1,86 @@
-import React from "react";
-import { useParams } from "react-router-dom";
-import { Avatar, Button, Paper } from "@mui/material";
-import { NavigateBefore } from "@mui/icons-material";
+import React from 'react';
+import { useParams } from 'react-router-dom';
+import { Avatar, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 
-const CoordinatorProfile = ({ coordinatorData }) => {
-  const { cid } = useParams();
-  const coordinator = coordinatorData.find((coordinator) => coordinator.cid === cid);
+const CoordinatorProfile = () => {
+  const { id } = useParams(); // Get the coordinator ID from URL parameter
 
-  if (!coordinator) {
-    return <div>Coordinator not found</div>;
-  }
+  // Simulated data fetch based on the coordinator ID
+  const coordinatorProfileData = {
+    cid: id,
+    profilePhoto: 'https://randomuser.me/api/portraits/men/1.jpg', // Placeholder image
+    name: 'Dr. Manju',
+    faculty: 'Science Faculty',
+    university: 'University of Colombo',
+    numOfPgPrograms: 3,
+    pgPrograms: [
+      { pgprId: 'UOC-12', name: 'Program 1', status: 'Active' },
+      { pgprId: 'UOC-13', name: 'Program 2', status: 'Approved' },
+      { pgprId: 'UOC-14', name: 'Program 3', status: 'Completed' },
+    ],
+  };
 
   return (
-    <div className="max-w-6xl mx-auto p-6 bg-white rounded-md mt-6">
-      <h2 className="text-2xl font-bold text-center">Coordinator Profile</h2>
-      <hr className="border-t-2 border-black my-4 opacity-50" />
-      <div className="flex justify-center items-center">
-        <Avatar alt="Profile Photo" src={coordinator.profilePhoto} />
-        <div className="ml-4">
-          <h3 className="text-xl font-semibold">{coordinator.name}</h3>
-          <p className="text-gray-600">{coordinator.cid}</p>
+    <div className="flex justify-center items-center min-h-screen bg-gray-100 p-8">
+      <Paper elevation={3} className="p-6 space-y-4 w-full md:max-w-3xl">
+        <Typography variant="h4" className="font-bold mb-4 text-center">
+          Coordinator Profile
+        </Typography>
+        <div className="flex items-start">
+          <div className="flex-shrink-0">
+            <Avatar alt="Profile Photo" src={coordinatorProfileData.profilePhoto} sx={{ width: '100%', height: 'auto' }} />
+          </div>
+          <div className="ml-6 text-black flex-grow">
+            <Typography variant="h5" className="font-bold mb-2">
+              <span className="text-2xl">{coordinatorProfileData.name}</span>
+            </Typography>
+            <Typography variant="body1" className="mb-2">
+              <span className="font-bold">Coordinator ID:</span> {coordinatorProfileData.cid}
+            </Typography>
+            <Typography variant="body1" className="mb-2">
+              <span className="font-bold">Faculty/Institute:</span> {coordinatorProfileData.faculty}
+            </Typography>
+            <Typography variant="body1" className="mb-2">
+              <span className="font-bold">University:</span> {coordinatorProfileData.university}
+            </Typography>
+            <Typography variant="body1" className="mb-2">
+              <span className="font-bold">No. of PG Programs:</span> {coordinatorProfileData.numOfPgPrograms}
+            </Typography>
+          </div>
         </div>
-      </div>
-    
-      <div className="mt-4">
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<NavigateBefore />}
-          onClick={() => {
-            // Handle navigation back to the previous page
-            // You can use history.push or any routing mechanism of your choice
-          }}
-        >
-          Back
-        </Button>
-      </div>
+        <hr className="border-t-2 border-black my-4 opacity-50" />
+        <div>
+          <Typography variant="h6" className="font-bold mb-2 text-center">
+            Coordinated PG Programs
+          </Typography>
+          <div className="mb-4">
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>PGPR ID</TableCell>
+                    <TableCell>Name</TableCell>
+                    <TableCell>Status</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {coordinatorProfileData.pgPrograms.map((program) => (
+                    <TableRow key={program.pgprId}>
+                      <TableCell>{program.pgprId}</TableCell>
+                      <TableCell>{program.name}</TableCell>
+                      <TableCell>{program.status}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </div>
+        </div>
+      </Paper>
     </div>
   );
 };
 
 export default CoordinatorProfile;
+
+

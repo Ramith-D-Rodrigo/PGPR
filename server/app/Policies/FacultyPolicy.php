@@ -53,11 +53,18 @@ class FacultyPolicy
         $authRole = request() -> session() -> get('authRole');
 
         //check if the logged in user is a cqa director
-        if ($authRole == 'cqa_director') {
-            return Response::allow();
-        } else {
+        if ($authRole != 'cqa_director') {
             return Response::deny('You are not authorized to update a faculty');
         }
+
+        //check whether the faculty belongs to the university of the cqa director
+        $cqaDirectorUniId = $user -> universitySide -> university_id;
+
+        if ($faculty -> university_id != $cqaDirectorUniId) {
+            return Response::deny('You are not authorized to update a faculty of another university');
+        }
+
+        return Response::allow();
     }
 
     /**

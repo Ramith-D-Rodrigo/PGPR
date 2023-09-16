@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Http\Requests\V1\StoreInternalQualityAssuranceUnitDirectorRequest;
 use App\Models\Faculty;
 use App\Models\InternalQualityAssuranceUnitDirector;
 use App\Models\User;
@@ -28,7 +29,7 @@ class InternalQualityAssuranceUnitDirectorPolicy
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user): Response
+    public function create(User $user, StoreInternalQualityAssuranceUnitDirectorRequest $request): Response
     {
         //only cqa director of the university can create an internal quality assurance unit director
         $currRole = request()->session()->get('authRole');
@@ -38,9 +39,11 @@ class InternalQualityAssuranceUnitDirectorPolicy
         }
 
         //check if the internal quality assurance unit id belongs to the university of the cqa director
-        $facultyId = request() -> faculty_id;
+        $facultyId = $request -> faculty_id;
 
         $faculty = Faculty::find($facultyId);
+
+        echo $facultyId;
 
         $cqaUniId = $user -> universitySide -> university_id;
 
@@ -81,5 +84,26 @@ class InternalQualityAssuranceUnitDirectorPolicy
     public function forceDelete(User $user, InternalQualityAssuranceUnitDirector $internalQualityAssuranceUnitDirector): bool
     {
         //
+    }
+
+    public function removeRole(User $user, InternalQualityAssuranceUnitDirector $internalQualityAssuranceUnitDirector): Response
+    {
+        //only cqa director of the university can remove the role of an internal quality assurance unit director
+        $currRole = request()->session()->get('authRole');
+
+        if ($currRole != 'cqa_director') {
+            return Response::deny('You are not allowed to remove the role of an internal quality assurance unit director');
+        }
+
+        //check if the internal quality assurance unit id belongs to the university of the cqa director
+        $iqauDirUni = $internalQualityAssuranceUnitDirector -> internalQualityAssuranceUnit -> faculty -> university_id;
+
+        $cqaUniId = $user -> universitySide -> university_id;
+
+        if ($iqauDirUni != $cqaUniId) {
+            return Response::deny('You are not allowed to remove the role of an internal quality assurance unit director for a faculty that does not belong to your university');
+        }
+
+        return Response::allow();
     }
 }

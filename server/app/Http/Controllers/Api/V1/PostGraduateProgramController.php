@@ -5,10 +5,14 @@ namespace App\Http\Controllers\Api\V1;
 use App\Filters\V1\PostGraduateProgramFilter;
 use App\Http\Requests\V1\StorePostGraduateProgramRequest;
 use App\Http\Requests\V1\UpdatePostGraduateProgramRequest;
+use App\Http\Resources\V1\FacultyResource;
 use App\Http\Resources\V1\PostGraduateProgramResource;
+use App\Http\Resources\V1\PostGraduateProgramReviewCollection;
+use App\Http\Resources\V1\PostGraduateProgramReviewResource;
 use App\Models\PostGraduateProgram;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\V1\PostGraduateProgramCollection;
+use App\Http\Resources\V1\ProgrammeCoordinatorResource;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -38,7 +42,47 @@ class PostGraduateProgramController extends Controller
                 $pgps = $pgps -> whereNotIn($whereNotInQueryItem[0], $whereNotInQueryItem[1]);
             }
 
-            return new PostGraduateProgramCollection($pgps -> paginate() -> appends($request -> query()));    //pagination should include the query params
+            //include related data
+            $faculty = request() -> query('includeFaculty');
+            if($faculty){
+                $pgps -> with('faculty');
+            }
+
+            $currCoordinator = request() -> query('includeCurrentCoordinator');
+            if($currCoordinator){
+                //check if academic staff is included
+                $academicStaff = request() -> query('includeAcademicStaff');
+                if($academicStaff){
+                    //check if university side is included
+                    $universitySide = request() -> query('includeUniversitySide');
+                    if($universitySide){
+                        //check if user is included
+                        $user = request() -> query('includeUser');
+                        if($user){
+                            $pgps -> with(['currentProgrammeCoordinator:id' => [
+                                'academicStaff:id' => [
+                                    'universitySide:id' => ['user:id,initials,surname']
+                                    ]
+                                ]
+                            ]);
+                        }
+                        else{
+                            $pgps -> with(['currentProgrammeCoordinator:id' => [
+                                'academicStaff:id' => ['universitySide:id']
+                                ]
+                            ]);
+                        }
+                    }
+                    else{
+                        $pgps -> with(['currentProgrammeCoordinator:id' => ['academicStaff:id']]);
+                    }
+                }
+                else{
+                    $pgps -> with('currentProgrammeCoordinator:id');
+                }
+            }
+
+            return new PostGraduateProgramCollection($pgps -> get());
         }
         catch(\Exception $e){
             return response() -> json(['message' => $e -> getMessage()], 500);
@@ -62,7 +106,7 @@ class PostGraduateProgramController extends Controller
         //add authorized cqa director id to the request
         try{
             //authorize the request
-            $this -> authorize('store', PostGraduateProgram::class);
+            $this -> authorize('store', [PostGraduateProgram::class, $request]);
 
             //get validated data
             $validatedData = $request -> validated();
@@ -155,7 +199,7 @@ class PostGraduateProgramController extends Controller
 
             //add authorized cqa director id to the validated data
             $validatedData['edited_by_cqa_director_id'] = Auth::user() -> id;
-            $postGraduateProgram -> update($request -> validated());
+            $postGraduateProgram -> update($validatedData);
             return response() -> json(['message' => 'Post Graduate Program Updated Successfully'], 200);
         }
         catch(AuthorizationException $e){
@@ -175,5 +219,84 @@ class PostGraduateProgramController extends Controller
     public function destroy(PostGraduateProgram $postGraduateProgram)
     {
         //
+    }
+
+    //get the faculty of the post graduate program
+    public function faculty(PostGraduateProgram $postGraduateProgram){
+        try{
+            $faculty = $postGraduateProgram -> faculty;
+            return new FacultyResource($faculty);
+        }
+        catch(\Exception $e){
+            return response() -> json(['message' => $e -> getMessage()], 500);
+        }
+    }
+
+    //get the current coordinator of the post graduate program
+    public function currentCoordinator(PostGraduateProgram $postGraduateProgram){
+        try{
+            $programmeCoordinator = $postGraduateProgram -> currentProgrammeCoordinator;
+
+            if($programmeCoordinator){
+                //check if academic staff is included
+                $academicStaff = request() -> query('includeAcademicStaff');
+                if($academicStaff){
+                    //check if university side is included
+                    $universitySide = request() -> query('includeUniversitySide');
+                    if($universitySide){
+                        //check if user is included
+                        $user = request() -> query('includeUser');
+                        if($user){
+                            $programmeCoordinator -> load(['academicStaff:id' => [
+                                'universitySide:id' => ['user:id,initials,surname,profile_pic']
+                                ]
+                            ]);
+                        }
+                        else{
+                            $programmeCoordinator -> load(['academicStaff:id' => ['universitySide:id']]);
+                        }
+                    }
+                    else{
+                        $programmeCoordinator -> loadMissing('academicStaff:id');
+                    }
+                }
+            }
+
+            return new ProgrammeCoordinatorResource($programmeCoordinator);
+        }
+        catch(\Exception $e){
+            return response() -> json(['message' => $e -> getMessage()], 500);
+        }
+    }
+
+    //get all postgraduate program reviews
+    public function reviews(PostGraduateProgram $postGraduateProgram){
+        try{
+            //authorize the action
+            $this -> authorize('authorizeReviews', $postGraduateProgram);
+
+            $reviews = $postGraduateProgram -> postGraduateProgramReviews;
+
+            //check if faculty is included
+            $faculty = request() -> query('includeFaculty');
+            if($faculty){
+                //check if university is included
+                $university = request() -> query('includeUniversity');
+                if($university){
+                    $reviews -> with(['postGraduateProgram:id,faculty_id' => [
+                        'faculty:id,name,university_id' => ['university:id,name']
+                        ]
+                    ]);
+                }
+                else{
+                    $reviews -> with(['postGraduateProgram:id,faculty_id' => ['faculty:id,name']]);
+                }
+            }
+
+            return new PostGraduateProgramReviewCollection($reviews);
+        }
+        catch(\Exception $e){
+            return response() -> json(['message' => $e -> getMessage()], 500);
+        }
     }
 }

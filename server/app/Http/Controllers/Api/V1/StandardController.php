@@ -15,7 +15,7 @@ class StandardController extends Controller
      */
     public function index()
     {
-        return new StandardCollection(Standard::paginate());
+        return new StandardCollection(Standard::all());
     }
 
     /**

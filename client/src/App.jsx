@@ -1,59 +1,86 @@
 import { Route, Routes } from "react-router-dom";
+
+import { DrawerStateProvider } from './contexts/DrawerStateProvider';
+
 import Dashboard from "./components/Dashboard";
-import Login from "./pages/Login";
-import Universities from "./pages/QACOfficer/Universities";
-import ViewSer from "./pages/Reviewer/ViewSer";
 import MainLayout from "./components/MainLayout";
-import NotFound from "./pages/NotFound";
 import Authenticate from "./components/Authenticate";
 import Unauthorized from "./components/Unauthorized";
 import LoginPersist from "./components/LoginPersist.jsx";
-import PGPRApplication from "./pages/Dean/PGPRApplication";
-import PGPRApplications from "./pages/Dean/PGPRApplications";
-import EditPGPRApplication from "./pages/Dean/EditPGPRApplication";
 import ResetInitialPassword from "./components/ResetInitialPassword.jsx";
-import Ser from "./pages/ProgrammeCoordinator/Ser";
-import SubmitPGPR from "./pages/ProgrammeCoordinator/SubmitPGPR";
-import EditSer from "./pages/ProgrammeCoordinator/EditSer";
-import AddEvidence from "./pages/ProgrammeCoordinator/AddEvidence";
-import AddPGProgramPage from "./pages/CQAdirector/AddPGProgramPage";
-import AddAccounts from "./pages/CQAdirector/AddAccounts";
-import ViewPGPrograms from "./pages/CQAdirector/ViewPGPrograms";
-import EditPGProgram from "./pages/CQAdirector/EditPGProgram";
-import ViewCoordinators from "./pages/CQAdirector/ViewCoordinators";
-import CoordinatorProfile from "./pages/CQAdirector/CoordinatorProfile";
-import Faculties from "./pages/CQAdirector/Faculties";
-import AddFaculty from "./pages/CQAdirector/AddFaculty";
-import SubmitIntent from "./pages/DeanDirector/SubmitIntent";
-import SubmitConsent from "./pages/DeanDirector/SubmitConsent";
-import SetDate from "./pages/ReviewerChair/SetDate";
-import SetCriteria from "./pages/ReviewerChair/SetCriteria";
-import PGAssignments from "./pages/Reviewer/PGAssignments";
-import ConductDE from "./pages/Reviewer/ConductDE";
-import ConductPE from "./pages/Reviewer/ConductPE";
-import EvaluatePE from "./pages/Reviewer/EvaluatePE";
-import PESummaryDetails from "./pages/Reviewer/PESummaryDetails";
-import PEStandardwiseDetails from "./pages/Reviewer/PEStandardWiseDetails";
-import ViewAssignedCriteria from "./pages/Reviewer/ViewAssignedCriteria";
+
+import Login from "./pages/Login";
+import NotFound from "./pages/NotFound";
+
+import Universities from "./pages/QACOfficer/Universities";
+import CreateAccounts from "./pages/QACOfficer/CreateAccounts";
+import PostGraduateProgramReviewApplications from './pages/QACOfficer/PostGraduateProgramReviewApplications'
+import Reviewers from "./pages/QACOfficer/Reviewers";
+import ImportReviewers from "./pages/QACOfficer/ImportReviewers";
+import PostGraduateProgramReviews from "./pages/QACOfficer/PostGraduateProgramReviews";
+import ViewPGPR from "./pages/QACOfficer/ViewPGPR";
+
+import CqaOffices from "./pages/QACDirector/CqaOffices";
 import ViewUniversities from "./pages/QACDirector/ViewUniversities";
 import ViewUniversity from "./pages/QACDirector/ViewUniversity";
 import EditUniversity from "./pages/QACDirector/EditUniversity";
 import AddUniversity from "./pages/QACDirector/AddUniversity";
 import ViewReviewers from "./pages/QACDirector/ViewReviewers";
-import CqaOffices from "./pages/QACDirector/CqaOffices";
+
+import AddPGProgramPage from './pages/CQAdirector/AddPGProgramPage';
+import AddAccounts from './pages/CQAdirector/AddAccounts';
+import EditPGProgram from './pages/CQAdirector/EditPGProgram';
+import ViewPGPrograms from "./pages/CQAdirector/ViewPGPrograms";
+import PGPrograms from "./pages/CQAdirector/PGPrograms";
+import ViewCoordinators from "./pages/CQAdirector/ViewCoordinators";
+import CoordinatorProfile from "./pages/CQAdirector/CoordinatorProfile";
+import Faculties from "./pages/CQAdirector/Faculties";
+import AddFaculty from "./pages/CQAdirector/AddFaculty";
+
+import SubmitIntent from './pages/DeanDirector/SubmitIntent';
+import SubmitConsent from './pages/DeanDirector/SubmitConsent';
+
+import PGPRApplication from "./pages/Dean/PGPRApplication";
+import PGPRApplications from "./pages/Dean/PGPRApplications";
+import EditPGPRApplication from "./pages/Dean/EditPGPRApplication";
+
+import SetDate from './pages/ReviewerChair/SetDate';
+import SetCriteria from './pages/ReviewerChair/SetCriteria';
+
+import PGAssignments from './pages/Reviewer/PGAssignments';
+import ConductDE from './pages/Reviewer/ConductDE';
+import ConductPE from './pages/Reviewer/ConductPE';
+import AcceptAppointment from "./pages/Reviewer/AcceptAppointment";
+import ViewSer from "./pages/Reviewer/ViewSer";
+import EvaluateDE from "./pages/Reviewer/EvaluateDE";
+import EvaluatePE from "./pages/Reviewer/EvaluatePE";
+import PESummaryDetails from "./pages/Reviewer/PESummaryDetails";
+import PEStandardwiseDetails from "./pages/Reviewer/PEStandardWiseDetails";
+import ViewAssignedCriteria from "./pages/Reviewer/ViewAssignedCriteria";
 import ReviewerDashboard from "./pages/Reviewer/ReviewerDashboard";
+import Standardwise_details from "./pages/Reviewer/Standardwise_details";
 import UpdateABC from "./pages/Reviewer/UpdateABC";
 import Summary_details from "./pages/Reviewer/Summary_details";
-import Standardwise_details from "./pages/Reviewer/Standardwise_details";
-import AcceptAppointment from "./pages/Reviewer/AcceptAppointment";
-import { DrawerStateProvider } from "./contexts/DrawerStateProvider";
-import EvaluateDE from "./pages/Reviewer/EvaluateDE";
-import "./App.css";
-import CreateAccounts from "./pages/QACOfficer/CreateAccounts";
+
+import Ser from "./pages/ProgrammeCoordinator/Ser";
+import SubmitPGPR from "./pages/ProgrammeCoordinator/SubmitPGPR";
+import EditSer from "./pages/ProgrammeCoordinator/EditSer";
+import AddEvidence from "./pages/ProgrammeCoordinator/AddEvidence";
+
 import ViewPGPs from "./pages/IQAUdirector/ViewPGPrograms";
 import IQAUSer from "./pages/IQAUdirector/Ser";
 import IQAUEditSer from "./pages/IQAUdirector/EditSer";
 import IQAUProgramDetails from "./pages/IQAUdirector/ViewProgramDetails";
+
+import SelfEvaluationReport from "./pages/ViceChancellor/SelfEvaluationReport";
+import View from './pages/ViceChancellor/View';
+
+import "./App.css";
+
+// import UpdateEvidence from './pages/ProgrammeCoordinator/UpdateEvidence';
+// import ViewSummary from './pages/ProgrammeCoordinator/ViewSummary';
+
+
 
 /* 
   important: 
@@ -96,6 +123,15 @@ function App() {
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="universities" element={<Universities />} />
                 <Route path="createAccounts/" element={<CreateAccounts />} />
+                <Route path="PGPRApplications" element={<PostGraduateProgramReviewApplications />} />
+                <Route path='reviewers/'>
+                  <Route path='' element={<Reviewers/>}/>
+                  <Route path='import' element={<ImportReviewers/>}/>
+                </Route>
+                <Route path='PGPRs/'>
+                  <Route path='' element={<PostGraduateProgramReviews/>}/>
+                  <Route path='view/:id' element={<ViewPGPR/>}/>
+                </Route>
               </Route>
             </Route>
 
@@ -106,16 +142,29 @@ function App() {
                 <Route path="AddPGProgramPage" element={<AddPGProgramPage />} />
                 <Route path="AddAccounts" element={<AddAccounts />} />
                 <Route path="EditPGProgram" element={<EditPGProgram />} />
-                <Route path="ViewPGPrograms" element={<ViewPGPrograms />} />
-                <Route path="ViewCoordinators" element={<ViewCoordinators />} />
-                {/* Add the route for the coordinator profile */}
-                <Route path="view/:cid" element={<CoordinatorProfile />} />
-                <Route path="faculties/">
-                  <Route path="" element={<Faculties />} />
-                  <Route path="Add" element={<AddFaculty />} />
-                </Route>
-              </Route>
+                <Route path="ViewPGPrograms/">
+                <Route path="" element={<ViewPGPrograms />} />
+                <Route
+                    path="PGPrograms/:id"
+                    element={<PGPrograms />}
+                  />
+</Route>
+
+                <Route path="ViewCoordinators/">
+                  <Route path="" element={<ViewCoordinators />} />
+                  <Route
+                    path="CoordinatorProfile/:id"
+                    element={<CoordinatorProfile />}
+                  />
+
+</Route>
+                  <Route path="faculties/">
+                    <Route path="" element={<Faculties />} />
+                    <Route path="Add" element={<AddFaculty />} />
+                  </Route>
+                
             </Route>
+          </Route>
 
             <Route element={<Authenticate allowedRoles={["qac_director"]} />}>
               <Route path="qac_director/">
@@ -211,6 +260,15 @@ function App() {
               </Route>
             </Route>
 
+            <Route element={<Authenticate allowedRoles={["vice_chancellor"]}/>}>
+              <Route path="vice_chancellor/">
+                <Route path="" element={<Dashboard/>}/>
+                <Route path="dashboard" element={<Dashboard/>}/>
+                <Route path="selfevaluationreport" element={<SelfEvaluationReport/>}/>
+                <Route path="view" element={<View/>}/>
+              </Route>
+            </Route>
+
             {/* iqau routes */}
             <Route element={<Authenticate allowedRoles={["iqau_director"]} />}>
               <Route path="iqau_director/">
@@ -234,14 +292,6 @@ function App() {
               </Route>
             </Route>
 
-            <Route
-              element={<Authenticate allowedRoles={["vice_chancellor"]} />}
-            >
-              <Route path="vice_chancellor/">
-                <Route path="" element={<Dashboard />} />
-                <Route path="dashboard" element={<Dashboard />} />
-              </Route>
-            </Route>
           </Route>
         </Route>
         {/* 404 page & UnAuth ... */}

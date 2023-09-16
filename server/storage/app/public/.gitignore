@@ -1,7 +1,11 @@
 *
+!review_chair_upload_final_reports
+!review_chair_upload_preliminary_reports
+!reviewer_pgpr_assignment_declaration_letters
+!reviewer_declaration_letters
 !reviewer_role_declaration
 !reviewer_role_declaration/Declaration.docx
 !reviewer_review_team_declaration
 !reviewer_review_team_declaration/Declaration.docx
 !.gitignore
-!reviewer-sheet.xlsx
+!reviewer-excel-template.xlsx

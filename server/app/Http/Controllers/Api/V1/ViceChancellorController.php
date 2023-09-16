@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Resources\V1\UniversityResource;
 use App\Http\Resources\V1\ViceChancellorResource;
 use App\Models\University;
 use App\Models\ViceChancellor;
@@ -73,7 +74,11 @@ class ViceChancellorController extends Controller
             //send mail
             ViceChancellorService::sendAccountCreateMail($validatedData, $password);
             DB::commit();
-            return new ViceChancellorResource($viceChancellor);
+
+            return response() -> json([
+                'message' => 'Vice chancellor created successfully',
+                'data' => new ViceChancellorResource($viceChancellor)
+            ], 201);
         }
         catch(AuthorizationException $e){
             return response() -> json([
@@ -119,5 +124,59 @@ class ViceChancellorController extends Controller
     public function destroy(ViceChancellor $viceChancellor)
     {
         //
+    }
+
+    //function to remove the role of vice chancellor (after the term date or if the vice chancellor has ended the term)
+    public function removeRole(ViceChancellor $viceChancellor)
+    {
+        try{
+            $this -> authorize('removeRole', $viceChancellor);
+
+            //update the vc status to inactive
+
+            //get the term date from the request
+            $termDate = request() -> termDate ?? null;
+
+            //if termdate is null, that means uses the term date from the database
+            //else use the term date from the request
+
+            DB::beginTransaction();
+
+            $result = ViceChancellorService::removeRole($viceChancellor, $termDate);
+
+            DB::commit();
+
+            return response() -> json([
+                'message' => 'Vice chancellor role removed successfully',
+            ], 200);
+        }
+        catch(AuthorizationException $e){
+            return response() -> json([
+                'message' => $e -> getMessage()
+            ], 403);
+        }
+        catch(\Exception $e){
+            DB::rollBack();
+            return response() -> json([
+                'message' => 'Failed to remove vice chancellor role',
+                'error' => $e -> getMessage()
+            ], 500);
+        }
+    }
+
+    //get the university of the vice chancellor
+    public function university(ViceChancellor $viceChancellor)
+    {
+        try{
+            $university = $viceChancellor -> university;
+
+            return new UniversityResource($university);
+        }
+        catch(\Exception $e){
+            return response() -> json([
+                'message' => 'Failed to retrieve vice chancellor university',
+                'error' => $e -> getMessage()
+            ], 500);
+        }
     }
 }

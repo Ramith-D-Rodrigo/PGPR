@@ -29,6 +29,7 @@ class ResetPasswordController extends Controller
         Auth::user()->password = Hash::make($request->only('password')['password']);
         if (Auth::user()->password) {
             Auth::user()->logins = Auth::user()->logins + 1;
+            Auth::user()->status = 'active'; // change the status to active
             Auth::user()->save();
             return response()->json(["message" => "Password Successfully Changed"], 201);
         }

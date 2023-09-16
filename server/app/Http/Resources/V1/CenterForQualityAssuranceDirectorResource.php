@@ -25,6 +25,10 @@ class CenterForQualityAssuranceDirectorResource extends JsonResource
             //convert to camel case
             $returnArr[Str::camel($key)] = $value;
         }
+
+        //include related data
+        $returnArr['qualityAssuranceStaff'] = new QualityAssuranceStaffResource($this -> whenLoaded('qualityAssuranceStaff'));
+
         return $returnArr;
     }
 

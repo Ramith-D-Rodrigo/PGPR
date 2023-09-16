@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('evidence_name');
             $table->json('applicable_years');
             $table->longText('url');
+            $table->longText('stored_url')->nullable(); // file id of the evidence in the system drive
             $table->timestamps();
         });
     }

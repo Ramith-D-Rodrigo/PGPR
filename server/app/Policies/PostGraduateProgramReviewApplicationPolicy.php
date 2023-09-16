@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Http\Requests\V1\StorePostGraduateProgramReviewApplicationRequest;
 use App\Models\PostGraduateProgram;
 use App\Models\PostGraduateProgramReviewApplication;
 use App\Models\User;
@@ -109,7 +110,7 @@ class PostGraduateProgramReviewApplicationPolicy
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user): Response
+    public function create(User $user, StorePostGraduateProgramReviewApplicationRequest $request): Response
     {
         //only dean can create applications
         $currUserRole = request() -> session() -> get('authRole');
@@ -122,7 +123,7 @@ class PostGraduateProgramReviewApplicationPolicy
         $deanFaculty = $user -> universitySide -> academicStaff -> dean -> faculty -> id;
 
         //get the faculty of the application
-        $pgpId = request() -> input('post_graduate_program_id');
+        $pgpId = $request -> post_graduate_program_id;
 
         $pgpFaculty = PostGraduateProgram::find($pgpId) -> faculty -> id;
 
@@ -263,9 +264,26 @@ class PostGraduateProgramReviewApplicationPolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, PostGraduateProgramReviewApplication $postGraduateProgramReviewApplication): bool
+    public function delete(User $user, PostGraduateProgramReviewApplication $postGraduateProgramReviewApplication): Response
     {
-        //
+        //only dean can delete the application, but only if it is not submitted and he should be the same person who created the application
+        $currUserRole = request() -> session() -> get('authRole');
+
+        if ($currUserRole != 'dean') {
+            return Response::deny('You are not allowed to delete this application');
+        }
+
+        //dean can only delete applications for pgps in his/her faculty (can be checked by dean_id as well)
+        if($user -> id != $postGraduateProgramReviewApplication -> dean_id){
+            return Response::deny('You are not allowed to delete this application');
+        }
+
+        //check the application status
+        if($postGraduateProgramReviewApplication -> status == 'creating'){
+            return Response::allow();
+        }
+
+        return Response::deny('You are not allowed to delete this application');
     }
 
     /**
