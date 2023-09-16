@@ -435,7 +435,7 @@ class ReviewerController extends Controller
 
                 $reviewTeams = $reviewer
                     ->reviewTeams
-                    ->where('pgpr_id', $validator->validated()['pgprId'])->load('postGraduateReviewProgram');
+                    ->where('pgpr_id', $validator->validated()['pgprId'])->load(['postGraduateReviewProgram' => 'selfEvaluationReport']);
 
                 return response()->json(['message' => 'successful', 'data' => new PostGraduateProgramReviewResource($reviewTeams->postGraduateReviewProgram)]);
             } catch (ModelNotFoundException $exception) {
