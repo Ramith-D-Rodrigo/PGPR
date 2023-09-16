@@ -235,8 +235,10 @@ class ReviewTeamChairController extends Controller
 
     /**
      *
-     * GET request +>
-     *              /{pgpr}/{deskEvaluation}
+     * POST request +>
+     *              {
+     *                  pgpr: 10
+     *              }
      *
      * check whether all the reviewers have entered the same scores for each
      * standard
@@ -252,7 +254,8 @@ class ReviewTeamChairController extends Controller
                 // since the desk evaluation is completed, automatically create the proper evaluation
 
                 DB::beginTransaction();
-                $deskEvaluation = DeskEvaluation::find($validated['desk_evaluation_id']);
+                $pgpr = PostGraduateProgramReview::find($validated['pgpr_id']);
+                $deskEvaluation = $pgpr->deskEvaluation;
 
                 $properEvaluation = new ProperEvaluation();
                 $properEvaluation->pgpr_id = $validated['pgpr_id'];
@@ -273,7 +276,6 @@ class ReviewTeamChairController extends Controller
 
                 // send the mails as well
                 // to the dean, program coordinator, qac officer
-                $pgpr = $deskEvaluation->postGraduateProgramReview;
                 $qacDir = User::find($pgpr->qac_dir_id);
                 $pgp = $pgpr->postGraduateProgram;
                 $programCoordinator = User::find($pgp->programme_coordinator_id);
@@ -287,8 +289,8 @@ class ReviewTeamChairController extends Controller
                 )->send(
                     new InformEvaluationSubmissionToOfficials(
                         recipient: $qacDir,
-                        subject: "The desk evaluation of the {$pgp->title} was conculded.",
-                        content: 'mail.informDeskEvalautionToOfficials',
+                        subject: "The desk evaluation of the {$pgp->title} was concluded.",
+                        content: 'mail.informDeskEvaluationToOfficials',
                         pgp: $pgp,
                         faculty: $faculty,
                         university: $university,
@@ -302,8 +304,8 @@ class ReviewTeamChairController extends Controller
                 )->send(
                     new InformEvaluationSubmissionToOfficials(
                         recipient: $dean,
-                        subject: "The desk evaluation of the {$pgp->title} was conculded.",
-                        content: 'mail.informDeskEvalautionToOfficials',
+                        subject: "The desk evaluation of the {$pgp->title} was concluded.",
+                        content: 'mail.informDeskEvaluationToOfficials',
                         pgp: $pgp,
                         faculty: $faculty,
                         university: $university,
@@ -317,8 +319,8 @@ class ReviewTeamChairController extends Controller
                 )->send(
                     new InformEvaluationSubmissionToOfficials(
                         recipient: $programCoordinator,
-                        subject: "The desk evaluation of the {$pgp->title} was conculded.",
-                        content: 'mail.informDeskEvalautionToOfficials',
+                        subject: "The desk evaluation of the {$pgp->title} was concluded.",
+                        content: 'mail.informDeskEvaluationToOfficials',
                         pgp: $pgp,
                         faculty: $faculty,
                         university: $university,
@@ -377,17 +379,120 @@ class ReviewTeamChairController extends Controller
 
     /**
      *
-     * GET request +>
-     *              /{pgpr}/{properEvaluation}
+     * POST request +>
+     *              {
+     *                  pgpr: 10
+     *              }
      *
      */
-    public function submitProperEvaluation(UpdateReviewChairSubmitPERequest $request)
+    public function submitProperEvaluation(UpdateReviewChairSubmitPERequest $request): \Illuminate\Http\JsonResponse
     {
-        // TODO: COMPLETE THE FUNCTION
         try {
+            $validated = $request->validated();
+            if (self::canSubmitProperEvaluation($validated['pgpr_id'])) {
+                // the proper evaluation can be submitted
+                $grading = ScoreCalculationService::gradeObtainedByTheProgramOfStudy(pgprId: $validated['pgpr_id'], stage: 'PE');
+                $pgpr = PostGraduateProgramReview::find($validated['pgpr_id']);
+
+                // send the mails as well
+                // to the dean, program coordinator, qac officer
+                $qacDir = User::find($pgpr->qac_dir_id);
+                $pgp = $pgpr->postGraduateProgram;
+                $programCoordinator = User::find($pgp->programme_coordinator_id);
+                $faculty = $pgp->faculty;
+                $university = $faculty->university;
+                $dean = User::find($faculty->dean->id);
+
+                // qac dir
+                Mail::to(
+                    $qacDir->official_email
+                )->send(
+                    new InformEvaluationSubmissionToOfficials(
+                        recipient: $qacDir,
+                        subject: "The proper evaluation of the {$pgp->title} was concluded.",
+                        content: 'mail.informDeskEvaluationToOfficials',
+                        pgp: $pgp,
+                        faculty: $faculty,
+                        university: $university,
+                        data: $grading,
+                    )
+                );
+
+                // dean
+                Mail::to(
+                    $dean->official_email
+                )->send(
+                    new InformEvaluationSubmissionToOfficials(
+                        recipient: $dean,
+                        subject: "The proper evaluation of the {$pgp->title} was concluded.",
+                        content: 'mail.informDeskEvaluationToOfficials',
+                        pgp: $pgp,
+                        faculty: $faculty,
+                        university: $university,
+                        data: $grading,
+                    )
+                );
+
+                // program coordinator
+                Mail::to(
+                    $programCoordinator->official_email
+                )->send(
+                    new InformEvaluationSubmissionToOfficials(
+                        recipient: $programCoordinator,
+                        subject: "The proper evaluation of the {$pgp->title} was concluded.",
+                        content: 'mail.informDeskEvaluationToOfficials',
+                        pgp: $pgp,
+                        faculty: $faculty,
+                        university: $university,
+                        data: $grading,
+                    )
+                );
+
+                $pgpr->properEvaluation->stage = 'COMPLETED';
+                $pgpr->save();
+            }
+            // the proper evaluation cannot be submitted
+            return response()->json([
+                'message' => 'The proper evaluation cannot be submitted yet, there are some inconsistencies with the scores provided by the review team, please check the progress.',
+                'data' => []
+            ]);
         } catch (Exception $exception) {
             return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
         }
+    }
+
+    private function canSubmitProperEvaluation($pgprId): bool
+    {
+        $reviewTeam = DB::table('review_teams')->where('pgpr_id', $pgprId)->first();
+        $reviewers = DB::table('reviewer_review_teams')->where('review_team_id', $reviewTeam->id)->pluck('reviewer_id');
+        $pgp = PostGraduateProgramReview::find($pgprId)->postGraduateProgram;
+
+        if (!$reviewTeam) {
+            return false;
+        }
+
+        $assignedCriteria = DB::table('review_team_set_criterias')->where('review_team_id', $reviewTeam->id)->get();
+
+        foreach ($assignedCriteria as $assignedCriterion) {
+            // Get all standards for this criteria
+            $standards = StandardService::getApplicableStandards(
+                $pgp->slqf_level,
+                $pgp->is_professional_pg_programme,
+                $assignedCriterion->id
+            );
+
+            foreach ($standards as $standard) {
+                // Get all scores for this standard
+                $scores = DB::table('proper_evaluation_score')
+                    ->whereIn('reviewer_id', $reviewers)
+                    ->where('standard_id', $standard->id)
+                    ->pluck('pe_score');
+                if ($scores->isEmpty() || $scores->unique()->count() > 1) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     /**
