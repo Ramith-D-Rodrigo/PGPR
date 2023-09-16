@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\V1;
 
+use App\Models\PostGraduateProgramReview;
+use App\Models\ProperEvaluation;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -18,13 +20,34 @@ class UpdateReviewChairSubmitPERequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
+     * POST request +>
+     *              {
+     *                  pgpr: 10
+     *              }
+     *
      * @return array<string, ValidationRule|array|string>
      */
     public function rules(): array
     {
         return [
-            'pgpr_id' => 'required|exists:post_graduate_program_reviews,id',
-            'proper_evaluation_id' => 'required|exists:proper_evaluations,id',
+            'pgpr_id' => [
+                'required',
+                'exists:post_graduate_program_reviews,id',
+                function ($attribute, $value, $fail) {
+                    $pgpr = PostGraduateProgramReview::find($value);
+                    if ($pgpr->status_of_pgpr != 'PE2') {
+                        $fail('The post graduate review program is not in an updatable state.');
+                    }
+                },
+            ],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'pgpr_id.required' => 'The post graduate program review id is required.',
+            'pgpr_id.exists' => 'The post graduate program review does not exist in our database.',
         ];
     }
 
@@ -33,18 +56,7 @@ class UpdateReviewChairSubmitPERequest extends FormRequest
         $this->merge(
             [
                 'pgpr_id' => $this->pgpr,
-                'proper_evaluation_id' => $this->properEvaluation,
             ]
         );
-    }
-
-    public function messages(): array
-    {
-        return [
-            'pgpr_id.required' => 'The post graduate program review id is required.',
-            'pgpr_id.exists' => 'The post graduate program review does not exist in our database.',
-            'proper_evaluation_id.required' => 'The proper evaluation id is required',
-            'proper_evaluation_id.exists' => 'The proper evaluation does not exist in our database',
-        ];
     }
 }
