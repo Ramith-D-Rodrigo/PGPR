@@ -869,8 +869,8 @@ class ReviewTeamChairController extends Controller
                 },
             ],
         ], [
-            'pgpr_id.required' => 'The post graduate program review id is required.',
-            'pgpr_id.exists' => 'The post graduate program review does not exist in our database.',
+            'pgpr.required' => 'The post graduate program review id is required.',
+            'pgpr.exists' => 'The post graduate program review does not exist in our database.',
         ]);
 
         if ($validator->fails()) {
@@ -879,7 +879,7 @@ class ReviewTeamChairController extends Controller
 
         $validated = $validator->validated();
         try {
-            $pgpr = PostGraduateProgramReview::find($validated['pgpr_id']);
+            $pgpr = PostGraduateProgramReview::find($validated['pgpr']);
             $qacDir = User::find($pgpr->qac_dir_id);
             $pgp = $pgpr->postGraduateProgram;
             $programCoordinator = User::find($pgp->programme_coordinator_id);
@@ -971,8 +971,8 @@ class ReviewTeamChairController extends Controller
                 },
             ],
         ], [
-            'pgpr_id.required' => 'The post graduate program review id is required.',
-            'pgpr_id.exists' => 'The post graduate program review does not exist in our database.',
+            'pgpr.required' => 'The post graduate program review id is required.',
+            'pgpr.exists' => 'The post graduate program review does not exist in our database.',
         ]);
 
         if ($validator->fails()) {
@@ -981,7 +981,7 @@ class ReviewTeamChairController extends Controller
 
         $validated = $validator->validated();
         try {
-            $pgpr = PostGraduateProgramReview::find($validated['pgpr_id']);
+            $pgpr = PostGraduateProgramReview::find($validated['pgpr']);
             $reviewTeam = $pgpr->reviewTeam;
             $qacDir = User::find($pgpr->qac_dir_id);
             $pgp = $pgpr->postGraduateProgram;
