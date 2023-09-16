@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   Table,
@@ -16,12 +16,30 @@ import {
   FormControl,
   Select,
 } from "@mui/material";
+import useSetUserNavigations from "../../hooks/useSetUserNavigations";
 
 function Summary_details() {
   const { pgprId } = useParams();
-  const [reviewerId, setReviewerId] = useState(1);
-  const [standards, setStandards] = useState([]);
-  const [DEScore, setDEScore] = useState("D");
+  const [reviewerId, setReviewerId] = useState("All");
+
+  useSetUserNavigations([
+    {
+      name: "PG Assignments",
+      link: "/PG_Assignments",
+    },
+    {
+      name: "PE",
+      link: `/PG_Assignments/Conduct_PE/${pgprId}`,
+    },
+    {
+      name: "Assigned Criteria",
+      link: `/PG_Assignments/Conduct_PE/Assigned_criteria/${pgprId}`,
+    },
+    {
+      name: "Summary Details",
+      link: `/PG_Assignments/Conduct_PE/Summary_details/${pgprId}`,
+    }
+  ]);
 
   const rows = [
     {
@@ -32,6 +50,7 @@ function Summary_details() {
       weightageOnMinScore: 89,
       actualCriteriaStore: 89,
       condition: "Yes",
+      reviewer: "Reviewer 1",
     },
     {
       id: 2,
@@ -41,6 +60,7 @@ function Summary_details() {
       weightageOnMinScore: 89,
       actualCriteriaStore: 89,
       condition: "Yes",
+      reviewer: "Reviewer 2",
     },
     {
       id: 3,
@@ -50,6 +70,7 @@ function Summary_details() {
       weightageOnMinScore: 89,
       actualCriteriaStore: 89,
       condition: "Yes",
+      reviewer: "Reviewer 3",
     },
     {
       id: 4,
@@ -59,6 +80,7 @@ function Summary_details() {
       weightageOnMinScore: 89,
       actualCriteriaStore: 89,
       condition: "Yes",
+      reviewer: "Reviewer 1",
     },
     {
       id: 5,
@@ -68,21 +90,29 @@ function Summary_details() {
       weightageOnMinScore: 89,
       actualCriteriaStore: 89,
       condition: "Yes",
+      reviewer: "Reviewer 2",
     },
   ];
 
   const ReviewerList = ["Reviewer 1", "Reviewer 2", "Reviewer 3"];
+
+  const filteredRows = () => {
+    if (reviewerId === "All") {
+      return rows; // Show all criteria when "All" is selected
+    }
+    return rows.filter((row) => row.reviewer === reviewerId);
+  };
+
   return (
     <>
       <Box
         sx={{
           display: "flex",
           flexDirection: "column",
-          justifyContent: "space-between",
           maxHeight: "100%",
           height: "100%",
           alignItems: "center",
-          margin: "10px",
+          margin: "2rem",
         }}
       >
         <Box
@@ -92,7 +122,6 @@ function Summary_details() {
             justifyContent: "center",
             width: "100%",
             alignItems: "center",
-            margin: "2rem 0 0",
           }}
         >
           <Typography
@@ -101,15 +130,15 @@ function Summary_details() {
             variant="h6"
             gutterBottom
             component="div"
-            style={{ marginRight: "20px" }}
+            style={{ marginRight: "2rem" }}
           >
             Criteria Wise Summary Details of Postgraduate programme review
           </Typography>
           <Typography variant="body2" component="h2" gutterBottom>
-            Desk Evaluation
+            Proper Evaluation
           </Typography>
           <FormControl
-            style={{ margin: "10px 0", width: "50%" }}
+            style={{ margin: "3rem", width: "70%" }}
             variant="standard"
             sx={{ m: 1, minWidth: 120 }}
           >
@@ -121,8 +150,11 @@ function Summary_details() {
               onChange={(e) => setReviewerId(e.target.value)}
               label="criteria"
             >
+              <MenuItem key="All" value="All">
+                All
+              </MenuItem>
               {ReviewerList.map((reviewer, index) => (
-                <MenuItem key={index} value={index + 1}>
+                <MenuItem key={index} value={reviewer}>
                   {reviewer}
                 </MenuItem>
               ))}
@@ -176,7 +208,7 @@ function Summary_details() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {rows.map((row, index) => (
+              {filteredRows().map((row) => (
                 <TableRow
                   key={row.id}
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
@@ -204,19 +236,19 @@ function Summary_details() {
           sx={{
             display: "flex",
             justifyContent: "space-between",
-            margin: "10px",
+            marginY: "3rem",
             width: "100%",
           }}
         >
           <Typography variant="h6" component="h2" gutterBottom>
-            Desk Evaluation Score : {DEScore}
+            Proper Evaluation Score : D
           </Typography>
           <Button
             variant="contained"
             color="primary"
             style={{ margin: "0 10px" }}
           >
-            Submit the Desk Evaluation
+            Submit the Proper Evaluation
           </Button>
         </Box>
       </Box>
