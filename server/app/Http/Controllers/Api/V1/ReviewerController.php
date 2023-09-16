@@ -16,6 +16,7 @@ use App\Http\Requests\V1\UpdateRejectPGPRAssignmentRequest;
 use App\Http\Requests\V1\UpdateRejectPGPRRequest;
 use App\Http\Requests\V1\UpdateSERRemarksOfSectionsABDRequest;
 use App\Http\Resources\V1\DeskEvaluationCollection;
+use App\Http\Resources\V1\PostGraduateProgramReviewResource;
 use App\Http\Resources\V1\ProperEvaluationCollection;
 use App\Http\Resources\V1\ReviewerBrowsePGPRCollection;
 use App\Http\Resources\V1\ReviewerCollection;
@@ -436,7 +437,7 @@ class ReviewerController extends Controller
                     ->reviewTeams
                     ->where('pgpr_id', $validator->validated()['pgprId'])->load('postGraduateReviewProgram');
 
-                return response()->json(['message' => 'successful', 'data' => $reviewTeams->postGraduateReviewProgram]);
+                return response()->json(['message' => 'successful', 'data' => new PostGraduateProgramReviewResource($reviewTeams->postGraduateReviewProgram)]);
             } catch (ModelNotFoundException $exception) {
                 return response()->json(['message' => 'Hmm. we dont have such reviewer in our system, how did you get in?'], 403);
             } catch (Exception $exception) {
@@ -497,7 +498,7 @@ class ReviewerController extends Controller
      * Use case 1.2.1
      * Update remarks of Section A, B and D
      *
-     * PATCH request +>
+     * POST request +>
      *                {
      *                      serId: 10,
      *                      sections: [
