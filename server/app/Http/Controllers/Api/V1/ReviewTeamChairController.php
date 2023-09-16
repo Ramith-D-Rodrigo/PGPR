@@ -403,6 +403,8 @@ class ReviewTeamChairController extends Controller
                 $university = $faculty->university;
                 $dean = User::find($faculty->dean->id);
 
+                DB::beginTransaction();
+
                 // qac dir
                 Mail::to(
                     $qacDir->official_email
@@ -449,7 +451,12 @@ class ReviewTeamChairController extends Controller
                 );
 
                 $pgpr->properEvaluation->stage = 'COMPLETED';
+                $pgpr->status_of_pgpr = 'FINAL';
+                $pgpr->properEvaluation->save();
                 $pgpr->save();
+
+                DB::commit();
+                return response()->json(['message' => 'The proper evaluation was successfully submitted', 'data' => $grading]);
             }
             // the proper evaluation cannot be submitted
             return response()->json([
@@ -457,6 +464,7 @@ class ReviewTeamChairController extends Controller
                 'data' => []
             ]);
         } catch (Exception $exception) {
+            DB::rollBack();
             return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
         }
     }
