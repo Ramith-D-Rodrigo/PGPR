@@ -11,7 +11,7 @@ class ScoreCalculationService
     public static function gradeObtainedByTheProgramOfStudy(string|int $pgprId, string $stage): array
     {
         $performanceScores = self::calculateOverallStudyProgramScores($pgprId, $stage);
-        if (!$performanceScores) {
+        if (!$performanceScores || $performanceScores['scores']) {
             return [];
         }
 
@@ -52,7 +52,7 @@ class ScoreCalculationService
     private static function calculateOverallStudyProgramScores(string|int $pgprId, string $stage): array
     {
         $criteriaScores = self::calculateCriterionWiseScores($pgprId, $stage);
-        if (!$criteriaScores) {
+        if (!$criteriaScores || !$criteriaScores['scores']) {
             return [];
         }
 
