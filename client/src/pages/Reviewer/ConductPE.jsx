@@ -48,6 +48,7 @@ const ConductPE = () => {
   ]);
   const [reviewerCreitriaList, setReviewerCreitriaList] = useState([]);
   const [selectedReviewer, setSelectedReviewer] = useState("");
+  const [reviewer, setReviewer] = useState("Chair");
   useSetUserNavigations([
     {
       name: "PG Assignments",
@@ -134,13 +135,17 @@ const ConductPE = () => {
       title: "Proceed to Proper Evaluation",
       to: `../Assigned_criteria/${decodedPgprId}`,
     },
-    //only for chair
-    {
-      title: "Set Dates for Proper Evaluation",
-      to: "",
-    }
   ];
-
+  //only for chair
+  if (reviewer === "Chair") {
+    finalButtons.push(
+      {
+        title: "Set Dates for Proper Evaluation",
+        to: "",
+      },
+    );
+  }
+  
   return (
     <>
       <DiscriptiveDiv
@@ -192,12 +197,17 @@ const ConductPE = () => {
                 >
                   <b>List of Criterian</b>
                 </TableCell>
-                <TableCell
+                {
+                  (reviewer==="Chair")?
+                  <TableCell
                   style={{ backgroundColor: "#D8E6FC" }}
                   align="center"
                 >
                   <b>Actions</b>
                 </TableCell>
+                :
+                ""
+                }
               </TableRow>
             </TableHead>
             <TableBody>
@@ -234,7 +244,12 @@ const ConductPE = () => {
                       }
                     </ul>
                   </TableCell>
-                  <TableCell align="center">{row.actions}</TableCell>
+                  {
+                    (reviewer==="Chair")?
+                    <TableCell align="center">{row.actions}</TableCell>
+                    :
+                    ""
+                  }
                 </TableRow>
               ))}
             </TableBody>
