@@ -3,10 +3,11 @@
 namespace App\Http\Requests\V1;
 
 use App\Models\PostGraduateProgramReview;
+use App\Models\ProperEvaluation;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class ShowFinalReportRequest extends FormRequest
+class UpdateReviewChairSubmitPERequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -19,8 +20,10 @@ class ShowFinalReportRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * GET request +>
-     *              /{pgpr}
+     * POST request +>
+     *              {
+     *                  pgpr: 10
+     *              }
      *
      * @return array<string, ValidationRule|array|string>
      */
@@ -32,8 +35,8 @@ class ShowFinalReportRequest extends FormRequest
                 'exists:post_graduate_program_reviews,id',
                 function ($attribute, $value, $fail) {
                     $pgpr = PostGraduateProgramReview::find($value);
-                    if ($pgpr->status_of_pgpr != 'FINAL') {
-                        $fail('The post graduate review program has not yet reach the stage of uploading the final report.');
+                    if ($pgpr->status_of_pgpr != 'PE2') {
+                        $fail('The post graduate review program is not in an updatable state.');
                     }
                 },
             ],
@@ -44,14 +47,15 @@ class ShowFinalReportRequest extends FormRequest
     {
         return [
             'pgpr_id.required' => 'The post graduate program review id is required.',
-            'pgpr_id.exists' => 'The post graduate program review does not exist in our database.',];
+            'pgpr_id.exists' => 'The post graduate program review does not exist in our database.',
+        ];
     }
 
     protected function prepareForValidation(): void
     {
         $this->merge(
             [
-                'pgpr_id' => $this->pgpr
+                'pgpr_id' => $this->pgpr,
             ]
         );
     }

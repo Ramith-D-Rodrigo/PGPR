@@ -110,8 +110,9 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
     ]
 
     const iqauDirectorRoutes = [
-      {route:"DashBoard",link: "/iqau_director/dashboard"},
-    ]
+      { route: "DashBoard", link: "/iqau_director/dashboard" },
+      { route: "PG Programs", link: "/iqau_director/pgPrograms" },
+    ];
 
     const programmeCoordinatorRoutes = [
       {route:"Dashboard",link: "/programme_coordinator/dashboard"},
