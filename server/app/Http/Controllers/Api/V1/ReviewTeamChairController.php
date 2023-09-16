@@ -14,8 +14,11 @@ use App\Http\Requests\V1\StoreConductDeskEvaluationRequest;
 use App\Http\Requests\V1\StoreConductProperEvaluationRequest;
 use App\Http\Requests\V1\UpdateReviewChairSubmitDERequest;
 use App\Http\Requests\V1\UpdateReviewChairSubmitPERequest;
+use App\Http\Requests\V1\UploadFinalReportRequest;
+use App\Http\Requests\V1\UploadPreliminaryReportRequest;
 use App\Http\Resources\V1\ReviewTeamResource;
 use App\Mail\InformEvaluationSubmissionToOfficials;
+use App\Mail\InformReportUploadsToOfficials;
 use App\Models\DeskEvaluation;
 use App\Models\PostGraduateProgramReview;
 use App\Models\ProperEvaluation;
@@ -31,6 +34,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ReviewTeamChairController extends Controller
 {
@@ -451,7 +456,6 @@ class ReviewTeamChairController extends Controller
                 );
 
                 $pgpr->properEvaluation->stage = 'COMPLETED';
-                $pgpr->status_of_pgpr = 'FINAL';
                 $pgpr->properEvaluation->save();
                 $pgpr->save();
 
@@ -646,12 +650,189 @@ class ReviewTeamChairController extends Controller
         }
     }
 
-    public function viewPreliminaryReport(ShowPreliminaryReportRequest $request)
+    /**
+     * POST request +>
+     *                {
+     *                    pgpr: 10,
+     *                    file: abc.pdf,
+     *                }
+     */
+    public function uploadPreliminaryReport(UploadPreliminaryReportRequest $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $validated = $request->validated();
+
+            $pgpr = PostGraduateProgramReview::find($validated['pgpr_id']);
+            $reviewTeam = $pgpr->reviewTeam;
+
+            $file = $validated['file'];
+            $date = Carbon::today();
+            //move the file and create the file name
+            $fileName = Str::random(10) . '_' . "{$pgpr->id}-{$reviewTeam->id}-{$date}" . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('review_chair_upload_preliminary_reports', $fileName, 'public');
+
+            $attributes = [
+                'pgpr_id' => $validated['pgpr_id'],
+                'review_team_id' => $reviewTeam->id
+            ];
+            $data = [
+                'preliminary_report' => Storage::disk('public')->url($path),
+                'type' => 'PRELIMINARY'
+            ];
+
+            DB::beginTransaction();
+
+            DB::table('final_reports')->updateOrInsert($attributes, $data);
+
+            $qacDir = User::find($pgpr->qac_dir_id);
+            $pgp = $pgpr->postGraduateProgram;
+            $programCoordinator = User::find($pgp->programme_coordinator_id);
+            $faculty = $pgp->faculty;
+            $university = $faculty->university;
+            $dean = User::find($faculty->dean->id);
+
+            // qac director
+            Mail::to($qacDir->official_email)->send(
+                new InformReportUploadsToOfficials(
+                    recipient: $qacDir,
+                    subject: "Final report of the post-graduate program reivew {$pgp->title}",
+                    content: 'mail.informOfficialsAboutOfficialDocumentUploads',
+                    pgp: $pgp,
+                    university: $university,
+                    faculty: $faculty,
+                    type: 'PRELIMINARY'
+                )
+            );
+
+            // dean
+            Mail::to($dean->official_email)->send(
+                new InformReportUploadsToOfficials(
+                    recipient: $dean,
+                    subject: "Final report of the post-graduate program reivew {$pgp->title}",
+                    content: 'mail.informOfficialsAboutOfficialDocumentUploads',
+                    pgp: $pgp,
+                    university: $university,
+                    faculty: $faculty,
+                    type: 'PRELIMINARY'
+                )
+            );
+
+            // program coordinator
+            Mail::to($programCoordinator->official_email)->send(
+                new InformReportUploadsToOfficials(
+                    recipient: $programCoordinator,
+                    subject: "Final report of the post-graduate program reivew {$pgp->title}",
+                    content: 'mail.informOfficialsAboutOfficialDocumentUploads',
+                    pgp: $pgp,
+                    university: $university,
+                    faculty: $faculty,
+                    type: 'PRELIMINARY'
+                )
+            );
+
+            DB::commit();
+            return response()->json(['message' => 'File successfully uploaded']);
+        } catch (Exception $exception) {
+            DB::rollBack();
+            return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+        }
+    }
+
+    /**
+     * POST request +>
+     *                {
+     *                    pgpr: 10,
+     *                    file: abc.pdf,
+     *                }
+     */
+    public function uploadFinalReport(UploadFinalReportRequest $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $validated = $request->validated();
+
+            $pgpr = PostGraduateProgramReview::find($validated['pgpr_id']);
+            $reviewTeam = $pgpr->reviewTeam;
+
+            $file = $validated['file'];
+            $date = Carbon::today();
+            //move the file and create the file name
+            $fileName = Str::random(10) . '_' . "{$pgpr->id}-{$reviewTeam->id}-{$date}" . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('review_chair_upload_final_reports', $fileName, 'public');
+
+            $attributes = [
+                'pgpr_id' => $validated['pgpr_id'],
+                'review_team_id' => $reviewTeam->id
+            ];
+            $data = [
+                'final_report' => Storage::disk('public')->url($path),
+                'type' => 'FINAL'
+            ];
+
+            DB::beginTransaction();
+
+            DB::table('final_reports')->updateOrInsert($attributes, $data);
+
+            $qacDir = User::find($pgpr->qac_dir_id);
+            $pgp = $pgpr->postGraduateProgram;
+            $programCoordinator = User::find($pgp->programme_coordinator_id);
+            $faculty = $pgp->faculty;
+            $university = $faculty->university;
+            $dean = User::find($faculty->dean->id);
+
+            // qac director
+            Mail::to($qacDir->official_email)->send(
+                new InformReportUploadsToOfficials(
+                    recipient: $qacDir,
+                    subject: "Final report of the post-graduate program reivew {$pgp->title}",
+                    content: 'mail.informOfficialsAboutOfficialDocumentUploads',
+                    pgp: $pgp,
+                    university: $university,
+                    faculty: $faculty,
+                    type: 'FINAL'
+                )
+            );
+
+            // dean
+            Mail::to($dean->official_email)->send(
+                new InformReportUploadsToOfficials(
+                    recipient: $dean,
+                    subject: "Final report of the post-graduate program reivew {$pgp->title}",
+                    content: 'mail.informOfficialsAboutOfficialDocumentUploads',
+                    pgp: $pgp,
+                    university: $university,
+                    faculty: $faculty,
+                    type: 'FINAL'
+                )
+            );
+
+            // program coordinator
+            Mail::to($programCoordinator->official_email)->send(
+                new InformReportUploadsToOfficials(
+                    recipient: $programCoordinator,
+                    subject: "Final report of the post-graduate program reivew {$pgp->title}",
+                    content: 'mail.informOfficialsAboutOfficialDocumentUploads',
+                    pgp: $pgp,
+                    university: $university,
+                    faculty: $faculty,
+                    type: 'FINAL'
+                )
+            );
+
+            DB::commit();
+            return response()->json(['message' => 'File successfully uploaded']);
+
+        } catch (Exception $exception) {
+            DB::rollBack();
+            return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+        }
+    }
+
+    public function submitPreliminaryReport(Request $request)
     {
         // TODO: COMPLETE THE FUNCTION
     }
 
-    public function finishFinalReport(ShowFinalReportRequest $request)
+    public function submitFinalReport(Request $request)
     {
         // TODO: COMPLETE THE FUNCTION
     }
