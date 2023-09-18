@@ -191,7 +191,7 @@ const PGPRs = () => {
                 <TableCell>{pgpr.statusOfPgpr}</TableCell>
                 <TableCell>
                   <ButtonGroup>
-                    <Link to={`/programme_coordinator/pgprs/${pgpr?.selfEvaluationReport.id}`}>
+                    <Link to={`/programme_coordinator/pgprs/${pgpr?.id}/ser/${pgpr?.selfEvaluationReport.id}`}>
                       <Button variant="contained" color="primary" size="small">View More</Button>
                     </Link>
                   </ButtonGroup>
