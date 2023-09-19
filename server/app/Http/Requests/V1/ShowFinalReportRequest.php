@@ -32,7 +32,7 @@ class ShowFinalReportRequest extends FormRequest
                 'exists:post_graduate_program_reviews,id',
                 function ($attribute, $value, $fail) {
                     $pgpr = PostGraduateProgramReview::find($value);
-                    if ($pgpr->status_of_pgpr != 'FINAL') {
+                    if ($pgpr->status_of_pgpr != 'FINAL' || $pgpr->status_of_pgpr != 'COMPLETED') {
                         $fail('The post graduate review program has not yet reach the stage of uploading the final report.');
                     }
                 },
