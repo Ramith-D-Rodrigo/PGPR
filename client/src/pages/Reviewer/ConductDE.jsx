@@ -12,6 +12,7 @@ import getSelfEvaluationReport from '../../api/SelfEvaluationReport/getSelfEvalu
 import createSERRows from '../../assets/reviewer/createSERRows';
 import useReviewerRole from '../../hooks/useReviewerRole';
 import getAssignedPGPR from '../../api/Reviewer/getAssignedPGPR';
+import getSpecificPGPR from '../../api/Reviewer/getSpecificPGPR';
 
 const ConductDE = () => {
     const {pgprId} = useParams();
@@ -50,8 +51,8 @@ const ConductDE = () => {
         const getPGPRDetails = async () => {
             SetLoading(true);
             try {
-                const response = await getAssignedPGPR(pgprId);
-                console.log("PGPR Details : ",response?.data?.data);
+                const response = await getSpecificPGPR(pgprId);
+                console.log("PGPR Details : ",response);
                 setReviewerRole(response?.data?.data?.reviewerRole);
                 SetLoading(false);
             } catch (err) {
@@ -60,7 +61,7 @@ const ConductDE = () => {
             }
         };
         getSERDetails();
-        // getPGPRDetails();
+        getPGPRDetails();
     }, []);
 
     function createData(criteriaData,submitted_standards, y1,y2,y3,y4,y5) {
