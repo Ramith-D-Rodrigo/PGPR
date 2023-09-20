@@ -419,6 +419,7 @@ class ReviewerController extends Controller
      * View specific program review
      *
      * send the PGPR ID as pgprId=10 in the GET request
+     * @throws ValidationValidationException
      */
     public function viewSpecificPGPR(Request $request): JsonResponse
     {
@@ -431,13 +432,16 @@ class ReviewerController extends Controller
 
         if ($validator->passes()) {
             try {
+                $validated = $validator->validated();
                 $reviewer = Reviewer::findOrFail(Auth::id());
 
-                $reviewTeams = $reviewer
-                    ->reviewTeams
-                    ->where('pgpr_id', $validator->validated()['pgprId'])->load('postGraduateReviewProgram');
+                $reviewTeam = $reviewer->reviewTeams->where('pgpr_id', $validated['pgprId'])->first();
 
-                return response()->json(['message' => 'successful', 'data' => new PostGraduateProgramReviewResource($reviewTeams->postGraduateReviewProgram)]);
+                if (!$reviewTeam) {
+                    return response()->json(['message' => 'Hmm, seems this reviewer is not a member of the review team of the given pgpr'], 403);
+                }
+
+                return response()->json(['message' => 'successful', 'data' => new PostGraduateProgramReviewResource($reviewTeam->postGraduateReviewProgram)]);
             } catch (ModelNotFoundException $exception) {
                 return response()->json(['message' => 'Hmm. we dont have such reviewer in our system, how did you get in?'], 403);
             } catch (Exception $exception) {
