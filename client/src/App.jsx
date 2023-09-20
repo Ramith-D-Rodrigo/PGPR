@@ -36,8 +36,9 @@ import ViewPGPrograms from "./pages/CQAdirector/ViewPGPrograms";
 import PGPrograms from "./pages/CQAdirector/PGPrograms";
 import ViewCoordinators from "./pages/CQAdirector/ViewCoordinators";
 import CoordinatorProfile from "./pages/CQAdirector/CoordinatorProfile";
-import Faculties from "./pages/CQAdirector/Faculties";
+import Faculties from "./pages/Faculty/Faculties"
 import AddFaculty from "./pages/CQAdirector/AddFaculty";
+import ViewFaculty from "./pages/Faculty/ViewFaculty";
 
 import SubmitIntent from './pages/DeanDirector/SubmitIntent';
 import SubmitConsent from './pages/DeanDirector/SubmitConsent';
@@ -138,12 +139,12 @@ function App() {
                 <Route path="createAccounts/" element={<CreateAccounts />} />
                 <Route path="PGPRApplications" element={<PostGraduateProgramReviewApplications />} />
                 <Route path='reviewers/'>
-                  <Route path='' element={<Reviewers/>}/>
-                  <Route path='import' element={<ImportReviewers/>}/>
+                  <Route path='' element={<Reviewers />} />
+                  <Route path='import' element={<ImportReviewers />} />
                 </Route>
                 <Route path='PGPRs/'>
-                  <Route path='' element={<PostGraduateProgramReviews/>}/>
-                  <Route path='view/:id' element={<ViewPGPR/>}/>
+                  <Route path='' element={<PostGraduateProgramReviews />} />
+                  <Route path='view/:id' element={<ViewPGPR />} />
                 </Route>
               </Route>
             </Route>
@@ -156,12 +157,12 @@ function App() {
                 <Route path="AddAccounts" element={<AddAccounts />} />
                 <Route path="EditPGProgram" element={<EditPGProgram />} />
                 <Route path="ViewPGPrograms/">
-                <Route path="" element={<ViewPGPrograms />} />
-                <Route
+                  <Route path="" element={<ViewPGPrograms />} />
+                  <Route
                     path="PGPrograms/:id"
                     element={<PGPrograms />}
                   />
-</Route>
+                </Route>
 
                 <Route path="ViewCoordinators/">
                   <Route path="" element={<ViewCoordinators />} />
@@ -170,14 +171,15 @@ function App() {
                     element={<CoordinatorProfile />}
                   />
 
-</Route>
-                  <Route path="faculties/">
-                    <Route path="" element={<Faculties />} />
-                    <Route path="Add" element={<AddFaculty />} />
-                  </Route>
-                
+                </Route>
+                <Route path="faculties/">
+                  <Route path="" element={<Faculties />} />
+                  <Route path="Add" element={<AddFaculty />} />
+                  <Route path=":facultyId" element={<ViewFaculty />} />
+                </Route>
+
+              </Route>
             </Route>
-          </Route>
 
             <Route element={<Authenticate allowedRoles={["qac_director"]} />}>
               <Route path="qac_director/">
@@ -306,13 +308,13 @@ function App() {
               </Route>
             </Route>
 
-            <Route element={<Authenticate allowedRoles={["vice_chancellor"]}/>}>
+            <Route element={<Authenticate allowedRoles={["vice_chancellor"]} />}>
               <Route path="vice_chancellor/">
-                <Route path="" element={<Dashboard/>}/>
-                <Route path="dashboard" element={<Dashboard/>}/>
-                <Route path="selfevaluationreport" element={<SelfEvaluationReport/>}/>
-                <Route path="view" element={<View/>}/>
-                <Route path="pgprogrammes" element={<ViewPGProgrammesInUniversities/>}/>
+                <Route path="" element={<Dashboard />} />
+                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="selfevaluationreport" element={<SelfEvaluationReport />} />
+                <Route path="view" element={<View />} />
+                <Route path="pgprogrammes" element={<ViewPGProgrammesInUniversities />} />
               </Route>
             </Route>
 
