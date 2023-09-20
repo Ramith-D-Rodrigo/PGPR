@@ -264,6 +264,29 @@ class SelfEvaluationReportController extends Controller
             $finalSERFileName = $selfEvaluationReport->id . '_finalSER.' . $finalSER->getClientOriginalExtension();
             Storage::put('public/ser/finalSER/' . $finalSERFileName, $finalSER->getContent());
 
+            //remove the current files if they are stored
+
+            if($selfEvaluationReport -> section_a && Storage::exists(public_path($selfEvaluationReport -> section_a))){
+                Storage::delete(Storage::url($selfEvaluationReport -> section_a));
+            }
+
+            if($selfEvaluationReport -> section_b && Storage::exists(public_path($selfEvaluationReport -> section_b))){
+                Storage::delete(Storage::url($selfEvaluationReport -> section_b));
+            }
+
+            if($selfEvaluationReport -> sectioN_d && Storage::exists(public_path($selfEvaluationReport -> section_d))){
+                Storage::delete(Storage::url($selfEvaluationReport -> section_d));
+            }
+
+            if($selfEvaluationReport -> final_ser_report && Storage::exists(public_path($selfEvaluationReport -> final_ser_report))){
+                Storage::delete(Storage::url($selfEvaluationReport -> final_ser_report));
+            }
+
+            if($selfEvaluationReport -> postGraduateProgramReview -> payment_voucher && Storage::exists(public_path($selfEvaluationReport -> postGraduateProgramReview -> payment_voucher))){
+                Storage::delete(Storage::url($selfEvaluationReport -> postGraduateProgramReview -> payment_voucher));
+            }
+
+
             //get the paths
             $validatedData['section_a'] = Storage::url('public/ser/sectionA/' . $sectionAFileName);
             $validatedData['section_b'] = Storage::url('public/ser/sectionB/' . $sectionBFileName);
