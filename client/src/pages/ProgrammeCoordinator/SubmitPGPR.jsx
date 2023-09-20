@@ -8,6 +8,7 @@ import DiscriptiveDiv from '../../components/DiscriptiveDiv';
 import useDrawerState from '../../hooks/useDrawerState';
 import getPGPR from '../../api/PostGraduateProgramReview/getPGPR';
 import { Input } from '@mui/material';
+import submitSelfEvaluationReport from '../../api/SelfEvaluationReport/submitSelfEvaluationReport';
 
 const SubmitPGPR = () => {
   const { pgprId, serId } = useParams();
@@ -85,8 +86,35 @@ const SubmitPGPR = () => {
     { label: "Programme Coordinator:", value: pgpr?.selfEvaluationReport.programmeCoordinator.academicStaff.universitySide.user.initials + ' ' + pgpr?.selfEvaluationReport.programmeCoordinator.academicStaff.universitySide.user.surname },
   ];
 
-  const handleSERSubmit = (e) => {
+  const handleSERSubmit = async (e) => {
     e.preventDefault();
+    
+    const formData = new FormData(e.target);
+
+    console.log(Object.fromEntries(formData));  
+
+    if(formData.get('sectionA').size === 0 || formData.get('sectionB').size === 0 || formData.get('sectionD').size === 0 || formData.get('paymentVoucher').size === 0 || formData.get('finalSerReport').size === 0){
+      alert('please upload the required files');
+      return;
+    }
+
+    if(formData.get('agreement') === null){
+      alert('you must check the agreement');
+      return;
+    }
+
+    try{
+      const submitResponse = await submitSelfEvaluationReport(serId, formData);
+
+      if(submitResponse && submitResponse.status === 200){
+        alert(submitResponse.data.message);
+        return;
+      }
+    }
+    catch(error){
+      console.log(error.message);
+      return;
+    }
   }
 
   const handleCancel = (e) => {
@@ -127,15 +155,15 @@ const SubmitPGPR = () => {
         <div style={{ marginLeft: '200px', display: 'flex', flexDirection: 'row' }}>
           <div>
             <label style={{ align: 'center' }}>Part A: </label>
-            <Input type="file" name="partA" />
+            <Input type="file" name="sectionA" />
           </div>
           <div>
             <label>Part B: </label>
-            <Input type="file" name="partB" />
+            <Input type="file" name="sectionB" />
           </div>
           <div>
             <label>Part D: </label>
-            <Input type="file" name="partD" />
+            <Input type="file" name="sectionD" />
           </div>
         </div>
         <br>
