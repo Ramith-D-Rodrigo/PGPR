@@ -422,7 +422,7 @@ class ReviewerController extends Controller
      */
     public function viewSpecificPGPR(Request $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
+        $validator = Validator::make(['pgprId' => $request->route('pgprId')], [
             'pgprId' => 'required|exists:post_graduate_program_reviews,id',
         ], [
             'pgprId.required' => 'We need the postgraduate review program id inorder to provide the necessary details',
@@ -523,7 +523,6 @@ class ReviewerController extends Controller
         try {
             $this->authorize('updateRemarksOfSectionsABDAuthorize', [Reviewer::class, $request]);
 
-            // TODO: check whether the review belongs to that particular review team before updating
             $reviewerId = Auth::id();
             $serId = $request->validated('ser_id');
             $sections = $request->validated('sections');
