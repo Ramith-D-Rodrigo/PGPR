@@ -122,6 +122,8 @@ class DatabaseSeeder extends Seeder
         $university -> centerForQualityAssurance -> save();
 
         $iqauDir -> iqau_id = $faculty->internalQualityAssuranceUnit->id;
+        $faculty->internalQualityAssuranceUnit->iqau_dir_id = $iqauDir->id;
+        $faculty->internalQualityAssuranceUnit->save();
         $iqauDir->save();
 
 
