@@ -86,9 +86,11 @@ import IQAUSer from "./pages/IQAUdirector/Ser";
 import IQAUEditSer from "./pages/IQAUdirector/EditSer";
 import IQAUProgramDetails from "./pages/IQAUdirector/ViewProgramDetails";
 
-import SelfEvaluationReport from "./pages/ViceChancellor/SelfEvaluationReport";
 import ViewPGProgrammesInUniversities from "./pages/ViceChancellor/ViewPGProgrammesInUniversities";
 //import View from './pages/ViceChancellor/View';
+
+import SelfEvaluationReport from "./pages/SelfEvaluationReport/SelfEvaluationReport";
+import EditingSelfEvaluationReport from "./pages/SelfEvaluationReport/EditingSelfEvaluationReport";
 
 import "./App.css";
 
@@ -282,11 +284,11 @@ function App() {
               <Route path="programme_coordinator/">
                 <Route path="" element={<Dashboard />} />
                 <Route path="dashboard" element={<Dashboard />} />
-                <Route path="pgprs/:pgprId/ser/:serId" element={<Ser />} />
+                <Route path="pgprs/:pgprId/ser/:serId" element={<SelfEvaluationReport />} />
                 <Route path="pgprs/:pgprId/ser/:serId/submitSER" element={<SubmitPGPR />} />
                 <Route path="addevidence" element={<AddEvidence />} />
                 <Route path="pgprs/" element={<PGPRs />} />
-                <Route path="pgprs/:pgprId/ser/:serId/EditSer/:criteriaId" element={<EditSer />} />
+                <Route path="pgprs/:pgprId/ser/:serId/EditSer/:criteriaId" element={<EditingSelfEvaluationReport />} />
               </Route>
             </Route>
 
