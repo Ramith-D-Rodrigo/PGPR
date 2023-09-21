@@ -121,9 +121,10 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
     ]
 
     const viceChancellorRoutes = [
-      {route:"DashBoard",link: "/vice_chancellor/dashboard"},
-      {route:"SelfEvaluationReport",link: "/vice_chancellor/SelfEvaluationReport"},
-      {route:"PGProgrammes",link: "/vice_chancellor/ViewPGProgrammesInUniversities"},
+      {route:"Dashboard",link: "/vice_chancellor/dashboard"},
+      {route:"Postgraduate Programmes",link: "/vice_chancellor/postgraduateProgrammes"},
+      {route:"Faculties",link: "/vice_chancellor/faculties"},
+      {route:"Postgraduate Programme Reviews",link: "/vice_chancellor/pgprs"},
     ]
 
     //set user routes based on user role

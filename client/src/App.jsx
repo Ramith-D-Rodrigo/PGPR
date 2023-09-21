@@ -36,8 +36,9 @@ import ViewPGPrograms from "./pages/CQAdirector/ViewPGPrograms";
 import PGPrograms from "./pages/CQAdirector/PGPrograms";
 import ViewCoordinators from "./pages/CQAdirector/ViewCoordinators";
 import CoordinatorProfile from "./pages/CQAdirector/CoordinatorProfile";
-import Faculties from "./pages/CQAdirector/Faculties";
+import Faculties from "./pages/Faculty/Faculties"
 import AddFaculty from "./pages/CQAdirector/AddFaculty";
+import ViewFaculty from "./pages/Faculty/ViewFaculty";
 
 import SubmitIntent from './pages/DeanDirector/SubmitIntent';
 import SubmitConsent from './pages/DeanDirector/SubmitConsent';
@@ -85,9 +86,11 @@ import IQAUSer from "./pages/IQAUdirector/Ser";
 import IQAUEditSer from "./pages/IQAUdirector/EditSer";
 import IQAUProgramDetails from "./pages/IQAUdirector/ViewProgramDetails";
 
-import SelfEvaluationReport from "./pages/ViceChancellor/SelfEvaluationReport";
 import ViewPGProgrammesInUniversities from "./pages/ViceChancellor/ViewPGProgrammesInUniversities";
 //import View from './pages/ViceChancellor/View';
+
+import SelfEvaluationReport from "./pages/SelfEvaluationReport/SelfEvaluationReport";
+import EditingSelfEvaluationReport from "./pages/SelfEvaluationReport/EditingSelfEvaluationReport";
 
 import "./App.css";
 
@@ -138,12 +141,12 @@ function App() {
                 <Route path="createAccounts/" element={<CreateAccounts />} />
                 <Route path="PGPRApplications" element={<PostGraduateProgramReviewApplications />} />
                 <Route path='reviewers/'>
-                  <Route path='' element={<Reviewers/>}/>
-                  <Route path='import' element={<ImportReviewers/>}/>
+                  <Route path='' element={<Reviewers />} />
+                  <Route path='import' element={<ImportReviewers />} />
                 </Route>
                 <Route path='PGPRs/'>
-                  <Route path='' element={<PostGraduateProgramReviews/>}/>
-                  <Route path='view/:id' element={<ViewPGPR/>}/>
+                  <Route path='' element={<PostGraduateProgramReviews />} />
+                  <Route path='view/:id' element={<ViewPGPR />} />
                 </Route>
               </Route>
             </Route>
@@ -156,12 +159,12 @@ function App() {
                 <Route path="AddAccounts" element={<AddAccounts />} />
                 <Route path="EditPGProgram" element={<EditPGProgram />} />
                 <Route path="ViewPGPrograms/">
-                <Route path="" element={<ViewPGPrograms />} />
-                <Route
+                  <Route path="" element={<ViewPGPrograms />} />
+                  <Route
                     path="PGPrograms/:id"
                     element={<PGPrograms />}
                   />
-</Route>
+                </Route>
 
                 <Route path="ViewCoordinators/">
                   <Route path="" element={<ViewCoordinators />} />
@@ -170,14 +173,15 @@ function App() {
                     element={<CoordinatorProfile />}
                   />
 
-</Route>
-                  <Route path="faculties/">
-                    <Route path="" element={<Faculties />} />
-                    <Route path="Add" element={<AddFaculty />} />
-                  </Route>
-                
+                </Route>
+                <Route path="faculties/">
+                  <Route path="" element={<Faculties />} />
+                  <Route path="Add" element={<AddFaculty />} />
+                  <Route path=":facultyId" element={<ViewFaculty />} />
+                </Route>
+
+              </Route>
             </Route>
-          </Route>
 
             <Route element={<Authenticate allowedRoles={["qac_director"]} />}>
               <Route path="qac_director/">
@@ -280,11 +284,11 @@ function App() {
               <Route path="programme_coordinator/">
                 <Route path="" element={<Dashboard />} />
                 <Route path="dashboard" element={<Dashboard />} />
-                <Route path="pgprs/:serId" element={<Ser />} />
-                <Route path="pgprs/:serId/submitSER" element={<SubmitPGPR />} />
+                <Route path="pgprs/:pgprId/ser/:serId" element={<SelfEvaluationReport />} />
+                <Route path="pgprs/:pgprId/ser/:serId/submitSER" element={<SubmitPGPR />} />
                 <Route path="addevidence" element={<AddEvidence />} />
                 <Route path="pgprs/" element={<PGPRs />} />
-                <Route path="pgprs/:serId/EditSer/:criteriaId" element={<EditSer />} />
+                <Route path="pgprs/:pgprId/ser/:serId/EditSer/:criteriaId" element={<EditingSelfEvaluationReport />} />
               </Route>
             </Route>
 
@@ -306,13 +310,13 @@ function App() {
               </Route>
             </Route>
 
-            <Route element={<Authenticate allowedRoles={["vice_chancellor"]}/>}>
+            <Route element={<Authenticate allowedRoles={["vice_chancellor"]} />}>
               <Route path="vice_chancellor/">
-                <Route path="" element={<Dashboard/>}/>
-                <Route path="dashboard" element={<Dashboard/>}/>
-                <Route path="selfevaluationreport" element={<SelfEvaluationReport/>}/>
-                <Route path="view" element={<View/>}/>
-                <Route path="pgprogrammes" element={<ViewPGProgrammesInUniversities/>}/>
+                <Route path="" element={<Dashboard />} />
+                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="selfevaluationreport" element={<SelfEvaluationReport />} />
+                <Route path="view" element={<View />} />
+                <Route path="pgprogrammes" element={<ViewPGProgrammesInUniversities />} />
               </Route>
             </Route>
 

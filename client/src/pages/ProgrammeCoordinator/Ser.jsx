@@ -14,7 +14,7 @@ import { useNavigate } from 'react-router-dom';
 
 
 const Ser = () => {
-    const { serId } = useParams();
+    const { serId, pgprId } = useParams();
 
     const open = useDrawerState().drawerState.open;
 
@@ -126,7 +126,7 @@ const Ser = () => {
                 <Button variant="contained" color="primary" size="small" onClick={() => openViewSummary(row)}>
                     View
                 </Button>
-                <Button variant="contained" color="info" size="small" component={Link} to={"/programme_coordinator/pgprs/" + serId + "/EditSer/" + row.id}>
+                <Button variant="contained" color="info" size="small" component={Link} to={'/programme_coordinator/pgprs/' + pgprId +'/ser/' + serId + "/EditSer/" + row.id}>
                     Edit
                 </Button>
             </div>
@@ -162,7 +162,7 @@ const Ser = () => {
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
                         <Typography>
                             Are you sure you want to continue?
-                            <Button variant="contained" color="success" component={Link} to={'/programme_coordinator/pgprs/' + serId +'/submitSER'}>
+                            <Button variant="contained" color="success" component={Link} to={'/programme_coordinator/pgprs/' + pgprId +'/ser/'+serId+'/submitSER'}>
                                 Submit
                             </Button>
                             <Button variant="contained" color="error" onClick={() => { setWarningOpen(false)}}>
@@ -191,7 +191,7 @@ const Ser = () => {
             if (submittedStandardCount !== totalStandardCount) {
                 setWarningOpen(true);
             } else {
-                navigate('/programme_coordinator/pgprs/' + serId +'/submitSER');
+                navigate('/programme_coordinator/pgprs/' + pgprId +'/ser/'+serId+'/submitSER');
             }
         }
     }
