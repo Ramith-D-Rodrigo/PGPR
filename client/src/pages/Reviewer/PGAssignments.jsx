@@ -179,7 +179,7 @@ const pgAssignments = () => {
             setDeEndDate('');
             return;
         }
-        else if(DeEndDate < dates.startDate)
+        else if(DeEndDate <= dates.startDate)
         {
             setErrorMsg("Please select a valid end date for the Desk Evaluation");
             setDeEndDate('');
@@ -192,13 +192,14 @@ const pgAssignments = () => {
             return;
         }
         console.log("set Dates Clicked : ",dates, DeEndDate);
-        setDeEndDate('');
+        // setDeEndDate('');
         setOpenDEDialog(false);
+        setDeskEvaluationEndDate(DeEndDate)
         getPGPRAssignments();
     }
 
     function createData(pgprID,University_Name, faculty_Name, pgp, Role, status, Actions,DE) {
-        const dates = {id:pgprID,startDate:"2020.12.23",endDate:"Not Set yet"}
+        const dates = {id:pgprID,startDate:DE.startDate,endDate:DE.endDate?? "Not Set yet"}
         Actions = Actions.map((action,index) => {
             
             let allow = action.allow? {disabled:false} : {disabled:true};
@@ -222,8 +223,7 @@ const pgAssignments = () => {
                 else if (DE.endDate == null && Role == "MEMBER")
                 {
                     action.allow = false;
-                    // onClickDate = () => setDate(dates);
-                    onClickDate = () => alert("Chairman should set the Desk Evaluation Date first");
+                    onClickDate = () => setErrorMsg("Chairman should set the Desk Evaluation Date first");
                 }
                 return <Link key={index} to={action.allow? 'Conduct_DE/'+pgprID : ''}><Button onClick={() => onClickDate()} {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button></Link>
             }
