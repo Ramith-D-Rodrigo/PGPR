@@ -407,6 +407,9 @@ class SelfEvaluationReportController extends Controller
                         $deskEvaluation->end_date = NULL;
                         $deskEvaluation->save();
 
+                        $pgpr -> status_of_pgpr = 'DE';
+                        $pgpr -> save();
+
                         DB::commit();
 
                         return response()->json([
