@@ -197,7 +197,7 @@ const pgAssignments = () => {
         getPGPRAssignments();
     }
 
-    function createData(pgprID,University_Name, faculty_Name, pgp, Role, status, Actions) {
+    function createData(pgprID,University_Name, faculty_Name, pgp, Role, status, Actions,DE) {
         const dates = {id:pgprID,startDate:"2020.12.23",endDate:"Not Set yet"}
         Actions = Actions.map((action,index) => {
             
@@ -212,9 +212,20 @@ const pgAssignments = () => {
                 return <Button key={index} onClick={()=>{handleClickAccept(pgprID)}} {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button>
             }
             else if(action.action === 'DE')
-            {
-                action.allow = false;
-                return <Link key={index} to={action.allow? 'Conduct_DE/'+pgprID : ''}><Button onClick={()=>setDate(dates)} {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button></Link>
+            {   
+                let onClickDate = null;
+                if (DE.endDate == null && Role == "CHAIR")
+                    {
+                        action.allow = false;
+                        onClickDate = () => setDate(dates);
+                    }
+                else if (DE.endDate == null && Role == "MEMBER")
+                {
+                    action.allow = false;
+                    // onClickDate = () => setDate(dates);
+                    onClickDate = () => alert("Chairman should set the Desk Evaluation Date first");
+                }
+                return <Link key={index} to={action.allow? 'Conduct_DE/'+pgprID : ''}><Button onClick={() => onClickDate()} {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button></Link>
             }
             else if(action.action === 'PE')
             {
@@ -229,27 +240,27 @@ const pgAssignments = () => {
 
     const rows = assignedPGPRs? assignedPGPRs?.map((pgpr,index) => {
         const PGPRDetails = pgpr?.postGraduateReviewProgram;
-        const pgProggramme = PGPRDetails?.post_graduate_program;
+        const pgProggramme = PGPRDetails?.postGraduateProgramme;
         const faculty = pgProggramme?.faculty;
         const university = faculty?.university;
         let actions = [];
-        if(PGPRDetails?.status_of_pgpr === 'SUBMITTED')
+        if(PGPRDetails?.statusOfPgpr === 'SUBMITTED')
         {
             actions = [{action:'Accept',allow:true},{action:'View',allow:false},{action:'DE',allow:false},{action:'PE',allow:false}]
         }
-        else if(PGPRDetails?.status_of_pgpr === 'DE')
+        else if(PGPRDetails?.statusOfPgpr === 'DE')
         {
             actions = [{action:'Accept',allow:false},{action:'View',allow:true},{action:'DE',allow:true},{action:'PE',allow:false}]
         }
-        else if(PGPRDetails?.status_of_pgpr === 'PE')
+        else if(PGPRDetails?.statusOfPgpr === 'PE')
         {
             actions = [{action:'Accept',allow:false},{action:'View',allow:true},{action:'DE',allow:false},{action:'PE',allow:true}]
         }
-        else if(PGPRDetails?.status_of_pgpr === 'FINAL')
+        else if(PGPRDetails?.statusOfPgpr === 'FINAL')
         {
             actions = [{action:'Accept',allow:false},{action:'View',allow:true},{action:'DE',allow:false},{action:'PE',allow:false}]
         }
-        else if(PGPRDetails?.status_of_pgpr === 'COMPLETED')
+        else if(PGPRDetails?.statusOfPgpr === 'COMPLETED')
         {
             actions = [{action:'Accept',allow:false},{action:'View',allow:true},{action:'DE',allow:false},{action:'PE',allow:false}];
         }
@@ -257,7 +268,7 @@ const pgAssignments = () => {
             actions = [{action:'Accept',allow:false},{action:'View',allow:false},{action:'DE',allow:false},{action:'PE',allow:false}];
         }
 
-        return createData(PGPRDetails?.id,university?.name,faculty?.name,pgProggramme?.title,pgpr?.role,PGPRDetails?.status_of_pgpr,actions);
+        return createData(PGPRDetails?.id,university?.name,faculty?.name,pgProggramme?.title,pgpr?.role,PGPRDetails?.statusOfPgpr,actions,PGPRDetails?.deskEvaluation);
     }) : [];
 
     // const rows = [
