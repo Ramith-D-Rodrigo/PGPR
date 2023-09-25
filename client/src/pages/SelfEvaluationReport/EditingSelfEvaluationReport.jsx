@@ -34,6 +34,8 @@ import { Form } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import getPGPR from '../../api/PostGraduateProgramReview/getPGPR';
 
+import deleteEvidence from '../../api/Evidence/deleteEvidence';
+
 
 
 const EditingSelfEvaluationReport = () => {
@@ -281,6 +283,24 @@ const EditingSelfEvaluationReport = () => {
         return val;
     }
 
+    const handleEvidenceDelete = async () => {
+        const evidenceId = updateEvidence.id;
+
+        try {
+            const response = await deleteEvidence(evidenceId);
+
+            if (response && response.status === 200) {
+                alert('Evidence deleted successfully');
+                getEvidencesAdherence();
+                setOpenUpdate(false);
+            }
+
+        }
+        catch (error) {
+            console.log(error);
+        }
+    }
+
     return (
         isLoaded &&
         <Box sx={{ display: "flex", flexDirection: "column" }}>
@@ -514,6 +534,18 @@ const EditingSelfEvaluationReport = () => {
                                                                     </form>
                                                                 </DialogContent>
                                                                 <DialogActions>
+                                                                    {/*delete evidence*/}
+                                                                    <Box sx={{ position: 'absolute', left: '1rem' }}>
+                                                                        <Button
+                                                                            variant="contained"
+                                                                            color="error"
+                                                                            size="small"
+                                                                            onClick={handleEvidenceDelete}
+                                                                            
+                                                                        >
+                                                                            Delete
+                                                                        </Button>
+                                                                    </Box>
                                                                     <Button onClick={handleCloseUpdate}>Cancel</Button>
                                                                     <Button onClick={handleCloseUpdate} type='submit'>Update</Button>
                                                                 </DialogActions>
@@ -690,34 +722,36 @@ const EditingSelfEvaluationReport = () => {
                                         >
                                             Previous
                                         </Button>
-                                        <Box
-                                            sx={{
-                                                justifyContent: "center",
-                                                marginX: "1rem",
-                                                alignItems: "center",
-                                                display: "flex",
-                                            }}
-                                        >
-                                            <Button
-                                                variant="contained"
+                                        {(auth.authRole[0] === 'programme_coordinator' || auth.authRole[0] === 'iqau_director') && pgprState == 'PLANNING' &&
+                                            <Box
                                                 sx={{
+                                                    justifyContent: "center",
                                                     marginX: "1rem",
-                                                }}
-                                                color="success"
-                                                onClick={handleSaveAdherence}
-                                            >
-                                                Save Current Adherence
-                                            </Button>
-                                            <Button
-                                                variant="contained"
-                                                color="error"
-                                                sx={{
-                                                    marginX: "1rem",
+                                                    alignItems: "center",
+                                                    display: "flex",
                                                 }}
                                             >
-                                                Clear Current Adherence
-                                            </Button>
-                                        </Box>
+                                                <Button
+                                                    variant="contained"
+                                                    sx={{
+                                                        marginX: "1rem",
+                                                    }}
+                                                    color="success"
+                                                    onClick={handleSaveAdherence}
+                                                >
+                                                    Save Current Adherence
+                                                </Button>
+                                                <Button
+                                                    variant="contained"
+                                                    color="error"
+                                                    sx={{
+                                                        marginX: "1rem",
+                                                    }}
+                                                >
+                                                    Clear Current Adherence
+                                                </Button>
+                                            </Box>
+                                        }
                                         <Button
                                             variant="contained"
                                             color="primary"
