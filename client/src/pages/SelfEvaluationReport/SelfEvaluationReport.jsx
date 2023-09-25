@@ -196,6 +196,10 @@ const SelfEvaluationReport = () => {
         }
     }
 
+    const handleReportRecommendation = () => {
+
+    }
+
     return (
         <>
             <WarningMessage/>
@@ -356,7 +360,7 @@ const SelfEvaluationReport = () => {
                 </Table>
             </TableContainer>
 
-            {auth.authRole[0] === 'programme_coordinator' && //Only programme coordinator can submit for evaluation
+            {auth.authRole[0] === 'programme_coordinator' && ser?.postGraduateProgramReview?.statusOfPgpr == 'PLANNING'  && //Only programme coordinator can submit for evaluation and only if the status of the PGPR is PLANNING
                 <Box
                     sx={{
                         display: "flex",
@@ -373,7 +377,30 @@ const SelfEvaluationReport = () => {
                         onClick={handleEvaulationSubmit}
                     >
                         <Typography variant="body1">
-                            Submit For Evaulation
+                            Submit For Evaluation
+                        </Typography>
+                    </Button>
+                </Box>
+            }
+
+            {(auth.authRole[0] === 'vice_chancellor' || auth.authRole[0] === 'cqa_director') &&  ser?.postGraduateProgramReview?.statusOfPgpr == 'PLANNING' &&//Only vc and cqa director can recommend the report and only if the status of the PGPR is PLANNING
+                <Box
+                    sx={{
+                        display: "flex",
+                        width: "100%",
+                        justifyContent: "center",
+                        alignItems: "end",
+                    }}
+                >
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        size="normal"
+                        sx={{ float: "right" }}
+                        onClick={handleReportRecommendation}
+                    >
+                        <Typography variant="body1">
+                            Recommend The Report
                         </Typography>
                     </Button>
                 </Box>
