@@ -71,7 +71,7 @@ class SelfEvaluationReportController extends Controller
         $selfEvaluationReport->load([
             //call the whenLoaded method to load the relations only if they are loaded
             //load the following relations to get the needed details
-            'postGraduateProgramReview:id,post_graduate_program_id,pgpr_application_id' => [
+            'postGraduateProgramReview:id,post_graduate_program_id,pgpr_application_id,status_of_pgpr' => [
                 'postGraduateProgram:id,title,slqf_level,faculty_id,programme_coordinator_id,is_professional_pg_programme' => [
                     'faculty:id,name,university_id' => [
                         'university:id,name',
