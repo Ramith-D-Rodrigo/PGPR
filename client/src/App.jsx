@@ -319,7 +319,11 @@ function App() {
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="selfevaluationreport" element={<SelfEvaluationReport />} />
                 <Route path="view" element={<View />} />
-                {/* <Route path="postgraduateProgrammes" element={<PostGraduateProgrammes />} /> */}
+                <Route path="postgraduateProgrammes" element={<PostGraduateProgrammes />} />
+                <Route path="faculties/">
+                  <Route path="" element={<Faculties />} />
+                  <Route path=":facultyId" element={<ViewFaculty />} />
+                </Route>
                 <Route path="pgprs/" element={<PGPRs />} />
                 <Route path="pgprs/:pgprId/ser/:serId" element={<SelfEvaluationReport />} />
               </Route>
