@@ -94,6 +94,7 @@ import EditingSelfEvaluationReport from "./pages/SelfEvaluationReport/EditingSel
 import PostGraduateProgrammes from "./pages/PostgraduateProgrammes/PostGraduateProgrammes";
 
 import "./App.css";
+import ReviewerProfile from "./pages/QACOfficer/ReviewerProfile";
 
 
 /* 
@@ -144,6 +145,7 @@ function App() {
                 <Route path='reviewers/'>
                   <Route path='' element={<Reviewers />} />
                   <Route path='import' element={<ImportReviewers />} />
+                  <Route path=':reviewerId' element={<ReviewerProfile />} />
                 </Route>
                 <Route path='PGPRs/'>
                   <Route path='' element={<PGPRs />} />
