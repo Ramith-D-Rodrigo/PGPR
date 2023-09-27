@@ -1,20 +1,20 @@
-import { Divider } from '@mui/material';
+import { Box, Divider } from '@mui/material';
 import React from 'react'
 import { useParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useState } from 'react';
 import getPGPR from '../../api/PostGraduateProgramReview/getPGPR';
-import { Button } from '@mui/material';
+import { Button, Typography } from '@mui/material';
 
 const ViewPGPR = () => {
-    const { id } = useParams();
+    const { pgprId, serId } = useParams();
 
     const [pgpr, setPgpr] = useState(null);
 
     useEffect(() => {
         const pgprResults = async () => {
             try{
-                const pgprResults = await getPGPR(id);
+                const pgprResults = await getPGPR(pgprId);
 
                 if(pgprResults.status){
                     setPgpr(pgprResults.data.data);
@@ -32,50 +32,55 @@ const ViewPGPR = () => {
 
     //we have to get the final report separately
 
+    const secondaryBoxStyle = {display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', width:'50%', mt: 2};
+
     return (
         <>
-            <h1>Details of Post Graduate Program Review</h1>
+            <Typography variant="h5" align='center'>
+                Details of Post Graduate Program Review
+            </Typography>
 
-            <Divider/>
+            <Box sx={{display: 'flex', justifyContent: 'center', alignItems: 'flex-start', flexDirection: 'row', mt: 2}}>
+                <Box sx={{...secondaryBoxStyle,borderRight:"1px solid black"}}>
 
-            <h1>General Details</h1>
+                    <Divider><strong>General Details</strong></Divider>
+                    <Typography variant="h6" align='center'>
+                        sefsfd
+                    </Typography>
+                    <Typography variant="h6" align='center'>
+                        sdsds
+                    </Typography>
+                </Box>
+                <Box sx={{...secondaryBoxStyle,borderLeft:"1px solid black"}}>
 
-            University Name : {pgpr?.postGraduateProgramme.faculty.university.name}
-            <br/>
+                    <Divider><strong>Grouped Details</strong></Divider>
+                    <Typography variant="h6" align='center'>
+                        sefsfd
+                    </Typography>
+                    <Typography variant="h6" align='center'>
+                        sdsds
+                    </Typography>
 
-            Faculty Name : {pgpr?.postGraduateProgramme.faculty.name}
-            <br/>
+                    <Divider><strong>Review Team</strong></Divider>
+                    <Typography variant="h6" align='center'>
+                        sefsfd
+                    </Typography>
+                    <Typography variant="h6" align='center'>
+                        sdsds
+                    </Typography>
 
-            Post Graduate Program Name : {pgpr?.postGraduateProgramme.title}
-            <br/>
+                    <Divider><strong>Evaluation</strong></Divider>
+                    <Typography variant="h6" align='center'>
+                        sefsfd
+                    </Typography>
+                    <Typography variant="h6" align='center'>
+                        sdsds
+                    </Typography>
+                </Box>
+            </Box>
 
-            PGPR ID : {"PGPR-" + pgpr?.id}
-            <br/>
 
-            Programme Coordinator : {pgpr?.selfEvaluationReport.programmeCoordinator.academicStaff.universitySide.user.surname + " " + pgpr?.selfEvaluationReport.programmeCoordinator.academicStaff.universitySide.user.initials}
-            <br/>
-
-            Grouped Status : {pgpr?.groupedWith ? "Grouped" : "Not Grouped"}
-            <br/>
-
-            Status of PGPR : {pgpr?.statusOfPgpr}
-            <br/>
-
-            Payment Voucher : {pgpr?.paymentVoucher ? (
-                <Button>
-                    View Payment Voucher
-                </Button>
-            ) : "Not Uploaded"}
-            <br/>
-
-            Action Plan :   {pgpr?.actionPlan ? "Uploaded" : "Not Uploaded"}
-            <br/>
-
-            Preliminary Report :    {pgpr?.preliminaryReport ? "Uploaded" : "Not Uploaded"}
-            <br/>
-
-            Final Report :
-            <br/>
+            
 
 
         

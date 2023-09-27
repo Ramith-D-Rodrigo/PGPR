@@ -91,7 +91,7 @@ import ViewPGProgrammesInUniversities from "./pages/ViceChancellor/ViewPGProgram
 
 import SelfEvaluationReport from "./pages/SelfEvaluationReport/SelfEvaluationReport";
 import EditingSelfEvaluationReport from "./pages/SelfEvaluationReport/EditingSelfEvaluationReport";
-import PostGraduateProgrammes from "./pages/PostgraduateProgrammes/PostGraduateProgrammes";
+// import PostGraduateProgrammes from "./pages/PostgraduateProgrammes/PostGraduateProgrammes";
 
 import "./App.css";
 
@@ -147,6 +147,7 @@ function App() {
                 </Route>
                 <Route path='PGPRs/'>
                   <Route path='' element={<PGPRs />} />
+                  <Route path=':pgprId/ser/:serId' element={<ViewPGPR />} />
                   <Route path='view/:id' element={<ViewPGPR />} />
                 </Route>
               </Route>
@@ -318,7 +319,7 @@ function App() {
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="selfevaluationreport" element={<SelfEvaluationReport />} />
                 <Route path="view" element={<View />} />
-                <Route path="postgraduateProgrammes" element={<PostGraduateProgrammes />} />
+                {/* <Route path="postgraduateProgrammes" element={<PostGraduateProgrammes />} /> */}
                 <Route path="pgprs/" element={<PGPRs />} />
                 <Route path="pgprs/:pgprId/ser/:serId" element={<SelfEvaluationReport />} />
               </Route>
