@@ -77,7 +77,7 @@ import Ser from "./pages/ProgrammeCoordinator/Ser";
 import SubmitPGPR from "./pages/ProgrammeCoordinator/SubmitPGPR";
 import EditSer from "./pages/ProgrammeCoordinator/EditSer";
 import AddEvidence from "./pages/ProgrammeCoordinator/AddEvidence";
-import PGPRs from "./pages/ProgrammeCoordinator/PGPRs";
+import PGPRs from "./pages/PGPR/PGPRs";
 // import UpdateEvidence from './pages/ProgrammeCoordinator/UpdateEvidence';
 // import ViewSummary from './pages/ProgrammeCoordinator/ViewSummary';
 
@@ -317,6 +317,8 @@ function App() {
                 <Route path="selfevaluationreport" element={<SelfEvaluationReport />} />
                 <Route path="view" element={<View />} />
                 <Route path="pgprogrammes" element={<ViewPGProgrammesInUniversities />} />
+                <Route path="pgprs/" element={<PGPRs />} />
+                <Route path="pgprs/:pgprId/ser/:serId" element={<SelfEvaluationReport />} />
               </Route>
             </Route>
 
