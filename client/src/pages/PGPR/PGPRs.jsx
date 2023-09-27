@@ -43,7 +43,7 @@ const PGPRs = () => {
   
               const pgprData = pgprResponse.data.data;
               for(let i = 0; i < pgprData.length; i++){
-                pgprData[i].pgp = pgpResponse.data.data;
+                pgprData[i].postGraduateProgramme = pgpResponse.data.data;
               }
   
               setPGPRs(pgprData);
@@ -75,7 +75,7 @@ const PGPRs = () => {
     
                   const pgprData = pgprResponse.data.data;
                   for(let i = 0; i < pgprData.length; i++){
-                    pgprData[i].pgp = facultyPGPsResponse.data.data[i];
+                    pgprData[i].postGraduateProgramme = facultyPGPsResponse.data.data[i];
                   }
                   
                   pgprArr.push(...pgprData);
@@ -116,8 +116,8 @@ const PGPRs = () => {
                     const pgprData = pgprResponse.data.data;
 
                     for(let j = 0; j < pgprData.length; j++){
-                      pgprData[j].pgp = universityPGPsResponse.data.data[i];
-                      pgprData[j].pgp.faculty = facultyResponse.data.data;
+                      pgprData[j].postGraduateProgramme = universityPGPsResponse.data.data[i];
+                      pgprData[j].postGraduateProgramme.faculty = facultyResponse.data.data;
                     }
 
                     pgprArr.push(...pgprData);
