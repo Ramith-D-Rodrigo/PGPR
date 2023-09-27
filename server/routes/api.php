@@ -233,7 +233,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
 
     //QAC DIRECTOR END POINTS
     // qac director conclude a review
-    Route::post('qac-director/conclude-review', 'QualityAssuranceCouncilDirectorController@markReviewProcessAsCompleted')->middleware('auth');
+    Route::post('qacDirector/concludeReview', 'QualityAssuranceCouncilDirectorController@markReviewProcessAsCompleted')->middleware('auth');
     // qac director api resources
     Route::apiResource('qacDirectors', 'QualityAssuranceCouncilDirectorController');
 
