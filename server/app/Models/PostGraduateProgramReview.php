@@ -80,7 +80,7 @@ class PostGraduateProgramReview extends Model
     public function finalReports(): HasOne
 
     {
-        return $this->hasOne(FinalReport::class, 'final_report_id');
+        return $this->hasOne(FinalReport::class, 'pgpr_id', 'id');
     }
 
     // pgprs may be rejected by the QACDiretor
