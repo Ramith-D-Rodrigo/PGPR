@@ -1,7 +1,13 @@
 import { useState, useEffect } from 'react';
 import getAllPGPRApplications from '../../api/PostGraduateProgramApplication/getAllPGPRApplications';
+import {CircularProgress, Typography} from '@mui/material';
+import Paper from '@mui/material/Paper';
+import { Link } from 'react-router-dom';
+import {Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle} from '@mui/material';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 import { TableContainer, Table, TableHead, TableRow, TableCell, TableBody } from '@mui/material';
-import { Button, ButtonGroup } from '@mui/material';
+import { Button, ButtonGroup, Box, Alert, Snackbar } from '@mui/material';
 import { SERVER_URL } from '../../assets/constants.js';
 import approvePGPRApplicationByQAC from '../../api/PostGraduateProgramApplication/approvePGPRApplicationByQAC';
 
@@ -83,39 +89,39 @@ const PostGraduateProgramReviewApplications = () => {
 
     return (
         <>
-            <h1>PostGraduateProgramReviewApplications</h1>
+            <Typography variant="h5" align="center" sx={{marginBottom:"2rem"}}>Post Graduate Program Applications</Typography>
 
-            <TableContainer>
+            <TableContainer component={Paper}>
                 <Table>
-                    <TableHead>
+                    <TableHead style={{backgroundColor:"#D8E6FC",}}>
                         <TableRow>
                             {columnHeaders.map((header) => (
-                                <TableCell key={header} align="center">{header}</TableCell>
+                                <TableCell key={header} align="center"><strong>{header}</strong></TableCell>
                             ))}
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {pgprs.map((row) => (
                             <TableRow key={row.id}>
-                                <TableCell>{row.id}</TableCell>
-                                <TableCell>{row.postGraduateProgram.faculty.university.name}</TableCell>
-                                <TableCell>{row.postGraduateProgram.faculty.name}</TableCell>
-                                <TableCell>{row.postGraduateProgram.title}</TableCell>
-                                <TableCell>
+                                <TableCell align='center'>{row.id}</TableCell>
+                                <TableCell align='center'>{row.postGraduateProgram.faculty.university.name}</TableCell>
+                                <TableCell align='center'>{row.postGraduateProgram.faculty.name}</TableCell>
+                                <TableCell align='center'>{row.postGraduateProgram.title}</TableCell>
+                                <TableCell align='center'>
                                     {row.year1 + " , " + row.year2 + " , " + row.year3 + " , " + row.year4 + " , " + row.year5}
                                 </TableCell>
-                                <TableCell>{row.yEnd}</TableCell>
-                                <TableCell>
+                                <TableCell align='center'>{row.yEnd}</TableCell>
+                                <TableCell align='center'>
                                     <Button value={SERVER_URL.substring(0, SERVER_URL.length - 1) + row.intentLetter} onClick={handleLetterDownload}>
-                                        Download Intent Letter
+                                        Download
                                     </Button>
                                 </TableCell>
-                                <TableCell>{row.applicationDate}</TableCell>
-                                <TableCell>{row.status.toUpperCase()}</TableCell>
-                                <TableCell>
+                                <TableCell align='center'>{row.applicationDate}</TableCell>
+                                <TableCell align='center'>{row.status.toUpperCase()}</TableCell>
+                                <TableCell align='center'>
                                     <ButtonGroup>
-                                        <Button variant="contained" color="primary" disabled={row.status === 'approved' || row.status === 'rejected'} value={row.id} onClick={handleApprove}>Approve</Button>
-                                        <Button variant="contained" color="primary" disabled={row.status === 'approved' || row.status === 'rejected'} value={row.id} onClick={handleReject}>Reject</Button>
+                                        <Button sx={{margin:"0 0.5rem"}} variant="contained" color="primary" disabled={row.status === 'approved' || row.status === 'rejected'} value={row.id} onClick={handleApprove}>Approve</Button>
+                                        <Button sx={{margin:"0 0.5rem"}} variant="contained" color="primary" disabled={row.status === 'approved' || row.status === 'rejected'} value={row.id} onClick={handleReject}>Reject</Button>
                                     </ButtonGroup>
                                 </TableCell>
                             </TableRow>
