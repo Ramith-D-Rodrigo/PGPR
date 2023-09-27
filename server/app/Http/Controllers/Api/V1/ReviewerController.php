@@ -54,6 +54,8 @@ use Maatwebsite\Excel\Validators\ValidationException;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use function Laravel\Prompts\select;
+use App\Http\Resources\V1\ReviewTeamResource;
+use App\Http\Resources\V1\ReviewerBrowsePGPRResource;
 
 class ReviewerController extends Controller
 {
@@ -435,13 +437,13 @@ class ReviewerController extends Controller
                 $validated = $validator->validated();
                 $reviewer = Reviewer::findOrFail(Auth::id());
 
-                $reviewTeam = $reviewer->reviewTeams->where('pgpr_id', $validated['pgprId'])->first();
+                $reviewTeam = $reviewer->reviewTeams->where('pgpr_id', $validated['pgprId'])->first()->load(['postGraduateReviewProgram' => ['selfEvaluationReport']]);
 
                 if (!$reviewTeam) {
                     return response()->json(['message' => 'Hmm, seems this reviewer is not a member of the review team of the given pgpr'], 403);
                 }
 
-                return response()->json(['message' => 'successful', 'data' => new PostGraduateProgramReviewResource($reviewTeam->postGraduateReviewProgram)]);
+                return response()->json(['message' => 'successful', 'data' => new ReviewerBrowsePGPRResource($reviewTeam)]);
             } catch (ModelNotFoundException $exception) {
                 return response()->json(['message' => 'Hmm. we dont have such reviewer in our system, how did you get in?'], 403);
             } catch (Exception $exception) {
