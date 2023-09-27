@@ -106,8 +106,9 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
 
     const deanDirectorRoutes = [
       {route:"DashBoard",link: "/dean/dashboard"},
-      {route:"Submit Consent" ,link: "/dean/SubmitConsent"},
-      {route:"PGPR Applications" ,link: "/dean/PGPRApplications"},
+      {route:"Postgraduate Programmes" ,link: "/dean/postgraduateProgrammes"},
+      {route:"Postgraduate Programme Review Applications" ,link: "/dean/PGPRApplications"},
+      {route:"Postgraduate Programme Reviews" ,link: "/dean/PGPRs"},
     ]
 
     const iqauDirectorRoutes = [

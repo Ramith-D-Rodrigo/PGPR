@@ -310,6 +310,12 @@ function App() {
                     element={<EditPGPRApplication />}
                   />
                 </Route>
+                <Route path="pgprs/">
+                  <Route path="" element={<PGPRs />} />
+                  <Route path=":pgprId/ser/:serId" element={<SelfEvaluationReport />} />
+                  <Route path=":pgprId/ser/:serId/EditSer/:criteriaId" element={<EditingSelfEvaluationReport />} />
+                </Route>
+                <Route path='postgraduateProgrammes' element={<PostGraduateProgrammes />} />
               </Route>
             </Route>
 
