@@ -53,13 +53,9 @@ class PostGraduateProgramReview extends Model
 
     // pgpr has review teams associated with itself
 
-    public function acceptedReviewTeam(): \Illuminate\Database\Eloquent\Relations\HasMany|null
+    public function acceptedReviewTeam(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
-        $reviewTeams = $this->reviewTeams()->where('status', 'ACCEPTED');
-        if ($reviewTeams->count() > 0) {
-            return $reviewTeams->first();
-        }
-        return null;
+        return $this->hasOne(ReviewTeam::class, 'pgpr_id')->where('status', 'ACCEPTED');
     }
 
     //pgpr has only one review team that is accepted by the dean
