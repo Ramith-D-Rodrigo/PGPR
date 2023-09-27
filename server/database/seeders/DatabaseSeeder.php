@@ -140,6 +140,8 @@ class DatabaseSeeder extends Seeder
 
         //filling the gaps for university
         $university->vice_chancellor_id = $viceChancellor->id;
+        $viceChancellor->university_id = $university->id;
+        $viceChancellor->save();
         $university->save();
 
         //filling the gaps for faculty
@@ -171,7 +173,8 @@ class DatabaseSeeder extends Seeder
 
         //create self evaluation report for pgpr
         $pgpr->selfEvaluationReport()->create([
-            'pgp_coordinator_id' => $program_coordinator->id]);
+            'pgp_coordinator_id' => $program_coordinator->id,
+            'iqau_dir_id' => $iqauDir->id]);
 
         // filling the gaps for review team
         $review_team->pgpr_id = $pgpr->id;
