@@ -145,7 +145,7 @@ function App() {
                   <Route path='import' element={<ImportReviewers />} />
                 </Route>
                 <Route path='PGPRs/'>
-                  <Route path='' element={<PostGraduateProgramReviews />} />
+                  <Route path='' element={<PGPRs />} />
                   <Route path='view/:id' element={<ViewPGPR />} />
                 </Route>
               </Route>
