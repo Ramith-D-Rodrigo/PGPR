@@ -355,7 +355,7 @@ const EditingSelfEvaluationReport = () => {
                                     />
                                     <TextField
                                         id="outlined-multiline-flexible-disabled"
-                                        label="University Adhere to the Standard"
+                                        label={(auth.authRole[0] === 'programme_coordinator' || auth.authRole[0] === 'iqau_director') && pgprState == 'PLANNING' ? "University Adhere to the Standard" : ''}
                                         multiline
                                         rows={4}
                                         fullWidth
@@ -366,6 +366,8 @@ const EditingSelfEvaluationReport = () => {
                                         })}
                                         sx={{ marginY: "1rem" }}
                                         focused={standardEvidencesAndAdherence?.standardAdherence !== null}
+                                        helperText="This is the adherence of the university to the standard"
+                                        disabled={(auth.authRole[0] === 'programme_coordinator' || auth.authRole[0] === 'iqau_director') && pgprState == 'PLANNING' ? false : true}
                                     />
                                     <Divider sx={{ marginY: "1rem" }} textAlign="left">
                                         <Chip label="Documentary Evidences" />{" "}
@@ -402,157 +404,178 @@ const EditingSelfEvaluationReport = () => {
                                                             {evidence["evidenceName"]}
                                                         </Link>
                                                     </Grid>
-                                                    {(auth.authRole[0] === 'programme_coordinator' || auth.authRole[0] === 'iqau_director') && pgprState == 'PLANNING' &&
-                                                        <Grid item>
-                                                            <Button
-                                                                variant="contained"
-                                                                color="info"
-                                                                size="small"
-                                                                onClick={() => handleClickOpenUpdate(evidence)}
-                                                            >
-                                                                Update
-                                                            </Button>
-                                                            <Dialog open={openUpdate} onClose={handleCloseUpdate}>
-                                                                <DialogTitle align='center'>
-                                                                    {selectedStandard.description}
-                                                                </DialogTitle>
-                                                                <DialogContent>
-                                                                    <DialogContentText
-                                                                        sx={{ color: "blue", textAlign: "center" }}
-                                                                    >
-                                                                        Update Evidence
-                                                                    </DialogContentText>
-                                                                    <form
-                                                                        onSubmit={handleEvidenceSubmit}
-                                                                    >
-                                                                        <TextField
-                                                                            autoFocus
-                                                                            margin="normal"
-                                                                            id="standardNo"
-                                                                            label="Standard No"
-                                                                            type="text"
-                                                                            fullWidth
-                                                                            variant="outlined"
-                                                                            value={`${selectedStandard.standardNo}`}
-                                                                            disabled
+
+                                                    <Grid item>
+                                                        <Button
+                                                            variant="contained"
+                                                            color="info"
+                                                            size="small"
+                                                            onClick={() => handleClickOpenUpdate(evidence)}
+                                                        >
+                                                            {(auth.authRole[0] === 'programme_coordinator' || auth.authRole[0] === 'iqau_director') && pgprState == 'PLANNING' ? 'Update' : 'View'}
+                                                        </Button>
+                                                        <Dialog open={openUpdate} onClose={handleCloseUpdate}>
+                                                            <DialogTitle align='center'>
+                                                                {selectedStandard.description}
+                                                            </DialogTitle>
+                                                            <DialogContent>
+                                                                <DialogContentText
+                                                                    sx={{ color: "blue", textAlign: "center" }}
+                                                                >
+                                                                    {(auth.authRole[0] === 'programme_coordinator' || auth.authRole[0] === 'iqau_director') && pgprState == 'PLANNING' ? 'Update Evidence' : 'Viewing Evidence'}
+                                                                </DialogContentText>
+                                                                <form
+                                                                    onSubmit={handleEvidenceSubmit}
+                                                                >
+                                                                    <TextField
+                                                                        autoFocus
+                                                                        margin="normal"
+                                                                        id="standardNo"
+                                                                        label="Standard No"
+                                                                        type="text"
+                                                                        fullWidth
+                                                                        variant="outlined"
+                                                                        value={`${selectedStandard.standardNo}`}
+                                                                        disabled
+                                                                    />
+                                                                    <TextField
+                                                                        autoFocus
+                                                                        margin="normal"
+                                                                        id="evidenceCode"
+                                                                        label="Evidence Code"
+                                                                        type="text"
+                                                                        fullWidth
+                                                                        variant="outlined"
+                                                                        value={updateEvidence["evidenceCode"]}
+                                                                        disabled={(auth.authRole[0] === 'programme_coordinator' || auth.authRole[0] === 'iqau_director') && pgprState == 'PLANNING' ? false : true}
+                                                                    />
+                                                                    <TextField
+                                                                        autoFocus
+                                                                        margin="normal"
+                                                                        id="evidenceName"
+                                                                        label="Evidence Name"
+                                                                        type="text"
+                                                                        fullWidth
+                                                                        variant="outlined"
+                                                                        value={updateEvidence["evidenceName"]}
+                                                                        disabled={(auth.authRole[0] === 'programme_coordinator' || auth.authRole[0] === 'iqau_director') && pgprState == 'PLANNING' ? false : true}
+                                                                    />
+                                                                    <FormHelperText>
+                                                                        Years Applicable
+                                                                    </FormHelperText>
+                                                                    <FormGroup row>
+                                                                        <FormControlLabel
+                                                                            control={
+                                                                                <Checkbox
+                                                                                    checked={updateEvidence[
+                                                                                        "applicableYears"
+                                                                                    ].includes(1) || y1}
+                                                                                    onChange={handleCheckChange}
+                                                                                    name="y1"
+                                                                                    disabled={(auth.authRole[0] === 'programme_coordinator' || auth.authRole[0] === 'iqau_director') && pgprState == 'PLANNING' ? false : true}
+                                                                                />
+                                                                            }
+                                                                            label="Y1"
                                                                         />
-                                                                        <TextField
-                                                                            autoFocus
-                                                                            margin="normal"
-                                                                            id="evidenceCode"
-                                                                            label="Evidence Code"
-                                                                            type="text"
-                                                                            fullWidth
-                                                                            variant="outlined"
-                                                                            value={updateEvidence["evidenceCode"]}
+                                                                        <FormControlLabel
+                                                                            control={
+                                                                                <Checkbox
+                                                                                    checked={updateEvidence[
+                                                                                        "applicableYears"
+                                                                                    ].includes(2) || y2}
+                                                                                    onChange={handleCheckChange}
+                                                                                    name="y2"
+                                                                                    disabled={(auth.authRole[0] === 'programme_coordinator' || auth.authRole[0] === 'iqau_director') && pgprState == 'PLANNING' ? false : true}
+                                                                                />
+                                                                            }
+                                                                            label="Y2"
                                                                         />
-                                                                        <TextField
-                                                                            autoFocus
-                                                                            margin="normal"
-                                                                            id="evidenceName"
-                                                                            label="Evidence Name"
-                                                                            type="text"
-                                                                            fullWidth
-                                                                            variant="outlined"
-                                                                            value={updateEvidence["evidenceName"]}
+                                                                        <FormControlLabel
+                                                                            control={
+                                                                                <Checkbox
+                                                                                    checked={updateEvidence[
+                                                                                        "applicableYears"
+                                                                                    ].includes(3) || y3}
+                                                                                    onChange={handleCheckChange}
+                                                                                    name="y3"
+                                                                                    disabled={(auth.authRole[0] === 'programme_coordinator' || auth.authRole[0] === 'iqau_director') && pgprState == 'PLANNING' ? false : true}
+                                                                                />
+                                                                            }
+                                                                            label="Y3"
                                                                         />
-                                                                        <FormHelperText>
-                                                                            Years Applicable
-                                                                        </FormHelperText>
-                                                                        <FormGroup row>
-                                                                            <FormControlLabel
-                                                                                control={
-                                                                                    <Checkbox
-                                                                                        checked={updateEvidence[
-                                                                                            "applicableYears"
-                                                                                        ].includes(1) || y1}
-                                                                                        onChange={handleCheckChange}
-                                                                                        name="y1"
-                                                                                    />
-                                                                                }
-                                                                                label="Y1"
-                                                                            />
-                                                                            <FormControlLabel
-                                                                                control={
-                                                                                    <Checkbox
-                                                                                        checked={updateEvidence[
-                                                                                            "applicableYears"
-                                                                                        ].includes(2) || y2}
-                                                                                        onChange={handleCheckChange}
-                                                                                        name="y2"
-                                                                                    />
-                                                                                }
-                                                                                label="Y2"
-                                                                            />
-                                                                            <FormControlLabel
-                                                                                control={
-                                                                                    <Checkbox
-                                                                                        checked={updateEvidence[
-                                                                                            "applicableYears"
-                                                                                        ].includes(3) || y3}
-                                                                                        onChange={handleCheckChange}
-                                                                                        name="y3"
-                                                                                    />
-                                                                                }
-                                                                                label="Y3"
-                                                                            />
-                                                                            <FormControlLabel
-                                                                                control={
-                                                                                    <Checkbox
-                                                                                        checked={updateEvidence[
-                                                                                            "applicableYears"
-                                                                                        ].includes(4) || y4}
-                                                                                        onChange={handleCheckChange}
-                                                                                        name="y4"
-                                                                                    />
-                                                                                }
-                                                                                label="Y4"
-                                                                            />
-                                                                            <FormControlLabel
-                                                                                control={
-                                                                                    <Checkbox
-                                                                                        checked={updateEvidence[
-                                                                                            "applicableYears"
-                                                                                        ].includes(5) || y5}
-                                                                                        onChange={handleCheckChange}
-                                                                                        name="y5"
-                                                                                    />
-                                                                                }
-                                                                                label="Y5"
-                                                                            />
-                                                                        </FormGroup>
-                                                                        <TextField
-                                                                            autoFocus
-                                                                            margin="normal"
-                                                                            id="url"
-                                                                            label="Evidence URL"
-                                                                            type="text"
-                                                                            fullWidth
-                                                                            variant="outlined"
-                                                                            value={updateEvidence["url"]}
+                                                                        <FormControlLabel
+                                                                            control={
+                                                                                <Checkbox
+                                                                                    checked={updateEvidence[
+                                                                                        "applicableYears"
+                                                                                    ].includes(4) || y4}
+                                                                                    onChange={handleCheckChange}
+                                                                                    name="y4"
+                                                                                    disabled={(auth.authRole[0] === 'programme_coordinator' || auth.authRole[0] === 'iqau_director') && pgprState == 'PLANNING' ? false : true}
+                                                                                />
+                                                                            }
+                                                                            label="Y4"
                                                                         />
-                                                                    </form>
-                                                                </DialogContent>
-                                                                <DialogActions>
-                                                                    {/*delete evidence*/}
-                                                                    <Box sx={{ position: 'absolute', left: '1rem' }}>
+                                                                        <FormControlLabel
+                                                                            control={
+                                                                                <Checkbox
+                                                                                    checked={updateEvidence[
+                                                                                        "applicableYears"
+                                                                                    ].includes(5) || y5}
+                                                                                    onChange={handleCheckChange}
+                                                                                    name="y5"
+                                                                                    disabled={(auth.authRole[0] === 'programme_coordinator' || auth.authRole[0] === 'iqau_director') && pgprState == 'PLANNING' ? false : true}
+                                                                                />
+                                                                            }
+                                                                            label="Y5"
+                                                                        />
+                                                                    </FormGroup>
+                                                                    <TextField
+                                                                        autoFocus
+                                                                        margin="normal"
+                                                                        id="url"
+                                                                        label="Evidence URL"
+                                                                        type="text"
+                                                                        fullWidth
+                                                                        variant="outlined"
+                                                                        value={updateEvidence["url"]}
+                                                                        disabled={(auth.authRole[0] === 'programme_coordinator' || auth.authRole[0] === 'iqau_director') && pgprState == 'PLANNING' ? false : true}
+                                                                    />
+                                                                </form>
+                                                            </DialogContent>
+                                                            <DialogActions>
+                                                                {/*delete evidence*/}
+                                                                <Box sx={{ position: 'absolute', left: '1rem' }}>
+                                                                    {(auth.authRole[0] === 'programme_coordinator' || auth.authRole[0] === 'iqau_director') && pgprState == 'PLANNING' &&
                                                                         <Button
                                                                             variant="contained"
                                                                             color="error"
                                                                             size="small"
                                                                             onClick={handleEvidenceDelete}
-                                                                            
+
                                                                         >
                                                                             Delete
                                                                         </Button>
-                                                                    </Box>
-                                                                    <Button onClick={handleCloseUpdate}>Cancel</Button>
-                                                                    <Button onClick={handleCloseUpdate} type='submit'>Update</Button>
-                                                                </DialogActions>
-                                                            </Dialog>
-                                                        </Grid>
+                                                                    }
+                                                                </Box>
+                                                                {(auth.authRole[0] === 'programme_coordinator' || auth.authRole[0] === 'iqau_director') && pgprState == 'PLANNING' ?
+                                                                    (
+                                                                        <>
+                                                                            <Button onClick={handleCloseUpdate}>Cancel</Button>
+                                                                            <Button onClick={handleCloseUpdate} type='submit'>Update</Button>
+                                                                        </>
+                                                                    )
+                                                                    :
+                                                                    (
+                                                                        <>
+                                                                            <Button onClick={handleCloseUpdate}>Close</Button>
+                                                                        </>
+                                                                    )
+                                                                }
 
-                                                    }
+                                                            </DialogActions>
+                                                        </Dialog>
+                                                    </Grid>
                                                 </Grid>
                                             ))
                                         ) : (
