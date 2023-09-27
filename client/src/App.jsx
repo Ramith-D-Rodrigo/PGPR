@@ -91,7 +91,7 @@ import ViewPGProgrammesInUniversities from "./pages/ViceChancellor/ViewPGProgram
 
 import SelfEvaluationReport from "./pages/SelfEvaluationReport/SelfEvaluationReport";
 import EditingSelfEvaluationReport from "./pages/SelfEvaluationReport/EditingSelfEvaluationReport";
-// import PostGraduateProgrammes from "./pages/PostgraduateProgrammes/PostGraduateProgrammes";
+import PostGraduateProgrammes from "./pages/PostgraduateProgrammes/PostGraduateProgrammes";
 
 import "./App.css";
 
