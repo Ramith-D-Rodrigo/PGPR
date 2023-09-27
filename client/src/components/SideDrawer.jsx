@@ -81,6 +81,7 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
       {route:"Universities",link: "/qac_director/universities"},
       {route:"CQA Offices",link: "/qac_director/cqa_offices"},
       {route:"Reviewers",link: "/qac_director/reviewers"},
+      {route:"Post Graduate Program Review Applications" ,link: "/qac_director/PGPRApplications"},
     ]
 
     const qacOfficerRoutes = [
