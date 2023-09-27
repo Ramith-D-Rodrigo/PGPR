@@ -3,9 +3,7 @@ import getAllPGPRApplications from '../../api/PostGraduateProgramApplication/get
 import {CircularProgress, Typography} from '@mui/material';
 import Paper from '@mui/material/Paper';
 import { Link } from 'react-router-dom';
-import {Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle} from '@mui/material';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import { useTheme } from '@mui/material/styles';
+import DialogMenu from '../../components/DialogMenu';
 import { TableContainer, Table, TableHead, TableRow, TableCell, TableBody } from '@mui/material';
 import { Button, ButtonGroup, Box, Alert, Snackbar } from '@mui/material';
 import { SERVER_URL } from '../../assets/constants.js';
@@ -13,14 +11,15 @@ import approvePGPRApplicationByQAC from '../../api/PostGraduateProgramApplicatio
 
 const PostGraduateProgramReviewApplications = () => {
     const [pgprs, setPgprs] = useState([]);
-
     const [clickedApplicationId, setClickedApplicationId] = useState(null);
+    const [openDialog, setOpenDialog] = useState([false, false, null]);   // [ submit , cancel, id ]
 
-    const handleApprove = async (e) => {
-        setClickedApplicationId(e.target.value);
+    const handleApprove = async () => {
+        const pgprApplicationID = openDialog[2];
+        setClickedApplicationId(pgprApplicationID);
 
         try{
-            const approveResult = await approvePGPRApplicationByQAC(e.target.value, 'approved');
+            const approveResult = await approvePGPRApplicationByQAC(pgprApplicationID, 'approved');
 
             if(approveResult.status === 200){
                 alert(approveResult.data.message);
@@ -34,11 +33,12 @@ const PostGraduateProgramReviewApplications = () => {
         }
     }
 
-    const handleReject = async (e) => {
-        setClickedApplicationId(e.target.value);
+    const handleReject = async () => {
+        const pgprApplicationID = openDialog[2];
+        setClickedApplicationId(pgprApplicationID);
 
         try{
-            const rejectResult = await approvePGPRApplicationByQAC(e.target.value, 'rejected');
+            const rejectResult = await approvePGPRApplicationByQAC(pgprApplicationID, 'rejected');
 
             if(rejectResult.status === 200){
                 alert(rejectResult.data.message);
@@ -50,6 +50,14 @@ const PostGraduateProgramReviewApplications = () => {
             alert(error.response.data.message);
             setClickedApplicationId(null);
         }
+    }
+
+    const handleClickReject = (id) => {
+        setOpenDialog([false, true, id]);
+    }
+
+    const handleClickApprove = (id) => {
+        setOpenDialog([true, false, id]);
     }
 
 
@@ -120,8 +128,8 @@ const PostGraduateProgramReviewApplications = () => {
                                 <TableCell align='center'>{row.status.toUpperCase()}</TableCell>
                                 <TableCell align='center'>
                                     <ButtonGroup>
-                                        <Button sx={{margin:"0 0.5rem"}} variant="contained" color="primary" disabled={row.status === 'approved' || row.status === 'rejected'} value={row.id} onClick={handleApprove}>Approve</Button>
-                                        <Button sx={{margin:"0 0.5rem"}} variant="contained" color="primary" disabled={row.status === 'approved' || row.status === 'rejected'} value={row.id} onClick={handleReject}>Reject</Button>
+                                        <Button sx={{margin:"0 0.5rem"}} variant="contained" color="primary" disabled={row.status === 'approved' || row.status === 'rejected'} value={row.id} onClick={() => handleClickApprove(row.id)}>Approve</Button>
+                                        <Button sx={{margin:"0 0.5rem"}} variant="contained" color="primary" disabled={row.status === 'approved' || row.status === 'rejected'} value={row.id} onClick={() => handleClickReject(row.id)}>Reject</Button>
                                     </ButtonGroup>
                                 </TableCell>
                             </TableRow>
@@ -129,6 +137,16 @@ const PostGraduateProgramReviewApplications = () => {
                     </TableBody>
                 </Table>
             </TableContainer>
+
+            <DialogMenu
+                Message={`Are you sure that you want to ${openDialog[0]? "Approve" : "Reject"} this PostGraduate Program Review application?`}
+                Warning={`Once you ${openDialog[0]? "Approved" : "Rejected"} this application, you will not be able to Change this action again.`}
+                Actions={{cancel:"cancel", submit:openDialog[0]? "Approve" : "Reject"}}
+                Open={(openDialog[0] || openDialog[1])?? false}
+                onClose={()=>setOpenDialog(false, false, null)}
+                onSubmit={()=>{openDialog[0]? handleApprove() : handleReject(); setOpenDialog(false, false, null)}}
+            />
+
         </>
     )
 }
