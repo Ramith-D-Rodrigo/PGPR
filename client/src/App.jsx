@@ -155,6 +155,7 @@ function App() {
               <Route path="cqa_director/">
                 <Route path="" element={<Dashboard />} />
                 <Route path="dashboard" element={<Dashboard />} />
+                <Route path="PGPRApplications" element={<PostGraduateProgramReviewApplications />} />
                 <Route path="AddPGProgramPage" element={<AddPGProgramPage />} />
                 <Route path="AddAccounts" element={<AddAccounts />} />
                 <Route path="EditPGProgram" element={<EditPGProgram />} />
