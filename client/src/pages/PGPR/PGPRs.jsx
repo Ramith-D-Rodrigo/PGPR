@@ -305,20 +305,20 @@ const PGPRs = () => {
             {PGPRs.map((pgpr) => (
               <TableRow key={pgpr.id}>
                 <TableCell>{pgpr.id}</TableCell>
-                <TableCell>{pgpr.pgp?.title}</TableCell>
+                <TableCell>{pgpr.postGraduateProgramme?.title}</TableCell>
                 {
                   auth.authRole[0] === 'qac_officer' || auth.authRole[0] === 'qac_director' ?
                   (
                     <>
-                      <TableCell>{pgpr.pgp?.faculty.university.name}</TableCell>
-                      <TableCell>{pgpr.pgp?.faculty.name}</TableCell>
+                      <TableCell>{pgpr.postGraduateProgramme?.faculty.university.name}</TableCell>
+                      <TableCell>{pgpr.postGraduateProgramme?.faculty.name}</TableCell>
                     </>
                   )
                     :
                   auth.authRole[0] === 'vice_chancellor' || auth.authRole[0] === 'cqa_director' ?
                   (
                     <>
-                      <TableCell>{pgpr.pgp?.faculty.name}</TableCell>
+                      <TableCell>{pgpr.postGraduateProgramme?.faculty.name}</TableCell>
                     </>
                   )
                     :
