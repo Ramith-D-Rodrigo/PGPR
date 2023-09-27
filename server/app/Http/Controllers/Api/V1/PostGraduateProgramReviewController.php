@@ -93,7 +93,15 @@ class PostGraduateProgramReviewController extends Controller
                         ]
                     ]
                 ],
-                'postGraduateProgramReviewApplication'
+                'postGraduateProgramReviewApplication',
+                'properEvaluations',
+                'deskEvaluations',
+                'acceptedReviewTeam' => [
+                    'reviewers' => [
+                        'user:id,initials,surname,profile_pic'
+                    ]
+                ],
+                'finalReports'
             ]);
 
             return new PostGraduateProgramReviewResource($pgpr);
