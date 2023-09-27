@@ -15,10 +15,10 @@ class PostGraduateProgramReviewApplicationPolicy
      */
     public function viewAny(User $user): Response
     {
-        //programme coordinator, reviewer cannot view any applications
+        //reviewer cannot view any applications
 
         $currUserRole = request() -> session() -> get('authRole');
-        if ($currUserRole == 'programme_coordinator' || $currUserRole == 'reviewer') {
+        if ($currUserRole == 'reviewer') {
             return Response::deny('You are not allowed to view any applications');
         }
 
@@ -30,10 +30,10 @@ class PostGraduateProgramReviewApplicationPolicy
      */
     public function view(User $user, PostGraduateProgramReviewApplication $postGraduateProgramReviewApplication): Response
     {
-        //programme coordinator, reviewer cannot view any applications
+        //reviewer cannot view any applications
 
         $currUserRole = request() -> session() -> get('authRole');
-        if ($currUserRole == 'programme_coordinator' || $currUserRole == 'reviewer') {
+        if ($currUserRole == 'reviewer') {
             return Response::deny('You are not allowed to view any applications');
         }
 
@@ -54,6 +54,16 @@ class PostGraduateProgramReviewApplicationPolicy
             $deanFaculty = $user -> universitySide -> academicStaff -> dean -> faculty -> id;
 
             if ($deanFaculty != $applicationFaculty) {
+                return Response::deny('You are not allowed to view this application');
+            }
+        }
+        //programme coordinator can only view applications of his programme
+        else if($currUserRole == 'programme_coordinator'){
+            //get the pgp id of the programme coordinator
+            $coordinatorPGPId = $user -> universitySide -> academicStaff -> programmeCoordinator -> postGraduateProgram -> id;
+
+            //only allow if the coordinator is the coordinator of the application and the application is approved
+            if ($coordinatorPGPId != $postGraduateProgramReviewApplication -> postGraduateProgram -> id && $postGraduateProgramReviewApplication -> status != 'approved') {
                 return Response::deny('You are not allowed to view this application');
             }
         }

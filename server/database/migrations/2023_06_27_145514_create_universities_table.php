@@ -32,6 +32,10 @@ return new class extends Migration
         Schema::table('university_sides', function (Blueprint $table) {
             $table->foreign('university_id')->references('id')->on('universities');
         });
+
+        Schema::table('vice_chancellors', function (Blueprint $table) {
+            $table->foreign('university_id')->references('id')->on('universities');
+        });
     }
 
     /**

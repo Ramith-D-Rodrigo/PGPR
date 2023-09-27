@@ -14,6 +14,7 @@ const URL = SERVER_URL + SERVER_API_VERSION + 'postGraduatePrograms/';
 // 4 - includeUniversitySide (boolean -> true if you want to include the university side of the current coordinator of the post graduate program) (must request includeAcademicStaff)
 // 5 - includeUser (boolean -> true if you want to include the user details of the current coordinator of the post graduate program) (must request includeUniversitySide)
     //(this will include the user initials, surname, id)
+// 6 - includeUniversity (boolean -> true if you want to include the university of the post graduate program, must request includeFaculty)
 
 const getAllPostGraduatePrograms = async (queryParams = null) => { //queryParams should be an object
     if (queryParams.length !== null) {

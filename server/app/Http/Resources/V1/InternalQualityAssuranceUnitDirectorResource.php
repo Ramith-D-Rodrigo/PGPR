@@ -27,6 +27,9 @@ class InternalQualityAssuranceUnitDirectorResource extends JsonResource
             $returnArr[Str::camel($key)] = $value;
         }
 
+        //related data
+        $returnArr['qualityAssuranceStaff'] = new QualityAssuranceStaffResource($this -> whenLoaded('qualityAssuranceStaff'));
+
         return $returnArr;
     }
 }

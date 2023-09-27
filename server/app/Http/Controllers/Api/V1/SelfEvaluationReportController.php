@@ -7,6 +7,7 @@ use App\Http\Requests\V1\SubmitSelfEvaluationReportRequest;
 use App\Http\Resources\V1\SelfEvaluationReportResource;
 use App\Http\Resources\V1\StandardCollection;
 use App\Models\Criteria;
+use App\Models\DeskEvaluation;
 use App\Models\SelfEvaluationReport;
 use App\Http\Requests\V1\StoreSelfEvaluationReportRequest;
 use App\Http\Requests\V1\UpdateSelfEvaluationReportRequest;
@@ -70,7 +71,7 @@ class SelfEvaluationReportController extends Controller
         $selfEvaluationReport->load([
             //call the whenLoaded method to load the relations only if they are loaded
             //load the following relations to get the needed details
-            'postGraduateProgramReview:id,post_graduate_program_id,pgpr_application_id' => [
+            'postGraduateProgramReview:id,post_graduate_program_id,pgpr_application_id,status_of_pgpr' => [
                 'postGraduateProgram:id,title,slqf_level,faculty_id,programme_coordinator_id,is_professional_pg_programme' => [
                     'faculty:id,name,university_id' => [
                         'university:id,name',
@@ -83,7 +84,14 @@ class SelfEvaluationReportController extends Controller
                         ]
                     ],
                 ],
-                'postGraduateProgramReviewApplication:id,application_date'
+                'postGraduateProgramReviewApplication:id,application_date,request_date'
+            ],
+            'programmeCoordinator:id' => [
+                'academicStaff:id' => [
+                    'universitySide:id' => [
+                        'user:id,initials,surname'
+                    ]
+                ]
             ],
             'standards' => function ($query) {
                 $query->whereHas('evidences')->select('standards.id')
@@ -256,6 +264,29 @@ class SelfEvaluationReportController extends Controller
             $finalSERFileName = $selfEvaluationReport->id . '_finalSER.' . $finalSER->getClientOriginalExtension();
             Storage::put('public/ser/finalSER/' . $finalSERFileName, $finalSER->getContent());
 
+            //remove the current files if they are stored
+
+            if($selfEvaluationReport -> section_a && Storage::exists(public_path($selfEvaluationReport -> section_a))){
+                Storage::delete(Storage::url($selfEvaluationReport -> section_a));
+            }
+
+            if($selfEvaluationReport -> section_b && Storage::exists(public_path($selfEvaluationReport -> section_b))){
+                Storage::delete(Storage::url($selfEvaluationReport -> section_b));
+            }
+
+            if($selfEvaluationReport -> sectioN_d && Storage::exists(public_path($selfEvaluationReport -> section_d))){
+                Storage::delete(Storage::url($selfEvaluationReport -> section_d));
+            }
+
+            if($selfEvaluationReport -> final_ser_report && Storage::exists(public_path($selfEvaluationReport -> final_ser_report))){
+                Storage::delete(Storage::url($selfEvaluationReport -> final_ser_report));
+            }
+
+            if($selfEvaluationReport -> postGraduateProgramReview -> payment_voucher && Storage::exists(public_path($selfEvaluationReport -> postGraduateProgramReview -> payment_voucher))){
+                Storage::delete(Storage::url($selfEvaluationReport -> postGraduateProgramReview -> payment_voucher));
+            }
+
+
             //get the paths
             $validatedData['section_a'] = Storage::url('public/ser/sectionA/' . $sectionAFileName);
             $validatedData['section_b'] = Storage::url('public/ser/sectionB/' . $sectionBFileName);
@@ -317,7 +348,7 @@ class SelfEvaluationReportController extends Controller
         }
     }
 
-    public function recommendSelfEvaluationReport(Request $request, SelfEvaluationReport $selfEvaluationReport){
+    public function recommendSelfEvaluationReport(SelfEvaluationReport $selfEvaluationReport){
         try{
             //authorize the request
             $this -> authorize('recommendSelfEvaluationReportAuthorize', $selfEvaluationReport);
@@ -345,25 +376,20 @@ class SelfEvaluationReportController extends Controller
             }
 
             //get the requesting user role
-            $userRole = $request->session()->get('authRole');
-            //role should be either iqau_director, cqa_director or vice_chancellor
+            $userRole = request()->session()->get('authRole');
+
+            //role should be either cqa_director or vice_chancellor
             DB::beginTransaction();
-            if ($userRole === 'iqau_director') {
-                //we have to update iqau_dir_id in self evaluation report
-                $selfEvaluationReport->update([
-                    'iqau_dir_id' => $request->user()->id,
-                    'updated_at' => now(),
-                ]);
-            } else if ($userRole === 'cqa_director') {
+            if ($userRole === 'cqa_director') {
                 //we have to update center_for_quality_assurance_director_id in self evaluation report
                 $selfEvaluationReport->update([
-                    'center_for_quality_assurance_director_id' => $request->user()->id,
+                    'center_for_quality_assurance_director_id' => request()->user()->id,
                     'updated_at' => now(),
                 ]);
             } else if ($userRole === 'vice_chancellor') {
                 //we have to update vice_chancellor_id in self evaluation report
                 $selfEvaluationReport->update([
-                    'vice_chancellor_id' => $request->user()->id,
+                    'vice_chancellor_id' => request()->user()->id,
                     'updated_at' => now(),
                 ]);
             } else {
@@ -373,15 +399,13 @@ class SelfEvaluationReportController extends Controller
             }
 
             //check whether all the three roles have recommended the self evaluation report
-            if ($selfEvaluationReport->iqau_dir_id !== null && $selfEvaluationReport->center_for_quality_assurance_director_id !== null && $selfEvaluationReport->vice_chancellor_id !== null) {
+            if ($selfEvaluationReport->center_for_quality_assurance_director_id !== null && $selfEvaluationReport->vice_chancellor_id !== null) {
                 //update the status of the postgraduate programme review
                 $selfEvaluationReport->postGraduateProgramReview->update([
                     'status_of_pgpr' => 'SUBMITTED',
                     'updated_at' => now(),
                 ]);
 
-                //commit the transaction of recommending the self evaluation report
-                DB::commit();
 
                 //check if reviewer team has been assigned to the postgraduate programme review
                 $pgpr = $selfEvaluationReport -> postGraduateProgramReview;
@@ -392,17 +416,30 @@ class SelfEvaluationReportController extends Controller
                     $flag = PostGraduateProgramReviewService::StoreEvidencesInSystemDrive($pgpr);
 
                     if($flag){  //successfully stored the evidences in system drive
+                        //create the desk evaluation now (since the self evaluation report is submitted and there is an accepted review team)
+
+                        //after storing, we can create the desk evaluation
+                        $deskEvaluation = new DeskEvaluation();
+                        $deskEvaluation->pgpr_id = $reviewTeam->pgpr_id;
+                        $deskEvaluation->start_date = NULL; // or to set this is current time use => Carbon::now()
+                        $deskEvaluation->end_date = NULL;
+                        $deskEvaluation->save();
+
+                        DB::commit();
+
                         return response()->json([
                             'message' => 'Self evaluation report recommended successfully',
                         ], 200);
                     }
 
+                    DB::rollBack();
                     //if failed to store the evidences in system drive
                     return response()->json([
-                        'message' => 'Self evaluation report recommended successfully. But failed to store the evidences in system drive',
+                        'message' => 'Error occurred while recommending the self evaluation report. Failed to store the evidences in system drive. Please try again',
                     ], 200);
                 }
                 else{
+                    DB::commit();
                     //if no review team is assigned to the postgraduate programme review
                     return response()->json([
                         'message' => 'Self evaluation report recommended successfully. But no review team is assigned to the postgraduate programme review',

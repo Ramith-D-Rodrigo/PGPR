@@ -1,18 +1,24 @@
+import { SERVER_URL, SERVER_API_VERSION } from '../../assets/constants';
 import React from 'react'
 import { useParams } from 'react-router-dom'
 import useSetUserNavigations from '../../hooks/useSetUserNavigations';
 import ScrollableDiv from '../../components/ScrollableDiv';
 import DiscriptiveDiv from '../../components/DiscriptiveDiv';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Button from '@mui/material/Button';
-import { Grid, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box } from '@mui/material';
+import { Grid, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box, CircularProgress } from '@mui/material';
 import { Link } from 'react-router-dom';
 import useDrawerState from '../../hooks/useDrawerState';
+import axios from '../../api/api';
+import getSelfEvaluationReport from '../../api/SelfEvaluationReport/getSelfEvaluationReport';
+import createSERRows from '../../assets/reviewer/createSERRows';
 
 
 const ViewSer = () => {
-    const {uniId} = useParams();
+    const {pgprId} = useParams();
     const open = useDrawerState().drawerState.open;
+    const [SERDetails,setSERDetails] = useState({});
+    const [loading,SetLoading] = useState(false);
 
     useSetUserNavigations(
         [
@@ -22,10 +28,27 @@ const ViewSer = () => {
             },
             {
                 name: "View SER",
-                link: "/PG_Assignments/ViewSer/"+uniId
+                link: "/PG_Assignments/ViewSer/"+pgprId
             }
         ]
     );
+
+    useEffect(() => {
+        document.title = "View SELF EVALUATION REPORT";
+        const getSERDetails = async () => {
+            SetLoading(true);
+            try {
+                const response = await getSelfEvaluationReport(pgprId);
+                console.log("SER Details : ",response?.data?.data);
+                setSERDetails(response?.data?.data);
+                SetLoading(false);
+            } catch (err) {
+                console.error(err);
+                SetLoading(false);
+            }
+        };
+        getSERDetails();
+    }, []);
 
     let descriptionWidth = 30;
 
@@ -43,9 +66,9 @@ const ViewSer = () => {
     };
     let tableHeight = expand ==8? {} : {height:'300px'};
 
-    function createData(criteria,submitted_standards, y1,y2,y3,y4,y5) {
+    function createData(criteriaData,submitted_standards, y1,y2,y3,y4,y5) {
         
-        return {criteria, submitted_standards, y1,y2,y3,y4,y5};
+        return {criteria:criteriaData.name, submitted_standards, y1,y2,y3,y4,y5};
     }
 
     const headerRowStyle = {
@@ -54,28 +77,28 @@ const ViewSer = () => {
 
     const headerRowDivStyle = {width:'50%',textAlign:'left'};
 
+    const pgProgrammeDetails = SERDetails?.postGraduateProgramReview?.postGraduateProgramme;
+    const facultyDetails = pgProgrammeDetails?.faculty;
+    const universityDetails = facultyDetails?.university;
+    const pgCoordinatorDetails = pgProgrammeDetails?.programmeCoordinator?.academicStaff?.universitySide?.user;
+
     const headerInfo = [
-        { label: "University:", value: "University of Colombo" },
+        { label: "University:", value: universityDetails?.name?? "" },
         {
           label: "Faculty/Institute:",
-          value: "University of Colombo School of Computing",
+          value: facultyDetails?.name??"",
         },
-        { label: "PGPR ID:", value: uniId },
-        { label: "PGPR Name:", value: "MSc" },
+        { label: "PGPR ID:", value: `PGPR-${pgprId?? ""}` },
+        { label: "PG programme Name:", value: pgProgrammeDetails?.title?? "" },
         { label: "Application Start Date:", value: "12/12/2020" },
         { label: "Submission Date:", value: "01/01/2021" },
-        { label: "Program Coordinator:", value: "Mr. Smantha Karunanayake" },
+        { label: "Program Coordinator:", value: `${pgCoordinatorDetails?.initials?? ""} ${pgCoordinatorDetails?.surname?? ""}` },
       ];
 
-    const rows = [
-        createData("Programme Management",'X1/27', "x11","x12","x12", 'x12','x12'),
-        createData("P. Design and Development",'X1/27', "x11","x12","x12", 'x12','x12'),
-        createData("Human Physical Res. & LS",'X1/27', "x11","x12","x12", 'x12','x12'),
-        createData("Teaching Learning Research",'X1/27', "x11","x12","x12", 'x12','x12'),
-        createData("Programme Evaluation","X1/27", "x11","x12","x12", 'x12','x12'),
-        createData("Student Assessment & Awards","X1/27", "x11","x12","x12", 'x12','x12'),
-        createData("Innovative & Healthy Practices","X1/27", "x11","x12","x12", 'x12','x12'),
-      ];
+    const Criterias = SERDetails?.criterias;
+    const evidencesForGivenStandards = SERDetails?.evidenceGivenStandards;
+
+    const rows = Criterias? createSERRows(Criterias,evidencesForGivenStandards,createData) : [];
 
     return (
         <>
@@ -101,7 +124,7 @@ const ViewSer = () => {
                 View Self Evaluation Report
             </Typography>
             <TableContainer component={Paper} style={{height:"auto",margin:"2rem 0"}}>
-                <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table">
+                <Table sx={{ height: 650 }} stickyHeader aria-label="sticky table">
                     <TableHead>
                         <TableRow>
                             <TableCell style={{backgroundColor:"#D8E6FC",}} align="left"><b>Criteria</b></TableCell>
@@ -123,7 +146,20 @@ const ViewSer = () => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {rows.map((row) => (
+                        {
+                             loading?
+                                <div style={{position:'absolute',left:50,right:50,margin:"0 auto",display:"flex",justifyContent:"center",alignItems:"center"}}> 
+                                    <Typography variant="h6" style={{ margin: "0 0 0 20px" }}>
+                                        Loading ...
+                                    </Typography>
+                                    <CircularProgress
+                                    style={{ margin: "0 0 0 20px", color: "darkblue" }}
+                                    thickness={5}
+                                    size={24}
+                                    />
+                                </div>
+                                :
+                        rows.map((row) => (
                             <TableRow
                             key={row.criteria}
                             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
