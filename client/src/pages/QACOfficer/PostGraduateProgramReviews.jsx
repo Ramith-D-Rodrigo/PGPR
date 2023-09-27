@@ -1,6 +1,11 @@
 import React from 'react'
 import getAllPGPRs from '../../api/PostGraduateProgramReview/getAllPGPRs';
 import { useState, useEffect } from 'react';
+import {CircularProgress} from '@mui/material';
+import Paper from '@mui/material/Paper';
+import {Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle} from '@mui/material';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 import { Table, TableBody, TableContainer, TableHead, TableRow, TableCell, ButtonGroup } from '@mui/material';
 import { Button } from '@mui/material';
 import {Typography} from '@mui/material';
@@ -29,34 +34,34 @@ const PostGraduateProgramReviews = () => {
 
     return (
         <>
-            <TableContainer>
+            <TableContainer component={Paper}>
                 <Table>
-                    <TableHead>
+                    <TableHead style={{backgroundColor:"#D8E6FC",}}>
                         <TableRow>
-                            <TableCell>ID</TableCell>
-                            <TableCell>Post Graduate Program</TableCell>
-                            <TableCell>Faculty</TableCell>
-                            <TableCell>University</TableCell>
-                            <TableCell>Programme Coordinator</TableCell>
-                            <TableCell>Status</TableCell>
-                            <TableCell>Grouped</TableCell>
-                            <TableCell>Application</TableCell>
-                            <TableCell>Payment Voucher</TableCell>
-                            <TableCell>Actions</TableCell>
+                            <TableCell><strong>ID</strong></TableCell>
+                            <TableCell><strong>Post Graduate Program</strong></TableCell>
+                            <TableCell><strong>Faculty</strong></TableCell>
+                            <TableCell><strong>University</strong></TableCell>
+                            <TableCell><strong>Programme Coordinator</strong></TableCell>
+                            <TableCell><strong>Status</strong></TableCell>
+                            <TableCell><strong>Grouped</strong></TableCell>
+                            <TableCell><strong>Application</strong></TableCell>
+                            <TableCell><strong>Payment Voucher</strong></TableCell>
+                            <TableCell><strong>Actions</strong></TableCell>
                         </TableRow>
                     </TableHead>
 
                     <TableBody>
                         {pgprs.map((pgpr) => (
                             <TableRow key={pgpr.id}>
-                                <TableCell>PGPR-{pgpr.id}</TableCell>
-                                <TableCell>{pgpr.postGraduateProgramme.title}</TableCell>
-                                <TableCell>{pgpr.postGraduateProgramme.faculty.name}</TableCell>
-                                <TableCell>{pgpr.postGraduateProgramme.faculty.university.name}</TableCell>
-                                <TableCell>{pgpr.selfEvaluationReport.programmeCoordinator.academicStaff.universitySide.user.surname 
+                                <TableCell align='center'>PGPR-{pgpr.id}</TableCell>
+                                <TableCell align='center'>{pgpr.postGraduateProgramme.title}</TableCell>
+                                <TableCell align='center'>{pgpr.postGraduateProgramme.faculty.name}</TableCell>
+                                <TableCell align='center'>{pgpr.postGraduateProgramme.faculty.university.name}</TableCell>
+                                <TableCell align='center'>{pgpr.selfEvaluationReport.programmeCoordinator.academicStaff.universitySide.user.surname 
                                 + " " + pgpr.selfEvaluationReport.programmeCoordinator.academicStaff.universitySide.user.initials}</TableCell>
-                                <TableCell>{pgpr.statusOfPgpr}</TableCell>
-                                <TableCell>{pgpr.groupedWith ? (
+                                <TableCell align='center'>{pgpr.statusOfPgpr}</TableCell>
+                                <TableCell align='center'>{pgpr.groupedWith ? (
                                     <Typography variant="body2" color="text.secondary" align="center">
                                         Yes
                                     </Typography>
@@ -66,15 +71,15 @@ const PostGraduateProgramReviews = () => {
                                     </Typography>
                                      )}
                                 </TableCell>
-                                <TableCell>
+                                <TableCell align='center'>
                                     <Button>
-                                        View Application
+                                        Application
                                     </Button>
                                 </TableCell>
-                                <TableCell>
+                                <TableCell align='center'>
                                     {pgpr.paymentVoucher ?
                                         <Button>
-                                            View Payment Voucher
+                                            Payment Voucher
                                         </Button>
                                         :
                                         <Typography variant="body2" color="text.secondary" align="center">
@@ -82,12 +87,12 @@ const PostGraduateProgramReviews = () => {
                                         </Typography>
                                     }
                                 </TableCell>
-                                <TableCell>
+                                <TableCell align='center'>
                                     <ButtonGroup>
-                                        <Button component={Link} to={'/qac_officer/PGPRs/view/' + pgpr.id}>
+                                        <Button sx={{margin:"0 0.2rem"}} variant='contained' component={Link} to={'/qac_officer/PGPRs/view/' + pgpr.id}>
                                             View
                                         </Button>
-                                        <Button>
+                                        <Button sx={{margin:"0 0.2rem"}} variant='contained'>
                                             Edit
                                         </Button>
                                     </ButtonGroup>
