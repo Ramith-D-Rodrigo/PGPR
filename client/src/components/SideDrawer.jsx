@@ -113,6 +113,7 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
     const iqauDirectorRoutes = [
       { route: "DashBoard", link: "/iqau_director/dashboard" },
       { route: "PG Programs", link: "/iqau_director/pgPrograms" },
+      { route: "Postgraduate Programme Reviews", link: "/iqau_director/pgprs"}
     ];
 
     const programmeCoordinatorRoutes = [

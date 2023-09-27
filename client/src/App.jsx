@@ -336,6 +336,12 @@ function App() {
                 <Route path="pgPrograms" element={<ViewPGPs />} />
                 <Route path="ser" element={<IQAUSer />} />
                 <Route path="editSer" element={<IQAUEditSer />} />
+                <Route path="pgprs/">
+                  <Route path="" element={<PGPRs />} />
+                  <Route path=":pgprId/ser/:serId" element={<SelfEvaluationReport />} />
+                  <Route path=":pgprId/ser/:serId/EditSer/:criteriaId" element={<EditingSelfEvaluationReport />} />
+                </Route>
+
                 <Route path="pgProgramDetails" element={<IQAUProgramDetails />} />
               </Route>
             </Route>
