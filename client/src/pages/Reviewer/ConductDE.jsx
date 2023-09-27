@@ -20,6 +20,7 @@ const ConductDE = () => {
     const [SERDetails,setSERDetails] = useState([]);
     const [loading,SetLoading] = useState(false);
     const {reviewerRole, setReviewerRole} = useReviewerRole();
+    const [SERId,setSERId] = useState([]);
 
     useSetUserNavigations(
         [
@@ -36,31 +37,22 @@ const ConductDE = () => {
 
     useEffect(() => {
         document.title = "Conduct Desk Evaluation";
-        const getSERDetails = async () => {
-            SetLoading(true);
-            try {
-                const response = await getSelfEvaluationReport(pgprId);
-                console.log("SER Details : ",response?.data?.data);
-                setSERDetails(response?.data?.data);
-                SetLoading(false);
-            } catch (err) {
-                console.error(err);
-                SetLoading(false);
-            }
-        };
         const getPGPRDetails = async () => {
             SetLoading(true);
             try {
-                const response = await getSpecificPGPR(pgprId);
-                console.log("PGPR Details : ",response);
-                setReviewerRole(response?.data?.data?.reviewerRole);
+                const response1 = await getSpecificPGPR(pgprId);
+                console.log("PGPR Details : ",response1?.data);
+                setReviewerRole(response1?.data?.data?.role);
+                setSERId(response1?.data?.data?.postGraduateReviewProgram?.selfEvaluationReport?.id);
+                const response2 = await getSelfEvaluationReport(response1?.data?.data?.postGraduateReviewProgram?.selfEvaluationReport?.id);
+                console.log("SER Details : ",response2?.data?.data);
+                setSERDetails(response2?.data?.data);
                 SetLoading(false);
             } catch (err) {
                 console.error(err);
                 SetLoading(false);
             }
         };
-        getSERDetails();
         getPGPRDetails();
     }, []);
 
@@ -118,31 +110,8 @@ const ConductDE = () => {
   
       const rows = Criterias? createSERRows(SERDetails?.criterias,SERDetails?.evidenceGivenStandards,createData) : [];
 
-    //   const rows = [
-    //     createData("Programme Management",'X1/27', "x11","x12","x12", 'x12','x12', [{action:'Evaluate',allow:true}]),
-    //     createData("P. Design and Development",'X1/27', "x11","x12","x12", 'x12','x12', [{action:'Evaluate',allow:true}]),
-    //     createData("Human Physical Res. & LS",'X1/27', "x11","x12","x12", 'x12','x12', [{action:'Evaluate',allow:true}]),
-    //     createData("Teaching Learning Research",'X1/27', "x11","x12","x12", 'x12','x12', [{action:'Evaluate',allow:true}]),
-    //     createData("Programme Evaluation","X1/27", "x11","x12","x12", 'x12','x12', [{action:'Evaluate',allow:true}]),
-    //     createData("Student Assessment & Awards","X1/27", "x11","x12","x12", 'x12','x12', [{action:'Evaluate',allow:true}]),
-    //     createData("Innovative & Healthy Practices","X1/27", "x11","x12","x12", 'x12','x12', [{action:'Evaluate',allow:true}]),
-    //   ];
-
     return (
         <>
-            {/* <DiscriptiveDiv onClick={handleClick} expand={expand==8? 1:2} description="Reviewer" width='100%' height={`${expand}%`} backgroundColor="#D9D9D9" >
-                <Box sx={{ 
-                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' 
-                }}>
-                    <Box style={headerRowStyle}><div style={headerRowDivStyle}>University :</div><div style={headerRowDivStyle}>University of Colombo</div></Box>
-                    <Box style={headerRowStyle}><div style={headerRowDivStyle}>Faculty/Institute :</div><div style={headerRowDivStyle}>University of Colombo School of Computing</div></Box>
-                    <Box style={headerRowStyle}><div style={headerRowDivStyle}>PGPR ID :</div><div style={headerRowDivStyle}>{pgprId}</div></Box>
-                    <Box style={headerRowStyle}><div style={headerRowDivStyle}>PGPR Name :</div><div style={headerRowDivStyle}>MSc</div></Box>
-                    <Box style={headerRowStyle}><div style={headerRowDivStyle}>Application Start Date :</div><div style={headerRowDivStyle}>12/12/2020</div></Box>
-                    <Box style={headerRowStyle}><div style={headerRowDivStyle}>Submission Date :</div><div style={headerRowDivStyle}>01/01/2021</div></Box>
-                    <Box style={headerRowStyle}><div style={headerRowDivStyle}>Program Coordinator :</div><div style={headerRowDivStyle}>Mr. Smantha Karunanayake</div></Box>
-                </Box>
-            </DiscriptiveDiv> */}
             <DiscriptiveDiv
                 description={`${reviewerRole?? ""}`}
                 width="100%"
