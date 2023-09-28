@@ -5,7 +5,7 @@ import ScrollableDiv from '../../components/ScrollableDiv';
 import DiscriptiveDiv from '../../components/DiscriptiveDiv';
 import { useState } from 'react';
 import Button from '@mui/material/Button';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box, Typography } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box, Typography, CircularProgress } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import FormControl from '@mui/material/FormControl';
 import FormHelperText from '@mui/material/FormHelperText';
@@ -28,11 +28,13 @@ const EvaluateDE = () => {
     const [Standard,setStandard] = useState([]);
     const [evidencesForSelectedStandard,setevidencesForSelectedStandard] = useState([]);
     const [criterias,setCriterias] = useState([]);
+    const [loading, setLoading] = useState(false);
 
 
     useEffect(() => {
         document.title = "View SELF EVALUATION REPORT";
         const getSERDetails = async () => {
+            setLoading(true);
             try {
                 const response1 = await getSelfEvaluationReport(pgprId);
                 setSERDetails(response1?.data?.data);
@@ -45,8 +47,10 @@ const EvaluateDE = () => {
                 const response = await getAllCriteria();
                 // console.log("Criterias : ",response?.data?.data);
                 setCriterias(response?.data?.data);
+                setLoading(false);
             } catch (err) {
                 console.error(err);
+                setLoading(false);
             }
         };
         getSERDetails();
@@ -54,12 +58,16 @@ const EvaluateDE = () => {
 
     const getStandardEvidencesAndAdherence = async (pgprId,standardId) => {
         try {
+            setLoading(true);
             const response = await getStandardEvidencesAndAdherenceForSER(pgprId,standardId);
             setevidencesForSelectedStandard(response?.data?.data);
             // console.log("Standard Evidences And Adherence For SER : ",response?.data?.data);
+            setLoading(false);
             return response?.data?.data;
         } catch (err) {
             console.error(err);
+            setLoading(false);
+            return [];
         }
     };
 
@@ -71,8 +79,8 @@ const EvaluateDE = () => {
     }, [standardID]);
 
     let noOfAllStandards = Standard.length;
-    let nextButtonState = standardID==noOfAllStandards? {disabled:true} : {disabled:false};
-    let prevButtonState = standardID==1? {disabled:true} : {disabled:false};
+    let nextButtonState = standardID==noOfAllStandards? {disabled:true} : {};
+    let prevButtonState = standardID==1? {disabled:true} : {};
 
     // const Criterias = SERDetails?.criterias;
     // console.log("Criterias : ",Criterias);
@@ -156,14 +164,16 @@ const EvaluateDE = () => {
 
     const createData = (evidences, yearsapplicable) =>
     {
+        const TextNotIncluded = <Typography style={{margin:"8px 0"}} variant="body2" component="div" sx={{ flexGrow: 1 }}> NOT INCLUDED </Typography>
         if(evidences==undefined || yearsapplicable==undefined)
         {
-            return {evidences:[], yearsapplicable:[]};
+            return {evidences:TextNotIncluded, yearsapplicable:TextNotIncluded};
         }
-        evidences = evidences.map((evidence,index) => {
-            return <Typography style={{margin:"8px 0"}} key={index} variant="body2" component="div" sx={{ flexGrow: 1 }}>{evidence.id} : <Link style={{}} key={index} to={evidence.link}><b>Evidence</b></Link></Typography>
-        });
-        yearsapplicable = yearsapplicable.map((years,index) => {
+        evidences = evidences.length == 0? TextNotIncluded : 
+            evidences.map((evidence,index) => {
+                return <Typography style={{margin:"8px 0"}} key={index} variant="body2" component="div" sx={{ flexGrow: 1 }}>{evidence.id} : <Link style={{}} key={index} to={evidence.link}><b>Evidence</b></Link></Typography>
+            });
+        yearsapplicable = yearsapplicable.length==0? TextNotIncluded : yearsapplicable.map((years,index) => {
             return <Typography style={{margin:"8px 0"}} key={index} variant="body2" component="div" sx={{ flexGrow: 1 }}>{years}</Typography>
         });
         return {evidences, yearsapplicable};
@@ -173,12 +183,24 @@ const EvaluateDE = () => {
     const rows = evidencesForSelectedStandard ==[]? [] : [
         // createData([{id:'1.3.01',link:'/1.3.01'},{id:'1.3.02',link:'/1.3.02'}],[['y1','y2'],['y2','y3']]),
         // createData(evidencesForSelectedStandard?.evidences?.map((evidence)=>{ return {id:evidence.id,link:evidence.id} }),['y1,y2','y2,y3']),
-        createData(evidencesForSelectedStandard?.evidences?.map((evidence)=>{ return {id:evidence.id,link:evidence.id} }),evidencesForSelectedStandard?.evidences?.map((evidence)=>{ return evidence?.applicableYears?.map((year) => {return `Y${year} `}) } )),
+        createData(evidencesForSelectedStandard?.evidences?.map((evidence)=>{ return {id:evidence.id,link:evidence.url} }),evidencesForSelectedStandard?.evidences?.map((evidence)=>{ return evidence?.applicableYears?.map((year) => {return `Y${year} `}) } )),
       ];
 
   return (
     <>
     <DiscriptiveDiv description="Desk Evaluation"  width='100%' height="80%" backgroundColor="white" >
+        {loading &&
+                    <div style={{position:'absolute',left:0,margin:"0 auto",display:"flex",justifyContent:"center",alignItems:"center"}}> 
+                        <Typography variant="h6" style={{ margin: "0 0 0 20px" }}>
+                            Loading ...
+                        </Typography>
+                        <CircularProgress
+                        style={{ margin: "0 0 0 20px", color: "darkblue" }}
+                        thickness={5}
+                        size={24}
+                        />
+                    </div>
+        }
 
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Criteria : {findCriteriaName(criteriaId)} - {`PGPR-${pgprId}`}
@@ -207,7 +229,7 @@ const EvaluateDE = () => {
                         key={index}
                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                         >
-                            <TableCell align="left">{Standard[standardID-1]?.description}</TableCell>
+                            <TableCell align="left"><Box sx={{maxWidth:'25rem'}}>{Standard[standardID-1]?.description}</Box></TableCell>
                             <TableCell align="center">{evidencesForSelectedStandard?.standardAdherence?.adherence?? 'NOT INCLUDED'}</TableCell>
                             <TableCell align="center">{row.evidences}</TableCell>
                             <TableCell align="center">{row.yearsapplicable}</TableCell>
@@ -244,10 +266,10 @@ const EvaluateDE = () => {
         </Box>
     </DiscriptiveDiv>
     <Box sx={{display:"flex",justifyContent:"space-between",width:"100%",margin:"10px 0"}}>
-        <Button {...prevButtonState} onClick={handleClickPrev} variant="contained" color="primary" style={{width:"200px"}}>Previous Standard</Button>
-        <Button onClick={handleClickSave} variant="contained" color="secondary" style={{width:"100px"}}>Save</Button>
-        <Button onClick={handleClickCancel} variant="contained" color="secondary" style={{width:"100px"}}>Cancel</Button>
-        <Button {...nextButtonState} onClick={handleClickNext} variant="contained" color="primary" style={{width:"200px"}}>Next Standard</Button>
+        <Button {...{disabled:loading}} {...prevButtonState} onClick={handleClickPrev} variant="contained" color="primary" style={{width:"200px"}}>Previous Standard</Button>
+        <Button {...{disabled:loading}} onClick={handleClickSave} variant="contained" color="secondary" style={{width:"100px"}}>Save</Button>
+        <Button {...{disabled:loading}} onClick={handleClickCancel} variant="contained" color="secondary" style={{width:"100px"}}>Cancel</Button>
+        <Button {...{disabled:loading}} {...nextButtonState} onClick={handleClickNext} variant="contained" color="primary" style={{width:"200px"}}>Next Standard</Button>
     </Box>
     </>
   )

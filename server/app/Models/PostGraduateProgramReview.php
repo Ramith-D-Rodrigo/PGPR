@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use function Symfony\Component\String\u;
 
@@ -52,13 +53,9 @@ class PostGraduateProgramReview extends Model
 
     // pgpr has review teams associated with itself
 
-    public function acceptedReviewTeam(): \Illuminate\Database\Eloquent\Relations\HasMany|null
+    public function acceptedReviewTeam(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
-        $reviewTeams = $this->reviewTeams()->where('status', 'ACCEPTED');
-        if ($reviewTeams->count() > 0) {
-            return $reviewTeams->first();
-        }
-        return null;
+        return $this->hasOne(ReviewTeam::class, 'pgpr_id')->where('status', 'ACCEPTED');
     }
 
     //pgpr has only one review team that is accepted by the dean
@@ -83,7 +80,7 @@ class PostGraduateProgramReview extends Model
     public function finalReports(): HasOne
 
     {
-        return $this->hasOne(FinalReport::class, 'final_report_id');
+        return $this->hasOne(FinalReport::class, 'pgpr_id', 'id');
     }
 
     // pgprs may be rejected by the QACDiretor
@@ -100,6 +97,6 @@ class PostGraduateProgramReview extends Model
 
     public function reviewTeam(): HasOne
     {
-        return $this->hasOne(ReviewTeam::class, 'pgpr_id');
+        return $this->hasOne(ReviewTeam::class, 'pgpr_id')->latest();
     }
 }

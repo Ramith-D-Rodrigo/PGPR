@@ -5,12 +5,12 @@ import axios from "../api.js";
 
 //url is : SERVER_URL + SERVER_API_VERSION + 'selfEvaluationReports/{selfEvaluationReportId}/submitSelfEvaluationReport'
 
-const submitSelfEvaluationReport = async (selfEvaluationReportId) => {
+const submitSelfEvaluationReport = async (selfEvaluationReportId, formData) => {
     const URL = SERVER_URL + SERVER_API_VERSION + 'selfEvaluationReports/' + selfEvaluationReportId + '/submitSelfEvaluationReport';
 
     await axios.get("/sanctum/csrf-cookie"); //csrf-cookie is required for post requests
 
-    return await axios.post(URL);
+    return await axios.post(URL, formData);
 }
 
 export default submitSelfEvaluationReport;

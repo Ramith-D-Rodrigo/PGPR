@@ -5,16 +5,20 @@ import ScrollableDiv from '../../components/ScrollableDiv';
 import DiscriptiveDiv from '../../components/DiscriptiveDiv';
 import { useState, useEffect } from 'react';
 import Button from '@mui/material/Button';
-import { Grid,Typography,Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box, Divider } from '@mui/material';
+import { Grid,Typography,Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box, Divider, CircularProgress } from '@mui/material';
 import { Link } from 'react-router-dom';
 import useDrawerState from '../../hooks/useDrawerState';
 import getSelfEvaluationReport from '../../api/SelfEvaluationReport/getSelfEvaluationReport';
 import createSERRows from '../../assets/reviewer/createSERRows';
+import useReviewerRole from '../../hooks/useReviewerRole';
+import getAssignedPGPR from '../../api/Reviewer/getAssignedPGPR';
 
 const ConductDE = () => {
     const {pgprId} = useParams();
     const open = useDrawerState().drawerState.open;
-    const [SERDetails,setSERDetails] = useState({});
+    const [SERDetails,setSERDetails] = useState([]);
+    const [loading,SetLoading] = useState(false);
+    const {reviewerRole, setReviewerRole} = useReviewerRole();
 
     useSetUserNavigations(
         [
@@ -32,15 +36,31 @@ const ConductDE = () => {
     useEffect(() => {
         document.title = "Conduct Desk Evaluation";
         const getSERDetails = async () => {
+            SetLoading(true);
             try {
                 const response = await getSelfEvaluationReport(pgprId);
                 console.log("SER Details : ",response?.data?.data);
                 setSERDetails(response?.data?.data);
+                SetLoading(false);
             } catch (err) {
                 console.error(err);
+                SetLoading(false);
+            }
+        };
+        const getPGPRDetails = async () => {
+            SetLoading(true);
+            try {
+                const response = await getAssignedPGPR(pgprId);
+                console.log("PGPR Details : ",response?.data?.data);
+                setReviewerRole(response?.data?.data?.reviewerRole);
+                SetLoading(false);
+            } catch (err) {
+                console.error(err);
+                SetLoading(false);
             }
         };
         getSERDetails();
+        // getPGPRDetails();
     }, []);
 
     function createData(criteriaData,submitted_standards, y1,y2,y3,y4,y5) {
@@ -72,17 +92,21 @@ const ConductDE = () => {
 
     const headerRowDivStyle = {width:'50%',textAlign:'left'};
 
+    const pgProgrammeDetails = SERDetails?.postGraduateProgramReview?.postGraduateProgramme;
+    const facultyDetails = pgProgrammeDetails?.faculty;
+    const universityDetails = facultyDetails?.university;
+    const pgCoordinatorDetails = pgProgrammeDetails?.programmeCoordinator?.academicStaff?.universitySide?.user;
     const headerInfo = [
-        { label: "University:", value: "University of Colombo" },
+        { label: "University:", value: universityDetails?.name?? "" },
         {
           label: "Faculty/Institute:",
-          value: "University of Colombo School of Computing",
+          value: facultyDetails?.name?? "",
         },
-        { label: "PGPR ID:", value: pgprId },
-        { label: "PGPR Name:", value: "MSc" },
+        { label: "PGPR ID:", value: `PGPR-${pgprId?? ""}` },
+        { label: "PGPR Name:", value: pgProgrammeDetails?.title?? "" },
         { label: "Application Start Date:", value: "12/12/2020" },
         { label: "Submission Date:", value: "01/01/2021" },
-        { label: "Program Coordinator:", value: "Mr. Smantha Karunanayake" },
+        { label: "Program Coordinator:", value: `${pgCoordinatorDetails?.initials?? ""} ${pgCoordinatorDetails?.surname?? ""}` },
       ];
 
       const Criterias = SERDetails?.criterias;
@@ -119,7 +143,7 @@ const ConductDE = () => {
                 </Box>
             </DiscriptiveDiv> */}
             <DiscriptiveDiv
-                description="chair Reviewer"
+                description={`${reviewerRole?? ""}`}
                 width="100%"
                 height="auto"
                 backgroundColor="#D8E6FC"
@@ -139,7 +163,7 @@ const ConductDE = () => {
             <Divider style={{margin:"2rem 0 1rem"}} textAlign="center">Desk Evaluation</Divider>
     
             <TableContainer component={Paper} style={{height:"auto"}}>
-                <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table">
+                <Table sx={{ height: 650 }} stickyHeader aria-label="sticky table">
                     <TableHead>
                         <TableRow>
                             <TableCell style={{backgroundColor:"#D8E6FC",}} align="left"><b>Criteria</b></TableCell>
@@ -163,7 +187,20 @@ const ConductDE = () => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {rows.map((row) => (
+                        {
+                        loading?
+                            <div style={{position:'absolute',left:50,right:50,margin:"0 auto",display:"flex",justifyContent:"center",alignItems:"center"}}> 
+                                <Typography variant="h6" style={{ margin: "0 0 0 20px" }}>
+                                    Loading ...
+                                </Typography>
+                                <CircularProgress
+                                style={{ margin: "0 0 0 20px", color: "darkblue" }}
+                                thickness={5}
+                                size={24}
+                                />
+                            </div>
+                            :
+                        rows.map((row) => (
                             <TableRow
                             key={row.criteria}
                             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
@@ -185,9 +222,11 @@ const ConductDE = () => {
             </TableContainer>
 
             <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', width: '100%', padding: '20px 0',height:"auto" }}>
-                    <Link to = {`../UpdateABC/${pgprId}`}><Button variant="contained" size="small" style={{width:"300px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>Update Part A, B, D</Button></Link>
-                    <Link to = {`../Standardwise_details/${pgprId}`}><Button variant="contained" size="small" style={{width:"300px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>View Standards Wise Details of Desk Review</Button></Link>
-                    <Link to = {`../Summary_details/${pgprId}`}><Button variant="contained" size="small" style={{width:"300px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>View Summary Details of Criteria Wise</Button></Link>
+                    <Link to = {`../UpdateABC/${pgprId}`}><Button variant="contained" size="small" style={{width:"250px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>Update Part A, B, D</Button></Link>
+                    <Link to = {`../Standardwise_details/${pgprId}`}><Button variant="contained" size="small" style={{width:"250px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>View Standards Wise Details of Desk Review</Button></Link>
+                    <Link to = {`../Submit_DE/${pgprId}`}><Button variant="contained" size="small" style={{width:"250px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>Proceed to Submit The Desk Evaluation</Button></Link>
+                    {/* only for chair */}
+                    <Link to = {`../Finalize_DE/${pgprId}`}><Button variant="contained" size="small" style={{width:"250px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>Finalize The Desk Evaluation</Button></Link>
             </Box>
         </>
     )

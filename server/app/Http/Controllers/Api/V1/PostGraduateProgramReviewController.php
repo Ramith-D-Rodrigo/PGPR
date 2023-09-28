@@ -34,7 +34,8 @@ class PostGraduateProgramReviewController extends Controller
                             ]
                         ]
                     ]
-                ]
+                ],
+                'postGraduateProgramReviewApplication'
             ]);
 
             return new PostGraduateProgramReviewCollection($pgprs -> get());
@@ -91,7 +92,16 @@ class PostGraduateProgramReviewController extends Controller
                             ]
                         ]
                     ]
-                ]
+                ],
+                'postGraduateProgramReviewApplication',
+                'properEvaluations',
+                'deskEvaluations',
+                'acceptedReviewTeam' => [
+                    'reviewers' => [
+                        'user:id,initials,surname,profile_pic'
+                    ]
+                ],
+                'finalReports'
             ]);
 
             return new PostGraduateProgramReviewResource($pgpr);
