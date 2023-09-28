@@ -20,9 +20,8 @@ import useAuth from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import createPostGraduateProgram from "../../api/PostGraduateProgram/createPostGraduateProgram";
 import getCQADirectorUniversity from "../../api/CQADirector/getCQADirectorUniversity";
-import getUniversityFaculties from "../../api/University/getUniversityFaculties"; 
+import getUniversityFaculties from "../../api/University/getUniversityFaculties";
 import SnackbarContainer from "../../components/SnackbarContainer";
-
 function AddPostGraduateProgram() {
   useSetUserNavigations([
     {
@@ -68,7 +67,6 @@ function AddPostGraduateProgram() {
   const [failed, setFailed] = useState(false);
   const [responseMsg, setResponseMsg] = useState("");
 
-  
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -79,7 +77,6 @@ function AddPostGraduateProgram() {
     setSnackbarSeverity(severity);
     setSnackbarOpen(true);
   };
-
 
   const handleClickAddProgram = async (e) => {
     e.preventDefault();
@@ -146,7 +143,6 @@ function AddPostGraduateProgram() {
     }
   };
 
-
   useEffect(() => {
     async function fetchData() {
       try {
@@ -209,7 +205,7 @@ function AddPostGraduateProgram() {
             variant="outlined"
           >
             <InputLabel htmlFor="title">
-              <b>Title</b>
+              <b>Title *</b>
             </InputLabel>
             <Input
               required
@@ -228,12 +224,13 @@ function AddPostGraduateProgram() {
 
           {/* SLQF Level */}
           <FormControl
-            sx={{ padding: "15px 10px", width: "48%", boxSizing: "border-box" }}
+            sx={{ padding: "15px 10px", width: "48%", boxSizing: "border-box" , marginBottom: "10px", // Add margin between the checkbox and the button
+          }}
             {...slqfLevelError.err}
             variant="outlined"
           >
             <InputLabel htmlFor="slqf-level">
-              <b>SLQF Level</b>
+              <b>SLQF Level *</b>
             </InputLabel>
             <Input
               required
@@ -251,34 +248,16 @@ function AddPostGraduateProgram() {
             )}
           </FormControl>
 
-          {/* Is Professional Program */}
-          <FormControl
-            sx={{
-              padding: "15px 10px",
-              width: "100%",
-              boxSizing: "border-box",
-            }}
-          >
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={isProfessionalProgram}
-                  onChange={(e) => setIsProfessionalProgram(e.target.checked)}
-                  name="isProfessionalProgram"
-                />
-              }
-              label="Is Professional Program"
-            />
-          </FormControl>
 
           {/* Commencement Year */}
           <FormControl
-            sx={{ padding: "15px 10px", width: "48%", boxSizing: "border-box" }}
+            sx={{ padding: "15px 10px", width: "48%", boxSizing: "border-box", marginBottom: "10px", // Add margin between the checkbox and the button 
+          }}
             {...commencementYearError.err}
             variant="outlined"
           >
             <InputLabel htmlFor="commencement-year">
-              <b>Commencement Year</b>
+              <b>Commencement Year *</b>
             </InputLabel>
             <Input
               required
@@ -297,11 +276,26 @@ function AddPostGraduateProgram() {
 
           {/* Faculty */}
           <FormControl
-            sx={{ padding: "15px 10px", width: "48%", boxSizing: "border-box" }}
+            sx={{
+              padding: "15px 10px",
+              width: "48%",
+              boxSizing: "border-box",
+              display: "flex",
+              justifyContent: "center",
+              marginBottom: "10px", // Add margin between the checkbox and the button
+            }}
             variant="outlined"
           >
-            <InputLabel htmlFor="faculty-select">
-              <b>Faculty</b>
+            <InputLabel
+              htmlFor="faculty-select"
+              sx={{
+                fontSize: "14px", // Adjust the font size as needed
+                textAlign: "center", // Center the placeholder text
+                marginTop: "12px", // Add margin to the top of the placeholder text
+                marginLeft: "2%", // Add margin to the left of the field
+              }}
+            >
+              <b>Faculty *</b>
             </InputLabel>
             <Select
               label="Faculty"
@@ -318,6 +312,31 @@ function AddPostGraduateProgram() {
                 </MenuItem>
               ))}
             </Select>
+          </FormControl>
+          
+          {/* Is Professional Program */}
+          <FormControl
+            sx={{
+              padding: "15px 10px",
+              width: "100%",
+              boxSizing: "border-box",
+              display: "flex",
+              justifyContent: "flex-end",
+              marginBottom: "1px", // Add margin between the checkbox and the button
+              marginLeft: "30px",
+              
+            }}
+          >
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={isProfessionalProgram}
+                  onChange={(e) => setIsProfessionalProgram(e.target.checked)}
+                  name="isProfessionalProgram"
+                />
+              }
+              label="Is Professional Program *"
+            />
           </FormControl>
 
           {/* Submit Button */}
@@ -337,7 +356,7 @@ function AddPostGraduateProgram() {
                 fontSize: "16px",
                 fontWeight: "bold",
                 padding: "12px 0",
-                marginTop: "20px",
+                
               }}
               disabled={loading}
             >
@@ -350,8 +369,8 @@ function AddPostGraduateProgram() {
           </FormControl>
         </form>
       </Box>
-       {/* SnackbarContainer for displaying messages */}
-       <SnackbarContainer
+      {/* SnackbarContainer for displaying messages */}
+      <SnackbarContainer
         open={snackbarOpen}
         onClose={() => setSnackbarOpen(false)}
         message={snackbarMessage}
