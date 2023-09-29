@@ -79,23 +79,23 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
     const qacDirectorRoutes = [
       {route:"DashBoard",link: "/qac_director/dashboard"},
       {route:"Universities",link: "/qac_director/universities"},
-      {route:"CQA Offices",link: "/qac_director/cqa_offices"},
+      {route:"Create Vice Chancellor and CQA Director Accounts" ,link: "/qac_director/createAccounts"},
       {route:"Reviewers",link: "/qac_director/reviewers"},
       {route:"Post Graduate Program Review Applications" ,link: "/qac_director/PGPRApplications"},
+      {route:"Post Graduate Program Reviews" ,link: "/qac_director/PGPRs"},
     ]
 
     const qacOfficerRoutes = [
-      {route:"DashBoard",link: "/qac_officer/dashboard"},
+      {route:"Dashboard",link: "/qac_officer/dashboard"},
       {route:"Universities" ,link: "/qac_officer/universities"},
-      {route:"Create Accounts" ,link: "/qac_officer/createAccounts"},
-      {route:"CQA Offices" ,link: "/qac_officer/cqa_offices"},
+      {route:"Create Vice Chancellor and CQA Director Accounts" ,link: "/qac_officer/createAccounts"},
       {route:"Reviewers" ,link: "/qac_officer/reviewers"},
       {route:"Post Graduate Program Review Applications" ,link: "/qac_officer/PGPRApplications"},
       {route:"Post Graduate Program Reviews" ,link: "/qac_officer/PGPRs"},
   ]
 
     const cqaDirectorRoutes = [
-      {route:"DashBoard",link: "/cqa_director/dashboard"},
+      {route:"Dashboard",link: "/cqa_director/dashboard"},
       {route:"Add PG Program" ,link: "/cqa_director/AddPGProgramPage"},
       {route:"Add Accounts" ,link: "/cqa_director/AddAccounts"},
       {route:"Edit PG Program" ,link: "/cqa_director/EditPGProgram"},
