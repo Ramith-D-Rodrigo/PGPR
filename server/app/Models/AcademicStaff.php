@@ -24,7 +24,7 @@ class AcademicStaff extends Model
         'conference_preceedings_count',
         'book_chapters',
         'involvement_in_internal_quality_assurance',
-        'involment_in_study_programme_development',
+        'involvement_in_study_programme_development',
         'postgraduate_teaching_experience',
         'postgraduate_qualifications',
         'prior_training_in_programme_review',

@@ -38,7 +38,7 @@ class UpdateAcademicStaffRequest extends FormRequest
         $rulesArr['conference_preceedings_count'] = ['sometimes', 'integer'];
         $rulesArr['book_chapters'] = ['sometimes', 'integer'];
         $rulesArr['involvement_in_internal_quality_assurance'] = ['sometimes', 'json']; //json array
-        $rulesArr['involment_in_study_programme_development'] = ['sometimes', 'json']; //json array
+        $rulesArr['involvement_in_study_programme_development'] = ['sometimes', 'json']; //json array
         $rulesArr['postgraduate_teaching_experience'] = ['sometimes', 'json']; //json array
         $rulesArr['qualification_1'] = ['sometimes', 'required', 'string', 'max:255'];
         $rulesArr['qualification_1_slqf_level'] = ['sometimes', 'required', 'integer'];
@@ -71,7 +71,7 @@ class UpdateAcademicStaffRequest extends FormRequest
             'nominees',
             'experience_with_research_funds',
             'involvement_in_internal_quality_assurance',
-            'involment_in_study_programme_development',
+            'involvement_in_study_programme_development',
             'postgraduate_teaching_experience',
             'prior_training_in_programme_review'
         ];
