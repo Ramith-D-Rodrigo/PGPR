@@ -20,6 +20,7 @@ import getSelfEvaluationReport from '../../api/SelfEvaluationReport/getSelfEvalu
 import createSERRows from '../../assets/reviewer/createSERRows';
 import useReviewerRole from '../../hooks/useReviewerRole';
 import getSpecificPGPR from '../../api/Reviewer/getSpecificPGPR';
+import SubmitDeskEvaluation from '../../api/Reviewer/SubmitDeskEvaluation';
 
 const SubmitDE = () => {
     const theme = useTheme();
@@ -31,6 +32,7 @@ const SubmitDE = () => {
     const [loading,SetLoading] = useState(false);
     const {reviewerRole, setReviewerRole} = useReviewerRole();
     const [openDialog, setOpenDialog] = useState(false);
+    const [error, setError] = useState(null);
 
     useSetUserNavigations(
         [
@@ -76,8 +78,19 @@ const SubmitDE = () => {
         return {criteria:criteriaData.name, DE_progress, Actions };
     }
 
-    const handleSubmitDE_results = () => {
-        // API call to submit the DE results
+    const handleSubmitDE_results = async() => {
+        SetLoading(true);
+        try{
+            const response = await SubmitDeskEvaluation(pgprDetails?.data?.postGraduateReviewProgram?.deskEvaluation);
+            console.log("Submit DE Results : ",response);
+            SetLoading(false);
+            setError(null);
+        }
+        catch(err){
+            console.error(err);
+            SetLoading(false);
+            setError(err?.response?.status, err?.response?.data?.message);
+        }
         setOpenDialog(false);
     };
 
