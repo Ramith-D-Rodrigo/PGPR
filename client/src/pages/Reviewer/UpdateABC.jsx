@@ -23,6 +23,9 @@ function UpdateABC() {
     const [reviewerRole, setReviewerRole] = useState("");
     const [serId, setSERId] = useState("");
     const navigate = useNavigate();
+    const [sectionA, setSectionA] = useState("");
+    const [sectionB, setSectionB] = useState("");
+    const [sectionD, setSectionD] = useState("");
 
     useSetUserNavigations(
         [
@@ -72,34 +75,43 @@ function UpdateABC() {
                 Update Remarks
             </Typography>
         </Box>
-        <Box sx={{display:'flex',justifyContent:'space-between',width:"100%",alignItems:"center",margin:'1.5rem'}}>
-          <Box sx={{display:'flex',flexDirection:'column',justifyContent:'flex-start',alignItems:"center",height:'100%',margin:'10px'}}>
+        <Box sx={{display:'flex',justifyContent:'space-between',width:"100%",alignItems:"flex-start",margin:'1.5rem'}}>
+          <Box sx={{display:'flex',flexDirection:'column',justifyContent:'flex-start',alignItems:"center",height:'100%',margin:'0 10px'}}>
             <Typography variant="h6" component="h2" gutterBottom>
-                Section A
+                SectionA
             </Typography>
             <a href={SERVER_URL.slice(0,-1) + serDetails.sectionA} target="_blank" rel="noreferrer" className="form-input mt-1 ml-0.5"> <Button variant="contained" color="primary">View</Button></a>
           </Box>
-            <textarea placeholder='Enter Remarks here' style={{width:"50%",height:"100px"}}></textarea>
+          <Box sx={{display:'flex',flexDirection:'column',justifyContent:'flex-start',alignItems:"flex-end",width:'100%'}}>
+            <textarea onChange={(e)=>setSectionA(e.target.value)} value={sectionA} placeholder='Enter Remarks here' style={{width:"70%",height:"100px", margin:'0 0 0.5rem'}}></textarea>
+            <Button variant="contained" color="primary">Update</Button>
+          </Box>
 
         </Box>
-        <Box sx={{display:'flex',justifyContent:'space-between',width:"100%",alignItems:"center",margin:'1.5rem'}}>
-          <Box sx={{display:'flex',flexDirection:'column',justifyContent:'flex-start',alignItems:"center",height:'100%',margin:'10px'}}>
+        <Box sx={{display:'flex',justifyContent:'space-between',width:"100%",alignItems:"flex-start",margin:'1.5rem'}}>
+          <Box sx={{display:'flex',flexDirection:'column',justifyContent:'flex-start',alignItems:"center",height:'100%',margin:'0 10px'}}>
             <Typography variant="h6" component="h2" gutterBottom>
-                Section B
+                SectionB
             </Typography>
             <a href={SERVER_URL.slice(0,-1) + serDetails.sectionB} target="_blank" rel="noreferrer" className="form-input mt-1 ml-0.5"> <Button variant="contained" color="primary">View</Button> </a>
           </Box>
-            <textarea placeholder='Enter Remarks here' style={{width:"50%",height:"100px"}}></textarea>
+          <Box sx={{display:'flex',flexDirection:'column',justifyContent:'flex-start',alignItems:"flex-end",width:'100%'}}>
+            <textarea onChange={(e)=>setSectionB(e.target.value)} value={sectionB} placeholder='Enter Remarks here' style={{width:"70%",height:"100px", margin:'0 0 0.5rem'}}></textarea>
+            <Button variant="contained" color="primary">Update</Button>
+          </Box>
 
         </Box>
-        <Box sx={{display:'flex',justifyContent:'space-between',width:"100%",alignItems:"center",margin:'1.5rem'}}>
-          <Box sx={{display:'flex',flexDirection:'column',justifyContent:'flex-start',alignItems:"center",height:'100%',margin:'10px'}}>
+        <Box sx={{display:'flex',justifyContent:'space-between',width:"100%",alignItems:"flex-start",margin:'1.5rem'}}>
+          <Box sx={{display:'flex',flexDirection:'column',justifyContent:'flex-start',alignItems:"center",height:'100%',margin:'0 10px'}}>
             <Typography variant="h6" component="h2" gutterBottom>
-                Section D
+                SectionD
             </Typography>
             <a href={SERVER_URL.slice(0,-1) + serDetails.sectionD} target="_blank" rel="noreferrer" className="form-input mt-1 ml-0.5"> <Button variant="contained" color="primary">View</Button> </a>
           </Box>
-            <textarea placeholder='Enter Remarks here' style={{width:"50%",height:"100px"}}></textarea>
+          <Box sx={{display:'flex',flexDirection:'column',justifyContent:'flex-start',alignItems:"flex-end",width:'100%'}}>
+            <textarea onChange={(e)=>setSectionD(e.target.value)} value={sectionD} placeholder='Enter Remarks here' style={{width:"70%",height:"100px", margin:'0 0 0.5rem'}}></textarea>
+            <Button variant="contained" color="primary">Update</Button>
+          </Box>
 
         </Box>
       </Box>
