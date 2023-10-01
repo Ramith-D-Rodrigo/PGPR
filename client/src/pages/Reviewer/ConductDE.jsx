@@ -221,9 +221,9 @@ const ConductDE = () => {
                     <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', width: '100%', padding: '20px 0',height:"auto" }}>
                             <Link to = {`../UpdateABC/${pgprId}`}><Button variant="contained" size="small" style={{width:"250px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>Update Part A, B, D</Button></Link>
                             <Link to = {`../Standardwise_details/${pgprId}`}><Button variant="contained" size="small" style={{width:"250px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>View Standards Wise Details of Desk Review</Button></Link>
-                            <Link to = {`../Submit_DE/${pgprId}`}><Button variant="contained" size="small" style={{width:"250px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>Submit The Self Evaluated Results</Button></Link>
+                            <Link to = {new Date(DE?.endDate) < new Date() || DE?.status == "COMPLETED"? '' : `../Submit_DE/${pgprId}`}><Button disabled={new Date(DE?.endDate) < new Date() || DE?.status == "COMPLETED"? true : false} variant="contained" size="small" style={{width:"250px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>Submit The Self Evaluated Results</Button></Link>
                             {/* only for chair */}
-                            <Link to = {`../Finalize_DE/${pgprId}`}><Button variant="contained" size="small" style={{width:"250px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>Finalize The Desk Evaluation</Button></Link>
+                            <Link to = {DE?.status == "COMPLETED"?  "" : `../Finalize_DE/${pgprId}`}><Button disabled={DE?.status == "COMPLETED"? true: false} variant="contained" size="small" style={{width:"250px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>Finalize The Desk Evaluation</Button></Link>
                     </Box>
                 </>
             }
