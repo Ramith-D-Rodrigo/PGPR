@@ -59,7 +59,23 @@ const ConductDE = () => {
     }, []);
 
     function createData(criteriaData,submitted_standards, y1,y2,y3,y4,y5) {
-        const Actions = [<Link key={1} to={`${criteriaData.id}`}><Button style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{"Evaluate"}</Button></Link>]
+        const DE = pgprDetails?.data?.postGraduateReviewProgram?.deskEvaluation;
+        let ButtonName;
+        let linkDisabled = false;
+        if (DE?.status == "COMPLETED"){
+            ButtonName = "View";
+        }
+        else if (DE?.status == "ONGOING"){
+            ButtonName = "Evaluate";
+        }
+        else{
+            ButtonName = "Error";
+            linkDisabled = true;
+        }
+        if(new Date(DE?.endDate) <= new Date()){
+            ButtonName = ButtonName=="Error" ? ButtonName : "View";
+        }
+        const Actions = [<Link key={1} to={ linkDisabled? '' :`${criteriaData.id}`}><Button disabled={linkDisabled} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{ButtonName}</Button></Link>]
         return {criteria:criteriaData.name, submitted_standards, y1,y2,y3,y4,y5, Actions };
     }
 
@@ -100,16 +116,16 @@ const ConductDE = () => {
         },
         { label: "PGPR ID:", value: `PGPR-${pgprId?? ""}` },
         { label: "PGPR Name:", value: pgProgrammeDetails?.title?? "" },
-        { label: "Application Start Date:", value: DE?.startDate?? "" },
-        { label: "Submission Date:", value: DE?.endDate?? "" },
+        { label: "Application Start Date:", value: DE?.startDate?? "", color: new Date(DE?.startDate) <= new Date()? "blue" : "red" },
+        { label: "Submission Date:", value: DE?.endDate?? "", color: new Date(DE?.endDate) <= new Date()? "red" : "blue" },
         { label: "Program Coordinator:", value: `${pgCoordinatorDetails?.initials?? ""} ${pgCoordinatorDetails?.surname?? ""}` },
       ];
 
       const Criterias = SERDetails?.criterias;
       const evidencesForGivenStandards = SERDetails?.evidenceGivenStandards;
 
-      console.log("Criterias : ",Criterias);
-        console.log("evidencesForGivenStandards : ",evidencesForGivenStandards);
+    //   console.log("Criterias : ",Criterias);
+    //     console.log("evidencesForGivenStandards : ",evidencesForGivenStandards);
   
       const rows = Criterias? createSERRows(SERDetails?.criterias,SERDetails?.evidenceGivenStandards,createData) : [];
 
@@ -131,7 +147,7 @@ const ConductDE = () => {
                             <Typography align='left' variant="subtitle1">
                                 <b>{infoItem.label}</b>
                             </Typography>
-                            <Typography align='left'>{infoItem.value}</Typography>
+                            <Typography color={infoItem?.color?? ""} align='left'>{infoItem.value}</Typography>
                             </Grid>
                         ))}
                         </Grid>
