@@ -20,7 +20,8 @@ const ConductDE = () => {
     const [SERDetails,setSERDetails] = useState([]);
     const [loading,SetLoading] = useState(false);
     const {reviewerRole, setReviewerRole} = useReviewerRole();
-    const [SERId,setSERId] = useState([]);
+    // const [SERId,setSERId] = useState([]);
+    const [pgprDetails,setPGPRDetails] = useState([]);
 
     useSetUserNavigations(
         [
@@ -42,8 +43,9 @@ const ConductDE = () => {
             try {
                 const response1 = await getSpecificPGPR(pgprId);
                 console.log("PGPR Details : ",response1?.data);
+                setPGPRDetails(response1?.data);
                 setReviewerRole(response1?.data?.data?.role);
-                setSERId(response1?.data?.data?.postGraduateReviewProgram?.selfEvaluationReport?.id);
+                // setSERId(response1?.data?.data?.postGraduateReviewProgram?.selfEvaluationReport?.id);
                 const response2 = await getSelfEvaluationReport(response1?.data?.data?.postGraduateReviewProgram?.selfEvaluationReport?.id);
                 console.log("SER Details : ",response2?.data?.data);
                 setSERDetails(response2?.data?.data);
@@ -89,6 +91,7 @@ const ConductDE = () => {
     const facultyDetails = pgProgrammeDetails?.faculty;
     const universityDetails = facultyDetails?.university;
     const pgCoordinatorDetails = pgProgrammeDetails?.programmeCoordinator?.academicStaff?.universitySide?.user;
+    const DE = pgprDetails?.data?.postGraduateReviewProgram?.deskEvaluation;
     const headerInfo = [
         { label: "University:", value: universityDetails?.name?? "" },
         {
@@ -97,8 +100,8 @@ const ConductDE = () => {
         },
         { label: "PGPR ID:", value: `PGPR-${pgprId?? ""}` },
         { label: "PGPR Name:", value: pgProgrammeDetails?.title?? "" },
-        { label: "Application Start Date:", value: "12/12/2020" },
-        { label: "Submission Date:", value: "01/01/2021" },
+        { label: "Application Start Date:", value: DE?.startDate?? "" },
+        { label: "Submission Date:", value: DE?.endDate?? "" },
         { label: "Program Coordinator:", value: `${pgCoordinatorDetails?.initials?? ""} ${pgCoordinatorDetails?.surname?? ""}` },
       ];
 
@@ -202,7 +205,7 @@ const ConductDE = () => {
                     <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', width: '100%', padding: '20px 0',height:"auto" }}>
                             <Link to = {`../UpdateABC/${pgprId}`}><Button variant="contained" size="small" style={{width:"250px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>Update Part A, B, D</Button></Link>
                             <Link to = {`../Standardwise_details/${pgprId}`}><Button variant="contained" size="small" style={{width:"250px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>View Standards Wise Details of Desk Review</Button></Link>
-                            <Link to = {`../Submit_DE/${pgprId}`}><Button variant="contained" size="small" style={{width:"250px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>Proceed to Submit The Desk Evaluation</Button></Link>
+                            <Link to = {`../Submit_DE/${pgprId}`}><Button variant="contained" size="small" style={{width:"250px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>Submit The Self Evaluated Results</Button></Link>
                             {/* only for chair */}
                             <Link to = {`../Finalize_DE/${pgprId}`}><Button variant="contained" size="small" style={{width:"250px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>Finalize The Desk Evaluation</Button></Link>
                     </Box>
