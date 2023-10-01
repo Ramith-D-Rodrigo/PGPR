@@ -21,6 +21,8 @@ import createSERRows from '../../assets/reviewer/createSERRows';
 import useReviewerRole from '../../hooks/useReviewerRole';
 import getSpecificPGPR from '../../api/Reviewer/getSpecificPGPR';
 import SubmitDeskEvaluation from '../../api/Reviewer/SubmitDeskEvaluation';
+import StatusMessage from '../../components/StatusMessage';
+import { useNavigate } from 'react-router-dom';
 
 const SubmitDE = () => {
     const theme = useTheme();
@@ -33,6 +35,7 @@ const SubmitDE = () => {
     const {reviewerRole, setReviewerRole} = useReviewerRole();
     const [openDialog, setOpenDialog] = useState(false);
     const [error, setError] = useState(null);
+    const navigate = useNavigate();
 
     useSetUserNavigations(
         [
@@ -84,12 +87,15 @@ const SubmitDE = () => {
             const response = await SubmitDeskEvaluation(pgprDetails?.data?.postGraduateReviewProgram?.deskEvaluation);
             console.log("Submit DE Results : ",response);
             SetLoading(false);
-            setError(null);
+            setError({status:response?.status, msg:response?.data?.message});
+            if(response?.status==200){
+                navigate(`../${pgprId}`);
+            }
         }
         catch(err){
             console.error(err);
             SetLoading(false);
-            setError(err?.response?.status, err?.response?.data?.message);
+            setError({status:err?.response?.status, msg:err?.response?.data?.message});
         }
         setOpenDialog(false);
     };
@@ -229,6 +235,14 @@ const SubmitDE = () => {
                     </Button>
                     </DialogActions>
                 </Dialog>
+
+                <StatusMessage
+                    open={error==null? false : true}
+                    onClose={()=>setError(null)}
+                    message={error?.msg}
+                    severity={error?.status==200? "success" : "error"}
+                    autoHideDuration={error?.status==200? 2000 : null}
+                />
             </>
         }
         </>
