@@ -254,6 +254,10 @@ class DeanController extends Controller
                     $deskEvaluation->end_date = NULL;
                     $deskEvaluation->save();
 
+                    //change the status of the pgpr to desk evaluation
+                    $pgpr->status_of_pgpr = 'DE';
+                    $pgpr->save();
+
                     DB::commit();
 
                     return response()->json(['message' => 'Your request is duly noted.']);
