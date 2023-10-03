@@ -199,6 +199,7 @@ class DeanController extends Controller
     public function acceptReviewTeam(DeanAcceptReviewTeamRequest $request): JsonResponse
     {
         try {
+            $this -> authorize('authorizeAcceptReviewTeam', [Dean::class, $request]);
 
             $reviewTeam = ReviewTeam::findOrFail($request->id)->load(['reviewers']);
 
@@ -266,6 +267,12 @@ class DeanController extends Controller
             //no need to store the evidences in the system drive, because the ser is not submitted yet thus no desk evaluation is created
             DB::commit();
             return response()->json(['message' => 'Your request is duly noted.']);
+
+        }catch(AuthorizationException $e){
+            return response() -> json(
+                ['message' => $e -> getMessage()], 403
+            );
+
         } catch (ModelNotFoundException $exception) {
             DB::rollBack();
             return response()->json(
@@ -284,6 +291,7 @@ class DeanController extends Controller
     public function rejectReviewTeam(DeanRejectReviewTeamRequest $request): JsonResponse
     {
         try {
+            $this -> authorize('authorizeRejectReviewTeam', [Dean::class, $request]);
 
             $reviewTeam = ReviewTeam::findOrFail($request->id)->load(['reviewers']);
 
@@ -325,6 +333,12 @@ class DeanController extends Controller
             $reviewTeam->save();
             DB::commit();
             return response()->json(['message' => 'Your request is duly noted.']);
+
+        }catch(AuthorizationException $e){
+            return response() -> json(
+                ['message' => $e -> getMessage()], 403
+            );
+
         } catch (ModelNotFoundException $exception) {
             DB::rollBack();
             return response()->json(
