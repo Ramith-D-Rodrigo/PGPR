@@ -63,7 +63,7 @@ class DeskEvaluationController extends Controller
         //
         try {
             $this -> authorize('view', [DeskEvaluation::class, $id]);
-            
+
             return new DeskEvaluationResource(DeskEvaluation::findOrFail($id));
         } catch (ModelNotFoundException $exception) {
             return response()->json(['message' => 'The desk evaluation id you mentioned could not be found please try again after making amends'], 422);
@@ -79,6 +79,9 @@ class DeskEvaluationController extends Controller
     {
         //
         try {
+
+            $this -> authorize('update', $id);
+
             $validated = $request->validated();
             $deskEvaluation = DeskEvaluation::findOrFail($id);
 

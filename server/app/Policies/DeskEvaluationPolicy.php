@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Http\Requests\V1\UpdateDeskEvaluationRequest;
 use App\Models\DeskEvaluation;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
@@ -120,9 +121,35 @@ class DeskEvaluationPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, DeskEvaluation $deskEvaluation): bool
+    public function update(User $user, string $id): Response
     {
-        //
+        //only review chair of the desk evaluation can update the desk evaluation
+        $currRole = request()->session()->get('authRole');
+
+        if($currRole === 'reviewer'){
+
+            $deskEvaluation = DeskEvaluation::findOrFail($id);
+
+            $reviewTeam = $deskEvaluation -> postGraduateProgramReview -> acceptedReviewTeam;
+
+            $reviewTeamReviewers = $reviewTeam -> reviewers;
+
+            foreach ($reviewTeamReviewers as $reviewer) {
+                if ($reviewer -> reviewer_id === $user -> id) {
+                    //check if the reviewer is the chair
+                    if($reviewer -> role === 'CHAIR'){
+                        return Response::allow();
+                    }
+                    else{
+                        return Response::deny('You are not authorized to update this desk evaluation');
+                    }
+                }
+            }
+
+            return Response::deny('You are not assigned to this desk evaluation');
+        }
+
+        return Response::deny('You are not authorized to update this desk evaluation');
     }
 
     /**
