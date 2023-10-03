@@ -140,9 +140,9 @@ class DeanPolicy
             return Response::deny('You are not allowed to ' . $action . ' the review team');
         }
 
-        //cannot reject the team when pgpr is not in planning stage
+        //cannot reject the team when pgpr is not in planning stage or submitted stage
 
-        if($reviewTeam -> postGraduateReviewProgram -> status_of_pgpr != 'PLANNING'){
+        if($reviewTeam -> postGraduateReviewProgram -> status_of_pgpr != 'PLANNING' && $reviewTeam -> postGraduateReviewProgram -> status_of_pgpr != 'SUBMITTED'){
             return Response::deny('You are not allowed to ' . $action . ' the review team when it is not in the planning stage.');
         }
 
