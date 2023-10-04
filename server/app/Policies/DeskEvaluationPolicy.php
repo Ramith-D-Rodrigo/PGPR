@@ -2,6 +2,8 @@
 
 namespace App\Policies;
 
+use App\Http\Requests\V1\ShowDeskEvaluationRemarksRequest;
+use App\Http\Requests\V1\ShowStandardWiseDetailsOfEachCriteriaRequest;
 use App\Http\Requests\V1\UpdateDeskEvaluationRequest;
 use App\Models\DeskEvaluation;
 use App\Models\User;
@@ -53,7 +55,8 @@ class DeskEvaluationPolicy
             $deFaculty = $deskEvaluation -> postGraduateProgramReview -> postGraduateProgram -> faculty;
 
             if($currRole === 'dean'){
-                if($deFaculty -> currentDean -> id === $user -> id){
+                $deanFaculty = $user -> universitySide -> academicStaff -> dean -> faculty;
+                if($deanFaculty -> id === $deFaculty -> id){
                     return Response::allow();
                 }
                 else{
@@ -61,7 +64,9 @@ class DeskEvaluationPolicy
                 }
             }
             else{
-                if($user -> id === $deFaculty -> internalQualityAssuranceUnit -> internalQualityAssuranceUnitDirector -> id){
+                $iqauFaculty = $user -> universitySide -> qualityAssuranceStaff -> internalQualityAssuranceUnitDirector -> internalQualityAssuranceUnit -> faculty;
+
+                if($iqauFaculty -> id === $deFaculty -> id){
                     return Response::allow();
                 }
                 else{
@@ -76,7 +81,8 @@ class DeskEvaluationPolicy
             $deUniversity = $deskEvaluation -> postGraduateProgramReview -> postGraduateProgram -> faculty -> university;
 
             if($currRole === 'vice_chancellor'){
-                if($deUniversity -> viceChancellor -> id === $user -> id){
+                $vcUni = $user -> universitySide -> viceChancellor -> university;
+                if($vcUni -> id === $deUniversity -> id){
                     return Response::allow();
                 }
                 else{
@@ -84,8 +90,8 @@ class DeskEvaluationPolicy
                 }
             }
             else{
-
-                if($deUniversity -> centerForQualityAssurance -> currentQualityAssuranceDirector -> id === $user -> id){
+                $cqaUni = $user -> universitySide -> qualityAssuranceStaff -> centerForQualityAssuranceDirector -> centerForQualityAssurance -> university;
+                if($cqaUni -> id === $deUniversity -> id){
                     return Response::allow();
                 }
                 else{
@@ -98,8 +104,8 @@ class DeskEvaluationPolicy
         if($currRole === 'programme_coordinator'){
 
             $dePgp = $deskEvaluation -> postGraduateProgramReview -> postGraduateProgram;
-
-            if($dePgp -> currentProgrammeCoordinator -> id === $user -> id){
+            $coordinatorPgp = $user -> universitySide -> academicStaff -> programmeCoordinator -> postGraduateProgram;
+            if($dePgp -> id === $coordinatorPgp -> id){
                 return Response::allow();
             }
             else{
@@ -174,5 +180,107 @@ class DeskEvaluationPolicy
     public function forceDelete(User $user, DeskEvaluation $deskEvaluation): bool
     {
         //
+    }
+
+    public function viewStandardWiseDetailsOfEachCriteriaInDE(User $user, ShowStandardWiseDetailsOfEachCriteriaRequest $request) : Response {
+        $currRole = request()->session()->get('authRole');
+
+        return $this -> viewAuthorization($user, $request -> desk_evaluation_id, $currRole);
+    }
+
+    public function getDeskEvaluationRemarkAndScoreForStandard(User $user, ShowDeskEvaluationRemarksRequest $request): Response {
+        $currRole = request()->session()->get('authRole');
+
+        return $this -> viewAuthorization($user, $request -> desk_evaluation_id, $currRole);
+    }
+
+    private function viewAuthorization(User $user, $deId, $currRole) : Response {
+        $deskEvaluation = DeskEvaluation::findOrFail($deId);
+
+        if($currRole == 'reviewer'){
+            //check if the reviewer is assigned to the desk evaluation
+
+            $reviewTeam = $deskEvaluation -> postGraduateProgramReview -> acceptedReviewTeam;
+
+            $reviewTeamReviewers = $reviewTeam -> reviewers;
+
+            foreach ($reviewTeamReviewers as $reviewer) {
+                if ($reviewer -> reviewer_id == $user -> id) {
+                    return Response::allow();
+                }
+            }
+
+            return Response::deny('You are not assigned to this desk evaluation');
+        }
+        else if($currRole == 'qac_director' || $currRole == 'qac_officer'){
+            //can view any De
+            return Response::allow();
+        }
+        else if($currRole == 'vice_chancellor' || $currRole == 'cqa_director'){
+            //can only view de's of their university
+
+            $deUniversity = $deskEvaluation -> postGraduateProgramReview -> postGraduateProgram -> faculty -> university;
+
+            if($currRole == 'vice_chancellor'){
+                $vcUni = $user -> universitySide -> viceChancellor -> university;
+
+                if($vcUni -> id == $deUniversity -> id){
+                    return Response::allow();
+                }
+                else{
+                    return Response::deny('You are not authorized to view this desk evaluation');
+                }
+            }
+            else if($currRole == 'cqa_director'){
+                $cqaUni = $user -> universitySide -> qualityAssuranceStaff -> centerForQualityAssuranceDirector -> centerForQualityAssurance -> university;
+
+                if($cqaUni -> id === $deUniversity -> id){
+                    return Response::allow();
+                }
+                else{
+                    return Response::deny('You are not authorized to view this desk evaluation');
+                }
+            }
+        }
+        else if($currRole == 'iqau_director' || $currRole == 'dean'){
+            //can only view des of their faculty
+            $deFaculty = $deskEvaluation -> postGraduateProgramReview -> postGraduateProgram -> faculty;
+
+            if($currRole == 'iqau_director'){
+                $iqauFaculty = $user -> universitySide -> qualityAssuranceStaff -> internalQualityAssuranceUnitDirector -> internalQualityAssuranceUnit -> faculty;
+
+                if($iqauFaculty -> id == $deFaculty -> id){
+                    return Response::allow();
+                }
+                else{
+                    return Response::deny('You are not authorized to view this desk evaluation');
+                }
+            }
+            else if($currRole == 'dean'){
+                $deanFaculty = $user -> universitySide -> academicStaff -> dean -> faculty;
+
+                if($deanFaculty -> id == $deFaculty -> id){
+                    return Response::allow();
+                }
+                else{
+                    return Response::deny('You are not authorized to view this desk evaluation');
+                }
+            }
+        }
+        else if($currRole == 'programme_coordinator'){
+            //can only view des of pgps that they are assigned to
+            $dePgp = $deskEvaluation -> postGraduateProgramReview -> postGraduateProgram;
+
+            $pcPgp = $user -> universitySide -> academicStaff -> programmeCoordinator -> postGraduateProgram;
+
+            if($pcPgp -> id == $dePgp -> id){
+                return Response::allow();
+            }
+            else{
+                return Response::deny('You are not authorized to view this desk evaluation');
+            }
+        }
+
+        return Response::deny('You are not authorized to view this desk evaluation');
     }
 }

@@ -15,6 +15,7 @@ use App\Models\ProperEvaluation;
 use App\Models\ProperEvaluation1;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -116,6 +117,13 @@ class DeskEvaluationController extends Controller
             $deskEvaluation->save();
 
             return new DeskEvaluationResource($deskEvaluation);
+        }catch(AuthorizationException $e){
+            return response() -> json(
+                [
+                    'message' => $e -> getMessage()
+                ]
+            , 403);
+
         } catch (ModelNotFoundException $exception) {
             return response()->json(['message' => 'The desk evaluation id you mentioned could not be found please try again after making amends'], 422);
         } catch (Exception $exception) {
@@ -133,6 +141,8 @@ class DeskEvaluationController extends Controller
     public function viewStandardWiseDetailsOfEachCriteriaInDE(ShowStandardWiseDetailsOfEachCriteriaRequest $request): JsonResponse
     {
         try {
+            $this -> authorize('viewStandardWiseDetailsOfEachCriteriaInDE', $request);
+
             $validated = $request->validated();
             $data = DB::table('desk_evaluation_score')
                 ->join(
@@ -157,6 +167,15 @@ class DeskEvaluationController extends Controller
             return $data != null ?
                 response()->json(['message' => 'Success', 'data' => $data]) :
                 response()->json(['message' => 'No data under this criteria yet.', 'data' => $data]);
+
+        } catch (AuthorizationException $e){
+            return response() -> json(
+                [
+                    'message' => $e -> getMessage()
+                ]
+            , 403);
+
+
         } catch (Exception $exception) {
             return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
         }
@@ -172,6 +191,8 @@ class DeskEvaluationController extends Controller
     public function getDeskEvaluationRemarkAndScoreForStandard(ShowDeskEvaluationRemarksRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
+            $this -> authorize('getDeskEvaluationRemarkAndScoreForStandard', $request);
+
             $validated = $request->validated();
             $data = DB::table('desk_evaluation_score')->select([
                 'desk_evaluation_id as deskEvaluationId',
@@ -186,6 +207,13 @@ class DeskEvaluationController extends Controller
             return $data != null ?
                 response()->json(['message' => 'Successful', 'data' => $data]) :
                 response()->json(['message' => 'There were no records for this standard', 'data' => []]);
+        }
+        catch (AuthorizationException $e){
+            return response() -> json(
+                [
+                    'message' => $e -> getMessage()
+                ]
+            , 403);
         } catch (Exception $exception) {
             return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
         }
