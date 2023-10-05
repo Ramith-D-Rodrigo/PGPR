@@ -50,10 +50,9 @@ function EditPGPRApplication() {
         setErrorMsg(false);
         setSuccess(false);
 
-        const result = await getPGPRApplication(pgprApplicationID);
-
-        await result.then((res) => {
-        //   console.log("res : ",res);
+        try {
+          const res = await getPGPRApplication(pgprApplicationID);
+          //   console.log("res : ",res);
           setLoading(false);
           if(res.status == 200)
           {
@@ -68,12 +67,13 @@ function EditPGPRApplication() {
             setYearEnd(response.yEnd);
           }
           
-        }).catch((err) => {
+        }
+        catch(err) {
           console.log("err : ",err);
           console.log(err?.response?.data?.message);
           setLoading(false);
           setErrorMsg(err?.response?.data?.message);
-        });
+        };
       }
       handleGetPGPRApplication();
     }, []);

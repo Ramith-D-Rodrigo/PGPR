@@ -18,6 +18,11 @@ import {Link} from 'react-router-dom';
 import { Link as ExternalLink } from '@mui/material';
 import { useEffect, useState } from 'react';
 import axios from '../../api/api.js';
+import useAuth from "../../hooks/useAuth.js";
+import getCQADirectorUniversity from "../../api/CQADirector/getCQADirectorUniversity.js";
+import getUniversityFaculties from "../../api/University/getUniversityFaculties.js";
+import getViceChancellorUniversity from "../../api/ViceChancellor/getViceChancellorUniversity.js";
+import getAllFaculties from "../../api/Faculty/getAllFaculties.js";
 
 function Faculties() {
     useSetUserNavigations(
@@ -31,26 +36,72 @@ function Faculties() {
 
     const [faculties, setFaculties] = useState([]);
     const [loading, setLoading] = useState(false);
+
+    const {auth} = useAuth();
     
     useEffect(() => {
         document.title = "Faculties";
         
         async function getFaculties () {
             setLoading(true);
-            await axios.get("/sanctum/csrf-cookie");
-            await axios.get(SERVER_URL + SERVER_API_VERSION +'faculties/')
-            .then(res => {
-                console.log(res.data.data);
-                setFaculties(res?.data?.data);
-            })
-            .catch(err => {
-                console.log("error: ",err);
-            })
+
+            //this faculties page is generally for all users, but based on the role of the user, we have to show different data
+            //CQA Director can see all faculties of his university
+            //Vice Chancellor can see all faculties of his university
+            //QAC Director and QAC Officer can view all faculties of the system
+
+            //others cannot view page
+
+            const userRole = auth?.authRole[0];
+
+            try{
+                if(userRole === 'cqa_director'){
+                    //first get the university of the cqa director
+                    const cqaUniResponse = await getCQADirectorUniversity(auth?.id);
+                    if(cqaUniResponse?.status === 200){
+    
+                        //then get the faculties of that university
+                        const cqaUniId = cqaUniResponse?.data?.data?.id;
+    
+                        const cqaUniFacultiesResponse = await getUniversityFaculties(cqaUniId);
+    
+                        if(cqaUniFacultiesResponse?.status === 200){
+                            setFaculties(cqaUniFacultiesResponse?.data?.data);
+                        }
+                    }
+                }
+                else if(userRole === 'vice_chancellor'){
+                    //first get the university of the vice chancellor
+                    const vcUniResponse = await getViceChancellorUniversity(auth?.id);
+                    if(vcUniResponse?.status === 200){
+    
+                        //then get the faculties of that university
+                        const vcUniId = vcUniResponse?.data?.data?.id;
+    
+                        const vcUniFacultiesResponse = await getUniversityFaculties(vcUniId);
+    
+                        if(vcUniFacultiesResponse?.status === 200){
+                            setFaculties(vcUniFacultiesResponse?.data?.data);
+                        }
+                    }
+                }
+                else if(userRole === 'qac_director' || userRole === 'qac_officer'){
+                    //get all faculties of the system
+                    const facultyResponse = await getAllFaculties();
+                    if(facultyResponse?.status === 200){
+                        setFaculties(facultyResponse?.data?.data);
+                    }
+                }
+            }
+            catch(error){
+                console.log(error);
+            }
+            
             setLoading(false);
         }
     
         getFaculties();
-    }, []);
+    }, [auth]);
 
     const rows = faculties.map((faculty) => {
         return {
@@ -78,9 +129,11 @@ function Faculties() {
             <Box sx={{
                 display:'flex',alignItems:'center',justifyContent:'flex-end',
             }}>
-                <Link to="add">
-                    <Button variant="contained" style={{margin:"2rem 0 0",boxShadow:'2px 3px 8px 1px #888888'}}>Add Faculty</Button>
-                </Link>
+                {auth?.authRole[0] === 'cqa_director' &&
+                    <Link to="add">
+                        <Button variant="contained" style={{margin:"2rem 0 0",boxShadow:'2px 3px 8px 1px #888888'}}>Add Faculty</Button>
+                    </Link>
+                }
             </Box>
             
             <TableContainer style={{margin:"1rem 0"}} component={Paper} >

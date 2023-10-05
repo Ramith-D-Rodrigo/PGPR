@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Str;
 
-class InternalQualityAssuranceUnitDirectorResource extends JsonResource
+class FinalReportResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,19 +16,18 @@ class InternalQualityAssuranceUnitDirectorResource extends JsonResource
     public function toArray(Request $request): array
     {
         $returnArr = [];
-        $objProps = $this -> getAttributes();
 
-        foreach($objProps as $key => $value){
+        $objProps = $this->getAttributes();
+
+        //convert snake case to camel case
+        foreach ($objProps as $key => $value) {
             //ignore following keys from the response
-            if(in_array($key, ['created_at', 'updated_at'])){
+            if (in_array($key, ['created_at', 'updated_at'])) {
                 continue;
             }
-            //convert the following keys to camel case
+
             $returnArr[Str::camel($key)] = $value;
         }
-
-        //related data
-        $returnArr['qualityAssuranceStaff'] = new QualityAssuranceStaffResource($this -> whenLoaded('qualityAssuranceStaff'));
 
         return $returnArr;
     }

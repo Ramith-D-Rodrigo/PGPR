@@ -81,6 +81,7 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
       {route:"Universities",link: "/qac_director/universities"},
       {route:"CQA Offices",link: "/qac_director/cqa_offices"},
       {route:"Reviewers",link: "/qac_director/reviewers"},
+      {route:"Post Graduate Program Review Applications" ,link: "/qac_director/PGPRApplications"},
     ]
 
     const qacOfficerRoutes = [
@@ -105,13 +106,16 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
 
     const deanDirectorRoutes = [
       {route:"DashBoard",link: "/dean/dashboard"},
-      {route:"Submit Consent" ,link: "/dean/SubmitConsent"},
-      {route:"PGPR Applications" ,link: "/dean/PGPRApplications"},
+      {route:"Postgraduate Programmes" ,link: "/dean/postgraduateProgrammes"},
+      {route:"Postgraduate Programme Review Applications" ,link: "/dean/PGPRApplications"},
+      {route:"Postgraduate Programme Reviews" ,link: "/dean/PGPRs"},
     ]
 
     const iqauDirectorRoutes = [
-      {route:"DashBoard",link: "/iqau_director/dashboard"},
-    ]
+      { route: "DashBoard", link: "/iqau_director/dashboard" },
+      { route: "PG Programs", link: "/iqau_director/pgPrograms" },
+      { route: "Postgraduate Programme Reviews", link: "/iqau_director/pgprs"}
+    ];
 
     const programmeCoordinatorRoutes = [
       {route:"Dashboard",link: "/programme_coordinator/dashboard"},
@@ -120,9 +124,10 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
     ]
 
     const viceChancellorRoutes = [
-      {route:"DashBoard",link: "/vice_chancellor/dashboard"},
-      {route:"SelfEvaluationReport",link: "/vice_chancellor/SelfEvaluationReport"},
-      {route:"PGProgrammes",link: "/vice_chancellor/ViewPGProgrammesInUniversities"},
+      {route:"Dashboard",link: "/vice_chancellor/dashboard"},
+      {route:"Postgraduate Programmes",link: "/vice_chancellor/postgraduateProgrammes"},
+      {route:"Faculties",link: "/vice_chancellor/faculties"},
+      {route:"Postgraduate Programme Reviews",link: "/vice_chancellor/pgprs"},
     ]
 
     //set user routes based on user role

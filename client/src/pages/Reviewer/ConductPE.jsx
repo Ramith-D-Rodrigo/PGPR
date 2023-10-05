@@ -12,6 +12,8 @@ import {
   Typography,
   Box,
 } from "@mui/material";
+
+import DiscriptiveDiv from "../../components/DiscriptiveDiv";
 import useSetUserNavigations from "../../hooks/useSetUserNavigations";
 import DiscriptiveDiv from "../../components/DiscriptiveDiv";
 import Dialog from '@mui/material/Dialog';

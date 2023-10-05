@@ -39,15 +39,20 @@ class EvidencePolicy
         if(!in_array($currRole, ['programme_coordinator','iqau_director'])){
             return Response::deny('You are not allowed to create evidence');
         }
-
         //get the ser id from the request
         $SERid = $request -> self_evaluation_report_id;
 
         //find the faculty from the ser id
-        $faculty = SelfEvaluationReport::findOrFail($SERid)
-                                            -> postGraduateProgramReview
-                                            -> postGraduateProgram
-                                            -> faculty;
+        $SER = SelfEvaluationReport::findOrFail($SERid);
+
+        //can only create evidence at the planning stage
+        if($SER -> postGraduateProgramReview -> status_of_pgpr !== 'PLANNING'){
+            return Response::deny('You are not allowed to create evidence at this stage');
+        }
+
+
+
+        $faculty = $SER -> postGraduateProgramReview -> postGraduateProgram -> faculty;
 
         switch($currRole){
             case 'programme_coordinator':
@@ -84,9 +89,55 @@ class EvidencePolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Evidence $evidence): bool
+    public function update(User $user, Evidence $evidence): Response
     {
-        //
+        //only programme coordinator and internal quality assurance officer can update evidence
+        //only need to check whether these roles belong to the particular post graduate program review
+
+        $currRole = request() -> session() -> get('authRole');
+
+        if(!in_array($currRole, ['programme_coordinator','iqau_director'])){
+            return Response::deny('You are not allowed to update evidence');
+        }
+
+        //can only update evidence at the planning stage
+        if($evidence -> selfEvaluationReport[0] -> postGraduateProgramReview -> status_of_pgpr !== 'PLANNING'){
+            return Response::deny('You are not allowed to update evidence at this stage');
+        }
+
+        //find the faculty from the evidence
+        $faculty = $evidence -> selfEvaluationReport[0] -> postGraduateProgramReview -> postGraduateProgram -> faculty;
+
+        switch($currRole){
+            case 'programme_coordinator':
+
+                $coordinatorFaculty = $user
+                                        -> universitySide -> academicStaff
+                                        -> programmeCoordinator -> postGraduateProgram
+                                        -> faculty;
+
+                if($coordinatorFaculty -> id != $faculty -> id){
+                    return Response::deny('You are not allowed to update evidence');
+                }
+
+                break;
+
+            case 'iqau_director':
+
+                $iqauFaculty = $user
+                                    -> universitySide -> qualityAssuranceStaff
+                                    -> internalQualityAssuranceUnitDirector
+                                    -> internalQualityAssuranceUnit
+                                    -> faculty;
+
+                if($iqauFaculty -> id != $faculty -> id){
+                    return Response::deny('You are not allowed to update evidence');
+                }
+
+                break;
+        }
+
+        return Response::allow();
     }
 
     /**
@@ -119,6 +170,11 @@ class EvidencePolicy
             return Response::deny('You are not allowed to delete evidence');
         }
 
+        //can only delete evidence at the planning stage
+        if($evidence -> selfEvaluationReport[0] -> postGraduateProgramReview -> status_of_pgpr !== 'PLANNING'){
+            return Response::deny('You are not allowed to delete evidence at this stage');
+        }
+
         //find the faculty from the evidence
         $faculty = $evidence
                         -> selfEvaluationReport[0] //only one should be there
@@ -135,7 +191,7 @@ class EvidencePolicy
                                         -> faculty;
 
                 if($coordinatorFaculty -> id != $faculty -> id){
-                    return Response::deny('You are not allowed to create evidence');
+                    return Response::deny('You are not allowed to delete evidence');
                 }
 
                 break;
@@ -149,7 +205,7 @@ class EvidencePolicy
                                     -> faculty;
 
                 if($iqauFaculty -> id != $faculty -> id){
-                    return Response::deny('You are not allowed to create evidence');
+                    return Response::deny('You are not allowed to delete evidence');
                 }
 
                 break;
