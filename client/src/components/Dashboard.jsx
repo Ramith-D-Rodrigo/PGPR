@@ -38,7 +38,7 @@ const Dashboard = ({contents}) => {
                     <>
                       <Grid item>
                           <Card 
-                          title={'Requested Applications'}
+                          title={'PG Programs Added'}
                           content={'2023 Mar 30 - 2023 Jult 30'}
                           message={'Ends in 4 Days'}
                       />
@@ -46,7 +46,7 @@ const Dashboard = ({contents}) => {
 
                       <Grid item>
                           <Card 
-                          title={'Requested Applications'}
+                          title={'Number of Accounts Added'}
                           content={'2023 Mar 30 - 2023 Jult 30'}
                           message={'Ends in 4 Days'}
                       />
