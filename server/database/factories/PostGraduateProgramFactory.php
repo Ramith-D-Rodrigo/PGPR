@@ -19,7 +19,7 @@ class PostGraduateProgramFactory extends Factory
         return [
             //
             'title' => fake()->randomElement(['MSc', 'MPhil', 'PhD']),
-            'slqf_level' => fake()->numberBetween(6, 12),
+            'slqf_level' => fake()->numberBetween(7, 12),
             'commencement_year' => fake()->year(),
         ];
     }

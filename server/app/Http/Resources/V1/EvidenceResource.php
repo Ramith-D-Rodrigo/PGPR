@@ -34,6 +34,21 @@ class EvidenceResource extends JsonResource
             $newArr[Str::camel($key)] = $value;
         }
 
+        $pgprStatus = $this -> selfEvaluationReport[0] -> postGraduateProgramReview -> status_of_pgpr;
+
+        if($pgprStatus == 'PLANNING'){
+            //send the editing link url, not the storedUrl
+            if(isset($newArr['storedUrl'])){
+                unset($newArr['storedUrl']);
+            }
+        }
+        else{
+            if(isset($newArr['storedUrl'])){
+                $newArr['url'] = $newArr['storedUrl'];
+                unset($newArr['storedUrl']);
+            }
+        }
+
         return $newArr;
     }
 }

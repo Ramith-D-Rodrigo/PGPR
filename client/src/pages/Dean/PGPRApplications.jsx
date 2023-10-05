@@ -82,17 +82,17 @@ function PGPRApplications() {
     const handleClickSubmitPGPRApplication = async(pgprApplicationID) => {
         setOpen(false);
         setLoading(true);
-        await axios.get("/sanctum/csrf-cookie");
-        const handleSubmit = await submitPGPRApplication(pgprApplicationID);
        
-        handleSubmit.then(res => {
+        try{
+            await axios.get("/sanctum/csrf-cookie");
+            const res = await submitPGPRApplication(pgprApplicationID);
             console.log(res.data.data);
             setSuccess(true);
             handleGetPGPRApplications();
             // setMessage("PGPR Application submitted successfully.");
             //should false after message is shown
-        })
-        .catch(err => {
+        }
+        catch(err){
             console.log("error: ",err);
             setSuccess(false);
             if(err?.response?.status == 400)
@@ -103,7 +103,7 @@ function PGPRApplications() {
             else{
                 setMessage("Error in submitting PGPR Application, please try again later.");
             }
-        })
+        };
         setLoading(false);
         
     }

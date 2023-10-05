@@ -71,7 +71,7 @@ class SelfEvaluationReportController extends Controller
         $selfEvaluationReport->load([
             //call the whenLoaded method to load the relations only if they are loaded
             //load the following relations to get the needed details
-            'postGraduateProgramReview:id,post_graduate_program_id,pgpr_application_id' => [
+            'postGraduateProgramReview:id,post_graduate_program_id,pgpr_application_id,status_of_pgpr' => [
                 'postGraduateProgram:id,title,slqf_level,faculty_id,programme_coordinator_id,is_professional_pg_programme' => [
                     'faculty:id,name,university_id' => [
                         'university:id,name',
@@ -264,6 +264,29 @@ class SelfEvaluationReportController extends Controller
             $finalSERFileName = $selfEvaluationReport->id . '_finalSER.' . $finalSER->getClientOriginalExtension();
             Storage::put('public/ser/finalSER/' . $finalSERFileName, $finalSER->getContent());
 
+            //remove the current files if they are stored
+
+            if($selfEvaluationReport -> section_a && Storage::exists(public_path($selfEvaluationReport -> section_a))){
+                Storage::delete(Storage::url($selfEvaluationReport -> section_a));
+            }
+
+            if($selfEvaluationReport -> section_b && Storage::exists(public_path($selfEvaluationReport -> section_b))){
+                Storage::delete(Storage::url($selfEvaluationReport -> section_b));
+            }
+
+            if($selfEvaluationReport -> sectioN_d && Storage::exists(public_path($selfEvaluationReport -> section_d))){
+                Storage::delete(Storage::url($selfEvaluationReport -> section_d));
+            }
+
+            if($selfEvaluationReport -> final_ser_report && Storage::exists(public_path($selfEvaluationReport -> final_ser_report))){
+                Storage::delete(Storage::url($selfEvaluationReport -> final_ser_report));
+            }
+
+            if($selfEvaluationReport -> postGraduateProgramReview -> payment_voucher && Storage::exists(public_path($selfEvaluationReport -> postGraduateProgramReview -> payment_voucher))){
+                Storage::delete(Storage::url($selfEvaluationReport -> postGraduateProgramReview -> payment_voucher));
+            }
+
+
             //get the paths
             $validatedData['section_a'] = Storage::url('public/ser/sectionA/' . $sectionAFileName);
             $validatedData['section_b'] = Storage::url('public/ser/sectionB/' . $sectionBFileName);
@@ -325,7 +348,7 @@ class SelfEvaluationReportController extends Controller
         }
     }
 
-    public function recommendSelfEvaluationReport(Request $request, SelfEvaluationReport $selfEvaluationReport){
+    public function recommendSelfEvaluationReport(SelfEvaluationReport $selfEvaluationReport){
         try{
             //authorize the request
             $this -> authorize('recommendSelfEvaluationReportAuthorize', $selfEvaluationReport);
@@ -353,25 +376,20 @@ class SelfEvaluationReportController extends Controller
             }
 
             //get the requesting user role
-            $userRole = $request->session()->get('authRole');
-            //role should be either iqau_director, cqa_director or vice_chancellor
+            $userRole = request()->session()->get('authRole');
+
+            //role should be either cqa_director or vice_chancellor
             DB::beginTransaction();
-            if ($userRole === 'iqau_director') {
-                //we have to update iqau_dir_id in self evaluation report
-                $selfEvaluationReport->update([
-                    'iqau_dir_id' => $request->user()->id,
-                    'updated_at' => now(),
-                ]);
-            } else if ($userRole === 'cqa_director') {
+            if ($userRole === 'cqa_director') {
                 //we have to update center_for_quality_assurance_director_id in self evaluation report
                 $selfEvaluationReport->update([
-                    'center_for_quality_assurance_director_id' => $request->user()->id,
+                    'center_for_quality_assurance_director_id' => request()->user()->id,
                     'updated_at' => now(),
                 ]);
             } else if ($userRole === 'vice_chancellor') {
                 //we have to update vice_chancellor_id in self evaluation report
                 $selfEvaluationReport->update([
-                    'vice_chancellor_id' => $request->user()->id,
+                    'vice_chancellor_id' => request()->user()->id,
                     'updated_at' => now(),
                 ]);
             } else {
@@ -381,7 +399,7 @@ class SelfEvaluationReportController extends Controller
             }
 
             //check whether all the three roles have recommended the self evaluation report
-            if ($selfEvaluationReport->iqau_dir_id !== null && $selfEvaluationReport->center_for_quality_assurance_director_id !== null && $selfEvaluationReport->vice_chancellor_id !== null) {
+            if ($selfEvaluationReport->center_for_quality_assurance_director_id !== null && $selfEvaluationReport->vice_chancellor_id !== null) {
                 //update the status of the postgraduate programme review
                 $selfEvaluationReport->postGraduateProgramReview->update([
                     'status_of_pgpr' => 'SUBMITTED',
@@ -449,7 +467,9 @@ class SelfEvaluationReportController extends Controller
             DB::rollBack();
             return response()->json([
                 'message' => 'Error occurred while recommending the self evaluation report',
-                'error' => $e -> getMessage()
+                'error' => $e -> getTrace(),
+                'errorMessage' => $e -> getMessage(),
+                'errorLine' => $e -> getLine(),
             ], 500);
         }
     }

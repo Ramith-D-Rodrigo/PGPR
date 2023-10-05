@@ -2,7 +2,7 @@
 
 namespace App\Policies;
 
-use App\Http\Requests\V1\StoreFacultyRequest;
+use App\Http\Requests\V1\StorePostGraduateProgramRequest;
 use App\Models\Faculty;
 use App\Models\PostGraduateProgram;
 use App\Models\User;
@@ -29,7 +29,7 @@ class PostGraduateProgramPolicy
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user, StoreFacultyRequest $request): Response
+    public function create(User $user, StorePostGraduateProgramRequest $request): Response
     {
         //only cqa director of a univeristy can create
 
@@ -153,7 +153,7 @@ class PostGraduateProgramPolicy
                                 -> qualityAssuranceStaff -> centerForQualityAssuranceDirector
                                 -> centerForQualityAssurance -> university -> id;
 
-                if($cqaUniId !== $postGraduateProgram -> university -> id){
+                if($cqaUniId !== $postGraduateProgram -> faculty -> university -> id){
                     return Response::deny('You can only view reviews of the postgraduate programme of your university');
                 }
                 break;

@@ -61,7 +61,7 @@ class DatabaseSeeder extends Seeder
             ->for(
                 AcademicStaff::factory()->for(
                     UniversitySide::factory()->for(
-                        User::factory()->reviewer()->create()
+                        User::factory()->reviewer_1()->create()
                     )->for($university)->create()
                 )->create()
             )->create();
@@ -70,7 +70,7 @@ class DatabaseSeeder extends Seeder
         ->for(
             AcademicStaff::factory()->for(
                 UniversitySide::factory()->for(
-                    User::factory()->reviewer()->create()
+                    User::factory()->reviewer_2()->create()
                 )->for($university)->create()
             )->create()
         )->create();
@@ -79,7 +79,7 @@ class DatabaseSeeder extends Seeder
         ->for(
             AcademicStaff::factory()->for(
                 UniversitySide::factory()->for(
-                    User::factory()->reviewer()->create()
+                    User::factory()->reviewer_3()->create()
                 )->for($university)->create()
             )->create()
         )->create();
@@ -122,6 +122,8 @@ class DatabaseSeeder extends Seeder
         $university -> centerForQualityAssurance -> save();
 
         $iqauDir -> iqau_id = $faculty->internalQualityAssuranceUnit->id;
+        $faculty->internalQualityAssuranceUnit->iqau_dir_id = $iqauDir->id;
+        $faculty->internalQualityAssuranceUnit->save();
         $iqauDir->save();
 
 
@@ -138,6 +140,8 @@ class DatabaseSeeder extends Seeder
 
         //filling the gaps for university
         $university->vice_chancellor_id = $viceChancellor->id;
+        $viceChancellor->university_id = $university->id;
+        $viceChancellor->save();
         $university->save();
 
         //filling the gaps for faculty
@@ -169,7 +173,8 @@ class DatabaseSeeder extends Seeder
 
         //create self evaluation report for pgpr
         $pgpr->selfEvaluationReport()->create([
-            'pgp_coordinator_id' => $program_coordinator->id]);
+            'pgp_coordinator_id' => $program_coordinator->id,
+            'iqau_dir_id' => $iqauDir->id]);
 
         // filling the gaps for review team
         $review_team->pgpr_id = $pgpr->id;
