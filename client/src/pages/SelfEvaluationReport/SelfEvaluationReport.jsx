@@ -87,12 +87,12 @@ const SelfEvaluationReport = () => {
             link: "/dashboard",
         },
         {
-            name: "PG Programs",
-            link: "/pgPrograms",
+            name: "Postgraduate Programme Reviews",
+            link: "/pgprs",
         },
         {
-            name: "View SER",
-            link: "/ser",
+            name: "Self Evaluation Report",
+            link: window.location.pathname,
         },
     ]);
 
