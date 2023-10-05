@@ -96,12 +96,13 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
 
     const cqaDirectorRoutes = [
       {route:"Dashboard",link: "/cqa_director/dashboard"},
-      {route:"Add PG Program" ,link: "/cqa_director/AddPGProgramPage"},
-      {route:"Add Accounts" ,link: "/cqa_director/AddAccounts"},
-      {route:"Browse PGPR Applications" ,link: "/cqa_director/BrowsePGPR"},
-      {route:"View PG Programs" ,link: "/cqa_director/ViewPGPrograms"},
-      {route:"View Coordinators" ,link: "/cqa_director/ViewCoordinators"},
-      {route:"Faculties" ,link: "/cqa_director/faculties"},
+      {route:"Browse Postgraduate Programmes" ,link: "/cqa_director/ViewPGPrograms"},
+      {route:"Add a new Postgraduate Programme" ,link: "/cqa_director/AddPGProgramPage"},
+      {route:"Browse PGPR Applications" ,link: "/cqa_director/BrowsePGPRApplications"},
+      {route:"Browse Postgraduate Programme Reviews", link: "/cqa_director/pgprs"},
+      {route:"Browse Accounts" ,link: "/cqa_director/ViewCoordinators"},
+      {route:"Browse Faculties" ,link: "/cqa_director/faculties"},
+      {route:"Add Accounts For Dean, IQAU Director, Programme Coordinator" ,link: "/cqa_director/AddAccounts"},
     ]
 
     const deanDirectorRoutes = [

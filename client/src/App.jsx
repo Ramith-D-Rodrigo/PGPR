@@ -134,7 +134,8 @@ function App() {
                 </Route>
                 <Route path='PGPRs/'>
                   <Route path='' element={<PGPRs />} />
-                  <Route path=':pgprId/ser/:serId' element={<ViewPGPR />} />
+                  <Route path=':pgprId/ser/:serId' element={<SelfEvaluationReport />} />
+                  <Route path=':pgprId/ser/:serId/EditSer/:criteriaId' element={<EditingSelfEvaluationReport />} />
                   <Route path='view/:id' element={<ViewPGPR />} />
                 </Route>
               </Route>
@@ -160,7 +161,8 @@ function App() {
                 </Route>
                 <Route path='PGPRs/'>
                   <Route path='' element={<PGPRs />} />
-                  <Route path=':pgprId/ser/:serId' element={<ViewPGPR />} />
+                  <Route path=':pgprId/ser/:serId' element={<SelfEvaluationReport />} />
+                  <Route path=':pgprId/ser/:serId/EditSer/:criteriaId' element={<EditingSelfEvaluationReport />} />
                   <Route path='view/:id' element={<ViewPGPR />} />
                 </Route>
               </Route>
@@ -173,7 +175,15 @@ function App() {
                 <Route path="PGPRApplications" element={<PostGraduateProgramReviewApplications />} />
                 <Route path="AddPGProgramPage" element={<AddPGProgramPage />} />
                 <Route path="AddAccounts" element={<AddAccounts />} />
-                <Route path="BrowsePGPR" element={<BrowsePGPR />} />
+                <Route path="BrowsePGPRApplications" element={<BrowsePGPR />} />
+                <Route path="pgprs/">
+
+                  <Route path="" element={<PGPRs />} />
+                  <Route path=":pgprId/ser/:serId" element={<SelfEvaluationReport />} />
+                  <Route path=':pgprId/ser/:serId/EditSer/:criteriaId' element={<EditingSelfEvaluationReport />} />
+                  <Route path="view/:id" element={<ViewPGPR />} />
+                </Route>
+
                 <Route path="ViewPGPrograms/">
                   <Route path="" element={<ViewPGPrograms />} />
                   <Route
