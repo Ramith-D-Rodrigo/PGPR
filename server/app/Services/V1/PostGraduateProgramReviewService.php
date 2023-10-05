@@ -12,6 +12,9 @@ class PostGraduateProgramReviewService {
 
     public static function StoreEvidencesInSystemDrive(PostGraduateProgramReview $pgpr) {
         try{
+            //remove time limit
+            set_time_limit(0);
+
             //create drive manager object
             $driveManager = new DriveManager();
 
@@ -37,11 +40,11 @@ class PostGraduateProgramReviewService {
                 $storedUrl = "";
                 if($driveManager -> isFolder($url)){
                     //copy the folder
-                    $storedUrl = $driveManager -> copyFolder($url, $evidenceFolder -> id) -> getWebViewLink();
+                    $storedUrl = $driveManager -> copyFolder($driveManager -> getFolderId($url), $evidenceFolder -> id) -> getWebViewLink();
                 }
                 else{
                     //copy the file
-                    $storedUrl = $driveManager -> copyFile($url, $evidenceFolder -> id) -> getWebViewLink();
+                    $storedUrl = $driveManager -> copyFile($driveManager -> getFileId($url), $evidenceFolder -> id) -> getWebViewLink();
                 }
 
                 //update the stored id of the evidence

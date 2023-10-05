@@ -163,7 +163,7 @@ const SelfEvaluationReport = () => {
                         Not all the standards are submitted!
                     </Typography>
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                        <Typography>
+                        <>
                             {
                                 warningType === 'submit' ?
                                     <>
@@ -184,7 +184,7 @@ const SelfEvaluationReport = () => {
                             <Button variant="contained" color="error" onClick={() => { setWarningOpen(false)}}>
                                 Cancel
                             </Button>
-                        </Typography>
+                        </>
                     </Typography>
                 </Box>
             </Modal>
@@ -247,7 +247,7 @@ const SelfEvaluationReport = () => {
 
     return (
         <>
-            <WarningMessage setWarningType={warningType}/>
+            <WarningMessage warningType={warningType}/>
             <Divider textAlign="left">
                 <Chip label="Postgraduate Programme Review" />
             </Divider>
@@ -448,13 +448,13 @@ const SelfEvaluationReport = () => {
                         onClick={handleReportRecommendation}
                         disabled={
                             (auth.authRole[0] === 'vice_chancellor' && ser?.viceChancellorId !== null) ||
-                            (auth.authRole[0] === 'cqa_director' && ser?.cqaDirectorId !== null)
+                            (auth.authRole[0] === 'cqa_director' && ser?.centerForQualityAssuranceDirectorId !== null)
                         }
                     >
                         <Typography variant="body1">
                             {
                                 (auth.authRole[0] === 'vice_chancellor' && ser?.viceChancellorId !== null) ||
-                                (auth.authRole[0] === 'cqa_director' && ser?.cqaDirectorId !== null) ?
+                                (auth.authRole[0] === 'cqa_director' && ser?.centerForQualityAssuranceDirectorId !== null) ?
                                     'Report already recommended'
                                 :
                                     'Recommend Report'
