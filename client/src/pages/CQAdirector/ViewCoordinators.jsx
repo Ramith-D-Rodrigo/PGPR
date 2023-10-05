@@ -37,6 +37,9 @@ import { SERVER_URL } from "../../assets/constants";
 import removeIQAUDirectorRole from "../../api/IQAUDirector/removeIQAUDirectorRole";
 import removeDeanRole from "../../api/Dean/removeDeanRole";
 import removeProgrammeCoordinatorRole from "../../api/ProgrammeCoordinator/removeProgrammeCoordinatorRole";
+import { useNavigate } from "react-router-dom";
+import { Box } from "@mui/system";
+import AddIcon from "@mui/icons-material/Add";
 
 const CustomTable = ({ tableData, openEditDialog }) => {
   return (
@@ -154,14 +157,14 @@ const Coordinators = () => {
           // Fetch the current dean for the current faculty
           let deanResponse = null;
           let deanData = null;
-          try{
+          try {
             deanResponse = await getCurrentDean(faculty.id, queryParams);
             deanData = deanResponse.data.data;
             deanData.faculty = faculty;
             deanData.role = "Dean";
           }
-          catch(error){
-            if(error.response.status == 404){
+          catch (error) {
+            if (error.response.status == 404) {
               //no dean for the current faculty
               //ignore the error
             }
@@ -177,7 +180,7 @@ const Coordinators = () => {
             iqauDirectorData.role = "IQAU Director";
 
           } catch (error) {
-            if(error.response.status == 404){
+            if (error.response.status == 404) {
               //no iqau director for the current faculty
               //ignore the error 
             }
@@ -206,10 +209,10 @@ const Coordinators = () => {
                 coordinatorData.role = "Programme Coordinator";
                 return coordinatorResponse.data.data;
               } catch (error) {
-                  if(error.response.status == 404){
-                    //there is no coordinator for the current postgraduate program
-                    return;
-                  }
+                if (error.response.status == 404) {
+                  //there is no coordinator for the current postgraduate program
+                  return;
+                }
               }
             }
           );
@@ -266,24 +269,24 @@ const Coordinators = () => {
   const handleAccountRemove = async () => {
     if (selectedCoordinatorForEdit) {
       // Update the tableData with the edited coordinator details
-      try{
+      try {
         let removeResponse = null;
-        if(selectedCoordinatorForEdit.role === 'IQAU Director'){
+        if (selectedCoordinatorForEdit.role === 'IQAU Director') {
           removeResponse = await removeIQAUDirectorRole(selectedCoordinatorForEdit.id);
         }
-        else if(selectedCoordinatorForEdit.role === 'Dean'){
+        else if (selectedCoordinatorForEdit.role === 'Dean') {
           removeResponse = await removeDeanRole(selectedCoordinatorForEdit.id);
         }
-        else if(selectedCoordinatorForEdit.role === 'Programme Coordinator'){
+        else if (selectedCoordinatorForEdit.role === 'Programme Coordinator') {
           removeResponse = await removeProgrammeCoordinatorRole(selectedCoordinatorForEdit.id);
         }
 
 
-        if(removeResponse && removeResponse.status === 200){
+        if (removeResponse && removeResponse.status === 200) {
           const updatedTableData = tableData.filter((coordinator) => coordinator.id !== selectedCoordinatorForEdit.id);
           setTableData(updatedTableData);
           handleCancelDialog();
-          
+
           //display success message using snackbar
           console.log("Person unassigned successfully");
           setSnackbarMessage("Person unassigned  successfully from the role of " + selectedCoordinatorForEdit.role);
@@ -294,7 +297,7 @@ const Coordinators = () => {
             setSnackbarOpen(false);
           }, 4000);
         }
-        else{
+        else {
           console.log("Error unassigning the person from the role of " + selectedCoordinatorForEdit.role);
           setSnackbarMessage("Error unassigning the person from the role of " + selectedCoordinatorForEdit.role);
           setSnackbarOpen(true);
@@ -305,7 +308,7 @@ const Coordinators = () => {
           }, 4000);
         }
       }
-      catch(error){
+      catch (error) {
         console.log("Error removing coordinator", error);
 
         setSnackbarMessage("Error unassigning the person from the role of " + selectedCoordinatorForEdit.role);
@@ -315,7 +318,7 @@ const Coordinators = () => {
         setTimeout(() => {
           setSnackbarOpen(false);
         }
-        , 4000);
+          , 4000);
       }
 
       handleCancelDialog();
@@ -369,11 +372,26 @@ const Coordinators = () => {
     console.log("Skipping next");
   };
 
+  const navigator = useNavigate();
+
   return (
     <>
       <Divider textAlign="left">
         <Chip label='Browse Accounts of Dean, IQAU Director and Programme Coordinators' />
       </Divider>
+
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '1rem' }}>
+        {auth.authRole[0] === 'cqa_director' && (
+          <Button variant="contained" startIcon={<AddIcon />}
+            onClick={
+              //go to add new pgp page
+              () => navigator('/cqa_director/AddAccounts')
+            }
+          >
+            Add a new Account
+          </Button>
+        )}
+      </Box>
 
       <Snackbar
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
