@@ -21,7 +21,6 @@ class AcademicStaffResource extends JsonResource
         //json properties
         $jsonProps = [
             'experienceInIndustry',
-            'googleScholarLink',
             'nominees',
             'department',
             'experienceWithResearchFunds',
@@ -39,7 +38,19 @@ class AcademicStaffResource extends JsonResource
             }
             else{
                 if(in_array(Str::camel($key), $jsonProps)){
-                    $returnArr[Str::camel($key)] = json_decode($value);
+                    //if the key is department, convert properties inside the department json to camel case
+                    if($key === 'department'){
+                        $value = json_decode($value, true);
+                        $departmentArr = [];
+                        $departmentArr['name'] = $value['name'] ?? null;
+                        $departmentArr['headName'] = $value['head_name'] ?? null;
+                        $departmentArr['headEmail'] = $value['head_email'] ?? null;
+                        $departmentArr['postalAddress'] = $value['postal_address'] ?? null;
+                        $returnArr[Str::camel($key)] = $departmentArr;
+                    }
+                    else{
+                        $returnArr[Str::camel($key)] = json_decode($value);
+                    }
                 }
                 else{
                     $returnArr[Str::camel($key)] = $value;
