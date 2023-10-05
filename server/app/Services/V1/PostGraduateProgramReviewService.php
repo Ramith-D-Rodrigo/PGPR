@@ -16,7 +16,7 @@ class PostGraduateProgramReviewService {
             set_time_limit(0);
 
             //create drive manager object
-            $driveManager = new DriveManager();
+           $driveManager = new DriveManager();
 
             //create a folder for the pgpr
             $pgprFolder = $driveManager -> createFolder("PGPR-".$pgpr -> id, env("GOOGLE_DRIVE_PGPR_PARENT_FOLDER_ID"));
@@ -69,9 +69,9 @@ class PostGraduateProgramReviewService {
             $cqaDirector = $pgpr -> postGraduateProgram -> faculty -> university -> centerForQualityAssurance -> currentQualityAssuranceDirector -> id;
             $iqauDirector = $pgpr -> postGraduateProgram -> faculty -> internalQualityAssuranceUnit -> internalQualityAssuranceUnitDirector -> id;
             $dean = $pgpr -> postGraduateProgram -> faculty -> currentDean -> id;
-            $reviewTeam = $pgpr -> acceptedReviewTeam -> reviewers() -> get(['reviewer_id']) -> toArray();
+            $reviewTeam = $pgpr -> acceptedReviewTeam -> reviewers() -> pluck('reviewer_id') -> toArray();
             //since qac directors are also qac officers, we can get them from the qac officers table
-            $qacOfficers = QualityAssuranceCouncilOfficer::all(['id']) -> toArray();
+            $qacOfficers = QualityAssuranceCouncilOfficer::all() -> pluck('id') -> toArray();
 
             //concat all the ids
             $ids = array();
@@ -81,14 +81,14 @@ class PostGraduateProgramReviewService {
             array_push($ids, $iqauDirector);
             array_push($ids, $dean);
 
-            array_merge($ids, $reviewTeam);
-            array_merge($ids, $qacOfficers);
-
-            //first remove all the permissions of the pgpr folder
-            $driveManager -> removePermissionIdWise($pgprFolder -> getId(), 'anyoneWithLink');
+            array_push($ids, ...$reviewTeam);
+            array_push($ids, ...$qacOfficers);
 
             //get official emails
             $officialEmails = User::whereIn('id', $ids) -> get(['official_email']) -> toArray();
+
+            //first remove all the permissions of the pgpr folder
+            $driveManager -> removePermissionIdWise($pgprFolder -> getId(), 'anyoneWithLink');
 
             //set the permission of the pgpr folder
             foreach($officialEmails as $email){
