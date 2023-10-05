@@ -85,16 +85,19 @@ const CustomTable = ({
                     >
                       View Details
                     </Button>
-                    <Button
-                      style={{ margin: "0 8px" }}
-                      variant="contained"
-                      color="primary"
-                      size="small"
-                      onClick={() => handleRecommendClick(row, index)} // Pass the index
-                      disabled={isRecommendButtonDisabledArray[index]} // Use the array value
-                    >
-                      Recommend
-                    </Button>
+                    {
+                      row.status === "submitted" && 
+                        <Button
+                        style={{ margin: "0 8px" }}
+                        variant="contained"
+                        color="primary"
+                        size="small"
+                        onClick={() => handleRecommendClick(row, index)} // Pass the index
+                        disabled={isRecommendButtonDisabledArray[index]} // Use the array value
+                      >
+                        Recommend
+                      </Button>
+                    }
                     {recommendationMessage === "Recommended" && (
                       <div
                         style={{
