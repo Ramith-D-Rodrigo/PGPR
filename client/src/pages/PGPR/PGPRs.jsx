@@ -14,6 +14,7 @@ import getIQAUDirectorFaculty from '../../api/IQAUDirector/getIQAUDirectorFacult
 import getCQADirectorUniversity from '../../api/CQADirector/getCQADirectorUniversity';
 import getViceChancellorUniversity from '../../api/ViceChancellor/getViceChancellorUniversity';
 import getUniversityPostGraduatePrograms from '../../api/University/getUniversityPostGraduatePrograms';
+import getPostGraduateProgramFaculty from '../../api/PostGraduateProgram/getPostGraduateProgramFaculty';
 import getAllPGPRs from '../../api/PostGraduateProgramReview/getAllPGPRs';
 import { styled } from '@mui/system';
 import Divider from '@mui/material/Divider';
@@ -31,14 +32,14 @@ const PGPRs = () => {
 
   useSetUserNavigations([
     {
-        name: "Dashboard",
-        link: "/dashboard",
+      name: "Dashboard",
+      link: "/dashboard",
     },
     {
-        name: "Postgraduate Programme Reviews",
-        link: "/pgprs",
+      name: "Postgraduate Programme Reviews",
+      link: "/pgprs",
     },
-]);
+  ]);
 
   React.useEffect(() => {
     const getData = async () => {
@@ -340,7 +341,7 @@ const PGPRs = () => {
       </Divider>
 
       <ApplicationPopUp />
-      <TableContainer component={Paper} sx={{margin:'1rem 0'}}>
+      <TableContainer component={Paper} sx={{ margin: '1rem 0' }}>
         <CustomTable>
           <TableHead>
             <TableRow>
