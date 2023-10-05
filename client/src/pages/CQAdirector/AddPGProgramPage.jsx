@@ -14,6 +14,7 @@ import {
   TextField,
   MenuItem,
   Select,
+  Divider,
 } from "@mui/material";
 import useSetUserNavigations from "../../hooks/useSetUserNavigations";
 import useAuth from "../../hooks/useAuth";
@@ -22,15 +23,21 @@ import createPostGraduateProgram from "../../api/PostGraduateProgram/createPostG
 import getCQADirectorUniversity from "../../api/CQADirector/getCQADirectorUniversity";
 import getUniversityFaculties from "../../api/University/getUniversityFaculties";
 import SnackbarContainer from "../../components/SnackbarContainer";
+import Chip from "@mui/material/Chip";
+
 function AddPostGraduateProgram() {
   useSetUserNavigations([
     {
-      name: "Post Graduate Programs",
-      link: "/post-graduate-programs",
+      name: "Dashboard",
+      link: "/",
     },
     {
-      name: "Add Post Graduate Program",
-      link: "/post-graduate-programs/add",
+      name: "Postgraduate Programmes",
+      link: "/ViewPGPrograms",
+    },
+    {
+      name: "Add Postgraduate Programme",
+      link: "/AddPGProgramPage",
     },
   ]);
 
@@ -178,6 +185,10 @@ function AddPostGraduateProgram() {
 
   return (
     <>
+      <Divider textAlign="left" sx={{margin:'1rem 0'}}>
+        <Chip label="Add Postgraduate Programme"/>
+      </Divider>
+
       <Box
         sx={{
           display: "flex",

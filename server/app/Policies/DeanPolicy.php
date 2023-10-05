@@ -33,7 +33,7 @@ class DeanPolicy
     public function create(User $user, StoreDeanRequest $request): Response
     {
         //only cqa director can create dean
-        $currentRole = request() -> session() -> get('AuthRole');
+        $currentRole = request() -> session() -> get('authRole');
 
         if($currentRole != 'cqa director'){
             return Response::deny('You are not allowed to create a dean account');
@@ -90,9 +90,9 @@ class DeanPolicy
     public function removeRole(User $user, Dean $dean): Response
     {
         //only cqa director can remove the role of dean
-        $currentRole = request() -> session() -> get('AuthRole');
+        $currentRole = request() -> session() -> get('authRole');
 
-        if($currentRole != 'cqa director'){
+        if($currentRole != 'cqa_director'){
             return Response::deny('You are not allowed to remove the role of dean');
         }
 
