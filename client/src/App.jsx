@@ -25,7 +25,6 @@ import AddPGProgramPage from './pages/CQAdirector/AddPGProgramPage';
 import AddAccounts from './pages/CQAdirector/AddAccounts';
 import EditPGProgram from './pages/CQAdirector/BrowsePGPR';
 import ViewPGPrograms from "./pages/CQAdirector/ViewPGPrograms";
-import PGPrograms from "./pages/CQAdirector/PGPrograms";
 import ViewCoordinators from "./pages/CQAdirector/ViewCoordinators";
 import CoordinatorProfile from "./pages/CQAdirector/CoordinatorProfile";
 import Faculties from "./pages/Faculty/Faculties"
@@ -185,11 +184,7 @@ function App() {
                 </Route>
 
                 <Route path="ViewPGPrograms/">
-                  <Route path="" element={<ViewPGPrograms />} />
-                  <Route
-                    path="PGPrograms/:id"
-                    element={<PGPrograms />}
-                  />
+                  <Route path="" element={<PostGraduateProgrammes />} />
                 </Route>
 
                 <Route path="ViewCoordinators/">
