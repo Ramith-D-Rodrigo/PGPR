@@ -334,6 +334,7 @@ function App() {
                 </Route>
                 <Route path="pgprs/" element={<PGPRs />} />
                 <Route path="pgprs/:pgprId/ser/:serId" element={<SelfEvaluationReport />} />
+                <Route path="pgprs/:pgprId/ser/:serId/EditSer/:criteriaId" element={<EditingSelfEvaluationReport />} />
               </Route>
             </Route>
 
