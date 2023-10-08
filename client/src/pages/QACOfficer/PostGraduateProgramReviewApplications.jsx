@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import getAllPGPRApplications from '../../api/PostGraduateProgramApplication/getAllPGPRApplications';
-import {CircularProgress, Typography} from '@mui/material';
+import {Chip, CircularProgress, Divider, Typography} from '@mui/material';
 import Paper from '@mui/material/Paper';
 import { Link } from 'react-router-dom';
 import DialogMenu from '../../components/DialogMenu';
@@ -8,11 +8,24 @@ import { TableContainer, Table, TableHead, TableRow, TableCell, TableBody } from
 import { Button, ButtonGroup, Box, Alert, Snackbar } from '@mui/material';
 import { SERVER_URL } from '../../assets/constants.js';
 import approvePGPRApplicationByQAC from '../../api/PostGraduateProgramApplication/approvePGPRApplicationByQAC';
+import useSetUserNavigations from '../../hooks/useSetUserNavigations';
 
 const PostGraduateProgramReviewApplications = () => {
     const [pgprs, setPgprs] = useState([]);
     const [clickedApplicationId, setClickedApplicationId] = useState(null);
     const [openDialog, setOpenDialog] = useState([false, false, null]);   // [ submit , cancel, id ]
+
+    useSetUserNavigations(
+        [{
+          name: "Dashboard",
+          link: "/"
+        },
+        {
+          name: "Post Graduate Program Review Applications",
+          link: "/PGPRApplications"
+        },
+        ]
+      );
 
     const handleApprove = async () => {
         const pgprApplicationID = openDialog[2];
@@ -97,7 +110,9 @@ const PostGraduateProgramReviewApplications = () => {
 
     return (
         <>
-            <Typography variant="h5" align="center" sx={{marginBottom:"2rem"}}>Post Graduate Program Applications</Typography>
+            <Divider textAlign='left' sx={{mb:2}}>
+                <Chip label="Post Graduate Program Review Applications"/>
+            </Divider>
 
             <TableContainer component={Paper}>
                 <Table>

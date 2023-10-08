@@ -3,11 +3,12 @@ import getAcademicStaff from '../../api/AcademicStaff/getAcademicStaff';
 import getReviewerProfile from '../../api/Reviewer/getReviewerProfile';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Avatar, Divider, List, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
+import { Avatar, Chip, Divider, List, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import { SERVER_URL } from '../../assets/constants';
 import { Link } from 'react-router-dom';
 import { Button } from '@mui/material';
+import useSetUserNavigations from '../../hooks/useSetUserNavigations';
 
 
 const ReviewerProfile = () => {
@@ -15,6 +16,21 @@ const ReviewerProfile = () => {
     const [reviewer, setReviewer] = useState(null);
     const [academicProfile, setAcademicProfile] = useState(null);
     const [isLoaded, setIsLoaded] = useState(false);
+    useSetUserNavigations(
+        [{
+            name: "Dashboard",
+            link: "/"
+        },
+        {
+            name: "Reviewers",
+            link: "/reviewers"
+        },
+        {
+            name: "Reviewer Profile",
+            link: "/reviewers/profile/" + reviewerId
+        },
+        ]
+    );
 
     useEffect(() => {
         const handleGetReviewer = async () => {
@@ -48,7 +64,10 @@ const ReviewerProfile = () => {
     return (
         isLoaded &&
         <>
-            <Typography variant='h4' align='center'>Reviewer Profile</Typography>
+            <Divider textAlign='left'>
+                <Chip label="Reviewer Profile" />
+            </Divider>
+            
             <Box align='center'>
                 <Avatar src={SERVER_URL.slice(0, -1) + reviewer.userData.profilePic} />
             </Box>
@@ -158,7 +177,7 @@ const ReviewerProfile = () => {
             <Box sx={{ display: 'flex', justifyContent: 'space-around', width: '100%' }}>
                 <Typography variant='h6'>Google Scholar Link</Typography>
                 {academicProfile.cv ? (
-                    <Button component={Link} to={"/"+academicProfile.googleScholarLink} target='_blank' rel='noopener noreferrer'>
+                    <Button component={Link} to={"/" + academicProfile.googleScholarLink} target='_blank' rel='noopener noreferrer'>
                         View Google Scholar Profile
                     </Button>
                 ) :
