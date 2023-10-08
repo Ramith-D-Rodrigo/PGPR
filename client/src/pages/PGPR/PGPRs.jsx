@@ -406,7 +406,7 @@ const PGPRs = () => {
                 <TableCell>{pgpr.statusOfPgpr}</TableCell>
                 <TableCell>
                   <ButtonGroup>
-                    <Link to={`/${auth.authRole[0]}/pgprs/${pgpr?.id}/ser/${pgpr?.selfEvaluationReport?.id}`}>
+                    <Link to={`/${auth.authRole[0]}/pgprs/${pgpr?.id}`}>
                       <Button variant="contained" color="primary" size="small">View More</Button>
                     </Link>
                   </ButtonGroup>
