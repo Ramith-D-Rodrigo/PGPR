@@ -38,11 +38,15 @@ class EvidenceResource extends JsonResource
 
         if($pgprStatus == 'PLANNING'){
             //send the editing link url, not the storedUrl
-            unset($newArr['storedUrl']);
+            if(isset($newArr['storedUrl'])){
+                unset($newArr['storedUrl']);
+            }
         }
         else{
-            $newArr['url'] = $newArr['storedUrl'];
-            unset($newArr['storedUrl']);
+            if(isset($newArr['storedUrl'])){
+                $newArr['url'] = $newArr['storedUrl'];
+                unset($newArr['storedUrl']);
+            }
         }
 
         return $newArr;

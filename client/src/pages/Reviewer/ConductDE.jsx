@@ -12,6 +12,7 @@ import getSelfEvaluationReport from '../../api/SelfEvaluationReport/getSelfEvalu
 import createSERRows from '../../assets/reviewer/createSERRows';
 import useReviewerRole from '../../hooks/useReviewerRole';
 import getAssignedPGPR from '../../api/Reviewer/getAssignedPGPR';
+import getSpecificPGPR from '../../api/Reviewer/getSpecificPGPR';
 
 const ConductDE = () => {
     const {pgprId} = useParams();
@@ -19,6 +20,8 @@ const ConductDE = () => {
     const [SERDetails,setSERDetails] = useState([]);
     const [loading,SetLoading] = useState(false);
     const {reviewerRole, setReviewerRole} = useReviewerRole();
+    // const [SERId,setSERId] = useState([]);
+    const [pgprDetails,setPGPRDetails] = useState([]);
 
     useSetUserNavigations(
         [
@@ -35,36 +38,44 @@ const ConductDE = () => {
 
     useEffect(() => {
         document.title = "Conduct Desk Evaluation";
-        const getSERDetails = async () => {
-            SetLoading(true);
-            try {
-                const response = await getSelfEvaluationReport(pgprId);
-                console.log("SER Details : ",response?.data?.data);
-                setSERDetails(response?.data?.data);
-                SetLoading(false);
-            } catch (err) {
-                console.error(err);
-                SetLoading(false);
-            }
-        };
         const getPGPRDetails = async () => {
             SetLoading(true);
             try {
-                const response = await getAssignedPGPR(pgprId);
-                console.log("PGPR Details : ",response?.data?.data);
-                setReviewerRole(response?.data?.data?.reviewerRole);
+                const response1 = await getSpecificPGPR(pgprId);
+                console.log("PGPR Details : ",response1?.data);
+                setPGPRDetails(response1?.data);
+                setReviewerRole(response1?.data?.data?.role);
+                // setSERId(response1?.data?.data?.postGraduateReviewProgram?.selfEvaluationReport?.id);
+                const response2 = await getSelfEvaluationReport(response1?.data?.data?.postGraduateReviewProgram?.selfEvaluationReport?.id);
+                console.log("SER Details : ",response2?.data?.data);
+                setSERDetails(response2?.data?.data);
                 SetLoading(false);
             } catch (err) {
                 console.error(err);
                 SetLoading(false);
             }
         };
-        getSERDetails();
-        // getPGPRDetails();
+        getPGPRDetails();
     }, []);
 
     function createData(criteriaData,submitted_standards, y1,y2,y3,y4,y5) {
-        const Actions = [<Link key={1} to={`${criteriaData.id}`}><Button style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{"Evaluate"}</Button></Link>]
+        const DE = pgprDetails?.data?.postGraduateReviewProgram?.deskEvaluation;
+        let ButtonName;
+        let linkDisabled = false;
+        if (DE?.status == "COMPLETED"){
+            ButtonName = "View";
+        }
+        else if (DE?.status == "ONGOING"){
+            ButtonName = "Evaluate";
+        }
+        else{
+            ButtonName = "Error";
+            linkDisabled = true;
+        }
+        if(new Date(DE?.endDate) <= new Date()){
+            ButtonName = ButtonName=="Error" ? ButtonName : "View";
+        }
+        const Actions = [<Link key={1} to={ linkDisabled? '' :`${criteriaData.id}`}><Button disabled={linkDisabled} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{ButtonName}</Button></Link>]
         return {criteria:criteriaData.name, submitted_standards, y1,y2,y3,y4,y5, Actions };
     }
 
@@ -96,6 +107,7 @@ const ConductDE = () => {
     const facultyDetails = pgProgrammeDetails?.faculty;
     const universityDetails = facultyDetails?.university;
     const pgCoordinatorDetails = pgProgrammeDetails?.programmeCoordinator?.academicStaff?.universitySide?.user;
+    const DE = pgprDetails?.data?.postGraduateReviewProgram?.deskEvaluation;
     const headerInfo = [
         { label: "University:", value: universityDetails?.name?? "" },
         {
@@ -104,130 +116,117 @@ const ConductDE = () => {
         },
         { label: "PGPR ID:", value: `PGPR-${pgprId?? ""}` },
         { label: "PGPR Name:", value: pgProgrammeDetails?.title?? "" },
-        { label: "Application Start Date:", value: "12/12/2020" },
-        { label: "Submission Date:", value: "01/01/2021" },
+        { label: "Application Start Date:", value: DE?.startDate?? "", color: new Date(DE?.startDate) <= new Date()? "blue" : "red" },
+        { label: "Submission Date:", value: DE?.endDate?? "", color: new Date(DE?.endDate) <= new Date()? "red" : "blue" },
         { label: "Program Coordinator:", value: `${pgCoordinatorDetails?.initials?? ""} ${pgCoordinatorDetails?.surname?? ""}` },
       ];
 
       const Criterias = SERDetails?.criterias;
       const evidencesForGivenStandards = SERDetails?.evidenceGivenStandards;
 
-      console.log("Criterias : ",Criterias);
-        console.log("evidencesForGivenStandards : ",evidencesForGivenStandards);
+    //   console.log("Criterias : ",Criterias);
+    //     console.log("evidencesForGivenStandards : ",evidencesForGivenStandards);
   
       const rows = Criterias? createSERRows(SERDetails?.criterias,SERDetails?.evidenceGivenStandards,createData) : [];
 
-    //   const rows = [
-    //     createData("Programme Management",'X1/27', "x11","x12","x12", 'x12','x12', [{action:'Evaluate',allow:true}]),
-    //     createData("P. Design and Development",'X1/27', "x11","x12","x12", 'x12','x12', [{action:'Evaluate',allow:true}]),
-    //     createData("Human Physical Res. & LS",'X1/27', "x11","x12","x12", 'x12','x12', [{action:'Evaluate',allow:true}]),
-    //     createData("Teaching Learning Research",'X1/27', "x11","x12","x12", 'x12','x12', [{action:'Evaluate',allow:true}]),
-    //     createData("Programme Evaluation","X1/27", "x11","x12","x12", 'x12','x12', [{action:'Evaluate',allow:true}]),
-    //     createData("Student Assessment & Awards","X1/27", "x11","x12","x12", 'x12','x12', [{action:'Evaluate',allow:true}]),
-    //     createData("Innovative & Healthy Practices","X1/27", "x11","x12","x12", 'x12','x12', [{action:'Evaluate',allow:true}]),
-    //   ];
-
     return (
         <>
-            {/* <DiscriptiveDiv onClick={handleClick} expand={expand==8? 1:2} description="Reviewer" width='100%' height={`${expand}%`} backgroundColor="#D9D9D9" >
-                <Box sx={{ 
-                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' 
-                }}>
-                    <Box style={headerRowStyle}><div style={headerRowDivStyle}>University :</div><div style={headerRowDivStyle}>University of Colombo</div></Box>
-                    <Box style={headerRowStyle}><div style={headerRowDivStyle}>Faculty/Institute :</div><div style={headerRowDivStyle}>University of Colombo School of Computing</div></Box>
-                    <Box style={headerRowStyle}><div style={headerRowDivStyle}>PGPR ID :</div><div style={headerRowDivStyle}>{pgprId}</div></Box>
-                    <Box style={headerRowStyle}><div style={headerRowDivStyle}>PGPR Name :</div><div style={headerRowDivStyle}>MSc</div></Box>
-                    <Box style={headerRowStyle}><div style={headerRowDivStyle}>Application Start Date :</div><div style={headerRowDivStyle}>12/12/2020</div></Box>
-                    <Box style={headerRowStyle}><div style={headerRowDivStyle}>Submission Date :</div><div style={headerRowDivStyle}>01/01/2021</div></Box>
-                    <Box style={headerRowStyle}><div style={headerRowDivStyle}>Program Coordinator :</div><div style={headerRowDivStyle}>Mr. Smantha Karunanayake</div></Box>
-                </Box>
-            </DiscriptiveDiv> */}
-            <DiscriptiveDiv
-                description={`${reviewerRole?? ""}`}
-                width="100%"
-                height="auto"
-                backgroundColor="#D8E6FC"
-            >
-                <Grid container spacing={2}>
-                {headerInfo.map((infoItem, index) => (
-                    <Grid item xs={6} sm={3} key={index}>
-                    <Typography align='left' variant="subtitle1">
-                        <b>{infoItem.label}</b>
-                    </Typography>
-                    <Typography align='left'>{infoItem.value}</Typography>
-                    </Grid>
-                ))}
-                </Grid>
-            </DiscriptiveDiv>
-
-            <Divider style={{margin:"2rem 0 1rem"}} textAlign="center">Desk Evaluation</Divider>
-    
-            <TableContainer component={Paper} style={{height:"auto"}}>
-                <Table sx={{ height: 650 }} stickyHeader aria-label="sticky table">
-                    <TableHead>
-                        <TableRow>
-                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="left"><b>Criteria</b></TableCell>
-                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Submitted Standards</b></TableCell>
-                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b></b></TableCell>
-                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b></b></TableCell>
-                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Evidences</b></TableCell>
-                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b></b></TableCell>
-                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b></b></TableCell>
-                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Actions</b></TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="left"><b></b></TableCell>
-                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b></b></TableCell>
-                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Y1</b></TableCell>
-                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Y2</b></TableCell>
-                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Y3</b></TableCell>
-                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Y4</b></TableCell>
-                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Y5</b></TableCell>
-                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b></b></TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {
-                        loading?
-                            <div style={{position:'absolute',left:50,right:50,margin:"0 auto",display:"flex",justifyContent:"center",alignItems:"center"}}> 
-                                <Typography variant="h6" style={{ margin: "0 0 0 20px" }}>
-                                    Loading ...
-                                </Typography>
-                                <CircularProgress
-                                style={{ margin: "0 0 0 20px", color: "darkblue" }}
-                                thickness={5}
-                                size={24}
-                                />
-                            </div>
-                            :
-                        rows.map((row) => (
-                            <TableRow
-                            key={row.criteria}
-                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                            >
-                                <TableCell component="th" scope="row">
-                                    {row.criteria}
-                                </TableCell>
-                                <TableCell align="center">{row.submitted_standards}</TableCell>
-                                <TableCell align="center">{row.y1}</TableCell>
-                                <TableCell align="center">{row.y2}</TableCell>
-                                <TableCell align="center">{row.y3}</TableCell>
-                                <TableCell align="center">{row.y4}</TableCell>
-                                <TableCell align="center">{row.y5}</TableCell>
-                                <TableCell align="center">{row.Actions}</TableCell>
-                            </TableRow>
+            {
+                loading? <CircularProgress style={{position:'absolute',top:'50%',left:'50%'}}/>
+                :
+                <>
+                    <DiscriptiveDiv
+                        description={`${reviewerRole?? ""}`}
+                        width="100%"
+                        height="auto"
+                        backgroundColor="#D8E6FC"
+                    >
+                        <Grid container spacing={2}>
+                        {headerInfo.map((infoItem, index) => (
+                            <Grid item xs={6} sm={3} key={index}>
+                            <Typography align='left' variant="subtitle1">
+                                <b>{infoItem.label}</b>
+                            </Typography>
+                            <Typography color={infoItem?.color?? ""} align='left'>{infoItem.value}</Typography>
+                            </Grid>
                         ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
+                        </Grid>
+                    </DiscriptiveDiv>
 
-            <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', width: '100%', padding: '20px 0',height:"auto" }}>
-                    <Link to = {`../UpdateABC/${pgprId}`}><Button variant="contained" size="small" style={{width:"250px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>Update Part A, B, D</Button></Link>
-                    <Link to = {`../Standardwise_details/${pgprId}`}><Button variant="contained" size="small" style={{width:"250px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>View Standards Wise Details of Desk Review</Button></Link>
-                    <Link to = {`../Submit_DE/${pgprId}`}><Button variant="contained" size="small" style={{width:"250px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>Proceed to Submit The Desk Evaluation</Button></Link>
-                    {/* only for chair */}
-                    <Link to = {`../Finalize_DE/${pgprId}`}><Button variant="contained" size="small" style={{width:"250px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>Finalize The Desk Evaluation</Button></Link>
-            </Box>
+                    <Divider style={{margin:"2rem 0 1rem"}} textAlign="center">Desk Evaluation</Divider>
+            
+                    <TableContainer component={Paper} style={{height:"auto"}}>
+                        <Table sx={{ height: 650 }} stickyHeader aria-label="sticky table">
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell style={{backgroundColor:"#D8E6FC",}} align="left"><b>Criteria</b></TableCell>
+                                    <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Submitted Standards</b></TableCell>
+                                    <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b></b></TableCell>
+                                    <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b></b></TableCell>
+                                    <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Evidences</b></TableCell>
+                                    <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b></b></TableCell>
+                                    <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b></b></TableCell>
+                                    <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Actions</b></TableCell>
+                                </TableRow>
+                                <TableRow>
+                                    <TableCell style={{backgroundColor:"#D8E6FC",}} align="left"><b></b></TableCell>
+                                    <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b></b></TableCell>
+                                    <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Y1</b></TableCell>
+                                    <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Y2</b></TableCell>
+                                    <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Y3</b></TableCell>
+                                    <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Y4</b></TableCell>
+                                    <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Y5</b></TableCell>
+                                    <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b></b></TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {
+                                loading?
+                                    <TableRow>
+                                        <TableCell align="center">
+                                            <div style={{position:'absolute',left:50,right:50,margin:"0 auto",display:"flex",justifyContent:"center",alignItems:"center"}}> 
+                                                <Typography variant="h6" style={{ margin: "0 0 0 20px" }}>
+                                                    Loading ...
+                                                </Typography>
+                                                <CircularProgress
+                                                style={{ margin: "0 0 0 20px", color: "darkblue" }}
+                                                thickness={5}
+                                                size={24}
+                                                />
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                    :
+                                rows.map((row) => (
+                                    <TableRow
+                                    key={row.criteria}
+                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                    >
+                                        <TableCell component="th" scope="row">
+                                            {row.criteria}
+                                        </TableCell>
+                                        <TableCell align="center">{row.submitted_standards}</TableCell>
+                                        <TableCell align="center">{row.y1}</TableCell>
+                                        <TableCell align="center">{row.y2}</TableCell>
+                                        <TableCell align="center">{row.y3}</TableCell>
+                                        <TableCell align="center">{row.y4}</TableCell>
+                                        <TableCell align="center">{row.y5}</TableCell>
+                                        <TableCell align="center">{row.Actions}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+
+                    <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', width: '100%', padding: '20px 0',height:"auto" }}>
+                            <Link to = {`../UpdateABC/${pgprId}`}><Button variant="contained" size="small" style={{width:"250px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>Update Part A, B, D</Button></Link>
+                            <Link to = {`../Standardwise_details/${pgprId}`}><Button variant="contained" size="small" style={{width:"250px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>View Standards Wise Details of Desk Review</Button></Link>
+                            <Link to = {new Date(DE?.endDate) < new Date() || DE?.status == "COMPLETED"? '' : `../Submit_DE/${pgprId}`}><Button disabled={new Date(DE?.endDate) < new Date() || DE?.status == "COMPLETED"? true : false} variant="contained" size="small" style={{width:"250px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>Submit The Self Evaluated Results</Button></Link>
+                            {/* only for chair */}
+                            <Link to = {DE?.status == "COMPLETED"?  "" : `../Finalize_DE/${pgprId}`}><Button disabled={DE?.status == "COMPLETED"? true: false} variant="contained" size="small" style={{width:"250px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>Finalize The Desk Evaluation</Button></Link>
+                    </Box>
+                </>
+            }
         </>
     )
 }

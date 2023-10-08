@@ -43,6 +43,7 @@ const pgAssignments = () => {
     
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+    const [openDEDialog, setOpenDEDialog] = useState(false);
     const [selectedFilterKeys, setSelectedFilterKeys] = useState([{ title: 'In-review' }]);
     const [AcceptClicked, setAcceptClicked] = useState(false);
     const [acceptAssignment, setAcceptAssignment] = useState(false);
@@ -53,22 +54,24 @@ const pgAssignments = () => {
     const [errorMsg, setErrorMsg] = useState("");
     const [success, setSuccess] = useState(false);
     const [assignedPGPRs, setAssignedPGPRs] = useState([]);
+    const [DeEndDate, setDeEndDate] = useState('');
+
+    const getPGPRAssignments = async () => {
+        try {
+            setLoading(true);
+            setErrorMsg("");
+            const response = await getAssignedPGPRs();
+            console.log("PGPR Assignments : ",response?.data?.data);
+            setAssignedPGPRs(response?.data?.data);
+            setLoading(false);
+        } catch (err) {
+            console.error(err);
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
         document.title = "PG Assignments";
-        const getPGPRAssignments = async () => {
-            try {
-                setLoading(true);
-                setErrorMsg("");
-                const response = await getAssignedPGPRs();
-                console.log("PGPR Assignments : ",response?.data?.data);
-                setAssignedPGPRs(response?.data?.data);
-                setLoading(false);
-            } catch (err) {
-                console.error(err);
-                setLoading(false);
-            }
-        };
         getPGPRAssignments();
     }, []);
 
@@ -164,7 +167,39 @@ const pgAssignments = () => {
         console.log("Accept Clicked : ",pgprID);
     }
 
-    function createData(pgprID,University_Name, faculty_Name, pgp, Role, status, Actions) {
+    function setDate(dates) {
+        console.log("DE Clicked : ",dates);
+        setOpenDEDialog(dates);
+    }
+
+    function handleSetDate(dates) {
+        if(DeEndDate === '')
+        {
+            setErrorMsg("Please select the end date for the Desk Evaluation");
+            setDeEndDate('');
+            return;
+        }
+        else if(DeEndDate <= dates.startDate)
+        {
+            setErrorMsg("Please select a valid end date for the Desk Evaluation");
+            setDeEndDate('');
+            return;
+        }
+        else if(DeEndDate - dates.startDate < 30)
+        {
+            setErrorMsg("Desk Evaluation should allocate at least a month");
+            setDeEndDate('');
+            return;
+        }
+        console.log("set Dates Clicked : ",dates, DeEndDate);
+        // setDeEndDate('');
+        setOpenDEDialog(false);
+        setDeskEvaluationEndDate(DeEndDate)
+        getPGPRAssignments();
+    }
+
+    function createData(pgprID,University_Name, faculty_Name, pgp, Role, status, Actions,DE) {
+        const dates = {id:pgprID,startDate:DE.startDate,endDate:DE.endDate?? "Not Set yet"}
         Actions = Actions.map((action,index) => {
             
             let allow = action.allow? {disabled:false} : {disabled:true};
@@ -178,8 +213,19 @@ const pgAssignments = () => {
                 return <Button key={index} onClick={()=>{handleClickAccept(pgprID)}} {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button>
             }
             else if(action.action === 'DE')
-            {
-                return <Link key={index} to={action.allow? 'Conduct_DE/'+pgprID : ''}><Button {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button></Link>
+            {   
+                let onClickDate = null;
+                if (DE.endDate == null && Role == "CHAIR")
+                    {
+                        action.allow = false;
+                        onClickDate = () => setDate(dates);
+                    }
+                else if (DE.endDate == null && Role == "MEMBER")
+                {
+                    action.allow = false;
+                    onClickDate = () => setErrorMsg("Chairman should set the Desk Evaluation Date first");
+                }
+                return <Link key={index} to={action.allow? 'Conduct_DE/'+pgprID : ''}><Button onClick={() => onClickDate()} {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button></Link>
             }
             else if(action.action === 'PE')
             {
@@ -194,27 +240,27 @@ const pgAssignments = () => {
 
     const rows = assignedPGPRs? assignedPGPRs?.map((pgpr,index) => {
         const PGPRDetails = pgpr?.postGraduateReviewProgram;
-        const pgProggramme = PGPRDetails?.post_graduate_program;
+        const pgProggramme = PGPRDetails?.postGraduateProgramme;
         const faculty = pgProggramme?.faculty;
         const university = faculty?.university;
         let actions = [];
-        if(PGPRDetails?.status_of_pgpr === 'SUBMITTED')
+        if(PGPRDetails?.statusOfPgpr === 'SUBMITTED')
         {
             actions = [{action:'Accept',allow:true},{action:'View',allow:false},{action:'DE',allow:false},{action:'PE',allow:false}]
         }
-        else if(PGPRDetails?.status_of_pgpr === 'DE')
+        else if(PGPRDetails?.statusOfPgpr === 'DE')
         {
             actions = [{action:'Accept',allow:false},{action:'View',allow:true},{action:'DE',allow:true},{action:'PE',allow:false}]
         }
-        else if(PGPRDetails?.status_of_pgpr === 'PE')
+        else if(PGPRDetails?.statusOfPgpr === 'PE')
         {
             actions = [{action:'Accept',allow:false},{action:'View',allow:true},{action:'DE',allow:false},{action:'PE',allow:true}]
         }
-        else if(PGPRDetails?.status_of_pgpr === 'FINAL')
+        else if(PGPRDetails?.statusOfPgpr === 'FINAL')
         {
             actions = [{action:'Accept',allow:false},{action:'View',allow:true},{action:'DE',allow:false},{action:'PE',allow:false}]
         }
-        else if(PGPRDetails?.status_of_pgpr === 'COMPLETED')
+        else if(PGPRDetails?.statusOfPgpr === 'COMPLETED')
         {
             actions = [{action:'Accept',allow:false},{action:'View',allow:true},{action:'DE',allow:false},{action:'PE',allow:false}];
         }
@@ -222,7 +268,7 @@ const pgAssignments = () => {
             actions = [{action:'Accept',allow:false},{action:'View',allow:false},{action:'DE',allow:false},{action:'PE',allow:false}];
         }
 
-        return createData(PGPRDetails?.id,university?.name,faculty?.name,pgProggramme?.title,pgpr?.role,PGPRDetails?.status_of_pgpr,actions);
+        return createData(PGPRDetails?.id,university?.name,faculty?.name,pgProggramme?.title,pgpr?.role,PGPRDetails?.statusOfPgpr,actions,PGPRDetails?.deskEvaluation);
     }) : [];
 
     // const rows = [
@@ -422,6 +468,39 @@ const pgAssignments = () => {
                 </Button>
                 <Button onClick={()=>handleRejectAssignment()} autoFocus>
                     Reject
+                </Button>
+                </DialogActions>
+            </Dialog>
+
+            <Dialog
+                fullScreen={fullScreen}
+                open={openDEDialog? true : false}
+                onClose={()=>setOpenDEDialog(false)}
+                aria-labelledby="Set-DE-Date"
+            >
+                <DialogTitle id="Set-De-Date-ID">
+                {`Set the Desk Evaluation Date for ${openDEDialog.id} postgraduate programme review`}
+                </DialogTitle>
+                <DialogContent>
+                    <p>Start Date : <strong>{openDEDialog.startDate}</strong></p>
+                    <p>End Date : <strong>{openDEDialog.endDate}</strong></p>
+                    <Box sx={{display:'flex',flexDirection:'column',justifyContent:'space-around',alignItems:'center',width:'100%',height:'100%',margin:"1rem 0"}}>
+                        <TextField
+                            id="setEndDate"
+                            value={DeEndDate}
+                            helperText="Please select the end date for the Desk Evaluation"
+                            variant="standard"
+                            onChange={(e)=>setDeEndDate(e.target.value)}
+                            type="date"
+                        />
+                    </Box>
+                </DialogContent>
+                <DialogActions>
+                <Button autoFocus onClick={()=>setOpenDEDialog(false)}>
+                    cancel
+                </Button>
+                <Button onClick={()=>handleSetDate(openDEDialog)} autoFocus>
+                    Set Date
                 </Button>
                 </DialogActions>
             </Dialog>

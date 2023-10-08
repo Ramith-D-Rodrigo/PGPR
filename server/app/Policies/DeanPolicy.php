@@ -95,7 +95,7 @@ class DeanPolicy
         //only cqa director can remove the role of dean
         $currentRole = request() -> session() -> get('authRole');
 
-        if($currentRole != 'cqa director'){
+        if($currentRole != 'cqa_director'){
             return Response::deny('You are not allowed to remove the role of dean');
         }
 

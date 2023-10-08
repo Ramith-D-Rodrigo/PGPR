@@ -112,7 +112,7 @@ class PostGraduateProgramController extends Controller
         //add authorized cqa director id to the request
         try{
             //authorize the request
-            $this -> authorize('store', [PostGraduateProgram::class, $request]);
+            $this -> authorize('create', [PostGraduateProgram::class, $request]);
 
             //get validated data
             $validatedData = $request -> validated();

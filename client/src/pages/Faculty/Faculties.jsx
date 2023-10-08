@@ -1,7 +1,7 @@
 import { SERVER_API_VERSION, SERVER_URL } from '../../assets/constants';
 import ScrollableDiv from '../../components/ScrollableDiv';
 import { styled } from '@mui/material/styles';
-import { CircularProgress, Typography } from '@mui/material';
+import { Chip, CircularProgress, Divider, Typography } from '@mui/material';
 import Button from '@mui/material/Button';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -27,6 +27,10 @@ import getAllFaculties from "../../api/Faculty/getAllFaculties.js";
 function Faculties() {
     useSetUserNavigations(
         [
+            {
+                name: "Dashboard",
+                link: "/"
+            },
             {
                 name: "Faculties",
                 link: "/faculties"
@@ -121,6 +125,10 @@ function Faculties() {
 
     return (
         <>
+            <Divider textAlign='left'>
+                <Chip label="Faculties" />
+            </Divider>
+
             {loading &&
                 <div style={{ display: "flex", width: "100%", justifyContent: "center", alignItems: "center" }}>
                     <Typography variant="h6" style={{ margin: "0 0 0 20px" }}>

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import getAFaculty from "../../api/Faculty/getAFaculty.js";
 import getCurrentDean from "../../api/Faculty/getCurrentDean.js";
 import getCurrentIQAUDirector from "../../api/Faculty/getCurrentIQAUDirector.js";
-import { Avatar, Button, Divider, TableContainer, Typography } from "@mui/material";
+import { Avatar, Button, Chip, Divider, TableContainer, Typography } from "@mui/material";
 import { Select } from "@mui/material";
 import { MenuItem } from "@mui/material";
 import { SERVER_URL } from "../../assets/constants.js";
@@ -17,11 +17,29 @@ import { TableCell } from "@mui/material";
 import { TableHead } from "@mui/material";
 import { TableRow } from "@mui/material";
 import Box from '@mui/material/Box';
+import  useSetUserNavigations from "../../hooks/useSetUserNavigations.js";
 
 
 const ViewFaculty = () => {
     const { auth } = useAuth();
     const { facultyId } = useParams();
+
+    useSetUserNavigations(
+        [
+            {
+                name: "Dashboard",
+                link: "/"
+            },
+            {
+                name: "Faculties",
+                link: "/faculties"
+            },
+            {
+                name: "View Faculty",
+                link: `/faculties/${facultyId}`
+            }
+        ]
+    );
 
     const [faculty, setFaculty] = useState(null);
 
@@ -90,9 +108,10 @@ const ViewFaculty = () => {
 
     return (
         <>
-            <Typography variant="h5" sx={{ mb: 5 }} align='center'>
-                Faculty Details
-            </Typography>
+            <Divider textAlign="left">
+                <Chip label="Faculty Details" />
+            </Divider>
+
             <Box sx={{ display: 'flex' }}>
                 <Box sx={{ width: '50%' }}>
                     {
@@ -197,11 +216,9 @@ const ViewFaculty = () => {
                         }
                     </Box>
 
-                    <Divider sx={{ my: 2, width: '95%' }} variant="middle"/>
-
-                    <Typography variant="h6" sx={{ mb: 2 }} align='center'>
-                        Internal Quality Assurance Unit
-                    </Typography>
+                    <Divider textAlign="center" sx={{margin: '1rem 0'}}>
+                        <Chip label="Internal Quality Assurance Unit" color="primary"/>
+                    </Divider>
 
                     <Box>
                         {faculty &&
@@ -256,19 +273,16 @@ const ViewFaculty = () => {
             {
                 faculty &&
                 <>
-                    <Divider sx={{ my: 2 }} />
-
-                    <Typography variant="h6" sx={{ mb: 2 }} align='center'>
-                        Postgraduate Programmes
-
-                    </Typography>
+                    <Divider textAlign="center" sx={{margin: '1rem 0'}}>
+                        <Chip label="Postgraduate Programmes" color="primary" />
+                    </Divider>
 
                     <TableContainer component={Paper}>
                         <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                            <TableHead>
+                            <TableHead sx={{ backgroundColor: '#D8E6FC' }}>
                                 <TableRow>
-                                    <TableCell>Programme Name</TableCell>
-                                    <TableCell>SLQF Level</TableCell>
+                                    <TableCell sx={{ fontWeight: 'bold', textAlign: 'center' }}>Programme Name</TableCell>
+                                    <TableCell sx={{ fontWeight: 'bold', textAlign: 'center' }}>SLQF Level</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -277,10 +291,10 @@ const ViewFaculty = () => {
                                         key={pgp.id}
                                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                     >
-                                        <TableCell component="th" scope="row">
+                                        <TableCell component="th" scope="row" sx={{ textAlign: 'center' }}>
                                             {pgp.title}
                                         </TableCell>
-                                        <TableCell>{pgp.slqfLevel}</TableCell>
+                                        <TableCell sx={{ textAlign: 'center' }}>{pgp.slqfLevel}</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
