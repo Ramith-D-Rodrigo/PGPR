@@ -473,7 +473,7 @@ class ReviewerController extends Controller
             $remarks = DB::table('ser_section_reviewer_remarks')->select(['section', 'remark'])->where([
                 'reviewer_id' => $reviewerId,
                 'ser_id' => $serId,
-            ])->first();
+            ])->get();
 
             $data = [];
             $ser = SelfEvaluationReport::findOrFail($serId);
@@ -481,7 +481,7 @@ class ReviewerController extends Controller
                 'serId' => $ser->id,
                 'sectionA' => $ser->section_a,
                 'sectionB' => $ser->section_b,
-                'sectionC' => $ser->section_c,
+                'sectionD' => $ser->section_d,
             ];
 
             $data['remarks'] = [];
@@ -517,7 +517,7 @@ class ReviewerController extends Controller
      *                              remark: "Hello, gorgeous",
      *                          },
      *                          {
-     *                              section: "C",
+     *                              section: "D",
      *                              remark: "Hello, love",
      *                          }
      *                      ]
@@ -553,7 +553,7 @@ class ReviewerController extends Controller
             ], 403);
         } catch (Exception $exception) {
             DB::rollBack();
-            return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+            return response()->json(['message' => $exception -> getMessage()], 500);
         }
     }
 
