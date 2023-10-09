@@ -1,6 +1,6 @@
 import React from 'react';
 import ScrollableDiv from '../../components/ScrollableDiv';
-import { Typography } from '@mui/material';
+import { Chip, Divider, Typography } from '@mui/material';
 import { useState, useEffect } from 'react';
 import useSetUserNavigations from '../../hooks/useSetUserNavigations';
 import axios from '../../api/api';
@@ -29,8 +29,9 @@ import DialogTitle from '@mui/material/DialogTitle';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import getAssignedPGPRs from '../../api/Reviewer/getAssignedPGPRs';
+import updateDeskEvaluation from '../../api/DeskEvaluation/updateDeskEvalution';
 
-const pgAssignments = () => {
+const PGAssignments = () => {
     const {auth} = useAuth();
     useSetUserNavigations(
         [
@@ -55,6 +56,7 @@ const pgAssignments = () => {
     const [success, setSuccess] = useState(false);
     const [assignedPGPRs, setAssignedPGPRs] = useState([]);
     const [DeEndDate, setDeEndDate] = useState('');
+    const [DeStartDate, setDeStartDate] = useState('');
 
     const getPGPRAssignments = async () => {
         try {
@@ -172,20 +174,34 @@ const pgAssignments = () => {
         setOpenDEDialog(dates);
     }
 
-    function handleSetDate(dates) {
+    const minDateDiffInMS = 2592000000; //30 days in milliseconds
+
+    async function handleSetDate(dates) {
         if(DeEndDate === '')
         {
             setErrorMsg("Please select the end date for the Desk Evaluation");
             setDeEndDate('');
             return;
         }
-        else if(DeEndDate <= dates.startDate)
+        else if(DeStartDate === ''){
+            setErrorMsg("Please select the start date for the Desk Evaluation");
+            return;
+        }
+        //else if startdate is less than today
+        else if(DeStartDate <= new Date().toISOString().slice(0,10))
+        {
+            setErrorMsg("Please select a valid start date for the Desk Evaluation");
+            setDeStartDate('');
+            return;
+        }
+        else if(DeEndDate <= DeStartDate)
         {
             setErrorMsg("Please select a valid end date for the Desk Evaluation");
             setDeEndDate('');
             return;
         }
-        else if(DeEndDate - dates.startDate < 30)
+        //else if date difference is less than 30 days
+        else if((new Date(DeEndDate) - new Date(DeStartDate)) < minDateDiffInMS)
         {
             setErrorMsg("Desk Evaluation should allocate at least a month");
             setDeEndDate('');
@@ -194,46 +210,69 @@ const pgAssignments = () => {
         console.log("set Dates Clicked : ",dates, DeEndDate);
         // setDeEndDate('');
         setOpenDEDialog(false);
-        setDeskEvaluationEndDate(DeEndDate)
+        setDeEndDate(DeEndDate);
+
+        try{
+            const request = {
+                deskEvaluationId : dates.deId,
+                startDate : DeStartDate,
+                endDate : DeEndDate,
+            }
+            const response = await updateDeskEvaluation(dates.deId, request);
+
+            if(response && response.status == 200){
+                setSuccess(true);
+                setErrorMsg("Desk Evaluation Date Updated Successfully!");
+
+            }
+        }
+        catch(error){
+            setErrorMsg(error.response.data.message);
+        }
+
+
         getPGPRAssignments();
     }
+    
 
-    function createData(pgprID,University_Name, faculty_Name, pgp, Role, status, Actions,DE) {
-        const dates = {id:pgprID,startDate:DE.startDate,endDate:DE.endDate?? "Not Set yet"}
+    function createData(PGPRDetails,University_Name, faculty_Name, pgp, Role, status, Actions,DE) {
+        if(!PGPRDetails) return;
+
+        const dates = {id:PGPRDetails.id,startDate:DE?.startDate ?? "Not Set Yet",endDate:DE?.endDate?? "Not Set yet", deId: DE?.id}
         Actions = Actions.map((action,index) => {
             
             let allow = action.allow? {disabled:false} : {disabled:true};
             allow = loading? {disabled:true} : allow;
             if(action.action === 'View')
             {
-                return <Link key={index} to={action.allow? 'ViewSer/'+pgprID:''}><Button {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button></Link>
+                return <Link key={index} to={action.allow? PGPRDetails.id+'/ser/' +PGPRDetails.selfEvaluationReport.id:''}><Button {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button></Link>
             }
             else if(action.action === 'Accept')
             {
-                return <Button key={index} onClick={()=>{handleClickAccept(pgprID)}} {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button>
+                return <Button key={index} onClick={()=>{handleClickAccept(PGPRDetails.id)}} {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button>
             }
             else if(action.action === 'DE')
             {   
                 let onClickDate = null;
-                if (DE.endDate == null && Role == "CHAIR")
+                if (DE?.endDate == null && Role == "CHAIR")
                     {
                         action.allow = false;
                         onClickDate = () => setDate(dates);
                     }
-                else if (DE.endDate == null && Role == "MEMBER")
+                else if (DE?.endDate == null && Role == "MEMBER")
                 {
                     action.allow = false;
                     onClickDate = () => setErrorMsg("Chairman should set the Desk Evaluation Date first");
                 }
-                return <Link key={index} to={action.allow? 'Conduct_DE/'+pgprID : ''}><Button onClick={() => onClickDate()} {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button></Link>
+                return <Link key={index} to={action.allow? 'Conduct_DE/'+PGPRDetails.id : ''}><Button onClick={() => onClickDate()} {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button></Link>
             }
             else if(action.action === 'PE')
             {
-                return <Link key={index} to={action.allow? 'Conduct_PE/'+pgprID : ''}><Button {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button></Link>
+                return <Link key={index} to={action.allow? 'Conduct_PE/'+PGPRDetails.id : ''}><Button {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button></Link>
             }
             
         });
-        return {pgprID:`PGPR-${pgprID}`, University_Name, faculty_Name, pgp, Role, status, Actions };
+        return {pgprID:`PGPR-${PGPRDetails.id}`, University_Name, faculty_Name, pgp, Role, status, Actions };
     }
 
     
@@ -243,6 +282,8 @@ const pgAssignments = () => {
         const pgProggramme = PGPRDetails?.postGraduateProgramme;
         const faculty = pgProggramme?.faculty;
         const university = faculty?.university;
+
+
         let actions = [];
         if(PGPRDetails?.statusOfPgpr === 'SUBMITTED')
         {
@@ -268,7 +309,7 @@ const pgAssignments = () => {
             actions = [{action:'Accept',allow:false},{action:'View',allow:false},{action:'DE',allow:false},{action:'PE',allow:false}];
         }
 
-        return createData(PGPRDetails?.id,university?.name,faculty?.name,pgProggramme?.title,pgpr?.role,PGPRDetails?.statusOfPgpr,actions,PGPRDetails?.deskEvaluation);
+        return createData(PGPRDetails,university?.name,faculty?.name,pgProggramme?.title,pgpr?.role,PGPRDetails?.statusOfPgpr,actions,PGPRDetails?.deskEvaluation);
     }) : [];
 
     // const rows = [
@@ -294,6 +335,9 @@ const pgAssignments = () => {
 
     return (
         <>
+            <Divider textAlign='left'>
+                <Chip label="Postgraduate Programme Review Assignments" style={{margin:"10px 0"}} />
+            </Divider>
             {loading &&
                 <div style={{position:'absolute',left:0,margin:"0 auto",display:"flex",justifyContent:"center",alignItems:"center"}}> 
                     <Typography variant="h6" style={{ margin: "0 0 0 20px" }}>
@@ -306,9 +350,7 @@ const pgAssignments = () => {
                     />
                 </div>
             }
-            <Typography align='center' fontWeight={600} variant="h5" gutterBottom component="div" style={{marginRight:'20px'}}>
-                Postgraduate programme review Assignments
-            </Typography>
+
             <Box sx={{
                 display:'flex',alignItems:'center',justifyContent:'center',width:'100%',marginTop:'20px',
             }}>
@@ -444,7 +486,7 @@ const pgAssignments = () => {
                 anchorOrigin={{ vertical: "top", horizontal: "center" }}
                 >
                 <Alert onClose={() => setSuccess(false)} severity="success">
-                    {errorMsg}  //on success
+                    {errorMsg}
                 </Alert>
             </Snackbar>
             
@@ -478,12 +520,24 @@ const pgAssignments = () => {
                 onClose={()=>setOpenDEDialog(false)}
                 aria-labelledby="Set-DE-Date"
             >
-                <DialogTitle id="Set-De-Date-ID">
+                <DialogTitle id="Set-De-Date-ID" textAlign={'center'}>
                 {`Set the Desk Evaluation Date for ${openDEDialog.id} postgraduate programme review`}
                 </DialogTitle>
                 <DialogContent>
                     <p>Start Date : <strong>{openDEDialog.startDate}</strong></p>
                     <p>End Date : <strong>{openDEDialog.endDate}</strong></p>
+
+                    <Box sx={{display:'flex',flexDirection:'column',justifyContent:'space-around',alignItems:'center',width:'100%',height:'100%',margin:"1rem 0"}}>
+                        <TextField
+                            id="setStartDate"
+                            value={DeStartDate}
+                            helperText="Please select the start date for the Desk Evaluation"
+                            variant="standard"
+                            onChange={(e)=>setDeStartDate(e.target.value)}
+                            type="date"
+                        />
+                    </Box>
+
                     <Box sx={{display:'flex',flexDirection:'column',justifyContent:'space-around',alignItems:'center',width:'100%',height:'100%',margin:"1rem 0"}}>
                         <TextField
                             id="setEndDate"
@@ -497,10 +551,10 @@ const pgAssignments = () => {
                 </DialogContent>
                 <DialogActions>
                 <Button autoFocus onClick={()=>setOpenDEDialog(false)}>
-                    cancel
+                    Cancel
                 </Button>
                 <Button onClick={()=>handleSetDate(openDEDialog)} autoFocus>
-                    Set Date
+                    Set Dates
                 </Button>
                 </DialogActions>
             </Dialog>
@@ -509,4 +563,4 @@ const pgAssignments = () => {
     )
 }
 
-export default pgAssignments
+export default PGAssignments
