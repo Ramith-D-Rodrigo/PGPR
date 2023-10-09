@@ -41,7 +41,7 @@ class DeskEvaluationPolicy
             $reviewTeamReviewers = $reviewTeam -> reviewers;
 
             foreach ($reviewTeamReviewers as $reviewer) {
-                if ($reviewer -> reviewer_id === $user -> id) {
+                if ($reviewer -> pivot -> reviewer_id === $user -> id) {
                     return Response::allow();
                 }
             }
@@ -141,9 +141,9 @@ class DeskEvaluationPolicy
             $reviewTeamReviewers = $reviewTeam -> reviewers;
 
             foreach ($reviewTeamReviewers as $reviewer) {
-                if ($reviewer -> reviewer_id === $user -> id) {
+                if ($reviewer -> pivot -> reviewer_id == $user -> id) {
                     //check if the reviewer is the chair
-                    if($reviewer -> role === 'CHAIR'){
+                    if($reviewer -> pivot -> role === 'CHAIR'){
                         return Response::allow();
                     }
                     else{
@@ -205,7 +205,7 @@ class DeskEvaluationPolicy
             $reviewTeamReviewers = $reviewTeam -> reviewers;
 
             foreach ($reviewTeamReviewers as $reviewer) {
-                if ($reviewer -> reviewer_id == $user -> id) {
+                if ($reviewer -> pivot -> reviewer_id == $user -> id) {
                     return Response::allow();
                 }
             }
