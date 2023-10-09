@@ -19,12 +19,15 @@ import {
 import { useParams } from "react-router-dom";
 import useDrawerState from "../../hooks/useDrawerState";
 import { useEffect, useState } from "react";
-import  getSelfEvaluationReport  from "../../api/SelfEvaluationReport/getSelfEvaluationReport";
+import getSelfEvaluationReport from "../../api/SelfEvaluationReport/getSelfEvaluationReport";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import Modal from '@mui/material/Modal';
 
-import  recommendSelfEvaluationReport from "../../api/SelfEvaluationReport/recommendSelfEvaluationReport";
+import recommendSelfEvaluationReport from "../../api/SelfEvaluationReport/recommendSelfEvaluationReport";
+
+import Snackbar from '@mui/material/Snackbar';
+import { Alert } from "@mui/material";
 
 
 
@@ -40,7 +43,7 @@ const SelfEvaluationReport = () => {
 
     const [headerInfo, setHeaderInfo] = useState([]);
 
-    const {auth} = useAuth();
+    const { auth } = useAuth();
 
     useEffect(() => {
         const getPGPRData = async () => {
@@ -123,15 +126,7 @@ const SelfEvaluationReport = () => {
             onclick: () => {
                 console.log("Edit");
             },
-        },
-        {
-            action: "Summary",
-            background: "#4CAF50",
-            hover: "#388E3C",
-            onclick: () => {
-                console.log("Summary");
-            },
-        },
+        }
     ];
 
     const style = {
@@ -150,11 +145,11 @@ const SelfEvaluationReport = () => {
 
     const [warningType, setWarningType] = useState('');
 
-    const WarningMessage = ({warningType}) => {
+    const WarningMessage = ({ warningType }) => {
         return (
             <Modal
                 open={warningOpen}
-                onClose={() => { setWarningOpen(false)}}
+                onClose={() => { setWarningOpen(false) }}
                 aria-labelledby="modal-modal-title"
                 aria-describedby="modal-modal-description"
             >
@@ -168,11 +163,11 @@ const SelfEvaluationReport = () => {
                                 warningType === 'submit' ?
                                     <>
                                         Not all the standards are submitted! Do you want to proceed to evaluation submission?
-                                        <Button variant="contained" color="success" component={Link} to={'/programme_coordinator/pgprs/' + pgprId +'/ser/'+serId+'/submitSER'}>
+                                        <Button variant="contained" color="success" component={Link} to={'/programme_coordinator/pgprs/' + pgprId + '/ser/' + serId + '/submitSER'}>
                                             Proceed
                                         </Button>
                                     </>
-                                :
+                                    :
 
                                     <>
                                         Not all the standards are submitted! Do you want to recommend the report?
@@ -181,7 +176,7 @@ const SelfEvaluationReport = () => {
                                         </Button>
                                     </>
                             }
-                            <Button variant="contained" color="error" onClick={() => { setWarningOpen(false)}}>
+                            <Button variant="contained" color="error" onClick={() => { setWarningOpen(false) }}>
                                 Cancel
                             </Button>
                         </>
@@ -193,6 +188,12 @@ const SelfEvaluationReport = () => {
 
 
     const navigate = useNavigate();
+
+    const [snackbar, setSnackbar] = useState({
+        open: false,
+        message: '',
+        severity: 'success'
+    });
 
 
     //first checks submitted evidences count, if zero then do not proceed to evaluation submission
@@ -209,7 +210,7 @@ const SelfEvaluationReport = () => {
                 setWarningType('submit');
                 setWarningOpen(true);
             } else {
-                navigate('/programme_coordinator/pgprs/' + pgprId +'/ser/'+serId+'/submitSER');
+                navigate('/programme_coordinator/pgprs/' + pgprId + '/ser/' + serId + '/submitSER');
             }
         }
     }
@@ -232,22 +233,39 @@ const SelfEvaluationReport = () => {
     }
 
     const handleReportRecommendationConfirm = async () => {
-        try{
+        setWarningOpen(false);
+        setWarningType('');
+
+        try {
             const response = await recommendSelfEvaluationReport(serId);
 
             if (response && response.status === 200) {
-                alert("Report recommended successfully");
-                navigate('/' + auth.authRole[0] + '/pgprs/' + pgprId +'/ser/'+serId);
+                setSnackbar({
+                    open: true,
+                    message: 'Report recommended successfully',
+                    severity: 'success'
+                });
             }
         }
-        catch(error){
+        catch (error) {
             console.log(error);
+            setSnackbar({
+                open: true,
+                message: 'Report recommendation failed',
+                severity: 'error'
+            });
         }
     }
 
     return (
         <>
-            <WarningMessage warningType={warningType}/>
+            <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={() => setSnackbar({ ...snackbar, open: false })} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
+                <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: '100%' }}>
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
+
+            <WarningMessage warningType={warningType} />
             <Divider textAlign="left">
                 <Chip label="Postgraduate Programme Review" />
             </Divider>
@@ -263,7 +281,7 @@ const SelfEvaluationReport = () => {
                 <Grid container spacing={1} columns={{ sm: 6, md: 12 }} key='gridContainer'>
                     {headerInfo.map((infoItem, index) => (
                         <>
-                            <Grid item sm={2} md={2} key={index + infoItem.label +'label'}>
+                            <Grid item sm={2} md={2} key={index + infoItem.label + 'label'}>
                                 <Typography variant="body1" textAlign={"left"} key={index + infoItem.label + 'labelTypo'}>
                                     <b>{infoItem.label}</b>
                                 </Typography>
@@ -393,6 +411,7 @@ const SelfEvaluationReport = () => {
                                                         marginRight: "0",
                                                     },
                                                 }}
+                                                disabled={auth.authRole[0] === 'reviewer' || auth.authRole[0] === 'qac_director' || auth.authRole[0] === 'qac_officer'}
                                             >
                                                 {action.action}
                                             </Button>
@@ -405,7 +424,7 @@ const SelfEvaluationReport = () => {
                 </Table>
             </TableContainer>
 
-            {auth.authRole[0] === 'programme_coordinator' && ser?.postGraduateProgramReview?.statusOfPgpr == 'PLANNING'  && //Only programme coordinator can submit for evaluation and only if the status of the PGPR is PLANNING
+            {auth.authRole[0] === 'programme_coordinator' && ser?.postGraduateProgramReview?.statusOfPgpr == 'PLANNING' && //Only programme coordinator can submit for evaluation and only if the status of the PGPR is PLANNING
                 <Box
                     sx={{
                         display: "flex",
@@ -428,9 +447,9 @@ const SelfEvaluationReport = () => {
                 </Box>
             }
 
-            {ser?.postGraduateProgramReview?.statusOfPgpr == 'PLANNING' && 
-            ser?.sectionA !== null && ser?.sectionB !== null && ser?.sectionD !== null && ser?.finalSerReport !== null &&
-            (auth.authRole[0] === 'vice_chancellor' || auth.authRole[0] === 'cqa_director') &&  
+            {ser?.postGraduateProgramReview?.statusOfPgpr == 'PLANNING' &&
+                ser?.sectionA !== null && ser?.sectionB !== null && ser?.sectionD !== null && ser?.finalSerReport !== null &&
+                (auth.authRole[0] === 'vice_chancellor' || auth.authRole[0] === 'cqa_director') &&
                 //Only vc and cqa director can recommend the report and only if the status of the PGPR is PLANNING
                 <Box
                     sx={{
@@ -454,14 +473,30 @@ const SelfEvaluationReport = () => {
                         <Typography variant="body1">
                             {
                                 (auth.authRole[0] === 'vice_chancellor' && ser?.viceChancellorId !== null) ||
-                                (auth.authRole[0] === 'cqa_director' && ser?.centerForQualityAssuranceDirectorId !== null) ?
+                                    (auth.authRole[0] === 'cqa_director' && ser?.centerForQualityAssuranceDirectorId !== null) ?
                                     'Report already recommended'
-                                :
+                                    :
                                     'Recommend Report'
                             }
                         </Typography>
                     </Button>
                 </Box>
+            }
+            {auth.authRole[0] === 'reviewer' &&
+                <Box
+                    sx={{
+                        display: "flex",
+                        width: "100%",
+                        justifyContent: "center",
+                        alignItems: "end",
+                    }}
+                >
+                    <Typography variant="body1">
+                        To view the evaluation report evidences, please go back and select respective review stage (DE OR PE)
+                    </Typography>
+                </Box>
+
+
             }
         </>
     );
