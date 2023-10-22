@@ -14,14 +14,16 @@ import {
   TextField,
   Divider,
   Chip,
-  Grid
+  Grid,
 } from "@mui/material";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import useSetUserNavigations from "../../hooks/useSetUserNavigations";
 import useAuth from "../../hooks/useAuth";
 import getAllPostGraduatePrograms from "../../api/PostGraduateProgram/getAllPostGraduatePrograms";
 import getIQAUDirectorFaculty from "../../api/IQAUDirector/getIQAUDirectorFaculty";
+import getAUniversity from "../../api/University/getAUniversity";
+import getProgrammeCoordinator from "../../api/ProgrammeCoordinator/getProgrammeCoordinator";
 
 const ViewPGPs = () => {
   const { auth } = useAuth();
@@ -39,138 +41,128 @@ const ViewPGPs = () => {
   const [selectedFilterKeys, setSelectedFilterKeys] = useState([]);
   const [searchKeyword, setSearchKeyword] = useState("");
   const [allPrograms, setAllPrograms] = useState([]);
-  const [faculty, setFaculty] = useState([]);
-  const [pgp, setPgp] = useState([]);
+  const [faculty, setFaculty] = useState({});
+  const [university, setUniversity] = useState({});
+  const [pgps, setPgps] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [modifiedData, setModifiedData] = useState([]);
+  const [coordinator, setCoordinator] = useState({});
+  const [loading, setLoading] = useState(0);
 
   useEffect(() => {
     const fetchPgPrograms = async () => {
       try {
+        setLoading(1);
         const allPgPrograms = await getAllPostGraduatePrograms({
           includeFaculty: true,
         });
-        setAllPrograms(allPgPrograms.data);
-        console.log("All", allPrograms);
-
-        const facultyData = await getIQAUDirectorFaculty(auth.id);
-        setFaculty(facultyData.data);
-        console.log("Faculty", faculty);
-
-        if (allPrograms.length !== 0) {
-          const facultyPrograms = allPrograms.filter((program) => {
-            return program.faculty.id === faculty.id;
-          });
-          setPgp(facultyPrograms);
-          console.log("PGP", pgp);
-        }
+        setAllPrograms(allPgPrograms.data.data);
       } catch (error) {
         console.log(error);
+      } finally {
+        setLoading(0);
       }
     };
-    fetchPgPrograms()
-  }, [ auth.id, allPrograms, faculty, pgp]);
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
+    const fetchFaculty = async () => {
+      try {
+        setLoading(2);
+        const facultyData = await getIQAUDirectorFaculty(auth.id);
+        setFaculty(facultyData.data.data);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(0);
+      }
+    };
 
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(+event.target.value);
-    setPage(0);
-  };
+    fetchPgPrograms();
+    fetchFaculty();
+  }, [auth.id]);
 
-  // useEffect(() => {
-  //   axios
-  //     .get("/api/v1/postGraduatePrograms")
-  //     .then((response) => {
-  //       setPgps(response.data.data);
-  //     })
-  //     .catch((error) => {
-  //       console.log(error);
-  //     });
-  // }, []);
+  useEffect(() => {
+    const fetchUniversity = async () => {
+      try {
+        setLoading(3);
+        const universityData = await getAUniversity(faculty.universityId);
+        setUniversity(universityData.data.data);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(0);
+      }
+    };
+    if (faculty && faculty.universityId !== undefined) {
+      fetchUniversity();
+    }
+  }, [faculty]);
 
-  const pgps = [
-    {
-      title: "Computer Science",
-      slqf_level: "6",
-      commencement_year: "2020",
-      program_coordinator: "John Smith",
-      status: "In-review",
-    },
-    {
-      title: "Electrical Engineering",
-      slqf_level: "7",
-      commencement_year: "2018",
-      program_coordinator: "Emily Johnson",
-      status: "Accepted",
-    },
-    {
-      title: "Business Administration",
-      slqf_level: "6",
-      commencement_year: "2019",
-      program_coordinator: "Michael Brown",
-      status: "Rejected",
-    },
-    {
-      title: "Mechanical Engineering",
-      slqf_level: "7",
-      commencement_year: "2021",
-      program_coordinator: "Sophia Davis",
-      status: "Pending",
-    },
-    {
-      title: "Biology",
-      slqf_level: "5",
-      commencement_year: "2017",
-      program_coordinator: "David Lee",
-      status: "In-review",
-    },
-    {
-      title: "Psychology",
-      slqf_level: "6",
-      commencement_year: "2022",
-      program_coordinator: "Olivia Martinez",
-      status: "Accepted",
-    },
-    {
-      title: "Environmental Science",
-      slqf_level: "5",
-      commencement_year: "2016",
-      program_coordinator: "Emma Wilson",
-      status: "Rejected",
-    },
-    {
-      title: "Marketing",
-      slqf_level: "6",
-      commencement_year: "2020",
-      program_coordinator: "Daniel Johnson",
-      status: "Pending",
-    },
-    {
-      title: "Civil Engineering",
-      slqf_level: "7",
-      commencement_year: "2019",
-      program_coordinator: "Sophie Miller",
-      status: "In-review",
-    },
-    {
-      title: "Chemistry",
-      slqf_level: "5",
-      commencement_year: "2017",
-      program_coordinator: "Alexander Green",
-      status: "Accepted",
-    },
-  ];
+  useEffect(() => {
+    if (allPrograms.length !== 0 && faculty.length !== 0) {
+      const facultyPrograms = allPrograms.filter((program) => {
+        return program.facultyId === faculty.id;
+      });
+      setPgps(facultyPrograms);
+    }
+  }, [allPrograms, faculty]);
+
+  useEffect(() => {
+    if (pgps.length !== 0) {
+      try {
+        setLoading(4);
+        const coordinatorPromises = pgps.map(async (pgp) => {
+          const coordinatorData = await getProgrammeCoordinator(
+            pgp.programmeCoordinatorId
+          );
+          setCoordinator(coordinatorData);
+        });
+
+        const modified = async () => {
+          const data = await Promise.all(coordinatorPromises);
+          setModifiedData(data);
+        };
+
+        modified();
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(0);
+      }
+    }
+  }, [pgps]);
+
+  console.log("All: ", allPrograms);
+  console.log("Faculty: ", faculty);
+  console.log("Pgp: ", pgps);
+  console.log("Uni: ", university);
 
   const columns = {
     title: "Title",
-    slqf_level: "SLQF Level",
-    commencement_year: "Commencement Year",
-    program_coordinator: "Programme Coordinator",
-    status: "Status",
+    slqfLevel: "SLQF Level",
+    commencementYear: "Commencement Year",
+    programCoordinator: "Programme Coordinator",
   };
+
+  const filterPGPs = () => {
+    const filteredData = modifiedData.filter((pgp) => {
+      const matchesKeyword = Object.values(pgp).some((value) =>
+        value
+          ? value.toString().toLowerCase().includes(searchKeyword.toLowerCase())
+          : false
+      );
+
+      const matchesFilters =
+        selectedFilterKeys.length === 0 ||
+        selectedFilterKeys.some((filter) => filter.title === pgp.status);
+
+      return matchesKeyword && matchesFilters;
+    });
+    return filteredData;
+  };
+
+  console.log("Modified: ", modifiedData);
+  console.log("Filtered: ", filterPGPs());
 
   const actions = [
     {
@@ -201,32 +193,23 @@ const ViewPGPs = () => {
   ];
 
   const uniAndFaculty = [
-    { 
+    {
       title: "University: ",
-      value: "University of Colombo"
+      value: university.name ? university.name.toString() : "",
     },
     {
       title: "Faculty/Institute: ",
-      value: "Faculty of Science"
-    }
+      value: faculty.name ? faculty.name.toString() : "",
+    },
   ];
 
-  const filterPGPs = () => {
-    const filteredStatus = pgps.filter((pgp) => {
-      const matchesKeyword = Object.values(pgp).some((value) =>
-        value
-          ? value.toString().toLowerCase().includes(searchKeyword.toLowerCase())
-          : false
-      );
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
 
-      const matchesFilters =
-        selectedFilterKeys.length === 0 ||
-        selectedFilterKeys.some((filter) => filter.title === pgp.status);
-
-      return matchesKeyword && matchesFilters;
-    });
-
-    return filteredStatus;
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(+event.target.value);
+    setPage(0);
   };
 
   const customEqualityTest = (option, value) => {
@@ -249,18 +232,18 @@ const ViewPGPs = () => {
       >
         <Grid container spacing={1} columns={{ sm: 6, md: 12 }}>
           {uniAndFaculty.map((item, index) => (
-            <>
-              <Grid item sm={2} md={2} key={`${index}-${item.title}`}>
+            <React.Fragment key={`uni-faculty-${index}`}>
+              <Grid item sm={2} md={2} key={`${index}-1`}>
                 <Typography variant="body1" textAlign={"left"}>
                   <b>{item.title}</b>
                 </Typography>
               </Grid>
-              <Grid item sm={4} md={4} key={`${index}-${item.value}`}>
+              <Grid item sm={4} md={4} key={`${index}-2`}>
                 <Typography variant="body1" textAlign={"left"}>
                   {item.value}
                 </Typography>
               </Grid>
-            </>
+            </React.Fragment>
           ))}
         </Grid>
       </Box>
@@ -333,30 +316,34 @@ const ViewPGPs = () => {
           <TableBody>
             {filterPGPs()
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row) => (
+              .map((row, rowIndex) => (
                 <TableRow
                   hover
-                  key={row.title}
+                  key={`row-${rowIndex}`}
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
-                  {Object.values(row).map((col) => (
-                    <TableCell sx={{ paddingY: "0.5rem" }} key={col}>
+                  {Object.values(row).map((col, colIndex) => (
+                    <TableCell
+                      sx={{ paddingY: "0.5rem" }}
+                      key={`col-${colIndex}`}
+                    >
                       {col}
                     </TableCell>
                   ))}
-                  {actions.length != 0 && (
+                  {actions.length !== 0 && (
                     <TableCell
                       sx={{
                         display: "flex",
                         justifyContent: "center",
                         paddingY: "0.5rem",
                       }}
+                      key={`actions-${rowIndex}`} // Use a unique key here as well
                     >
-                      {actions.map((action, index) => (
+                      {actions.map((action, actionIndex) => (
                         <Button
                           component={Link}
                           to={action.to}
-                          key={action.action + index}
+                          key={`action-button-${actionIndex}`} // Ensure each action has a unique key
                           onClick={action.onclick}
                           variant="contained"
                           size="small"
@@ -375,7 +362,9 @@ const ViewPGPs = () => {
                               marginRight: "0",
                             },
                           }}
-                          disabled={index === 1 && row.status !== "In-review"}
+                          disabled={
+                            actionIndex === 1 && row.status !== "In-review"
+                          }
                         >
                           {action.action}
                         </Button>
@@ -390,7 +379,7 @@ const ViewPGPs = () => {
       <TablePagination
         rowsPerPageOptions={[5, 10, 20]}
         component="div"
-        count={filterPGPs().length}
+        count={filterPGPs.length}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}
