@@ -18,12 +18,12 @@ import {
 } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import _ from "lodash";
 import useSetUserNavigations from "../../hooks/useSetUserNavigations";
 import useAuth from "../../hooks/useAuth";
 import getAllPostGraduatePrograms from "../../api/PostGraduateProgram/getAllPostGraduatePrograms";
 import getIQAUDirectorFaculty from "../../api/IQAUDirector/getIQAUDirectorFaculty";
 import getAUniversity from "../../api/University/getAUniversity";
-import getProgrammeCoordinator from "../../api/ProgrammeCoordinator/getProgrammeCoordinator";
 
 const ViewPGPs = () => {
   const { auth } = useAuth();
@@ -38,68 +38,62 @@ const ViewPGPs = () => {
     },
   ]);
 
-  const [selectedFilterKeys, setSelectedFilterKeys] = useState([]);
-  const [searchKeyword, setSearchKeyword] = useState("");
   const [allPrograms, setAllPrograms] = useState([]);
   const [faculty, setFaculty] = useState({});
   const [university, setUniversity] = useState({});
   const [pgps, setPgps] = useState([]);
+  const [selectedFilterKeys, setSelectedFilterKeys] = useState([]);
+  const [searchKeyword, setSearchKeyword] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [modifiedData, setModifiedData] = useState([]);
-  const [coordinator, setCoordinator] = useState({});
-  const [loading, setLoading] = useState(0);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchUniversity = async () => {
+      try {
+        setLoading(true);
+        const facultyData = await getIQAUDirectorFaculty(auth.id);
+        setFaculty(facultyData.data.data);
+
+        if (faculty.id) {
+          const universityData = await getAUniversity(
+            faculty.universityId
+          );
+          setUniversity(universityData.data.data);
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUniversity();
+  }, [auth.id, faculty.id, faculty.universityId]);
 
   useEffect(() => {
     const fetchPgPrograms = async () => {
       try {
-        setLoading(1);
+        setLoading(true);
         const allPgPrograms = await getAllPostGraduatePrograms({
           includeFaculty: true,
+          includeCurrentCoordinator: true,
+          includeAcademicStaff: true,
+          includeUniversitySide: true,
+          includeUser: true,
         });
         setAllPrograms(allPgPrograms.data.data);
       } catch (error) {
         console.log(error);
       } finally {
-        setLoading(0);
-      }
-    };
-
-    const fetchFaculty = async () => {
-      try {
-        setLoading(2);
-        const facultyData = await getIQAUDirectorFaculty(auth.id);
-        setFaculty(facultyData.data.data);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setLoading(0);
+        setLoading(false);
       }
     };
 
     fetchPgPrograms();
-    fetchFaculty();
   }, [auth.id]);
 
   useEffect(() => {
-    const fetchUniversity = async () => {
-      try {
-        setLoading(3);
-        const universityData = await getAUniversity(faculty.universityId);
-        setUniversity(universityData.data.data);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setLoading(0);
-      }
-    };
-    if (faculty && faculty.universityId !== undefined) {
-      fetchUniversity();
-    }
-  }, [faculty]);
-
-  useEffect(() => {
-    if (allPrograms.length !== 0 && faculty.length !== 0) {
+    if (allPrograms.length !== 0 && faculty.id) {
       const facultyPrograms = allPrograms.filter((program) => {
         return program.facultyId === faculty.id;
       });
@@ -107,62 +101,37 @@ const ViewPGPs = () => {
     }
   }, [allPrograms, faculty]);
 
-  useEffect(() => {
-    if (pgps.length !== 0) {
-      try {
-        setLoading(4);
-        const coordinatorPromises = pgps.map(async (pgp) => {
-          const coordinatorData = await getProgrammeCoordinator(
-            pgp.programmeCoordinatorId
-          );
-          setCoordinator(coordinatorData);
-        });
-
-        const modified = async () => {
-          const data = await Promise.all(coordinatorPromises);
-          setModifiedData(data);
-        };
-
-        modified();
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setLoading(0);
-      }
-    }
-  }, [pgps]);
-
-  console.log("All: ", allPrograms);
-  console.log("Faculty: ", faculty);
-  console.log("Pgp: ", pgps);
-  console.log("Uni: ", university);
-
   const columns = {
     title: "Title",
     slqfLevel: "SLQF Level",
     commencementYear: "Commencement Year",
-    programCoordinator: "Programme Coordinator",
+    programmeCoordinator: "Programme Coordinator",
   };
 
   const filterPGPs = () => {
-    const filteredData = modifiedData.filter((pgp) => {
-      const matchesKeyword = Object.values(pgp).some((value) =>
+    const filteredData = pgps.map((pgp) => ({
+      title: pgp.title,
+      slqfLevel: pgp.slqfLevel,
+      commencementYear: pgp.commencementYear,
+      programmeCoordinator: pgp.programmeCoordinator,   
+    })).filter((filteredPgp) => {
+      const matchesKeyword = Object.values(filteredPgp).some((value) =>
         value
           ? value.toString().toLowerCase().includes(searchKeyword.toLowerCase())
           : false
       );
 
-      const matchesFilters =
-        selectedFilterKeys.length === 0 ||
-        selectedFilterKeys.some((filter) => filter.title === pgp.status);
+      // const matchesFilters =
+      //   selectedFilterKeys.length === 0 ||
+      //   selectedFilterKeys.some(
+      //     (filter) => filter && filter.title === filteredPgp.status
+      //   );
 
-      return matchesKeyword && matchesFilters;
+      // return matchesKeyword && matchesFilters;
+      return matchesKeyword;
     });
     return filteredData;
   };
-
-  console.log("Modified: ", modifiedData);
-  console.log("Filtered: ", filterPGPs());
 
   const actions = [
     {
@@ -174,23 +143,14 @@ const ViewPGPs = () => {
         console.log("View");
       },
     },
-    {
-      action: "SER",
-      background: "#4CAF50",
-      hover: "#388E3C",
-      to: "/iqau_director/ser",
-      onclick: () => {
-        console.log("SER");
-      },
-    },
   ];
 
-  const status = [
-    { title: "In-review" },
-    { title: "Accepted" },
-    { title: "Rejected" },
-    { title: "Pending" },
-  ];
+  // const status = [
+  //   { title: "In-review" },
+  //   { title: "Accepted" },
+  //   { title: "Rejected" },
+  //   { title: "Pending" },
+  // ];
 
   const uniAndFaculty = [
     {
@@ -212,8 +172,35 @@ const ViewPGPs = () => {
     setPage(0);
   };
 
-  const customEqualityTest = (option, value) => {
-    return option.title === value.title;
+  // const customEqualityTest = (option, value) => {
+  //   return option.title === value.title;
+  // };
+
+  const handleSearchInputChange = _.debounce((value) => {
+    setSearchKeyword(value);
+  }, 300);
+
+  const columnMappings = {
+    title: (value) => (
+      <TableCell sx={{ paddingY: "0.5rem" }} key="title">
+        {value}
+      </TableCell>
+    ),
+    slqfLevel: (value) => (
+      <TableCell sx={{ paddingY: "0.5rem" }} key="slqfLevel">
+        {value}
+      </TableCell>
+    ),
+    commencementYear: (value) => (
+      <TableCell sx={{ paddingY: "0.5rem" }} key="commencementYear">
+        {value}
+      </TableCell>
+    ),
+    programmeCoordinator: (value) => (
+      <TableCell sx={{ paddingY: "0.5rem" }} key="programmeCoordinator">
+        {String(value.academicStaff.universitySide.user.initials)}.{String(value.academicStaff.universitySide.user.surname)}
+      </TableCell>
+    ),
   };
 
   return (
@@ -256,7 +243,7 @@ const ViewPGPs = () => {
           marginTop: "20px",
         }}
       >
-        <Autocomplete
+        {/* <Autocomplete
           sx={{ marginBottom: "20px", minWidth: "200px" }}
           multiple
           id="tags-outlined"
@@ -270,7 +257,7 @@ const ViewPGPs = () => {
           renderInput={(params) => (
             <TextField {...params} label="Filter by Status" size="small" />
           )}
-        />
+        /> */}
         <TextField
           id="outlined-basic"
           variant="outlined"
@@ -278,7 +265,7 @@ const ViewPGPs = () => {
           label="Search"
           size="small"
           value={searchKeyword}
-          onChange={(e) => setSearchKeyword(e.target.value)}
+          onChange={(e) => handleSearchInputChange(e.target.value)}
         />
       </Box>
       <TableContainer
@@ -299,7 +286,7 @@ const ViewPGPs = () => {
                   {column}
                 </TableCell>
               ))}
-              {actions.length != 0 && (
+              {actions.length !== 0 && (
                 <TableCell
                   key="Actions"
                   sx={{
@@ -314,72 +301,69 @@ const ViewPGPs = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {filterPGPs()
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row, rowIndex) => (
-                <TableRow
-                  hover
-                  key={`row-${rowIndex}`}
-                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                >
-                  {Object.values(row).map((col, colIndex) => (
-                    <TableCell
-                      sx={{ paddingY: "0.5rem" }}
-                      key={`col-${colIndex}`}
-                    >
-                      {col}
-                    </TableCell>
-                  ))}
-                  {actions.length !== 0 && (
-                    <TableCell
-                      sx={{
-                        display: "flex",
-                        justifyContent: "center",
-                        paddingY: "0.5rem",
-                      }}
-                      key={`actions-${rowIndex}`} // Use a unique key here as well
-                    >
-                      {actions.map((action, actionIndex) => (
-                        <Button
-                          component={Link}
-                          to={action.to}
-                          key={`action-button-${actionIndex}`} // Ensure each action has a unique key
-                          onClick={action.onclick}
-                          variant="contained"
-                          size="small"
-                          sx={{
-                            background: action.background,
-                            color: "#fff",
-                            "&:hover": {
-                              background: action.hover,
-                            },
-                            padding: "5px 10px",
-                            marginRight: "10px",
-                            border: "none",
-                            borderRadius: "5px",
-                            cursor: "pointer",
-                            "&:lastChild": {
-                              marginRight: "0",
-                            },
-                          }}
-                          disabled={
-                            actionIndex === 1 && row.status !== "In-review"
-                          }
-                        >
-                          {action.action}
-                        </Button>
-                      ))}
-                    </TableCell>
-                  )}
-                </TableRow>
-              ))}
+            {filterPGPs().length !== 0 &&
+              filterPGPs()
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((row, rowIndex) => (
+                  <TableRow
+                    hover
+                    key={`row-${rowIndex}`}
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
+                    {Object.keys(row).map((key) =>(
+                      columnMappings[key](row[key])
+                    )
+                    )}
+                    {actions.length !== 0 && (
+                      <TableCell
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          paddingY: "0.5rem",
+                        }}
+                        key={`actions-${rowIndex}`} // Use a unique key here as well
+                      >
+                        {actions.map((action, actionIndex) => (
+                          <Button
+                            component={Link}
+                            to={action.to}
+                            key={`action-button-${actionIndex}`} // Ensure each action has a unique key
+                            onClick={() => action.onclick()}
+                            variant="contained"
+                            size="small"
+                            sx={{
+                              background: action.background,
+                              color: "#fff",
+                              "&:hover": {
+                                background: action.hover,
+                              },
+                              padding: "5px 10px",
+                              marginRight: "10px",
+                              border: "none",
+                              borderRadius: "5px",
+                              cursor: "pointer",
+                              "&:lastChild": {
+                                marginRight: "0",
+                              },
+                            }}
+                            disabled={
+                              actionIndex === 1 && row.status !== "In-review"
+                            }
+                          >
+                            {action.action}
+                          </Button>
+                        ))}
+                      </TableCell>
+                    )}
+                  </TableRow>
+                ))}
           </TableBody>
         </Table>
       </TableContainer>
       <TablePagination
         rowsPerPageOptions={[5, 10, 20]}
         component="div"
-        count={filterPGPs.length}
+        count={filterPGPs().length}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}
