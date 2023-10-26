@@ -303,7 +303,7 @@ class ReviewerController extends Controller
 
             //get the review team based on he PGPR id
             $review_team = $reviewer->reviewTeams
-                ->whereIn('status', ['PENDING', 'APPROVED'])
+                ->whereIn('status', ['PENDING', 'ACCEPTED'])
                 ->where('pgpr_id', $request->pgpr_id)
                 ->first(); //get the only review team
 
@@ -312,7 +312,7 @@ class ReviewerController extends Controller
                 return response()->json(["message" => "The review that you are trying to accept doesn't exist."], 400);
             }
 
-            if ($review_team->pivot->reviewer_Confirmation != 'PENDING') {
+            if ($review_team->pivot->reviewer_confirmation != 'PENDING') {
                 return response()->json(["message" => "You have either accepted or rejected this review before."], 400);
             }
 
