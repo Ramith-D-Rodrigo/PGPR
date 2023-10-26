@@ -161,7 +161,7 @@ const PgAssignments = () => {
   function handleClickAccept(pgprID) {
     setAcceptClicked(true);
     setSelectedPGPRID(pgprID);
-    console.log("Accept Clicked : ", pgprID);
+    //console.log("Accept Clicked : ", pgprID);
   }
   
   function createData(
@@ -498,7 +498,7 @@ const PgAssignments = () => {
                 component="div"
                 style={{ marginRight: "20px" }}
               >
-                It's happy to inform you that you have been appointed as a
+                It&apos;s happy to inform you that you have been appointed as a
                 reviewer/Chairman for postgraduate programs by QAC. Click below
                 to download the appointment letter.
               </Typography>
@@ -598,7 +598,8 @@ const PgAssignments = () => {
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
         <Alert onClose={() => setSuccess(false)} severity="success">
-          {errorMsg} //on success
+          {errorMsg} 
+          {/* on success */}
         </Alert>
       </Snackbar>
 
@@ -615,7 +616,7 @@ const PgAssignments = () => {
         </DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Once you reject this assignment, you can't undo this action.
+            Once you reject this assignment, you can&apos;t undo this action.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
