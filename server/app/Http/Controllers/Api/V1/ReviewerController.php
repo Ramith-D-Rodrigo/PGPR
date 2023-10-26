@@ -239,7 +239,7 @@ class ReviewerController extends Controller
 
             $path = "reviewer_review_team_declaration/Declaration.docx";
 
-            return response()->download(Storage::disk('public')->path($path), 'Declaration.dox', $headers);
+            return response()->download(Storage::disk('public')->path($path), 'Declaration.docx', $headers);
         } catch (AuthorizationException $e) {
             return response()->json([
                 'message' => $e->getMessage(),
