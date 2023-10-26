@@ -490,7 +490,7 @@ const PgAssignments = () => {
                 component="div"
                 style={{ marginRight: "20px" }}
               >
-                Reviever Name: <b>{auth.fullName}</b>
+                Reviewer Name: <b>{auth.fullName}</b>
               </Typography>
               <Typography
                 variant="h6"
