@@ -121,14 +121,12 @@ const PGPRApplication = () => {
       }
       console.log("data : ",data);
       
-      //create the application
-      await axios.get("/sanctum/csrf-cookie");
-      const creationResult = await createPGPRApplication(data);
-      
-      await creationResult.then((res) => {
-        // console.log("res : ",res);
+      //create the application      
+      try{
+        await axios.get("/sanctum/csrf-cookie");
+        const creationResult = await createPGPRApplication(data);
         setLoading(false);
-        if(res.status == 201)
+        if(creationResult.status == 201)
         {
           console.log("created");
           setSuccess(true);
@@ -137,12 +135,13 @@ const PGPRApplication = () => {
           },1500)
         }
         
-      }).catch((err) => {
+      }
+      catch(err) {
         console.log("err : ",err);
         console.log(err?.response?.data?.message);
         setLoading(false);
         setErrorMsg(err?.response?.data?.message);
-      });
+      };
     }
 
 

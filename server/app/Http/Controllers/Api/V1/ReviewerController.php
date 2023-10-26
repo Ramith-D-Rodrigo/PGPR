@@ -419,10 +419,11 @@ class ReviewerController extends Controller
      * View specific program review
      *
      * send the PGPR ID as pgprId=10 in the GET request
+     * @throws ValidationValidationException
      */
     public function viewSpecificPGPR(Request $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
+        $validator = Validator::make(['pgprId' => $request->route('pgprId')], [
             'pgprId' => 'required|exists:post_graduate_program_reviews,id',
         ], [
             'pgprId.required' => 'We need the postgraduate review program id inorder to provide the necessary details',
@@ -431,13 +432,18 @@ class ReviewerController extends Controller
 
         if ($validator->passes()) {
             try {
+                $validated = $validator->validated();
                 $reviewer = Reviewer::findOrFail(Auth::id());
 
                 $reviewTeams = $reviewer
                     ->reviewTeams
                     ->where('pgpr_id', $validator->validated()['pgprId'])->load(['postGraduateReviewProgram' => 'selfEvaluationReport']);
 
-                return response()->json(['message' => 'successful', 'data' => new PostGraduateProgramReviewResource($reviewTeams->postGraduateReviewProgram)]);
+                if (!$reviewTeam) {
+                    return response()->json(['message' => 'Hmm, seems this reviewer is not a member of the review team of the given pgpr'], 403);
+                }
+
+                return response()->json(['message' => 'successful', 'data' => new PostGraduateProgramReviewResource($reviewTeam->postGraduateReviewProgram)]);
             } catch (ModelNotFoundException $exception) {
                 return response()->json(['message' => 'Hmm. we dont have such reviewer in our system, how did you get in?'], 403);
             } catch (Exception $exception) {
@@ -523,7 +529,6 @@ class ReviewerController extends Controller
         try {
             $this->authorize('updateRemarksOfSectionsABDAuthorize', [Reviewer::class, $request]);
 
-            // TODO: check whether the review belongs to that particular review team before updating
             $reviewerId = Auth::id();
             $serId = $request->validated('ser_id');
             $sections = $request->validated('sections');

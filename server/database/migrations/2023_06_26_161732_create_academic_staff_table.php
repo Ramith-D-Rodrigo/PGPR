@@ -25,7 +25,7 @@ return new class extends Migration {
             $table->integer('conference_preceedings_count')->nullable();
             $table->integer('book_chapters')->nullable(); //book chapters count
             $table->json('involvement_in_internal_quality_assurance')->nullable();
-            $table->json('involment_in_study_programme_development')->nullable();
+            $table->json('involvement_in_study_programme_development')->nullable();
             $table->json('postgraduate_teaching_experience')->nullable();
             $table->json('postgraduate_qualifications'); //postgraduate qualifications (qualiifcation , slqf level of the qualification) [up to 4]
             $table->json('prior_training_in_programme_review')->nullable();

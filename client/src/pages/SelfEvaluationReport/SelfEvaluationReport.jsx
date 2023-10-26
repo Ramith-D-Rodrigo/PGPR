@@ -24,6 +24,8 @@ import { useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import Modal from '@mui/material/Modal';
 
+import  recommendSelfEvaluationReport from "../../api/SelfEvaluationReport/recommendSelfEvaluationReport";
+
 
 
 const SelfEvaluationReport = () => {
@@ -146,7 +148,9 @@ const SelfEvaluationReport = () => {
 
     const [warningOpen, setWarningOpen] = useState(false);
 
-    const WarningMessage = () => {
+    const [warningType, setWarningType] = useState('');
+
+    const WarningMessage = ({warningType}) => {
         return (
             <Modal
                 open={warningOpen}
@@ -160,10 +164,23 @@ const SelfEvaluationReport = () => {
                     </Typography>
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
                         <Typography>
-                            Are you sure you want to continue?
-                            <Button variant="contained" color="success" component={Link} to={'/programme_coordinator/pgprs/' + pgprId +'/ser/'+serId+'/submitSER'}>
-                                Submit
-                            </Button>
+                            {
+                                warningType === 'submit' ?
+                                    <>
+                                        Not all the standards are submitted! Do you want to proceed to evaluation submission?
+                                        <Button variant="contained" color="success" component={Link} to={'/programme_coordinator/pgprs/' + pgprId +'/ser/'+serId+'/submitSER'}>
+                                            Proceed
+                                        </Button>
+                                    </>
+                                :
+
+                                    <>
+                                        Not all the standards are submitted! Do you want to recommend the report?
+                                        <Button variant="contained" color="success" onClick={handleReportRecommendationConfirm}>
+                                            Recommend
+                                        </Button>
+                                    </>
+                            }
                             <Button variant="contained" color="error" onClick={() => { setWarningOpen(false)}}>
                                 Cancel
                             </Button>
@@ -189,6 +206,7 @@ const SelfEvaluationReport = () => {
             const submittedStandardCount = ser.evidenceGivenStandards.length;
             const totalStandardCount = ser.criterias.flatMap(criteria => criteria.standards).length;
             if (submittedStandardCount !== totalStandardCount) {
+                setWarningType('submit');
                 setWarningOpen(true);
             } else {
                 navigate('/programme_coordinator/pgprs/' + pgprId +'/ser/'+serId+'/submitSER');
@@ -196,9 +214,40 @@ const SelfEvaluationReport = () => {
         }
     }
 
+    const handleReportRecommendation = async () => {
+        const submittedEvidenceCount = ser.evidenceGivenStandards.flatMap(standard => standard.evidences).length;
+        if (submittedEvidenceCount === 0) {
+            alert("No evidences submitted");
+        }
+        else {
+            const submittedStandardCount = ser.evidenceGivenStandards.length;
+            const totalStandardCount = ser.criterias.flatMap(criteria => criteria.standards).length;
+            if (submittedStandardCount !== totalStandardCount) {
+                setWarningType('recommend');
+                setWarningOpen(true);
+            } else {
+                await handleReportRecommendationConfirm();
+            }
+        }
+    }
+
+    const handleReportRecommendationConfirm = async () => {
+        try{
+            const response = await recommendSelfEvaluationReport(serId);
+
+            if (response && response.status === 200) {
+                alert("Report recommended successfully");
+                navigate('/' + auth.authRole[0] + '/pgprs/' + pgprId +'/ser/'+serId);
+            }
+        }
+        catch(error){
+            console.log(error);
+        }
+    }
+
     return (
         <>
-            <WarningMessage/>
+            <WarningMessage setWarningType={warningType}/>
             <Divider textAlign="left">
                 <Chip label="Postgraduate Programme Review" />
             </Divider>
@@ -356,7 +405,7 @@ const SelfEvaluationReport = () => {
                 </Table>
             </TableContainer>
 
-            {auth.authRole[0] === 'programme_coordinator' && //Only programme coordinator can submit for evaluation
+            {auth.authRole[0] === 'programme_coordinator' && ser?.postGraduateProgramReview?.statusOfPgpr == 'PLANNING'  && //Only programme coordinator can submit for evaluation and only if the status of the PGPR is PLANNING
                 <Box
                     sx={{
                         display: "flex",
@@ -373,7 +422,43 @@ const SelfEvaluationReport = () => {
                         onClick={handleEvaulationSubmit}
                     >
                         <Typography variant="body1">
-                            Submit For Evaulation
+                            Submit For Evaluation
+                        </Typography>
+                    </Button>
+                </Box>
+            }
+
+            {ser?.postGraduateProgramReview?.statusOfPgpr == 'PLANNING' && 
+            ser?.sectionA !== null && ser?.sectionB !== null && ser?.sectionD !== null && ser?.finalSerReport !== null &&
+            (auth.authRole[0] === 'vice_chancellor' || auth.authRole[0] === 'cqa_director') &&  
+                //Only vc and cqa director can recommend the report and only if the status of the PGPR is PLANNING
+                <Box
+                    sx={{
+                        display: "flex",
+                        width: "100%",
+                        justifyContent: "center",
+                        alignItems: "end",
+                    }}
+                >
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        size="normal"
+                        sx={{ float: "right" }}
+                        onClick={handleReportRecommendation}
+                        disabled={
+                            (auth.authRole[0] === 'vice_chancellor' && ser?.viceChancellorId !== null) ||
+                            (auth.authRole[0] === 'cqa_director' && ser?.cqaDirectorId !== null)
+                        }
+                    >
+                        <Typography variant="body1">
+                            {
+                                (auth.authRole[0] === 'vice_chancellor' && ser?.viceChancellorId !== null) ||
+                                (auth.authRole[0] === 'cqa_director' && ser?.cqaDirectorId !== null) ?
+                                    'Report already recommended'
+                                :
+                                    'Recommend Report'
+                            }
                         </Typography>
                     </Button>
                 </Box>

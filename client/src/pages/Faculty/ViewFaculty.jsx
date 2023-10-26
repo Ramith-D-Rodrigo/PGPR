@@ -4,15 +4,24 @@ import { useEffect, useState } from 'react';
 import getAFaculty from "../../api/Faculty/getAFaculty.js";
 import getCurrentDean from "../../api/Faculty/getCurrentDean.js";
 import getCurrentIQAUDirector from "../../api/Faculty/getCurrentIQAUDirector.js";
-import { Avatar, Button, Divider, Typography } from "@mui/material";
+import { Avatar, Button, Divider, TableContainer, Typography } from "@mui/material";
 import { Select } from "@mui/material";
 import { MenuItem } from "@mui/material";
 import { SERVER_URL } from "../../assets/constants.js";
 import { Link } from "react-router-dom";
+import getFacultyPostGraduatePrograms from "../../api/Faculty/getFacultyPostGraduatePrograms.js";
+import { Paper } from "@mui/material";
+import { Table } from "@mui/material";
+import { TableBody } from "@mui/material";
+import { TableCell } from "@mui/material";
+import { TableHead } from "@mui/material";
+import { TableRow } from "@mui/material";
+import Box from '@mui/material/Box';
+
 
 const ViewFaculty = () => {
-    const {auth} = useAuth();
-    const {facultyId} = useParams();
+    const { auth } = useAuth();
+    const { facultyId } = useParams();
 
     const [faculty, setFaculty] = useState(null);
 
@@ -20,7 +29,7 @@ const ViewFaculty = () => {
         document.title = "View Faculty";
 
         const getFaculty = async () => {
-            try{
+            try {
                 //get the faculty
                 const queryParams = {
                     includeUniversity: true,
@@ -29,7 +38,7 @@ const ViewFaculty = () => {
 
                 const facultyResponse = await getAFaculty(facultyId, queryParams);
 
-                if(facultyResponse?.status === 200){
+                if (facultyResponse?.status === 200) {
                     const facultyData = facultyResponse?.data?.data;
 
                     //get faculty current dean
@@ -41,9 +50,9 @@ const ViewFaculty = () => {
                     }
                     const deanResponse = await getCurrentDean(facultyId, queryParams1);
 
-                    if(deanResponse?.status === 200){
+                    if (deanResponse?.status === 200) {
                         facultyData.dean = deanResponse?.data?.data;
-                        
+
                         //get faculty current IQAU director
                         const queryParams2 = {
                             includeUser: true,
@@ -54,9 +63,16 @@ const ViewFaculty = () => {
 
                         const iqauDirectorResponse = await getCurrentIQAUDirector(facultyId, queryParams2);
 
-                        if(iqauDirectorResponse?.status === 200){
+                        if (iqauDirectorResponse?.status === 200) {
                             facultyData.iqauDirector = iqauDirectorResponse?.data?.data;
                         }
+                    }
+
+                    //get faculty postgraduate programmes
+                    const pgps = await getFacultyPostGraduatePrograms(facultyId);
+
+                    if (pgps?.status === 200) {
+                        facultyData.postGraduatePrograms = pgps?.data?.data;
                     }
 
                     console.log(facultyData);
@@ -64,7 +80,7 @@ const ViewFaculty = () => {
                     setFaculty(facultyData);
                 }
             }
-            catch(error){
+            catch (error) {
                 console.log(error);
             }
         }
@@ -74,153 +90,225 @@ const ViewFaculty = () => {
 
     return (
         <>
-            <Typography variant="h4" sx={{mb: 5}}>
-                View Faculty
+            <Typography variant="h5" sx={{ mb: 5 }} align='center'>
+                Faculty Details
             </Typography>
+            <Box sx={{ display: 'flex' }}>
+                <Box sx={{ width: '50%' }}>
+                    {
+                        faculty &&
+                        <>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, mx:2 }}>
+                                <Typography variant="h6">
+                                    Name
+                                </Typography>
+                                <Typography variant="h6">
+                                    {faculty.name}
+                                </Typography>
+                            </Box>
+
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, mx:2 }}>
+                                <Typography variant="h6">
+                                    Website
+                                </Typography>
+                                <Button
+                                    variant="outlined"
+                                    component={Link}
+                                    to={faculty.website}
+                                    target="_blank"
+                                >
+                                    Visit Website
+                                </Button>
+                            </Box>
+
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, mx:2 }}>
+                                <Typography variant="h6">
+                                    Address
+                                </Typography>
+                                <Typography variant="h6" sx={{ width: '70%' }} align='right'>
+                                    {faculty.address}
+                                </Typography>
+                            </Box>
+
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, mx:2 }}>
+                                <Box>
+                                    <Select value={'Contact Numbers'}>
+                                        <MenuItem variant="h6" sx={{ mb: 2 }} key={faculty.id + 'defaultcontact'} value={'Contact Numbers'}>
+                                            Contact Numbers
+                                        </MenuItem>
+                                        {faculty.contactNo.data.map(contactNo => {
+                                            return (
+                                                <MenuItem variant="h6" sx={{ mb: 2 }} key={faculty.id + contactNo}>
+                                                    {contactNo}
+                                                </MenuItem>
+                                            )
+                                        }
+
+                                        )}
+                                    </Select>
+                                </Box>
+
+                                <Box>
+                                    <Select value={'Fax Numbers'}>
+                                        <MenuItem variant="h6" sx={{ mb: 2 }} key={faculty.id + 'defaultfax'} value={'Fax Numbers'}>
+                                            Fax Numbers
+                                        </MenuItem>
+                                        {faculty.faxNo.data.map(faxNo => {
+                                            return (
+                                                <MenuItem variant="h6" sx={{ mb: 2 }} key={faculty.id + faxNo}>
+                                                    {faxNo}
+                                                </MenuItem>
+                                            )
+                                        }
+
+                                        )}
+                                    </Select>
+                                </Box>
+                            </Box>
+                        </>
+                    }
+                </Box>
+                <Box sx={{ width: '50%', borderLeft: '1px solid lightgrey' }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, mx:2 }}>
+                        {faculty &&
+                            <>
+                                <Typography variant="h6" sx={{ mb: 2 }}>
+                                    Dean
+                                </Typography>
+                                <Box sx={{ display: 'flex' }}>
+                                    <Typography variant="h6" sx={{ mb: 2 }}>
+                                        {faculty.dean.academicStaff.universitySide.user.initials + ' ' + faculty.dean.academicStaff.universitySide.user.surname}
+                                    </Typography>
+                                    <Avatar src={SERVER_URL.slice(0, -1) + faculty.dean.academicStaff.universitySide.user.profilePic} sx={{ ml: 2 }} />
+                                    {auth.authRole[0] === 'cqa_director' &&
+                                        <>
+                                            {/*edit button for Dean*/}
+                                            <Button
+                                                variant="contained"
+                                                sx={{ ml: 2 }}
+                                            >
+                                                Edit Dean
+                                            </Button>
+
+                                        </>
+                                    }
+                                </Box>
+                            </>
+                        }
+                    </Box>
+
+                    <Divider sx={{ my: 2, width: '95%' }} variant="middle"/>
+
+                    <Typography variant="h6" sx={{ mb: 2 }} align='center'>
+                        Internal Quality Assurance Unit
+                    </Typography>
+
+                    <Box>
+                        {faculty &&
+                            <>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, mx:2 }}>
+                                    <Typography variant="h6" sx={{ mb: 2 }}>
+                                        Address
+                                    </Typography>
+                                    <Typography variant="h6" sx={{ width: '70%' }} align='right'>
+                                        {faculty.internalQualityAssuranceUnit.address}
+                                    </Typography>
+                                </Box>
+
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, mx:2 }}>
+                                    <Select value={'Contact Numbers'}>
+                                        <MenuItem variant="h6" sx={{ mb: 2 }} key={faculty.id + 'defaultcontactiqau'} value={'Contact Numbers'}>
+                                            Contact Numbers
+                                        </MenuItem>
+                                        {faculty.internalQualityAssuranceUnit.contactNo.data.map(contactNo => {
+                                            return (
+                                                <MenuItem variant="h6" sx={{ mb: 2 }} key={faculty.id + contactNo}>
+                                                    {contactNo}
+                                                </MenuItem>
+                                            )
+                                        }
+
+                                        )}
+                                    </Select>
+
+                                    <Select value={'Fax Numbers'}>
+                                        <MenuItem variant="h6" sx={{ mb: 2 }} key={faculty.id + 'defaultfaxiqau'} value={'Fax Numbers'}>
+                                            Fax Numbers
+                                        </MenuItem>
+                                        {faculty.internalQualityAssuranceUnit.faxNo.data.map(faxNo => {
+                                            return (
+                                                <MenuItem variant="h6" sx={{ mb: 2 }} key={faculty.id + faxNo}>
+                                                    {faxNo}
+                                                </MenuItem>
+                                            )
+                                        }
+
+                                        )}
+                                    </Select>
+                                </Box>
+                            </>
+                        }
+                    </Box>
+
+                </Box>
+            </Box>
 
             {
                 faculty &&
                 <>
-                    <Typography variant="h6" sx={{mb: 2}}>
-                        Name: {faculty.name}
-                    </Typography>
+                    <Divider sx={{ my: 2 }} />
 
-                    <Typography variant="h6" sx={{mb: 2}}>
-                        Website: {faculty.website}
-                    </Typography>
-
-                    <Typography variant="h6" sx={{mb: 2}}>
-                        Address: {faculty.address}
-                    </Typography>
-
-                    <Select value={'Contact Numbers'}>
-                        <MenuItem variant="h6" sx={{mb: 2}} key={faculty.id+'defaultcontact'} value={'Contact Numbers'}>
-                            Contact Numbers
-                        </MenuItem>
-                        {faculty.contactNo.data.map(contactNo => {
-                            return (
-                                <MenuItem variant="h6" sx={{mb: 2}} key={faculty.id + contactNo}>
-                                    {contactNo}
-                                </MenuItem>
-                            )
-                        }
-                        
-                        )}
-                    </Select>
-
-                    <Select value={'Fax Numbers'}>
-                        <MenuItem variant="h6" sx={{mb: 2}} key={faculty.id+'defaultfax'} value={'Fax Numbers'}>
-                            Fax Numbers
-                        </MenuItem>
-                        {faculty.faxNo.data.map(faxNo => {
-                            return (
-                                <MenuItem variant="h6" sx={{mb: 2}} key={faculty.id + faxNo}>
-                                    {faxNo}
-                                </MenuItem>
-                            )
-                        }
-                        
-                        )}
-                    </Select>
-
-                    <Divider sx={{my: 2}}/>
-
-                    <Typography variant="h6" sx={{mb: 2}}>
-                        Dean : {faculty.dean.academicStaff.universitySide.user.initials + ' ' + faculty.dean.academicStaff.universitySide.user.surname}
-                        <Avatar src={SERVER_URL.slice(0, -1) +  faculty.dean.academicStaff.universitySide.user.profilePic} sx={{ml: 2}}/>
-
-                        
-                        {auth.authRole[0] === 'cqa_director' &&
-                            <>
-                            {/*edit button for Dean*/}
-                                <Button
-                                    variant="contained"
-                                    sx={{ml: 2}}
-                                >
-                                    Edit Dean
-                                </Button>
-
-                            </>      
-                        }
-                    </Typography>
-
-                    <Divider sx={{my: 2}}/>
-
-                    <Typography variant="h6" sx={{mb: 2}}>
-                        Internal Quality Assurance Unit
-                    </Typography>
-
-                    <Typography variant="h6" sx={{mb: 2}}>
-                        Address : {faculty.internalQualityAssuranceUnit.address}
-                    </Typography>
-
-                    <Select value={'Contact Numbers'}>
-                        <MenuItem variant="h6" sx={{mb: 2}} key={faculty.id+'defaultcontactiqau'} value={'Contact Numbers'}>
-                            Contact Numbers
-                        </MenuItem>
-                        {faculty.internalQualityAssuranceUnit.contactNo.data.map(contactNo => {
-                            return (
-                                <MenuItem variant="h6" sx={{mb: 2}} key={faculty.id + contactNo}>
-                                    {contactNo}
-                                </MenuItem>
-                            )
-                        }
-                        
-                        )}
-                    </Select>
-
-                    <Select value={'Fax Numbers'}>
-                        <MenuItem variant="h6" sx={{mb: 2}} key={faculty.id+'defaultfaxiqau'} value={'Fax Numbers'}>
-                            Fax Numbers
-                        </MenuItem>
-                        {faculty.internalQualityAssuranceUnit.faxNo.data.map(faxNo => {
-                            return (
-                                <MenuItem variant="h6" sx={{mb: 2}} key={faculty.id + faxNo}>
-                                    {faxNo}
-                                </MenuItem>
-                            )
-                        }
-                        
-                        )}
-                    </Select>
-
-                    <Typography variant="h6" sx={{mb: 2}}>
-                        Current Director : {faculty.iqauDirector.qualityAssuranceStaff.universitySide.user.initials + ' ' + faculty.iqauDirector.qualityAssuranceStaff.universitySide.user.surname}
-                        <Avatar src={SERVER_URL.slice(0, -1) +  faculty.iqauDirector.qualityAssuranceStaff.universitySide.user.profilePic} sx={{ml: 2}}/>
-
-                        {auth.authRole[0] === 'cqa_director' &&
-                            <>
-                            {/*edit button for director*/}
-                                <Button
-                                    variant="contained"
-                                    sx={{ml: 2}}
-                                >
-                                    Edit Director
-                                </Button>
-
-                            </>      
-                        }
+                    <Typography variant="h6" sx={{ mb: 2 }} align='center'>
+                        Postgraduate Programmes
 
                     </Typography>
 
-                    <Divider sx={{my: 2}}/>
+                    <TableContainer component={Paper}>
+                        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Programme Name</TableCell>
+                                    <TableCell>SLQF Level</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {faculty.postGraduatePrograms.map((pgp) => (
+                                    <TableRow
+                                        key={pgp.id}
+                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                    >
+                                        <TableCell component="th" scope="row">
+                                            {pgp.title}
+                                        </TableCell>
+                                        <TableCell>{pgp.slqfLevel}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
 
-                    <Typography variant="h6" sx={{mb: 2}}>
-                        University
-                        <Button 
-                            variant="contained"
-                            sx={{ml: 2}}
-                            component={Link}
-                            to={`universities/${faculty.university.id}`}
-                        >
-                            View University
-                        </Button>
-                    </Typography>
+
+                    <Divider sx={{ my: 2 }} />
+
+                    {
+                        auth.authRole[0] === 'qac_director' || auth.authRole[0] === 'qac_officer' &&
+                        <Typography variant="h6" sx={{ mb: 2 }}>
+                            University
+                            <Button
+                                variant="contained"
+                                sx={{ ml: 2 }}
+                                component={Link}
+                                to={`/${auth.authRole[0]}/universities/${faculty.university.id}`}
+                            >
+                                View University
+                            </Button>
+                        </Typography>
+                    }
 
 
                 </>
             }
-        
+
         </>
     )
 }

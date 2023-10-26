@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('pgpr_id');
             $table->foreignId('review_team_id');
-            $table->enum('type', ['PRELIMINARY', 'FINAL'])->default('PRELIMINARY');
+            $table->enum('type', ['PRELIMINARY', 'FINAL', 'SUBMITTED'])->default('PRELIMINARY');
             $table->string('preliminary_report')->nullable();
             $table->string('final_report')->nullable();
             $table->timestamps();
