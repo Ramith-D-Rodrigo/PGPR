@@ -61,7 +61,7 @@ class PostGraduateProgramReviewPolicy
                 }
                 return Response::allow();
                 break;
-                
+
             case 'iqau_director':
                 $iqauDirectorFacultyId = $user -> universitySide -> qualityAssuranceStaff -> internalQualityAssuranceUnitDirector -> internalQualityAssuranceUnit -> faculty -> id;
                 if($postGraduateProgramReview -> postGraduateProgram -> faculty -> id !== $iqauDirectorFacultyId){
@@ -79,7 +79,7 @@ class PostGraduateProgramReviewPolicy
                 break;
 
             case 'cqa_director':
-                $cqaDirectorUniId = $user -> universitySide -> qualityAssuranceStaff -> centerForQualityAssuranceDirector -> university -> id;
+                $cqaDirectorUniId = $user -> universitySide -> qualityAssuranceStaff -> centerForQualityAssuranceDirector -> centerForQualityAssurance -> university -> id;
                 if($postGraduateProgramReview -> postGraduateProgram -> faculty -> university -> id !== $cqaDirectorUniId){
                     return Response::deny('You are not authorized to view this postgraduate programme review');
                 }

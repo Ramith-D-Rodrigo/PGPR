@@ -61,7 +61,7 @@ class DatabaseSeeder extends Seeder
             ->for(
                 AcademicStaff::factory()->for(
                     UniversitySide::factory()->for(
-                        User::factory()->reviewer()->create()
+                        User::factory()->reviewer_1()->create()
                     )->for($university)->create()
                 )->create()
             )->create();
@@ -70,7 +70,7 @@ class DatabaseSeeder extends Seeder
         ->for(
             AcademicStaff::factory()->for(
                 UniversitySide::factory()->for(
-                    User::factory()->reviewer()->create()
+                    User::factory()->reviewer_2()->create()
                 )->for($university)->create()
             )->create()
         )->create();
@@ -79,7 +79,7 @@ class DatabaseSeeder extends Seeder
         ->for(
             AcademicStaff::factory()->for(
                 UniversitySide::factory()->for(
-                    User::factory()->reviewer()->create()
+                    User::factory()->reviewer_3()->create()
                 )->for($university)->create()
             )->create()
         )->create();

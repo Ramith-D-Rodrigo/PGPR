@@ -184,13 +184,13 @@ class ReviewerPolicy
         $ser = SelfEvaluationReport::findOrFail($SERid);
 
         //get the review team
-        $team = $ser -> postGraduateProgramReview -> acceptedReviewTeam();
+        $team = $ser -> postGraduateProgramReview -> acceptedReviewTeam;
 
         //get the reviewers
 
         //check if the reviewer is in the review team
         foreach($team -> reviewers as $reviewer){
-            if($reviewer -> reviewer_id == $user -> id){
+            if($reviewer -> pivot -> reviewer_id == $user -> id){
                 return Response::allow();
             }
         }

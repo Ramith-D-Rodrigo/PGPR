@@ -70,10 +70,8 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
 
     //routes for side drawer -- not completed
     const reviewerRoutes = [
-      {route:"DashBoard",link: "/reviewer/dashboard"},
-      {route:"PG Assignments" ,link: "/reviewer/PG_Assignments"},
-      {route:"Set Date" ,link: "/reviewer/SetDate"},
-      {route:"Set Criteria" ,link: "/reviewer/SetCriteria"},
+      {route:"Dashboard",link: "/reviewer/dashboard"},
+      {route:"PGPR Assignments" ,link: "/reviewer/PG_Assignments"},
     ]
 
     const qacDirectorRoutes = [
@@ -96,11 +94,10 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
 
     const cqaDirectorRoutes = [
       {route:"Dashboard",link: "/cqa_director/dashboard"},
-      {route:"Add PG Program" ,link: "/cqa_director/AddPGProgramPage"},
-      {route:"Add Accounts" ,link: "/cqa_director/AddAccounts"},
-      {route:"Edit PG Program" ,link: "/cqa_director/EditPGProgram"},
-      {route:"View PG Programs" ,link: "/cqa_director/ViewPGPrograms"},
-      {route:"View Coordinators" ,link: "/cqa_director/ViewCoordinators"},
+      {route:"Postgraduate Programmes" ,link: "/cqa_director/ViewPGPrograms"},
+      {route:"PGPR Applications" ,link: "/cqa_director/BrowsePGPRApplications"},
+      {route:"Postgraduate Programme Reviews", link: "/cqa_director/pgprs"},
+      {route:"Accounts" ,link: "/cqa_director/ViewCoordinators"},
       {route:"Faculties" ,link: "/cqa_director/faculties"},
     ]
 

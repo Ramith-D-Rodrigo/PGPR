@@ -48,10 +48,27 @@ class UserFactory extends Factory
         ]);
     }
 
-    public function reviewer(): static
+    public function reviewer_1(): static
     {
         return $this->state(fn(array $attributes) => [
             'roles' => json_encode(['reviewer']),
+            'official_email' => env('REV_1_SAMPLE_EMAIL'),
+        ]);
+    }
+
+    public function reviewer_2(): static
+    {
+        return $this->state(fn(array $attributes) => [
+            'roles' => json_encode(['reviewer']),
+            'official_email' => env('REV_2_SAMPLE_EMAIL'),
+        ]);
+    }
+
+    public function reviewer_3(): static
+    {
+        return $this->state(fn(array $attributes) => [
+            'roles' => json_encode(['reviewer']),
+            'official_email' => env('REV_3_SAMPLE_EMAIL'),
         ]);
     }
 
@@ -59,6 +76,7 @@ class UserFactory extends Factory
     {
         return $this->state(fn(array $attributes) => [
             'roles' => json_encode(['cqa_director']),
+            'official_email' => env('CQA_SAMPLE_EMAIL')
         ]);
     }
 
@@ -66,7 +84,7 @@ class UserFactory extends Factory
     {
         return $this->state(fn(array $attributes) => [
             'roles' => json_encode(['qac_officer']),
-            'official_email' => 'qacofficer@gmail.com',
+            'official_email' => env('QACO_SAMPLE_EMAIL'),
             'logins' => 1 //so no need to change password
         ]);
     }
@@ -75,7 +93,7 @@ class UserFactory extends Factory
     {
         return $this->state(fn(array $attributes) => [
             'roles' => json_encode(['qac_director']),
-            'official_email' => 'qacdirector@gmail.com',
+            'official_email' => env('QACD_SAMPLE_EMAIL'),
             'logins' => 1 //so no need to change password
         ]);
     }
@@ -84,6 +102,7 @@ class UserFactory extends Factory
     {
         return $this->state(fn(array $attributes) => [
             'roles' => json_encode(['vice_chancellor']),
+            'official_email' => env('VC_SAMPLE_EMAIL')
         ]);
     }
 
@@ -91,6 +110,7 @@ class UserFactory extends Factory
     {
         return $this->state(fn(array $attributes) => [
             'roles' => json_encode(['dean']),
+            'official_email' => env('DEAN_SAMPLE_EMAIL')
         ]);
     }
 
@@ -98,6 +118,7 @@ class UserFactory extends Factory
     {
         return $this->state(fn(array $attributes) => [
             'roles' => json_encode(['iqau_director']),
+            'official_email' => env('IQAU_SAMPLE_EMAIL')
         ]);
     }
 
@@ -105,6 +126,7 @@ class UserFactory extends Factory
     {
         return $this->state(fn(array $attributes) => [
             'roles' => json_encode(['programme_coordinator']),
+            'official_email' => env('COOR_SAMPLE_EMAIL')
         ]);
     }
 
