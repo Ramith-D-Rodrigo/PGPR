@@ -29,15 +29,21 @@ import TextField from "@mui/material/TextField";
 import getAssignedPGPRs from "../../api/Reviewer/getAssignedPGPR";
 import getSelfEvaluationReport from "../../api/SelfEvaluationReport/getSelfEvaluationReport";
 import getPGPR from "../../api/PostGraduateProgramReview/getPGPR";
+import axios from "../../api/api";
+import { SERVER_API_VERSION, SERVER_URL } from "../../assets/constants";
+import useAuth from "../../hooks/useAuth";
 
 const ConductPE = () => {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+
+  const { auth } = useAuth();
+  const { pgprId } = useParams();
+
   const [openDateDialog, setOpenDateDialog] = useState(false);
   const [openCriteriaDialog, setOpenCriteriaDialog] = useState(false);
   const [PEEndDate, setPEEndDate] = useState("");
-  const { pgprId } = useParams();
-  const decodedPgprId = decodeURIComponent(pgprId);
+  
 
   const [criteriaList, setCriteriaList] = useState([
     { name: "Programme Evaluation", id: 1 },
@@ -55,7 +61,25 @@ const ConductPE = () => {
   ]);
   const [reviewerCreitriaList, setReviewerCreitriaList] = useState([]);
   const [selectedReviewer, setSelectedReviewer] = useState("");
-  const [reviewer, setReviewer] = useState("Chair");
+
+  const [isChair, setIsChair] = useState(false);
+  const [pgpr, setPgpr] = useState({});
+  const [programData, setProgramData] = useState({
+    title: "",
+    slqfLevel: null,
+    coordinator: "",
+    commencementYear: null,
+    faculty: "",
+    university: "",
+    applicationDate: "",
+    requestDate: "",
+    yearEnd: "",
+  });
+  const [PEData, setPEData] = useState({});
+
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [success, setSuccess] = useState(false);
 
   useSetUserNavigations([
     {
@@ -67,6 +91,80 @@ const ConductPE = () => {
       link: `/PG_Assignments/Conduct_PE/${pgprId}`,
     },
   ]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      setErrorMsg("");
+
+      try {
+        const pgprResponse = await getPGPR(pgprId);
+        console.log("PGPR : ", pgprResponse?.data?.data);
+        setPgpr(pgprResponse?.data?.data);
+
+        if (pgprResponse?.data?.data) {
+          const team = pgprResponse?.data?.data?.acceptedReviewTeam;
+          const reviewers = team?.reviewers;
+          const chair = reviewers?.find(
+            (reviewer) => reviewer?.role === "CHAIR"
+          );
+          const chairReviewer = chair?.userData;
+          const chairId = chairReviewer?.id;
+          if (chairId === auth?.id) {
+            setIsChair(true);
+          }
+
+          const programApplication = pgprResponse?.data?.data?.postGraduateProgramReviewApplication;
+          const applicationDate = programApplication?.applicationDate;
+          const requestDate = programApplication?.requestDate;
+          const yearEnd = programApplication?.yEnd;
+
+          const program = pgprResponse?.data?.data?.postGraduateProgramme;
+          const title = program?.title;
+          const slqfLevel = program?.slqfLevel;
+          const commencementYear = program?.commencementYear;
+          const facultyData = program?.faculty;
+          const faculty = facultyData?.name;
+          const universityData = facultyData?.university;
+          const university = universityData?.name;
+
+          const ser = pgprResponse?.data?.data?.selfEvaluationReport;
+          const coordinator = ser?.programmeCoordinator;
+          const academic = coordinator?.academicStaff;
+          const universitySideDetails = academic?.universitySide;
+          const coordinatorUser = universitySideDetails?.user;
+          const coordinatorName = coordinatorUser?.initials + " . " + coordinatorUser?.surname;
+
+          setProgramData({
+            title,
+            slqfLevel,
+            coordinatorName,
+            commencementYear,
+            faculty,
+            university,
+            applicationDate,
+            requestDate,
+            yearEnd,
+          });
+
+          console.log("Program : ", programData);
+          //console.log("Team : ", team);
+          const PEResponse = await axios.get(
+            `${SERVER_URL}/${SERVER_API_VERSION}review-team/proper-evaluation/view-details/${pgprId}/${team?.id}`
+          );
+          console.log("PE Data : ", PEResponse?.data?.data);
+          setPEData(PEResponse?.data?.data);
+        }
+      } catch (error) {
+        setErrorMsg(error?.response?.data?.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [pgprId, auth?.id]);
+
+  //console.log("CHAIR : ", isChair);
 
   const handleSetDate = (openDateDialog) => {
     console.log(openDateDialog);
@@ -113,68 +211,107 @@ const ConductPE = () => {
   //   { label: "Program Coordinator:", value: "Mr. Smantha Karunanayake" },
   // ];
 
-  const rows = [
-    {
-      name: "John Doe",
-      designation: "Professor",
-      status: "Reviewer",
-      listOfCriteria: [
-      ],
-      actions: <Button onClick={()=>{setOpenCriteriaDialog(true),setSelectedReviewer({id:1,name:"john john"})}} variant="contained" size="small" style={{backgroundColor: "#A2CBEA", color: "black", fontWeight: "bold", textAlign: "center"}}>Update</Button>
-    },
-    {
-      name: "Jane Smith",
-      designation: "Associate Professor",
-      status: "Reviewer",
-      listOfCriteria: ["Programme Management", "P. Design and Development"],
-      actions: <Button onClick={()=>{setOpenCriteriaDialog(true),setSelectedReviewer({id:1,name:"john john"})}} variant="contained" size="small" style={{backgroundColor: "#A2CBEA", color: "black", fontWeight: "bold", textAlign: "center"}}>Update</Button>
-    },
-    {
-      name: "Michael Johnson",
-      designation: "Assistant Professor",
-      status: "Chair",
-      listOfCriteria: [
-        "Human Physical Res. & LS",
-      ],
-      actions: <Button onClick={()=>{setOpenCriteriaDialog(true),setSelectedReviewer({id:1,name:"john john"})}} variant="contained" size="small" style={{backgroundColor: "#A2CBEA", color: "black", fontWeight: "bold", textAlign: "center"}}>Update</Button>
-    },
-  ];
+  // const rows = [
+  //   {
+  //     name: "John Doe",
+  //     designation: "Professor",
+  //     status: "Reviewer",
+  //     listOfCriteria: [
+  //     ],
+  //     actions: <Button onClick={()=>{setOpenCriteriaDialog(true),setSelectedReviewer({id:1,name:"john john"})}} variant="contained" size="small" style={{backgroundColor: "#A2CBEA", color: "black", fontWeight: "bold", textAlign: "center"}}>Update</Button>
+  //   },
+  //   {
+  //     name: "Jane Smith",
+  //     designation: "Associate Professor",
+  //     status: "Reviewer",
+  //     listOfCriteria: ["Programme Management", "P. Design and Development"],
+  //     actions: <Button onClick={()=>{setOpenCriteriaDialog(true),setSelectedReviewer({id:1,name:"john john"})}} variant="contained" size="small" style={{backgroundColor: "#A2CBEA", color: "black", fontWeight: "bold", textAlign: "center"}}>Update</Button>
+  //   },
+  //   {
+  //     name: "Michael Johnson",
+  //     designation: "Assistant Professor",
+  //     status: "Chair",
+  //     listOfCriteria: [
+  //       "Human Physical Res. & LS",
+  //     ],
+  //     actions: <Button onClick={()=>{setOpenCriteriaDialog(true),setSelectedReviewer({id:1,name:"john john"})}} variant="contained" size="small" style={{backgroundColor: "#A2CBEA", color: "black", fontWeight: "bold", textAlign: "center"}}>Update</Button>
+  //   },
+  // ];
 
   const finalButtons = [
     {
       title: "Proceed to Proper Evaluation",
-      to: `../Assigned_criteria/${decodedPgprId}`,
+      to: `../Assigned_criteria/${pgprId}`,
     },
   ];
   //only for chair
-  if (reviewer === "Chair") {
-    finalButtons.push(
-      {
-        title: "Set Dates for Proper Evaluation",
-        to: "",
-      },
-    );
-  }
+  // if (reviewer === "Chair") {
+  //   finalButtons.push(
+  //     {
+  //       title: "Set Dates for Proper Evaluation",
+  //       to: "",
+  //     },
+  //   );
+  // }
   
   return (
     <>
-      <DiscriptiveDiv
-        description="PG Program"
-        width="100%"
-        height="auto"
-        backgroundColor="#D8E6FC"
-      >
-        <Grid container spacing={2}>
-          {headerInfo.map((infoItem, index) => (
-            <Grid item xs={12} sm={6} key={index}>
-              <Typography variant="subtitle1">
-                <b>{infoItem.label}</b>
+      {loading && <p>Loading...</p>}
+      {errorMsg && <p>{errorMsg}</p>}
+      {pgpr && (
+        <DiscriptiveDiv
+          description="PG Program"
+          width="100%"
+          height="auto"
+          backgroundColor="#D8E6FC"
+        >
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <Typography>
+                <strong>PGPR ID : </strong>
+                PGPR-{pgprId}
               </Typography>
-              <Typography>{infoItem.value}</Typography>
+              <Typography>
+                <strong>PGPR Name : </strong>
+                {programData.title}
+              </Typography>
+              <Typography>
+                <strong>SLQF Level : </strong>
+                {programData.slqfLevel}
+              </Typography>
+              <Typography>
+                <strong>Program Coordinator : </strong>
+                {programData.coordinator}
+              </Typography>
+              <Typography>  
+                <strong>Commencement Year</strong>
+                {programData.commencementYear}
+              </Typography>
+              <Typography>
+                <strong>University : </strong>
+                {programData.university}
+              </Typography>
+              <Typography>
+                <strong>Faculty/Institute : </strong>
+                {programData.faculty}
+              </Typography>
+              <Typography>
+                <strong>Application Start Date : </strong>
+                {programData.applicationDate}
+              </Typography>
+              <Typography>
+                <strong>Request Date : </strong>
+                {programData.requestDate}
+              </Typography>
+              <Typography>
+                <strong>End Date : </strong>
+                {programData.yearEnd}
+              </Typography>
             </Grid>
-          ))}
-        </Grid>
-      </DiscriptiveDiv>
+          </Grid>
+        </DiscriptiveDiv>
+      )}
+      {/* 
 
       <DiscriptiveDiv
         description="Proper Evaluation"
@@ -265,7 +402,7 @@ const ConductPE = () => {
             </TableBody>
           </Table>
         </TableContainer>
-      </DiscriptiveDiv>
+      </DiscriptiveDiv> */}
 
       <Grid
         container
@@ -277,7 +414,16 @@ const ConductPE = () => {
         {finalButtons.map((buttonItem, index) => (
           <Grid item xs={12} sm={4} key={index}>
             <Button
-              onClick={(index===1)? ()=>setOpenDateDialog({id:decodedPgprId,startDate:"12/12/2020",endDate:"01/01/2021"}) : null}
+              onClick={
+                index === 1
+                  ? () =>
+                      setOpenDateDialog({
+                        id: pgprId,
+                        startDate: "12/12/2020",
+                        endDate: "01/01/2021",
+                      })
+                  : null
+              }
               variant="contained"
               size="small"
               fullWidth
@@ -297,75 +443,144 @@ const ConductPE = () => {
       </Grid>
 
       <Dialog
-          fullScreen={fullScreen}
-          open={openDateDialog? true : false}
-          onClose={()=>setOpenDateDialog(false)}
-          aria-labelledby="Set-PE-Date"
+        fullScreen={fullScreen}
+        open={openDateDialog ? true : false}
+        onClose={() => setOpenDateDialog(false)}
+        aria-labelledby="Set-PE-Date"
       >
-          <DialogTitle id="Set-PE-Date-ID">
+        <DialogTitle id="Set-PE-Date-ID">
           {`Set the Proper Evaluation Date for ${openDateDialog.id} postgraduate programme review`}
-          </DialogTitle>
-          <DialogContent>
-              <p>Start Date : <strong>{openDateDialog.startDate}</strong></p>
-              <p>End Date : <strong>{openDateDialog.endDate}</strong></p>
-              <Box sx={{display:'flex',flexDirection:'column',justifyContent:'space-around',alignItems:'center',width:'100%',height:'100%',margin:"1rem 0"}}>
-                  <TextField
-                      id="setEndDate"
-                      value={PEEndDate}
-                      helperText="Please select the end date for the Proper Evaluation"
-                      variant="standard"
-                      onChange={(e)=>setPEEndDate(e.target.value)}
-                      type="date"
-                  />
-              </Box>
-          </DialogContent>
-          <DialogActions>
-          <Button autoFocus onClick={()=>setOpenDateDialog(false)}>
-              cancel
+        </DialogTitle>
+        <DialogContent>
+          <p>
+            Start Date : <strong>{openDateDialog.startDate}</strong>
+          </p>
+          <p>
+            End Date : <strong>{openDateDialog.endDate}</strong>
+          </p>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-around",
+              alignItems: "center",
+              width: "100%",
+              height: "100%",
+              margin: "1rem 0",
+            }}
+          >
+            <TextField
+              id="setEndDate"
+              value={PEEndDate}
+              helperText="Please select the end date for the Proper Evaluation"
+              variant="standard"
+              onChange={(e) => setPEEndDate(e.target.value)}
+              type="date"
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button autoFocus onClick={() => setOpenDateDialog(false)}>
+            cancel
           </Button>
-          <Button onClick={()=>handleSetDate(openDateDialog)} autoFocus>
-              Set Date
+          <Button onClick={() => handleSetDate(openDateDialog)} autoFocus>
+            Set Date
           </Button>
-          </DialogActions>
+        </DialogActions>
       </Dialog>
 
       <Dialog
-          fullScreen={fullScreen}
-          open={openCriteriaDialog}
-          onClose={()=>{setOpenCriteriaDialog(false);setReviewerCreitriaList([])}}
-          aria-labelledby="Set-PE-Date"
+        fullScreen={fullScreen}
+        open={openCriteriaDialog}
+        onClose={() => {
+          setOpenCriteriaDialog(false);
+          setReviewerCreitriaList([]);
+        }}
+        aria-labelledby="Set-PE-Date"
       >
-          <DialogTitle id="Set-PE-Date-ID">
+        <DialogTitle id="Set-PE-Date-ID">
           {`Select the criteria for ${selectedReviewer.name} :`}
-          </DialogTitle>
-          <DialogContent>
-              <Box sx={{display:'flex',flexWrap:"wrap",justifyContent:'space-around',alignItems:'center',width:'100%',height:'100%',margin:"1rem 0"}}>
-                  {
-                      criteriaList.map((criteria,index)=>(
-                        (selectedCriteriaList.some((selectedCriteria)=>selectedCriteria.id===criteria.id))?
-                        ""
-                        :
-                        <Button key={index} onClick={(e)=>HandleselectCriteria(e,criteria.id)} style={{border:"1px solid black",borderRadius:"10px",padding:"0.4rem 0.5rem", margin:"0.5rem 0.5rem 0 0",color:"black"}}>{criteria.name}</Button>
-                      ))
-                  }
-              </Box>
-              <Box sx={{display:'flex',flexDirection:'column',justifyContent:'space-around',alignItems:'center',width:'100%',height:'100%',margin:"2rem 0"}}>
-                  {reviewerCreitriaList.length>0 && <strong>Selected Criteria</strong>}
-                  {
-                      reviewerCreitriaList.map((criteria,index)=>(
-                        <Button key={index} disabled style={{border:"1px solid black",borderRadius:"10px",padding:"0.4rem 0.5rem", margin:"0.5rem 0.5rem 0 0",backgroundColor:"darkblue",color:"white"}}>{criteria.name}</Button>
-                      ))
-                  }
-              </Box>
-          </DialogContent>
-          <DialogActions>
-          <Button autoFocus onClick={()=>{setOpenCriteriaDialog(false);setReviewerCreitriaList([])}}>
-              cancel
+        </DialogTitle>
+        <DialogContent>
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "space-around",
+              alignItems: "center",
+              width: "100%",
+              height: "100%",
+              margin: "1rem 0",
+            }}
+          >
+            {criteriaList.map((criteria, index) =>
+              selectedCriteriaList.some(
+                (selectedCriteria) => selectedCriteria.id === criteria.id
+              ) ? (
+                ""
+              ) : (
+                <Button
+                  key={index}
+                  onClick={(e) => HandleselectCriteria(e, criteria.id)}
+                  style={{
+                    border: "1px solid black",
+                    borderRadius: "10px",
+                    padding: "0.4rem 0.5rem",
+                    margin: "0.5rem 0.5rem 0 0",
+                    color: "black",
+                  }}
+                >
+                  {criteria.name}
+                </Button>
+              )
+            )}
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-around",
+              alignItems: "center",
+              width: "100%",
+              height: "100%",
+              margin: "2rem 0",
+            }}
+          >
+            {reviewerCreitriaList.length > 0 && (
+              <strong>Selected Criteria</strong>
+            )}
+            {reviewerCreitriaList.map((criteria, index) => (
+              <Button
+                key={index}
+                disabled
+                style={{
+                  border: "1px solid black",
+                  borderRadius: "10px",
+                  padding: "0.4rem 0.5rem",
+                  margin: "0.5rem 0.5rem 0 0",
+                  backgroundColor: "darkblue",
+                  color: "white",
+                }}
+              >
+                {criteria.name}
+              </Button>
+            ))}
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            autoFocus
+            onClick={() => {
+              setOpenCriteriaDialog(false);
+              setReviewerCreitriaList([]);
+            }}
+          >
+            cancel
           </Button>
-          <Button onClick={()=>handlesetCriteria()} autoFocus>
-              Set Criteria
+          <Button onClick={() => handlesetCriteria()} autoFocus>
+            Set Criteria
           </Button>
-          </DialogActions>
+        </DialogActions>
       </Dialog>
     </>
   );
