@@ -292,7 +292,7 @@ class ReviewerController extends Controller
     {
         try {
 
-            $this->authorize('acceptRejectPGPRAssignmentAuthorize', Reviewer::class);
+            $this->authorize('acceptRejectPGPRAssignmentAuthorize', [Reviewer::class, $request]);
             //get the declaration.
             $file = $request->file('file');
 

@@ -42,7 +42,7 @@ class PostGraduateProgramReviewPolicy
 
             case 'reviewer':
                 $reviewerId = $user -> id;
-                $acceptedReviewTeam = $postGraduateProgramReview -> acceptedReviewTeam();
+                $acceptedReviewTeam = $postGraduateProgramReview -> acceptedReviewTeam;
                 if($acceptedReviewTeam !== null){
                     $reviewers = $acceptedReviewTeam -> reviewers;
                     foreach($reviewers as $reviewer){
