@@ -39,6 +39,7 @@ class PostGraduateProgramReviewResource extends JsonResource
         $returnArr['postGraduateProgramReviewApplication'] = new PostGraduateProgramReviewApplicationResource($this -> whenLoaded('postGraduateProgramReviewApplication'));
         $returnArr['properEvaluation'] = new ProperEvaluationResource($this->whenLoaded('properEvaluations'));
         $returnArr['deskEvaluation'] = new DeskEvaluationResource($this->whenLoaded('deskEvaluations'));
+        $returnArr['reviewTeam'] = new ReviewTeamResource($this->whenLoaded('reviewTeams'));
         return $returnArr;
     }
 }

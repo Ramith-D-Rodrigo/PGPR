@@ -35,7 +35,7 @@ class DeskEvaluationController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreDeskEvaluationRequest $request): DeskEvaluationResource|\Illuminate\Http\JsonResponse
+    public function store(StoreDeskEvaluationRequest $request): DeskEvaluationResource|JsonResponse
     {
         //
         // create the record

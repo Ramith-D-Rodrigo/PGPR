@@ -91,7 +91,8 @@ class PostGraduateProgramReviewController extends Controller
                             ]
                         ]
                     ]
-                ]
+                ],
+                'reviewTeams'
             ]);
 
             return new PostGraduateProgramReviewResource($pgpr);
