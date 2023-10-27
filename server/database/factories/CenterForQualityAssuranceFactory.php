@@ -17,8 +17,8 @@ class CenterForQualityAssuranceFactory extends Factory
     public function definition(): array
     {
         return [
-            'contact_no' => [json_encode(fake()->phoneNumber)],
-            'fax_no' => [json_encode(fake()->phoneNumber)],
+            'contact_no' => json_encode([fake()->phoneNumber]),
+            'fax_no' => json_encode([fake()->phoneNumber]),
             'email' => fake()->email,
         ];
     }
