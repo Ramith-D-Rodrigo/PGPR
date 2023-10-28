@@ -26,8 +26,6 @@ import DialogTitle from "@mui/material/DialogTitle";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
 import TextField from "@mui/material/TextField";
-import getAssignedPGPRs from "../../api/Reviewer/getAssignedPGPR";
-import getSelfEvaluationReport from "../../api/SelfEvaluationReport/getSelfEvaluationReport";
 import getPGPR from "../../api/PostGraduateProgramReview/getPGPR";
 import axios from "../../api/api";
 import { SERVER_API_VERSION, SERVER_URL } from "../../assets/constants";
@@ -99,7 +97,7 @@ const ConductPE = () => {
 
       try {
         const pgprResponse = await getPGPR(pgprId);
-        console.log("PGPR : ", pgprResponse?.data?.data);
+        //console.log("PGPR : ", pgprResponse?.data?.data);
         setPgpr(pgprResponse?.data?.data);
 
         if (pgprResponse?.data?.data) {
@@ -129,16 +127,16 @@ const ConductPE = () => {
           const university = universityData?.name;
 
           const ser = pgprResponse?.data?.data?.selfEvaluationReport;
-          const coordinator = ser?.programmeCoordinator;
-          const academic = coordinator?.academicStaff;
+          const coordinatorData = ser?.programmeCoordinator;
+          const academic = coordinatorData?.academicStaff;
           const universitySideDetails = academic?.universitySide;
           const coordinatorUser = universitySideDetails?.user;
-          const coordinatorName = coordinatorUser?.initials + " . " + coordinatorUser?.surname;
+          const coordinator = coordinatorUser?.initials + " . " + coordinatorUser?.surname;
 
           setProgramData({
             title,
             slqfLevel,
-            coordinatorName,
+            coordinator,
             commencementYear,
             faculty,
             university,
@@ -147,10 +145,10 @@ const ConductPE = () => {
             yearEnd,
           });
 
-          console.log("Program : ", programData);
+          //console.log("Program : ", programData);
           //console.log("Team : ", team);
           const PEResponse = await axios.get(
-            `${SERVER_URL}/${SERVER_API_VERSION}review-team/proper-evaluation/view-details/${pgprId}/${team?.id}`
+            `${SERVER_URL}${SERVER_API_VERSION}review-team/proper-evaluation/view-details/${pgprId}/${team?.id}`
           );
           console.log("PE Data : ", PEResponse?.data?.data);
           setPEData(PEResponse?.data?.data);
@@ -164,7 +162,7 @@ const ConductPE = () => {
     fetchData();
   }, [pgprId, auth?.id]);
 
-  //console.log("CHAIR : ", isChair);
+  //console.log("CHAIR : ", isChair)
 
   const handleSetDate = (openDateDialog) => {
     console.log(openDateDialog);
@@ -245,14 +243,14 @@ const ConductPE = () => {
     },
   ];
   //only for chair
-  // if (reviewer === "Chair") {
-  //   finalButtons.push(
-  //     {
-  //       title: "Set Dates for Proper Evaluation",
-  //       to: "",
-  //     },
-  //   );
-  // }
+  if (isChair) {
+    finalButtons.push(
+      {
+        title: "Set Dates for Proper Evaluation",
+        to: "",
+      },
+    );
+  }
   
   return (
     <>
@@ -266,44 +264,46 @@ const ConductPE = () => {
           backgroundColor="#D8E6FC"
         >
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
-              <Typography>
+            <Grid item sm={12} md={6}>
+              <Typography textAlign="left">
                 <strong>PGPR ID : </strong>
                 PGPR-{pgprId}
               </Typography>
-              <Typography>
+              <Typography textAlign="left">
                 <strong>PGPR Name : </strong>
                 {programData.title}
               </Typography>
-              <Typography>
+              <Typography textAlign="left">
                 <strong>SLQF Level : </strong>
                 {programData.slqfLevel}
               </Typography>
-              <Typography>
+              <Typography textAlign="left">
                 <strong>Program Coordinator : </strong>
                 {programData.coordinator}
               </Typography>
-              <Typography>  
-                <strong>Commencement Year</strong>
+              <Typography textAlign="left">
+                <strong>Commencement Year : </strong>
                 {programData.commencementYear}
               </Typography>
-              <Typography>
+            </Grid>
+            <Grid item sm={12} md={6}>
+              <Typography textAlign="left">
                 <strong>University : </strong>
                 {programData.university}
               </Typography>
-              <Typography>
+              <Typography textAlign="left">
                 <strong>Faculty/Institute : </strong>
                 {programData.faculty}
               </Typography>
-              <Typography>
+              <Typography textAlign="left">
                 <strong>Application Start Date : </strong>
                 {programData.applicationDate}
               </Typography>
-              <Typography>
+              <Typography textAlign="left">
                 <strong>Request Date : </strong>
                 {programData.requestDate}
               </Typography>
-              <Typography>
+              <Typography textAlign="left">
                 <strong>End Date : </strong>
                 {programData.yearEnd}
               </Typography>
@@ -311,98 +311,6 @@ const ConductPE = () => {
           </Grid>
         </DiscriptiveDiv>
       )}
-      {/* 
-
-      <DiscriptiveDiv
-        description="Proper Evaluation"
-        width="100%"
-        height="auto"
-        backgroundColor="white"
-      >
-        <TableContainer component={Paper}>
-          <Table sx={{ minWidth: 650 }} stickyHeader>
-            <TableHead>
-              <TableRow>
-                <TableCell style={{ backgroundColor: "#D8E6FC" }} align="left">
-                  <b>Name</b>
-                </TableCell>
-                <TableCell
-                  style={{ backgroundColor: "#D8E6FC" }}
-                  align="center"
-                >
-                  <b>Designation</b>
-                </TableCell>
-                <TableCell
-                  style={{ backgroundColor: "#D8E6FC" }}
-                  align="center"
-                >
-                  <b>Status</b>
-                </TableCell>
-                <TableCell
-                  style={{ backgroundColor: "#D8E6FC" }}
-                  align="center"
-                >
-                  <b>List of Criterian</b>
-                </TableCell>
-                {
-                  (reviewer==="Chair")?
-                  <TableCell
-                  style={{ backgroundColor: "#D8E6FC" }}
-                  align="center"
-                >
-                  <b>Actions</b>
-                </TableCell>
-                :
-                ""
-                }
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {rows.map((row, index) => (
-                <TableRow
-                  key={index}
-                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                >
-                  <TableCell component="th" scope="row">
-                    {row.name}
-                  </TableCell>
-                  <TableCell align="center">{row.designation}</TableCell>
-                  <TableCell align="center">{row.status}</TableCell>
-                  <TableCell align="center">
-                    <ul
-                      style={{
-                        listStyleType: "disc",
-                        textAlign: "left",
-                        paddingLeft: "20%",
-                      }}
-                    >
-                      {row.listOfCriteria.map((criteriaItem, index) => (
-                        <li key={index}>
-                          <Typography>{criteriaItem}</Typography>
-                        </li>
-                      ))}
-                      {
-                        (row.listOfCriteria.length===0)?
-                        <li>
-                          <Typography>No Criteria Selected</Typography>
-                        </li>
-                        :
-                        ""
-                      }
-                    </ul>
-                  </TableCell>
-                  {
-                    (reviewer==="Chair")?
-                    <TableCell align="center">{row.actions}</TableCell>
-                    :
-                    ""
-                  }
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </DiscriptiveDiv> */}
 
       <Grid
         container
