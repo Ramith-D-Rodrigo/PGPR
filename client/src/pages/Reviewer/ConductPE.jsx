@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import {
   Button,
@@ -12,8 +12,6 @@ import {
   TableCell,
   Typography,
   Box,
-  Divider,
-  Chip,
 } from "@mui/material";
 
 import DiscriptiveDiv from "../../components/DiscriptiveDiv";
@@ -26,47 +24,34 @@ import DialogTitle from "@mui/material/DialogTitle";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
 import TextField from "@mui/material/TextField";
-import getPGPR from "../../api/PostGraduateProgramReview/getPGPR";
+
 import axios from "../../api/api";
 import { SERVER_API_VERSION, SERVER_URL } from "../../assets/constants";
+import getPGPR from "../../api/PostGraduateProgramReview/getPGPR";
 import useAuth from "../../hooks/useAuth";
 
 const ConductPE = () => {
-  const theme = useTheme();
-  const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-
   const { auth } = useAuth();
-  const { pgprId } = useParams();
-
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
   const [openDateDialog, setOpenDateDialog] = useState(false);
   const [openCriteriaDialog, setOpenCriteriaDialog] = useState(false);
   const [PEEndDate, setPEEndDate] = useState("");
-  
+  const { pgprId } = useParams();
 
-  const [criteriaList, setCriteriaList] = useState([
-    { name: "Programme Evaluation", id: 1 },
-    { name: "Student Assessment & Awards", id: 2 },
-    { name: "Innovative & Healthy Practices", id: 3 },
-    { name: "Programme Management", id: 4 },
-    { name: "P. Design and Development", id: 5 },
-    { name: "Human Physical Res. & LS", id: 6 },
-    { name: "Teaching Learning Research", id: 7 },
-  ]);
-  const [selectedCriteriaList, setSelectedCriteriaList] = useState([
-    { name: "Programme Management", id: 4 },
-    { name: "P. Design and Development", id: 5 },
-    { name: "Human Physical Res. & LS", id: 6 },
-  ]);
+  const [criteriaList, setCriteriaList] = useState([]);
+  const [selectedCriteriaList, setSelectedCriteriaList] = useState([]);
   const [reviewerCreitriaList, setReviewerCreitriaList] = useState([]);
   const [selectedReviewer, setSelectedReviewer] = useState("");
 
-  const [isChair, setIsChair] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
   const [pgpr, setPgpr] = useState({});
   const [programData, setProgramData] = useState({
     title: "",
-    slqfLevel: null,
+    slqfLevel: "",
     coordinator: "",
-    commencementYear: null,
+    commencementYear: "",
     faculty: "",
     university: "",
     applicationDate: "",
@@ -74,10 +59,10 @@ const ConductPE = () => {
     yearEnd: "",
   });
   const [PEData, setPEData] = useState({});
-
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
-  const [success, setSuccess] = useState(false);
+  const [chairId, setChairId] = useState("");
+  const [isChair, setIsChair] = useState(false);
+  const [reviewTeam, setReviewTeam] = useState({});
+  const [reviewers, setReviewers] = useState([]);
 
   useSetUserNavigations([
     {
@@ -102,17 +87,25 @@ const ConductPE = () => {
 
         if (pgprResponse?.data?.data) {
           const team = pgprResponse?.data?.data?.acceptedReviewTeam;
-          const reviewers = team?.reviewers;
-          const chair = reviewers?.find(
+          setReviewTeam(team);
+
+          const reviewerDetails = team?.reviewers;
+          //console.log("team : ", team);
+          setReviewers(reviewerDetails);
+          //console.log("Reviewers : ", reviewers);
+
+          const chair = reviewerDetails?.find(
             (reviewer) => reviewer?.role === "CHAIR"
           );
           const chairReviewer = chair?.userData;
-          const chairId = chairReviewer?.id;
+          setChairId(chairReviewer?.id);
+          //console.log("Chair : ", chairReviewer?.id);
           if (chairId === auth?.id) {
             setIsChair(true);
           }
 
-          const programApplication = pgprResponse?.data?.data?.postGraduateProgramReviewApplication;
+          const programApplication =
+            pgprResponse?.data?.data?.postGraduateProgramReviewApplication;
           const applicationDate = programApplication?.applicationDate;
           const requestDate = programApplication?.requestDate;
           const yearEnd = programApplication?.yEnd;
@@ -127,11 +120,16 @@ const ConductPE = () => {
           const university = universityData?.name;
 
           const ser = pgprResponse?.data?.data?.selfEvaluationReport;
+          //console.log("SER : ", ser);
           const coordinatorData = ser?.programmeCoordinator;
           const academic = coordinatorData?.academicStaff;
           const universitySideDetails = academic?.universitySide;
           const coordinatorUser = universitySideDetails?.user;
           const coordinator = coordinatorUser?.initials + " . " + coordinatorUser?.surname;
+          const criteria = ser?.criterias;
+
+          setCriteriaList(criteria);
+          //console.log("Criteria List : ", criteriaList);
 
           setProgramData({
             title,
@@ -160,81 +158,116 @@ const ConductPE = () => {
       }
     };
     fetchData();
-  }, [pgprId, auth?.id]);
+  }, [pgprId, auth?.id, chairId]);
 
-  //console.log("CHAIR : ", isChair)
+  //console.log("Team : ", reviewTeam);
 
   const handleSetDate = (openDateDialog) => {
     console.log(openDateDialog);
     setPEEndDate("");
     setOpenDateDialog(false);
-  }
+  };
 
-  const HandleselectCriteria = (e,id) => {
+  const HandleselectCriteria = (e, id) => {
+    console.log("selected re : ", selectedReviewer);
     e.target.style.backgroundColor = "black";
     e.target.style.color = "white";
     //if already selected
-    if(reviewerCreitriaList.some((criteria)=>criteria.id===id)){
+    if (reviewerCreitriaList.some((criteria) => criteria.id === id)) {
       e.target.style.backgroundColor = "white";
       e.target.style.color = "black";
-      setReviewerCreitriaList(reviewerCreitriaList.filter((criteria)=>criteria.id!==id));
+      setReviewerCreitriaList(
+        reviewerCreitriaList.filter((criteria) => criteria.id !== id)
+      );
       return;
     }
-    setReviewerCreitriaList([...reviewerCreitriaList,{name:criteriaList.find((criteria)=>criteria.id===id).name,id:id}]);
-  }
+    setReviewerCreitriaList([
+      ...reviewerCreitriaList,
+      {
+        name: criteriaList.find((criteria) => criteria.id === id).name,
+        id: id,
+      },
+    ]);
+  };
 
   const handlesetCriteria = () => {
-    if(reviewerCreitriaList.length===0){
+    if (reviewerCreitriaList.length === 0) {
       alert("Please select at least one criteria");
       return;
     }
     console.log(reviewerCreitriaList);
+    assignCriteria();
     setOpenCriteriaDialog(false);
-    setReviewerCreitriaList([]);
     //get PGPR data again
+  };
+
+  async function assignCriteria () {
+    try {
+      setLoading(true);
+      setErrorMsg("");
+
+      // console.log("Assign Criteria team id : ", reviewTeam?.id);
+      // console.log("Assign Criteria re id : ", selectedReviewer?.id);
+      // console.log(
+      //   "Assign Criteria cr list : ",
+      //   reviewerCreitriaList.map((criteria) => criteria.id)
+      // );
+
+      const data = {
+        reviewTeamId: reviewTeam?.id,
+        reviewers: [
+          {
+            reviewerId: selectedReviewer?.id,
+            criteria: reviewerCreitriaList.map((criteria) => criteria.id),
+          },
+        ],
+      };
+
+      console.log("Assign Criteria data : ", data);
+
+      await axios.get("/sanctum/csrf-cookie");
+      await axios.post(
+        `${SERVER_URL}${SERVER_API_VERSION}review-team-chair/proper-evaluation/assign-criteria`,
+        data  
+      );
+      setReviewerCreitriaList([]);
+    } catch (error) {
+      setErrorMsg(error?.response?.data?.message);
+    } finally {
+      setLoading(false);
+    }
   }
 
- 
+  const headerInfo = [
+    { label: "University:", value: "University of Colombo" },
+    {
+      label: "Faculty/Institute:",
+      value: "University of Colombo School of Computing",
+    },
+    { label: "PGPR ID:", value: pgprId },
+    { label: "PGPR Name:", value: "MSc" },
+    { label: "Application Start Date:", value: "12/12/2020" },
+    { label: "Submission Date:", value: "01/01/2021" },
+    { label: "Program Coordinator:", value: "Mr. Smantha Karunanayake" },
+  ];
 
-  // const headerInfo = [
-  //   { label: "University:", value: "University of Colombo" },
-  //   {
-  //     label: "Faculty/Institute:",
-  //     value: "University of Colombo School of Computing",
-  //   },
-  //   { label: "PGPR ID:", value: decodedPgprId },
-  //   { label: "PGPR Name:", value: "MSc" },
-  //   { label: "Application Start Date:", value: "12/12/2020" },
-  //   { label: "Submission Date:", value: "01/01/2021" },
-  //   { label: "Program Coordinator:", value: "Mr. Smantha Karunanayake" },
-  // ];
+  //console.log("Reviewers : ", reviewers);
 
-  // const rows = [
-  //   {
-  //     name: "John Doe",
-  //     designation: "Professor",
-  //     status: "Reviewer",
-  //     listOfCriteria: [
-  //     ],
-  //     actions: <Button onClick={()=>{setOpenCriteriaDialog(true),setSelectedReviewer({id:1,name:"john john"})}} variant="contained" size="small" style={{backgroundColor: "#A2CBEA", color: "black", fontWeight: "bold", textAlign: "center"}}>Update</Button>
-  //   },
-  //   {
-  //     name: "Jane Smith",
-  //     designation: "Associate Professor",
-  //     status: "Reviewer",
-  //     listOfCriteria: ["Programme Management", "P. Design and Development"],
-  //     actions: <Button onClick={()=>{setOpenCriteriaDialog(true),setSelectedReviewer({id:1,name:"john john"})}} variant="contained" size="small" style={{backgroundColor: "#A2CBEA", color: "black", fontWeight: "bold", textAlign: "center"}}>Update</Button>
-  //   },
-  //   {
-  //     name: "Michael Johnson",
-  //     designation: "Assistant Professor",
-  //     status: "Chair",
-  //     listOfCriteria: [
-  //       "Human Physical Res. & LS",
-  //     ],
-  //     actions: <Button onClick={()=>{setOpenCriteriaDialog(true),setSelectedReviewer({id:1,name:"john john"})}} variant="contained" size="small" style={{backgroundColor: "#A2CBEA", color: "black", fontWeight: "bold", textAlign: "center"}}>Update</Button>
-  //   },
-  // ];
+  const rows = reviewers 
+    ? reviewers?.map((reviewer) => {
+      const userData = reviewer?.userData;
+      const id = userData?.id;
+      const name = userData?.initials + " . " + userData?.surname;
+      const role = reviewer?.role=== "CHAIR" ? "Review Chair Person" : "Review Team Member";
+      const listOfCriteria = [];
+
+      return {
+        id,
+        name,
+        role,
+        listOfCriteria,
+      };  
+    }) : [];
 
   const finalButtons = [
     {
@@ -244,73 +277,129 @@ const ConductPE = () => {
   ];
   //only for chair
   if (isChair) {
-    finalButtons.push(
-      {
-        title: "Set Dates for Proper Evaluation",
-        to: "",
-      },
-    );
+    finalButtons.push({
+      title: "Set Dates for Proper Evaluation",
+      to: "",
+    });
   }
-  
+
   return (
     <>
-      {loading && <p>Loading...</p>}
-      {errorMsg && <p>{errorMsg}</p>}
-      {pgpr && (
-        <DiscriptiveDiv
-          description="PG Program"
-          width="100%"
-          height="auto"
-          backgroundColor="#D8E6FC"
-        >
-          <Grid container spacing={2}>
-            <Grid item sm={12} md={6}>
-              <Typography textAlign="left">
-                <strong>PGPR ID : </strong>
-                PGPR-{pgprId}
+      <DiscriptiveDiv
+        description="PG Program"
+        width="100%"
+        height="auto"
+        backgroundColor="#D8E6FC"
+      >
+        <Grid container spacing={2}>
+          {headerInfo.map((infoItem, index) => (
+            <Grid item xs={12} sm={6} key={index}>
+              <Typography variant="subtitle1">
+                <b>{infoItem.label}</b>
               </Typography>
-              <Typography textAlign="left">
-                <strong>PGPR Name : </strong>
-                {programData.title}
-              </Typography>
-              <Typography textAlign="left">
-                <strong>SLQF Level : </strong>
-                {programData.slqfLevel}
-              </Typography>
-              <Typography textAlign="left">
-                <strong>Program Coordinator : </strong>
-                {programData.coordinator}
-              </Typography>
-              <Typography textAlign="left">
-                <strong>Commencement Year : </strong>
-                {programData.commencementYear}
-              </Typography>
+              <Typography>{infoItem.value}</Typography>
             </Grid>
-            <Grid item sm={12} md={6}>
-              <Typography textAlign="left">
-                <strong>University : </strong>
-                {programData.university}
-              </Typography>
-              <Typography textAlign="left">
-                <strong>Faculty/Institute : </strong>
-                {programData.faculty}
-              </Typography>
-              <Typography textAlign="left">
-                <strong>Application Start Date : </strong>
-                {programData.applicationDate}
-              </Typography>
-              <Typography textAlign="left">
-                <strong>Request Date : </strong>
-                {programData.requestDate}
-              </Typography>
-              <Typography textAlign="left">
-                <strong>End Date : </strong>
-                {programData.yearEnd}
-              </Typography>
-            </Grid>
-          </Grid>
-        </DiscriptiveDiv>
-      )}
+          ))}
+        </Grid>
+      </DiscriptiveDiv>
+
+      <DiscriptiveDiv
+        description="Proper Evaluation"
+        width="100%"
+        height="auto"
+        backgroundColor="white"
+      >
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 650 }} stickyHeader>
+            <TableHead>
+              <TableRow>
+                <TableCell style={{ backgroundColor: "#D8E6FC" }} align="left">
+                  <b>Name</b>
+                </TableCell>
+                <TableCell
+                  style={{ backgroundColor: "#D8E6FC" }}
+                  align="center"
+                >
+                  <b>Role</b>
+                </TableCell>
+                <TableCell
+                  style={{ backgroundColor: "#D8E6FC" }}
+                  align="center"
+                >
+                  <b>List of Criterian</b>
+                </TableCell>
+                {isChair ? (
+                  <TableCell
+                    style={{ backgroundColor: "#D8E6FC" }}
+                    align="center"
+                  >
+                    <b>Actions</b>
+                  </TableCell>
+                ) : (
+                  ""
+                )}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {rows.map((row, index) => (
+                <TableRow
+                  key={index}
+                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                >
+                  <TableCell component="th" scope="row">
+                    {row.name}
+                  </TableCell>
+                  <TableCell align="center">{row.role}</TableCell>
+                  <TableCell align="center">
+                    {row.listOfCriteria.length === 0 ? (
+                      <Typography color="primary">No Criteria Selected</Typography>
+                    ) : (
+                      <ul
+                        style={{
+                          listStyleType: "disc",
+                          textAlign: "left",
+                          paddingLeft: "20%",
+                        }}
+                      >
+                        {row.listOfCriteria.map((criteriaItem, index) => (
+                          <li key={index}>
+                            <Typography>{criteriaItem}</Typography>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </TableCell>
+                  {isChair ? (
+                    <TableCell align="center">
+                      <Button
+                        onClick={() => {
+                          setOpenCriteriaDialog(true),
+                            setSelectedReviewer({
+                              id: row.id,
+                              name: row.name,
+                            });
+                        }}
+                        variant="contained"
+                        size="small"
+                        style={{
+                          backgroundColor: "#A2CBEA",
+                          color: "black",
+                          fontWeight: "bold",
+                          textAlign: "center",
+                        }}
+                      >
+                        Update
+                      </Button>
+                    </TableCell>
+                  ) : (
+                    ""
+                  )}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </DiscriptiveDiv>
 
       <Grid
         container
@@ -404,9 +493,9 @@ const ConductPE = () => {
           setOpenCriteriaDialog(false);
           setReviewerCreitriaList([]);
         }}
-        aria-labelledby="Set-PE-Date"
+        aria-labelledby="Set-Criteria"
       >
-        <DialogTitle id="Set-PE-Date-ID">
+        <DialogTitle id="Set-Criteria-ID">
           {`Select the criteria for ${selectedReviewer.name} :`}
         </DialogTitle>
         <DialogContent>
