@@ -425,8 +425,11 @@ class SelfEvaluationReportController extends Controller
                         $deskEvaluation->end_date = NULL;
                         $deskEvaluation->save();
 
-                        $pgpr -> status_of_pgpr = 'DE';
-                        $pgpr -> save();
+                        //change the status of the postgraduate programme review to 'DE'
+                        $pgpr->update([
+                            'status_of_pgpr' => 'DE',
+                            'updated_at' => now(),
+                        ]);
 
                         DB::commit();
 

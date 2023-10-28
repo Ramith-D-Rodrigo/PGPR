@@ -125,7 +125,7 @@ class ReviewerController extends Controller
 
             $path = "reviewer_role_declaration/Declaration.docx";
 
-            return response()->download(Storage::disk('public')->path($path), 'Declaration.dox', $headers);
+            return response()->download(Storage::disk('public')->path($path), 'Declaration.docx', $headers);
         } catch (AuthorizationException $e) {
             return response()->json([
                 'message' => $e->getMessage(),
@@ -241,7 +241,7 @@ class ReviewerController extends Controller
 
             $path = "reviewer_review_team_declaration/Declaration.docx";
 
-            return response()->download(Storage::disk('public')->path($path), 'Declaration.dox', $headers);
+            return response()->download(Storage::disk('public')->path($path), 'Declaration.docx', $headers);
         } catch (AuthorizationException $e) {
             return response()->json([
                 'message' => $e->getMessage(),
@@ -292,7 +292,7 @@ class ReviewerController extends Controller
     {
         try {
 
-            $this->authorize('acceptRejectPGPRAssignmentAuthorize', Reviewer::class);
+            $this->authorize('acceptRejectPGPRAssignmentAuthorize', [Reviewer::class, $request]);
             //get the declaration.
             $file = $request->file('file');
 
@@ -305,7 +305,7 @@ class ReviewerController extends Controller
 
             //get the review team based on he PGPR id
             $review_team = $reviewer->reviewTeams
-                ->whereIn('status', ['PENDING', 'APPROVED'])
+                ->whereIn('status', ['PENDING', 'ACCEPTED'])
                 ->where('pgpr_id', $request->pgpr_id)
                 ->first(); //get the only review team
 
@@ -314,7 +314,7 @@ class ReviewerController extends Controller
                 return response()->json(["message" => "The review that you are trying to accept doesn't exist."], 400);
             }
 
-            if ($review_team->pivot->reviewer_Confirmation != 'PENDING') {
+            if ($review_team->pivot->reviewer_confirmation != 'PENDING') {
                 return response()->json(["message" => "You have either accepted or rejected this review before."], 400);
             }
 
@@ -473,7 +473,7 @@ class ReviewerController extends Controller
             $remarks = DB::table('ser_section_reviewer_remarks')->select(['section', 'remark'])->where([
                 'reviewer_id' => $reviewerId,
                 'ser_id' => $serId,
-            ])->first();
+            ])->get();
 
             $data = [];
             $ser = SelfEvaluationReport::findOrFail($serId);
@@ -481,7 +481,7 @@ class ReviewerController extends Controller
                 'serId' => $ser->id,
                 'sectionA' => $ser->section_a,
                 'sectionB' => $ser->section_b,
-                'sectionC' => $ser->section_c,
+                'sectionD' => $ser->section_d,
             ];
 
             $data['remarks'] = [];
@@ -517,7 +517,7 @@ class ReviewerController extends Controller
      *                              remark: "Hello, gorgeous",
      *                          },
      *                          {
-     *                              section: "C",
+     *                              section: "D",
      *                              remark: "Hello, love",
      *                          }
      *                      ]
@@ -553,7 +553,7 @@ class ReviewerController extends Controller
             ], 403);
         } catch (Exception $exception) {
             DB::rollBack();
-            return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+            return response()->json(['message' => $exception -> getMessage()], 500);
         }
     }
 

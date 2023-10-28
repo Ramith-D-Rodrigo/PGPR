@@ -2,7 +2,7 @@
 import * as React from 'react';
 import ScrollableDiv from '../../components/ScrollableDiv';
 import { styled } from '@mui/material/styles';
-import { CircularProgress, Typography } from '@mui/material';
+import { Chip, CircularProgress, Divider, Typography } from '@mui/material';
 import Button from '@mui/material/Button';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -22,7 +22,11 @@ import useAuth from '../../hooks/useAuth';
 
 const ViewUniversities = () => {
     useSetUserNavigations(
-        [
+        [   
+            {
+                name: "Dashboard",
+                link: "/dashboard"
+            },
             {
                 name: "Universities",
                 link: "/universities"
@@ -87,6 +91,11 @@ const ViewUniversities = () => {
 
     return (
         <>
+            <Divider textAlign='left'>
+                <Chip label="Universities" />
+            </Divider>
+
+
             {loading &&
                 <div style={{ display: "flex", width: "100%", justifyContent: "center", alignItems: "center" }}>
                     <Typography variant="h6" style={{ margin: "0 0 0 20px" }}>

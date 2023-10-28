@@ -70,10 +70,8 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
 
     //routes for side drawer -- not completed
     const reviewerRoutes = [
-      {route:"DashBoard",link: "/reviewer/dashboard"},
-      {route:"PG Assignments" ,link: "/reviewer/PG_Assignments"},
-      {route:"Set Date" ,link: "/reviewer/SetDate"},
-      {route:"Set Criteria" ,link: "/reviewer/SetCriteria"},
+      {route:"Dashboard",link: "/reviewer/dashboard"},
+      {route:"PGPR Assignments" ,link: "/reviewer/PG_Assignments"},
     ]
 
     const qacDirectorRoutes = [
