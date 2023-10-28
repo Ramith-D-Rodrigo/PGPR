@@ -43,7 +43,7 @@ class StoreAcademicStaffRequest extends StoreUniversitySideRequest
         $rulesArr['conference_preceedings_count'] = ['integer'];
         $rulesArr['book_chapters'] = ['integer'];
         $rulesArr['involvement_in_internal_quality_assurance'] = ['json']; //json array
-        $rulesArr['involment_in_study_programme_development'] = ['json']; //json array
+        $rulesArr['involvement_in_study_programme_development'] = ['json']; //json array
         $rulesArr['postgraduate_teaching_experience'] = ['json']; //json array
         $rulesArr['qualification_1'] = ['required', 'string', 'max:255'];
         $rulesArr['qualification_1_slqf_level'] = ['required', 'integer'];
@@ -76,7 +76,7 @@ class StoreAcademicStaffRequest extends StoreUniversitySideRequest
             'nominees',
             'experience_with_research_funds',
             'involvement_in_internal_quality_assurance',
-            'involment_in_study_programme_development',
+            'involvement_in_study_programme_development',
             'postgraduate_teaching_experience',
             'prior_training_in_programme_review'
         ];

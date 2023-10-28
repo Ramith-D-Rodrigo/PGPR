@@ -7,6 +7,9 @@ use App\Http\Resources\V1\EvidenceResource;
 use App\Models\Evidence;
 use Illuminate\Http\Request;
 use App\Http\Requests\V1\StoreEvidenceRequest;
+use App\Http\Requests\V1\UpdateEvidenceRequest;
+use App\Services\V1\DriveManager;
+use Google_Service_Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 
@@ -42,6 +45,38 @@ class EvidenceController extends Controller
             //convert applicable years to json
             $validatedData['applicable_years'] = json_encode($validatedData['applicable_years']);
 
+            //check if the url is a valid google drive url
+            //we can do this by using the DriveManager class
+            //if the url is not valid, an exception will be thrown
+            //if the url is valid, we have to check if the user has permission to access the file (anyone with the link)
+            //if the user has permission, we can proceed to create the evidence
+            //if the user does not have permission, we have to throw an exception
+
+            //get the file id from the url
+            $driveManager = new DriveManager();
+            $fileId = $driveManager -> getFileId($validatedData['url']);
+
+            if($fileId == ""){  //probably a folder
+                $fileId = $driveManager -> getFolderId($validatedData['url']);
+            }
+
+
+            //get the permissions of the file
+            $permissions = $driveManager -> getPermissions($fileId);
+
+            //check if the user has permission to access the file
+            $hasPermission = false;
+            foreach($permissions as $permission){
+                if($permission -> type == "anyone" && $permission -> role == "writer"){
+                    $hasPermission = true;
+                    break;
+                }
+            }
+
+            if(!$hasPermission){
+                throw new \Exception("Error while processing the evidence url. Please make sure that the file is shared with anyone with the link and has edit permission");
+            }
+
             DB::beginTransaction();
 
             $evidence = Evidence::create($validatedData);
@@ -60,6 +95,19 @@ class EvidenceController extends Controller
                 'message' => 'Evidence created successfully',
                 'data' => new EvidenceResource($evidence)
             ], 201);
+        }
+        catch(AuthorizationException $e){
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 403);
+        }
+        catch(Google_Service_Exception $e){
+            return response()->json([
+                'success' => false,
+                'message' => 'Unable to create evidence',
+                'error' =>"Error while processing the evidence url. Please make sure that the file is shared with anyone with the link and has edit permission"
+            ], 500);
         }
         catch(\Exception $e){
             DB::rollBack();
@@ -90,9 +138,70 @@ class EvidenceController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
-    {
-        //
+    public function update(UpdateEvidenceRequest $updateEvidenceRequest, Evidence $evidence){
+        try{
+            //authorize the action
+            $this->authorize('update', $evidence);
+
+            $validatedData = $updateEvidenceRequest->validated();
+
+            //convert applicable years to json
+            $validatedData['applicable_years'] = json_encode($validatedData['applicable_years']);
+
+            //get the file id from the url
+            $driveManager = new DriveManager();
+            $fileId = $driveManager -> getFileId($validatedData['url']);
+
+            if($fileId == ""){  //probably a folder
+                $fileId = $driveManager -> getFolderId($validatedData['url']);
+            }
+
+
+            //get the permissions of the file
+            $permissions = $driveManager -> getPermissions($fileId);
+
+            //check if the user has permission to access the file
+            $hasPermission = false;
+            foreach($permissions as $permission){
+                if($permission -> type == "anyone" && $permission -> role == "writer"){
+                    $hasPermission = true;
+                    break;
+                }
+            }
+
+            if(!$hasPermission){
+                throw new \Exception("Error while processing the evidence url. Please make sure that the file is shared with anyone with the link and has edit permission");
+            }
+
+            $evidence -> update($validatedData);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Evidence updated successfully',
+                'data' => new EvidenceResource($evidence)
+            ], 200);
+
+        }
+        catch(AuthorizationException $e){
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 403);
+        }
+        catch(Google_Service_Exception $e){
+            return response()->json([
+                'success' => false,
+                'message' => 'Unable to update evidence',
+                'error' =>"Error while processing the evidence url. Please make sure that the file is shared with anyone with the link and has edit permission"
+            ], 500);
+        }
+        catch(\Exception $e){
+            return response()->json([
+                'success' => false,
+                'message' => 'Unable to update evidence',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
