@@ -119,6 +119,8 @@ class PostGraduateProgramController extends Controller
             $validatedData['added_by_cqa_director_id'] = Auth::user() -> id;
             PostGraduateProgram::create($validatedData);
 
+            // TODO: inform the dean, vice chancellor, cqa
+
             return response() -> json(['message' => 'Post Graduate Program created successfully'], 201);
         }
         catch(AuthorizationException $e){
@@ -206,6 +208,9 @@ class PostGraduateProgramController extends Controller
             //add authorized cqa director id to the validated data
             $validatedData['edited_by_cqa_director_id'] = Auth::user() -> id;
             $postGraduateProgram -> update($validatedData);
+
+            // TODO: inform the dean, vice chancellor, cqa
+
             return response() -> json(['message' => 'Post Graduate Program Updated Successfully'], 200);
         }
         catch(AuthorizationException $e){
