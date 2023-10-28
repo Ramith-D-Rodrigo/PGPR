@@ -565,7 +565,7 @@ class ReviewerController extends Controller
      *          pgprId: 10,
      *          criteriaId: 10,
      *          standardId: 10,
-     *          comment: "This is marvelous",
+     *          observations: "This is marvelous",
      *          score: 0 <= x <= 3
      *      }
      *
@@ -576,7 +576,7 @@ class ReviewerController extends Controller
         try {
             $validated = $request->validated();
             $postGraduateReviewProgram = PostGraduateProgramReview::findOrFail($validated['pgpr_id']);
-            $deskEvaluation = $postGraduateReviewProgram->deskEvaluation;
+            $deskEvaluation = $postGraduateReviewProgram->deskEvaluations;
 
             if ($deskEvaluation) {
                 $attributes = [

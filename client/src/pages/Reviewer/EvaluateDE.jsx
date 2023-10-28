@@ -16,11 +16,15 @@ import getAllCriteria from '../../api/Criteria/getAllCriteria';
 import getStandardEvidencesAndAdherenceForSER from '../../api/SelfEvaluationReport/getStandardEvidencesAndAdherenceForSER';
 import { SERVER_URL, SERVER_API_VERSION } from '../../assets/constants';
 import getSpecificPGPR from '../../api/Reviewer/getSpecificPGPR';
+import getDeEvaluationResults from '../../api/Reviewer/getDeEvaluationResults';
+import conductDeskEvaluation from '../../api/Reviewer/conductDeskEvaluation';
 
 const EvaluateDE = () => {
     const {pgprId,criteriaId} = useParams();
     const open = useDrawerState().drawerState.open;
     const [standardID, setstandardID] = useState(1);
+    const [previousObservations, setpreviousObservations] = useState('');
+    const [previousScore, setpreviousScore] = useState(0);
     const [observations, setobservations] = useState('');
     const [score, setscore] = useState(0);
     const [observationsErrMsg,setobservationsErrMsg ]= useState("");
@@ -47,8 +51,7 @@ const EvaluateDE = () => {
                 setSERDetails(response1?.data?.data);
                 const selectedStandards = response1?.data?.data?.criterias.find((criteria)=>{ return criteria.id==criteriaId}).standards;
                 setStandard(selectedStandards);
-                // console.log("Selected Standard : ",selectedStandards[standardID-1]);
-                const response2 = await getStandardEvidencesAndAdherence(pgprId,selectedStandards[standardID-1].id);
+                await getDataForSelectedStandard(response0?.data?.data?.postGraduateReviewProgram?.deskEvaluation?.id,selectedStandards[standardID-1].id)
                 // setevidencesForSelectedStandard(response1?.data?.data?.evidenceGivenStandards.find((evidenceGivenStandard)=>{ return evidenceGivenStandard.standardAdherence.standardId==Standard[standardID-1]?.id}));
                 // console.log("SER Details : ",response1?.data?.data);
                 const response = await getAllCriteria();
@@ -63,7 +66,7 @@ const EvaluateDE = () => {
         getSERDetails();
     }, []);
 
-    const getStandardEvidencesAndAdherence = async (pgprId,standardId) => {
+    const getStandardEvidencesAndAdherence = async (standardId) => {
         try {
             setLoading(true);
             const response = await getStandardEvidencesAndAdherenceForSER(pgprId,standardId);
@@ -78,12 +81,37 @@ const EvaluateDE = () => {
         }
     };
 
-    //get evidences and adherence for selected standard
-    useEffect(() => {
+    const getDeEvaluationResultsforStandard = async (deskEvaluationId,standardId) => {
+        try {
+            setLoading(true);
+            const response = await getDeEvaluationResults(deskEvaluationId,criteriaId,standardId);
+            setpreviousObservations(response?.data?.data?.comment?? '');
+            setpreviousScore(response?.data?.data?.score?? 0);
+            setobservations(response?.data?.data?.comment?? '');
+            setscore(response?.data?.data?.score?? 0);
+            setLoading(false);
+            return response?.data?.data;
+        } catch (err) {
+            console.error(err);
+            setLoading(false);
+            return [];
+        }
+    };
+
+    const getDataForSelectedStandard = async (deskEvaluationId,standardId) => {
         //get standard details/ data from endpoint
-        const result = getStandardEvidencesAndAdherence(pgprId,Standard[standardID-1]?.id);
-        console.log("deskEvaluation : ",deskEvaluation);
-        // console.log("Standard : ",result);
+        if( !standardId || !deskEvaluationId )
+        {
+            console.log("hello",standardID,deskEvaluationId);
+            return;
+        }
+        getStandardEvidencesAndAdherence(standardId);
+        getDeEvaluationResultsforStandard(deskEvaluationId,standardId);
+    };
+
+
+    useEffect(() => {
+        getDataForSelectedStandard(deskEvaluation?.id,Standard[standardID-1]?.id);
     }, [standardID]);
 
     let noOfAllStandards = Standard.length;
@@ -92,7 +120,7 @@ const EvaluateDE = () => {
 
     // const Criterias = SERDetails?.criterias;
     // console.log("Criterias : ",Criterias);
-    console.log("evidenceForSelectedStandards : ",evidencesForSelectedStandard);
+    // console.log("evidenceForSelectedStandards : ",evidencesForSelectedStandard);
 
     const findCriteriaName = (criteriaId)=>{
         let criteria = criterias.find((criteria)=>{ return criteria.id==criteriaId});
@@ -100,7 +128,11 @@ const EvaluateDE = () => {
     };
 
     const handleClickNext = ()=>{
-        // TODO: check whether data is saved or not
+        if(observations != previousObservations || score != previousScore)
+        {
+            alert("Please save the data before proceeding");
+            return;
+        }
         if(standardID<noOfAllStandards)
         {
             setstandardID(standardID+1);
@@ -108,7 +140,11 @@ const EvaluateDE = () => {
     };
 
     const handleClickPrev = ()=>{
-        // TODO: check whether data is saved or not
+        if(observations != previousObservations || score != previousScore)
+        {
+            alert("Please save the data before proceeding");
+            return;
+        }
         if(standardID>1)
         {
             setstandardID(standardID-1);
@@ -116,12 +152,36 @@ const EvaluateDE = () => {
     };
 
     const handleClickSave = ()=>{
+
+        if(observations=='' || score<0 || score>3)
+        {
+            alert("Please fill the form correctly");
+            return;
+        }
         //save data to endpoint
+        const save = async () => {
+            setLoading(true);
+            try {
+                const response = await conductDeskEvaluation(pgprId,criteriaId,Standard[standardID-1]?.id,observations,score);
+                console.log("Save Response : ",response);
+                getDeEvaluationResultsforStandard(deskEvaluation.id,Standard[standardID-1]?.id);
+                setLoading(false);
+            } catch (err) {
+                console.error(err);
+                setLoading(false);
+            }
+        }
+        save();
     };
 
     const handleClickCancel = ()=>{
-        // TODO: check whether data is saved or not
+        if(observations != previousObservations || score != previousScore)
+        {
+            alert("Please save the data before proceeding");
+            return;
+        }
         //go back
+        history.back();
 
     };
 

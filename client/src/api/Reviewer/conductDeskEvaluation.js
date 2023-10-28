@@ -5,13 +5,13 @@ import axios from "../api.js";
 
 //url is : SERVER_URL + SERVER_API_VERSION + 'reviewer/conduct/desk-evaluation'
 
-const conductDeskEvaluation = async (pgprId,criteriaId,standardId,comment,score) => {
+const conductDeskEvaluation = async (pgprId,criteriaId,standardId,observations,score) => {
     const formData = new FormData();    // create form data to send file
 
     formData.append('pgprId',pgprId);    // append pgprId to form data
     formData.append('criteriaId',criteriaId);    // append criteriaId to form data
     formData.append('standardId',standardId);    // append standardId to form data
-    formData.append('comment',comment);    // append comment to form data
+    formData.append('observations',observations);    // append comment to form data
     formData.append('score',score);    // append score to form data
 
     //     pgprId: 10,
