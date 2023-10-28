@@ -23,6 +23,7 @@ import getSpecificPGPR from '../../api/Reviewer/getSpecificPGPR';
 import SubmitDeskEvaluation from '../../api/Reviewer/SubmitDeskEvaluation';
 import StatusMessage from '../../components/StatusMessage';
 import { useNavigate } from 'react-router-dom';
+import GetDeskEvaluationProgress from '../../api/DeskEvaluation/getDeskEvaluationProgress';
 
 const SubmitDE = () => {
     const theme = useTheme();
@@ -67,6 +68,8 @@ const SubmitDE = () => {
                 const response2 = await getSelfEvaluationReport(response1?.data?.data?.postGraduateReviewProgram?.selfEvaluationReport?.id);
                 console.log("SER Details : ",response2?.data?.data);
                 setSERDetails(response2?.data?.data);
+                const response3 = await GetDeskEvaluationProgress(response1?.data?.data?.postGraduateReviewProgram?.deskEvaluation?.id);
+                console.log("DE Progress : ",response3?.data?.data);
                 SetLoading(false);
             } catch (err) {
                 console.error(err);
