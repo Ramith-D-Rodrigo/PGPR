@@ -28,7 +28,7 @@ class ShowOwnProperEvaluationCriteriaWiseRequest extends FormRequest
         return [
             'pgpr_id' => 'required|exists:post_graduate_program_reviews,id',
             'proper_evaluation_id' => 'required|exists:proper_evaluations,id',
-            'criteria_id' => 'required|exists:criteria,id',
+            'criteria_id' => 'sometimes|exists:criteria,id',
         ];
     }
 
@@ -50,7 +50,6 @@ class ShowOwnProperEvaluationCriteriaWiseRequest extends FormRequest
             'pgpr_id.exists' => 'The post graduate program review does not exist',
             'proper_evaluation_id.required' => 'The proper evaluation id is required',
             'proper_evaluation_id.exists' => 'The proper evaluation does not exist in the database',
-            'criteria_id.required' => 'The criteria id is required',
             'criteria_id.exists' => 'The criteria does not exists in the database',
         ];
     }

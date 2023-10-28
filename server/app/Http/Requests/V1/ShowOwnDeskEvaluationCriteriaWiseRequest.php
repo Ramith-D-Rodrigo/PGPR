@@ -27,7 +27,7 @@ class ShowOwnDeskEvaluationCriteriaWiseRequest extends FormRequest
     {
         return [
             'desk_evaluation_id' => 'required|exists:desk_evaluations,id',
-            'criteria_id' => 'required|exists:criteria,id',
+            'criteria_id' => 'sometimes|exists:criteria,id',
         ];
     }
 
@@ -46,7 +46,7 @@ class ShowOwnDeskEvaluationCriteriaWiseRequest extends FormRequest
         return [
             'desk_evaluation_id.required' => 'The desk evaluation id is required',
             'desk_evaluation_id.exists' => 'The desk evaluation does not exist in the database',
-            'criteria_id.required' => 'The criteria id is required',
+            // 'criteria_id.sometimes' => 'The criteria id is required',
             'criteria_id.exists' => 'The criteria does not exists in the database',
         ];
     }

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Resources\V1\CenterForQualityAssuranceDirectorResource;
 use App\Http\Resources\V1\UniversityResource;
-use App\Mail\InformCenterForQualityAssuranceDirectorRoleRevoke;
+use App\Mail\InformUserRoleRevocation;
 use App\Models\CenterForQualityAssurance;
 use App\Models\CenterForQualityAssuranceDirector;
 use App\Http\Requests\V1\StoreCenterForQualityAssuranceDirectorRequest;
@@ -127,10 +127,11 @@ class CenterForQualityAssuranceDirectorController extends Controller
 
             Mail::to($user->official_email)
                         ->send(
-                            new InformCenterForQualityAssuranceDirectorRoleRevoke(
-                                formerCQADirector: $user,
-                                subject: "Access revokation to the platform as Center for Quality Assuarance Director",
-                                content: 'mail.informCQADirectorRoleRevoke'
+                            new InformUserRoleRevocation(
+                                user: $user,
+                                role: 'Center for Quality Assurance Director',
+                                subject: "Access revocation to the platform as Center for Quality Assurance Director",
+                                content: 'mail.informUserRoleRevoke'
                             )
                         );
 

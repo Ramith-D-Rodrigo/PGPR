@@ -146,10 +146,6 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::get('reviewer/desk-evaluation/view-progress', 'ReviewerController@viewOwnDeskEvaluationCriteria')->middleware('auth');
     //reviewer display the progress the reviewer has made in the proper evaluation +> URL params properEvaluation=12&criteria=10
     Route::get('reviewer/proper-evaluation/view-progress', 'ReviewerController@viewOwnProperEvaluationCriteria')->middleware('auth');
-    //reviewer submit desk evaluation
-    Route::get('reviewer/submit-desk-evaluation', 'ReviewerController@submitDeskEvaluation')->middleware('auth');
-    //reviewer submit proper evaluation
-    Route::get('reviewer/submit-proper-evaluation', 'ReviewerController@submitProperEvaluation')->middleware('auth');
     //reviewer view remarks of the sections A,B, and D in the SER
     Route::get('reviewer/pgpr/ser-remarks/view/{serId}', 'ReviewerController@viewRemarksOfSectionsABD')->middleware('auth');
     //reviewer update remarks of the sections A,B, and D in the SER

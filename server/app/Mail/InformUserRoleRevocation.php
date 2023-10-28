@@ -10,7 +10,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class InformCenterForQualityAssuranceDirectorRoleRevoke extends Mailable
+class InformUserRoleRevocation extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -18,7 +18,8 @@ class InformCenterForQualityAssuranceDirectorRoleRevoke extends Mailable
      * Create a new message instance.
      */
     public function __construct(
-        public $formerCQADirector,
+        public $user,
+        public $role,
         public $subject,
         public $content
     )
