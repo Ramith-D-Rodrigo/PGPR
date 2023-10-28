@@ -1,14 +1,28 @@
-import { Button, ButtonGroup, Divider, TableContainer } from '@mui/material'
+import { Button, ButtonGroup, Chip, Divider, TableContainer } from '@mui/material'
 import React from 'react'
 import { Link } from 'react-router-dom'
 import getAllReviewers from '../../api/Reviewer/getAllReviewers'
 import { useEffect, useState } from 'react';
 import { Paper, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
 import useAuth from '../../hooks/useAuth';
+import useSetUserNavigations from '../../hooks/useSetUserNavigations';
+import Box from '@mui/material/Box';
 
 const Reviewers = () => {
   const [reviewers, setReviewers] = useState([]);
-  const {auth} = useAuth();
+  const { auth } = useAuth();
+
+  useSetUserNavigations(
+    [{
+      name: "Dashboard",
+      link: "/"
+    },
+    {
+      name: "Reviewers",
+      link: "/reviewers"
+    },
+    ]
+  );
 
   useEffect(() => {
     const handleGetReviewers = async () => {
@@ -26,23 +40,28 @@ const Reviewers = () => {
 
   return (
     <>
-      <h1>Reviewers</h1>
-      <Button>
-        <Link to="/qac_officer/reviewers/import">Import Reviewers</Link>
+      <Divider textAlign='left'>
+        <Chip label="Reviewers"/>
+      </Divider>
+
+      <Box sx={{display:'flex', flexDirection:'row-reverse', mb:3}}>
+      <Button color='primary' variant='contained'>
+        <Link to={`/${auth.authRole[0]}/reviewers/import`}>Import Reviewers</Link>
       </Button>
+      </Box>
 
       <Divider />
 
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead>
-            <TableRow >
-              <TableCell align='center'>Reviewer ID</TableCell>
-              <TableCell align='center'>Name</TableCell>
-              <TableCell align='center'>Official Email</TableCell>
-              <TableCell align='center'>Working Faculty</TableCell>
-              <TableCell align='center'>Status</TableCell>
-              <TableCell align='center'>Action</TableCell>
+            <TableRow style={{backgroundColor:"#D8E6FC",}}>
+              <TableCell align='center'><strong>Reviewer ID</strong></TableCell>
+              <TableCell align='center'><strong>Name</strong></TableCell>
+              <TableCell align='center'><strong>Official Email</strong></TableCell>
+              <TableCell align='center'><strong>Working Faculty</strong></TableCell>
+              <TableCell align='center'><strong>Status</strong></TableCell>
+              <TableCell align='center'><strong>Actions</strong></TableCell>
             </TableRow>
           </TableHead>
 

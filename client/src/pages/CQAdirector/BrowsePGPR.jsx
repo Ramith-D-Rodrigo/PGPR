@@ -13,6 +13,8 @@ import {
   TableRow,
   Paper,
   Box,
+  Divider,
+  Chip,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import Dialog from "@mui/material/Dialog";
@@ -24,6 +26,8 @@ import useAuth from "../../hooks/useAuth";
 import getAllPGPRApplications from "../../api/PostGraduateProgramApplication/getAllPGPRApplications";
 import getDean from "../../api/Dean/getDean";
 import recommendPGPRApplicationByCQADirector from "../../api/PostGraduateProgramApplication/recommendPGPRApplicationByCQA";
+import useSetUserNavigations from "../../hooks/useSetUserNavigations";
+import { SERVER_URL } from "../../assets/constants";
 
 // Sample data (you can replace this with your actual data)
 
@@ -85,16 +89,19 @@ const CustomTable = ({
                     >
                       View Details
                     </Button>
-                    <Button
-                      style={{ margin: "0 8px" }}
-                      variant="contained"
-                      color="primary"
-                      size="small"
-                      onClick={() => handleRecommendClick(row, index)} // Pass the index
-                      disabled={isRecommendButtonDisabledArray[index]} // Use the array value
-                    >
-                      Recommend
-                    </Button>
+                    {
+                      row.status === "submitted" &&
+                      <Button
+                        style={{ margin: "0 8px" }}
+                        variant="contained"
+                        color="primary"
+                        size="small"
+                        onClick={() => handleRecommendClick(row, index)} // Pass the index
+                        disabled={isRecommendButtonDisabledArray[index]} // Use the array value
+                      >
+                        Recommend
+                      </Button>
+                    }
                     {recommendationMessage === "Recommended" && (
                       <div
                         style={{
@@ -126,6 +133,17 @@ const BrowsePGPR = () => {
   const [recommendationMessage, setRecommendationMessage] = useState("");
   const { auth } = useAuth();
 
+  useSetUserNavigations([
+    {
+      name: "Dashboard",
+      link: "/dashboard",
+    },
+    {
+      name: "Postgraduate Programme Review Applications",
+      link: "/pgprs",
+    },
+  ]);
+
   const handleRecommendClick = async (pgpr, rowIndex) => {
     // Disable the button for the specific row
     setIsRecommendButtonDisabledArray((prevArray) => {
@@ -135,7 +153,7 @@ const BrowsePGPR = () => {
     });
 
     try {
-     
+
       const response = await recommendPGPRApplicationByCQADirector(pgpr.id);
 
       if (response.status === 200) {
@@ -146,11 +164,11 @@ const BrowsePGPR = () => {
         setRecommendationMessage("Recommendation Failed");
       }
     } catch (error) {
-      
+
       console.error("Recommendation Error:", error);
       setRecommendationMessage("Recommendation Failed");
     } finally {
-    
+
       setIsRecommendButtonDisabledArray((prevArray) => {
         const newArray = [...prevArray];
         newArray[rowIndex] = false;
@@ -223,11 +241,10 @@ const BrowsePGPR = () => {
 
   return (
     <>
-      <div className="max-w-6xl mx-auto p-6 bg-white rounded-md mt-6">
-        <h2 className="text-2xl font-bold text-center">
-          Browse PGPR Applications
-        </h2>
-        <hr className="border-t-2 border-black my-4 opacity-50" />
+      <Divider textAlign="left">
+        <Chip label="Browse PGPR Applications" />
+      </Divider>
+      <>
         {/* Conditionally render the loading indicator */}
         {isLoading ? (
           <div
@@ -246,21 +263,21 @@ const BrowsePGPR = () => {
         ) : (
           // Render the table when not loading
           <CustomTable
-          tableData={tableData}
-          openDetailsDialog={openDetailsDialog}
-          handleRecommendClick={handleRecommendClick}
-          isRecommendButtonDisabledArray={isRecommendButtonDisabledArray} // Pass the array as a prop
-          recommendationMessage={recommendationMessage}
-        />
+            tableData={tableData}
+            openDetailsDialog={openDetailsDialog}
+            handleRecommendClick={handleRecommendClick}
+            isRecommendButtonDisabledArray={isRecommendButtonDisabledArray} // Pass the array as a prop
+            recommendationMessage={recommendationMessage}
+          />
         )}
-      </div>
+      </>
 
       {/* Details Dialog */}
       <Dialog
         open={isDetailsDialogOpen}
         onClose={() => setIsDetailsDialogOpen(false)}
         fullWidth
-        maxWidth="md" // You can adjust the width as needed
+         // You can adjust the width as needed
       >
         {selectedPGPR && (
           <>
@@ -279,48 +296,108 @@ const BrowsePGPR = () => {
                 <CloseIcon />
               </IconButton>
             </DialogTitle>
-            <DialogContent>
-              <div style={{ marginBottom: "16px" }}>
-                <b>ID:</b> {selectedPGPR.id}
+            <DialogContent sx={{ display: 'flex', flexDirection: 'column' }}>
+              <div style={{ display: 'flex', width: '100%', margin: '0.5rem 0' }}>
+                <div style={{ width: '50%', margin: '0 0 0 20%' }}>
+                  ID
+                </div>
+                <div style={{ width: '50%', margin: '0 0 0 20%' }}>
+                  {selectedPGPR.id}
+                </div>
               </div>
-              <div style={{ marginBottom: "16px" }}>
-                <b>Request Date:</b> {selectedPGPR.requestDate}
+              <div style={{ display: 'flex', width: '100%', margin: '0.5rem 0' }}>
+                <div style={{ width: '50%', margin: '0 0 0 20%' }}>
+                  Request Date
+                </div>
+                <div style={{ width: '50%', margin: '0 0 0 20%' }}>
+                  {selectedPGPR.requestDate}
+                </div>
               </div>
-              <div style={{ marginBottom: "16px" }}>
-                <b>Application Date:</b> {selectedPGPR.applicationDate}
+              <div style={{ display: 'flex', width: '100%', margin: '0.5rem 0' }}>
+                <div style={{ width: '50%', margin: '0 0 0 20%' }}>
+                  Application Date
+                </div>
+                <div style={{ width: '50%', margin: '0 0 0 20%' }}>
+                  {selectedPGPR.applicationDate}
+                </div>
               </div>
-              <div style={{ marginBottom: "16px" }}>
-                <b>Status:</b> {selectedPGPR.status}
+              <div style={{ display: 'flex', width: '100%', margin: '0.5rem 0' }}>
+                <div style={{ width: '50%', margin: '0 0 0 20%' }}>
+                  Status
+                </div>
+                <div style={{ width: '50%', margin: '0 0 0 20%' }}>
+                  {selectedPGPR.status}
+                </div>
               </div>
-              <div style={{ marginBottom: "16px" }}>
-                <b>Dean Name:</b> {selectedPGPR.deanName}
+              <div style={{ display: 'flex', width: '100%', margin: '0.5rem 0' }}>
+                <div style={{ width: '50%', margin: '0 0 0 20%' }}>
+                  Dean Name
+                </div>
+                <div style={{ width: '50%', margin: '0 0 0 20%' }}>
+                  {selectedPGPR.deanName}
+                </div>
               </div>
-              <div style={{ marginBottom: "16px" }}>
-                <b>PG Program Name:</b> {selectedPGPR.postGraduateProgram.title}
+              <div style={{ display: 'flex', width: '100%', margin: '0.5rem 0' }}>
+                <div style={{ width: '50%', margin: '0 0 0 20%' }}>
+                  PG Program Name
+                </div>
+                <div style={{ width: '50%', margin: '0 0 0 20%' }}>
+                  {selectedPGPR.postGraduateProgram.title}
+                </div>
               </div>
               {/* Display data for all 5 years */}
-              <div style={{ marginBottom: "16px" }}>
-                <b>Year 1 :</b> {selectedPGPR.year1}
+              <div style={{ display: 'flex', width: '100%', margin: '0.5rem 0' }}>
+                <div style={{ width: '50%', margin: '0 0 0 20%' }}>
+                  Year 1
+                </div>
+                <div style={{ width: '50%', margin: '0 0 0 20%' }}>
+                  {selectedPGPR.year1}
+                </div>
               </div>
-              <div style={{ marginBottom: "16px" }}>
-                <b>Year 2 :</b> {selectedPGPR.year2}
+              <div style={{ display: 'flex', width: '100%', margin: '0.5rem 0' }}>
+                <div style={{ width: '50%', margin: '0 0 0 20%' }}>
+                  Year 2
+                </div>
+                <div style={{ width: '50%', margin: '0 0 0 20%' }}>
+                  {selectedPGPR.year2}
+                </div>
               </div>
-              <div style={{ marginBottom: "16px" }}>
-                <b>Year 3 :</b> {selectedPGPR.year3}
+              <div style={{ display: 'flex', width: '100%', margin: '0.5rem 0' }}>
+                <div style={{ width: '50%', margin: '0 0 0 20%' }}>
+                  Year 3
+                </div>
+                <div style={{ width: '50%', margin: '0 0 0 20%' }}>
+                  {selectedPGPR.year3}
+                </div>
               </div>
-              <div style={{ marginBottom: "16px" }}>
-                <b>Year 4 :</b> {selectedPGPR.year4}
+              <div style={{ display: 'flex', width: '100%', margin: '0.5rem 0' }}>
+                <div style={{ width: '50%', margin: '0 0 0 20%' }}>
+                  Year 4
+                </div>
+                <div style={{ width: '50%', margin: '0 0 0 20%' }}>
+                  {selectedPGPR.year4}
+                </div>
               </div>
-              <div style={{ marginBottom: "16px" }}>
-                <b>Year 5 :</b> {selectedPGPR.year5}
+              <div style={{ display: 'flex', width: '100%', margin: '0.5rem 0' }}>
+                <div style={{ width: '50%', margin: '0 0 0 20%' }}>
+                  Year 5
+                </div>
+                <div style={{ width: '50%', margin: '0 0 0 20%' }}>
+                  {selectedPGPR.year5}
+                </div>
               </div>
-              <div style={{ marginBottom: "16px" }}>
-                <b>Year End Date :</b> {selectedPGPR.yEnd}
+              <div style={{ display: 'flex', width: '100%', margin: '0.5rem 0' }}>
+                <div style={{ width: '50%', margin: '0 0 0 20%' }}>
+                  Year 5 End Date
+                </div>
+                <div style={{ width: '50%', margin: '0 0 0 20%' }}>
+                  {selectedPGPR.yEnd}
+                </div>
               </div>
               {/* Add a button to download intent letter */}
               <div style={{ textAlign: "center" }}>
                 <a
-                  href={selectedPGPR.intentLetter}
+                  href={SERVER_URL.slice(0, -1) + selectedPGPR.intentLetter}
                   target="_blank"
                   rel="noopener noreferrer"
                 >

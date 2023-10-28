@@ -425,6 +425,12 @@ class SelfEvaluationReportController extends Controller
                         $deskEvaluation->end_date = NULL;
                         $deskEvaluation->save();
 
+                        //change the status of the postgraduate programme review to 'DE'
+                        $pgpr->update([
+                            'status_of_pgpr' => 'DE',
+                            'updated_at' => now(),
+                        ]);
+
                         DB::commit();
 
                         return response()->json([
@@ -464,7 +470,9 @@ class SelfEvaluationReportController extends Controller
             DB::rollBack();
             return response()->json([
                 'message' => 'Error occurred while recommending the self evaluation report',
-                'error' => $e -> getMessage()
+                'error' => $e -> getTrace(),
+                'errorMessage' => $e -> getMessage(),
+                'errorLine' => $e -> getLine(),
             ], 500);
         }
     }

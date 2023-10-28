@@ -103,14 +103,14 @@ function FinalizeDE() {
       // console.log("evidencesForGivenStandards : ",evidencesForGivenStandards);
 
       const createData = (reviewer,designation,role,progress) => {
-        const actions = <Link to={`../view_DE_progress/${pgprId}/${reviewer.id}`}><Button variant="contained" color="primary">View</Button></Link>
-        return {name:reviewer.name,designation,role,progress,actions}
+        const actions = <Link key={1} to={`../view_DE_progress/${pgprId}/${reviewer.id}`}><Button variant="contained" color="primary">View</Button></Link>
+        return {id:reviewer.id,name:reviewer.name,designation,role,progress,actions}
       }
 
       const rows = [
         createData({id:1,name:"Dr. K. K. K. Perera"},"Senior Lecturer","Chair","100%"),
-        createData({id:1,name:"Dr. K. K. K. Perera"},"Senior Lecturer","Reviewer","100%"),
-        createData({id:1,name:"Dr. K. K. K. Perera"},"Senior Lecturer","Reviewer","100%"),
+        createData({id:2,name:"Dr. K. K. K. Perera"},"Senior Lecturer","Reviewer","100%"),
+        createData({id:3,name:"Dr. K. K. K. Perera"},"Senior Lecturer","Reviewer","100%"),
       ]
     return (
       <>
@@ -185,7 +185,7 @@ function FinalizeDE() {
                           :
                         rows.map((row) => (
                             <TableRow
-                            key={row.criteria}
+                            key={row.id}
                             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                             >
                                 <TableCell component="th" scope="row">

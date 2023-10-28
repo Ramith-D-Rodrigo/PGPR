@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Checkbox, CircularProgress, FormControl, FormControlLabel, FormGroup, IconButton, Input, InputAdornment, InputLabel, MenuItem, Select,Snackbar,Alert, Box } from '@mui/material'
+import { Button, Checkbox, CircularProgress, FormControl, FormControlLabel, FormGroup, IconButton, Input, InputAdornment, InputLabel, MenuItem, Select,Snackbar,Alert, Box, Divider } from '@mui/material'
 import FormHelperText from '@mui/material/FormHelperText';
 import {useState,useEffect} from 'react';
 import useSetUserNavigations from '../../hooks/useSetUserNavigations'
@@ -7,11 +7,15 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import { useNavigate } from 'react-router-dom';
 import createUniversity from '../../api/University/createUniversity';
+import Chip from '@mui/material/Chip';
 
 
 function AddUniversity() {
     useSetUserNavigations(
-        [
+        [   {
+                name: "Dashboard",
+                link: "/"
+            },
             {
                 name: "Universities",
                 link: "/universities"
@@ -336,6 +340,11 @@ function AddUniversity() {
 
   return (
     <>
+    <Divider textAlign='left' sx={{mb: 2}}>
+        <Chip label="Add University"/>
+    </Divider>
+
+
     <Box sx={{display:'flex',justifyContent:'center',alignItems:'center',padding:'20px',backgroundColor:'#f5f5f5',borderRadius:'10px'}}>
         <form style={{display:"flex",flexWrap:'wrap',width:'90%',justifyContent:'center',alignItems:'flex-start'}} onSubmit={handleClickAddUniversity}>
             <FormControl sx={{padding:"15px 10px",width:'50%',boxSizing:'border-box'}} {...universityNameError.err} variant="standard">

@@ -153,7 +153,7 @@ class PostGraduateProgramPolicy
                                 -> qualityAssuranceStaff -> centerForQualityAssuranceDirector
                                 -> centerForQualityAssurance -> university -> id;
 
-                if($cqaUniId !== $postGraduateProgram -> university -> id){
+                if($cqaUniId !== $postGraduateProgram -> faculty -> university -> id){
                     return Response::deny('You can only view reviews of the postgraduate programme of your university');
                 }
                 break;

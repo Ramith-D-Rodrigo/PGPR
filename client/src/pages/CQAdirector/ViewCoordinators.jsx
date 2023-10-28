@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import MainContent from "../../components/MainContent";
 import useSetUserNavigations from "../../hooks/useSetUserNavigations";
 import useAuth from "../../hooks/useAuth";
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, Divider, Snackbar } from "@mui/material";
 import {
   Button,
   Table,
@@ -31,6 +31,15 @@ import getUniversityFaculties from "../../api/University/getUniversityFaculties"
 import getCurrentDean from "../../api/Faculty/getCurrentDean";
 import getFacultyPostGraduatePrograms from "../../api/Faculty/getFacultyPostGraduatePrograms";
 import getCurrentCoordinator from "../../api/PostGraduateProgram/getCurrentCoordinator";
+import { Chip } from "@mui/material";
+import getCurrentIQAUDirector from "../../api/Faculty/getCurrentIQAUDirector";
+import { SERVER_URL } from "../../assets/constants";
+import removeIQAUDirectorRole from "../../api/IQAUDirector/removeIQAUDirectorRole";
+import removeDeanRole from "../../api/Dean/removeDeanRole";
+import removeProgrammeCoordinatorRole from "../../api/ProgrammeCoordinator/removeProgrammeCoordinatorRole";
+import { useNavigate } from "react-router-dom";
+import { Box } from "@mui/system";
+import AddIcon from "@mui/icons-material/Add";
 
 const CustomTable = ({ tableData, openEditDialog }) => {
   return (
@@ -64,13 +73,16 @@ const CustomTable = ({ tableData, openEditDialog }) => {
               {tableData.map((row, index) => (
                 <TableRow key={index}>
                   <TableCell align="center">
-                    <Avatar alt="Profile Photo" src={row.profilePhoto} />
+                    <Avatar alt="Profile Photo" src={
+                      row.role === 'IQAU Director' ?
+                        SERVER_URL.slice(0, -1) + row.qualityAssuranceStaff.universitySide.user.profilePic :
+                        SERVER_URL.slice(0, -1) + row.academicStaff.universitySide.user.profilePic
+
+                    } />
                   </TableCell>
                   <TableCell align="center">{row.id}</TableCell>
                   <TableCell align="center">
-                    {row.academicStaff.universitySide.user.initials +
-                      " " +
-                      row.academicStaff.universitySide.user.surname}
+                    {row.role === 'IQAU Director' ? row.qualityAssuranceStaff.universitySide.user.initials + " " + row.qualityAssuranceStaff.universitySide.user.surname : row.academicStaff.universitySide.user.initials + " " + row.academicStaff.universitySide.user.surname}
                   </TableCell>
                   <TableCell align="center">{row.role}</TableCell>
                   <TableCell align="center">{row.faculty.name}</TableCell>
@@ -81,7 +93,7 @@ const CustomTable = ({ tableData, openEditDialog }) => {
                       color="primary"
                       size="small"
                       component={Link}
-                      to={"CoordinatorProfile/" + row.cid}
+                      to={"CoordinatorProfile/" + row.id}
                     >
                       View
                     </Button>
@@ -93,10 +105,10 @@ const CustomTable = ({ tableData, openEditDialog }) => {
                       size="small"
                       onClick={() => openEditDialog(row)}
                     >
-                      Edit
+                      Unassign
                     </Button>
 
-                   
+
                   </TableCell>
                 </TableRow>
               ))}
@@ -137,18 +149,43 @@ const Coordinators = () => {
         };
 
         // Initialize an array to store data for all coordinators
-        const allCoordinatorData = [];
+        let allCoordinatorData = [];
 
         for (let i = 0; i < facultiesData.length; i++) {
           const faculty = facultiesData[i];
 
           // Fetch the current dean for the current faculty
-          const deanResponse = await getCurrentDean(faculty.id, queryParams);
+          let deanResponse = null;
+          let deanData = null;
+          try {
+            deanResponse = await getCurrentDean(faculty.id, queryParams);
+            deanData = deanResponse.data.data;
+            deanData.faculty = faculty;
+            deanData.role = "Dean";
+          }
+          catch (error) {
+            if (error.response.status == 404) {
+              //no dean for the current faculty
+              //ignore the error
+            }
+          }
 
-          const deanData = deanResponse.data.data;
+          // fetch iqau director for the current faculty
+          let iqauDirectorResponse = null;
+          let iqauDirectorData = null;
+          try {
+            iqauDirectorResponse = await getCurrentIQAUDirector(faculty.id, { includeQualityAssuranceStaff: true, includeUniversitySide: true, includeUser: true });
+            iqauDirectorData = iqauDirectorResponse.data.data;
+            iqauDirectorData.faculty = faculty;
+            iqauDirectorData.role = "IQAU Director";
 
-          deanData.faculty = faculty;
-          deanData.role = "Dean";
+          } catch (error) {
+            if (error.response.status == 404) {
+              //no iqau director for the current faculty
+              //ignore the error 
+            }
+          }
+
           // Fetch postgraduate programs for the current faculty
           const postGradProgramsResponse = await getFacultyPostGraduatePrograms(
             faculty.id
@@ -159,24 +196,36 @@ const Coordinators = () => {
           // Fetch coordinators for each postgraduate program
           const coordinatorPromises = postGradProgramsData.map(
             async (program) => {
-              console.log("log:", program.id);
-              const coordinatorResponse = await getCurrentCoordinator(
-                program.id,
-                queryParams
-              );
-              console.log("response:", coordinatorResponse);
+              try {
+                console.log("log:", program.id);
+                const coordinatorResponse = await getCurrentCoordinator(
+                  program.id,
+                  queryParams
+                );
+                console.log("response:", coordinatorResponse);
 
-              const coordinatorData = coordinatorResponse.data.data;
-              coordinatorData.faculty = faculty;
-              coordinatorData.role = "Programme Coordinator";
-              return coordinatorResponse.data.data;
+                const coordinatorData = coordinatorResponse.data.data;
+                coordinatorData.faculty = faculty;
+                coordinatorData.role = "Programme Coordinator";
+                return coordinatorResponse.data.data;
+              } catch (error) {
+                if (error.response.status == 404) {
+                  //there is no coordinator for the current postgraduate program
+                  return;
+                }
+              }
             }
           );
 
-          const coordinatorsData = await Promise.all(coordinatorPromises);
+          let coordinatorsData = await Promise.all(coordinatorPromises);
+          console.log("Coordinators Data:", coordinatorsData);
 
           // Combine deanData, postGradProgramsData, and coordinatorsData into allCoordinatorData
-          allCoordinatorData.push(deanData, ...coordinatorsData);
+          allCoordinatorData.push(deanData, ...coordinatorsData, iqauDirectorData);
+
+          allCoordinatorData = allCoordinatorData.filter((coordinator) => coordinator != null);
+
+          console.log("All Coordinator Data:", allCoordinatorData);
         }
 
         // Set allCoordinatorData to tableData
@@ -190,7 +239,10 @@ const Coordinators = () => {
     }
 
     fetchData();
-  }, []);
+  }, [auth.id]);
+
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
 
   const [selectedCoordinatorForEdit, setSelectedCoordinatorForEdit] = useState({
     id: '',
@@ -207,35 +259,87 @@ const Coordinators = () => {
     },
     role: '',
   });
-  
+
   // Define openEditPopup function within the Coordinators component
   const handleOpenEditDialog = (coordinator) => {
     setSelectedCoordinatorForEdit(coordinator);
     setIsEditDialogOpen(true);
   };
 
-  const handleSaveEdit = () => {
+  const handleAccountRemove = async () => {
     if (selectedCoordinatorForEdit) {
       // Update the tableData with the edited coordinator details
-      const updatedTableData = tableData.map((coordinator) =>
-        coordinator.id === selectedCoordinatorForEdit.id
-          ? selectedCoordinatorForEdit
-          : coordinator
-      );
+      try {
+        let removeResponse = null;
+        if (selectedCoordinatorForEdit.role === 'IQAU Director') {
+          removeResponse = await removeIQAUDirectorRole(selectedCoordinatorForEdit.id);
+        }
+        else if (selectedCoordinatorForEdit.role === 'Dean') {
+          removeResponse = await removeDeanRole(selectedCoordinatorForEdit.id);
+        }
+        else if (selectedCoordinatorForEdit.role === 'Programme Coordinator') {
+          removeResponse = await removeProgrammeCoordinatorRole(selectedCoordinatorForEdit.id);
+        }
 
-      setTableData(updatedTableData);
-      handleCloseEditDialog();
+
+        if (removeResponse && removeResponse.status === 200) {
+          const updatedTableData = tableData.filter((coordinator) => coordinator.id !== selectedCoordinatorForEdit.id);
+          setTableData(updatedTableData);
+          handleCancelDialog();
+
+          //display success message using snackbar
+          console.log("Person unassigned successfully");
+          setSnackbarMessage("Person unassigned  successfully from the role of " + selectedCoordinatorForEdit.role);
+          setSnackbarOpen(true);
+
+          //close the snackbar after 4 seconds
+          setTimeout(() => {
+            setSnackbarOpen(false);
+          }, 4000);
+        }
+        else {
+          console.log("Error unassigning the person from the role of " + selectedCoordinatorForEdit.role);
+          setSnackbarMessage("Error unassigning the person from the role of " + selectedCoordinatorForEdit.role);
+          setSnackbarOpen(true);
+
+          //close the snackbar after 4 seconds
+          setTimeout(() => {
+            setSnackbarOpen(false);
+          }, 4000);
+        }
+      }
+      catch (error) {
+        console.log("Error removing coordinator", error);
+
+        setSnackbarMessage("Error unassigning the person from the role of " + selectedCoordinatorForEdit.role);
+        setSnackbarOpen(true);
+
+        //close the snackbar after 4 seconds
+        setTimeout(() => {
+          setSnackbarOpen(false);
+        }
+          , 4000);
+      }
+
+      handleCancelDialog();
     }
   };
 
-  const handleCloseEditDialog = () => {
-    setSelectedCoordinatorForEdit(null);
+  const handleCancelDialog = () => {
     setIsEditDialogOpen(false);
+    setTimeout(() => {
+      setSelectedCoordinatorForEdit(null);
+    }, 500);
+
   };
 
   useSetUserNavigations([
     {
-      name: "View Program Coordinators",
+      name: 'Dashboard',
+      link: '/',
+    },
+    {
+      name: "Browse Accounts",
       link: "/ViewCoordinators",
     },
   ]);
@@ -268,26 +372,36 @@ const Coordinators = () => {
     console.log("Skipping next");
   };
 
-  return (
-    <div className="max-w-6xl mx-auto p-6 bg-white rounded-md mt-6">
-      <h2 className="text-2xl font-bold text-center">
-        View Program Coordinators/Dean (IQAU Director){" "}
-      </h2>
-      <hr className="border-t-2 border-black my-4 opacity-50" />
-      <div className="grid grid-cols-2 gap-4"></div>
+  const navigator = useNavigate();
 
-      <div className="flex justify-center mt-4">
-        <Button variant="contained" color="primary">
-          Show Current Coordinators
-        </Button>
-        <Button
-          variant="contained"
-          color="primary"
-          style={{ marginLeft: "8px" }}
-        >
-          Show Current Dean/Director
-        </Button>
-      </div>
+  return (
+    <>
+      <Divider textAlign="left">
+        <Chip label='Browse Accounts of Dean, IQAU Director and Programme Coordinators' />
+      </Divider>
+
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '1rem' }}>
+        {auth.authRole[0] === 'cqa_director' && (
+          <Button variant="contained" startIcon={<AddIcon />}
+            onClick={
+              //go to add new pgp page
+              () => navigator('/cqa_director/AddAccounts')
+            }
+          >
+            Add a new Account
+          </Button>
+        )}
+      </Box>
+
+      <Snackbar
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        open={snackbarOpen}
+        message={snackbarMessage}
+        key={"top" + "center"}
+        severity={snackbarMessage.includes("Error") ? "error" : "success"}
+      />
+
+
       {/* Conditionally render the loading indicator */}
       {isLoading ? (
         <div
@@ -313,129 +427,30 @@ const Coordinators = () => {
 
       <Dialog
         open={isEditDialogOpen}
-        onClose={handleCloseEditDialog}
+        onClose={handleCancelDialog}
         maxWidth="md" // Adjust the width as needed
         fullWidth // Take up the full width
       >
-        <DialogTitle style={{ fontSize: "24px", fontWeight: "bold" }}>
-          Edit Coordinator Details
+        <DialogTitle style={{ fontSize: "24px", fontWeight: "bold", textAlign: 'center' }}>
+          You are about to unassign
+          {
+            selectedCoordinatorForEdit?.role === 'IQAU Director' ? (
+              " " + selectedCoordinatorForEdit?.qualityAssuranceStaff.universitySide.user.initials + " " + selectedCoordinatorForEdit?.qualityAssuranceStaff.universitySide.user.surname
+            )
+              :
+              (
+                " " + selectedCoordinatorForEdit?.academicStaff.universitySide.user.initials + " " + selectedCoordinatorForEdit?.academicStaff.universitySide.user.surname
+              )
+          } from {selectedCoordinatorForEdit?.role} role
         </DialogTitle>
-        <DialogContent className="w-full">
-          <form className="dialog-form space-y-4">
-            <div className="flex flex-col">
-              <label
-                htmlFor="id"
-                className="text-sm font-medium text-gray-700"
-              >
-                Coordinator-ID:
-              </label>
-              <input
-                type="text"
-                id="id"
-                className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={selectedCoordinatorForEdit.id}
-                // Add an onChange handler to update selectedCoordinatorForEdit.cid
-                onChange={(e) =>
-                  setSelectedCoordinatorForEdit((prevState) => ({
-                    ...prevState,
-                    id: e.target.value,
-                  }))
-                }
-              />
-            </div>
-
-            <div className="flex flex-col">
-              <label
-                htmlFor="name"
-                className="text-sm font-medium text-gray-700"
-              >
-                Name:
-              </label>
-              <input
-                type="text"
-                id="name"
-                className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={
-                  selectedCoordinatorForEdit.academicStaff.universitySide.user.initials +" " +selectedCoordinatorForEdit.academicStaff.universitySide.user.surname}
-                // Add an onChange handler to update selectedCoordinatorForEdit.name
-                onChange={(e) =>
-                  setSelectedCoordinatorForEdit((prevState) => {
-                    return {
-                      ...prevState,
-                      academicStaff: {
-                        ...prevState.academicStaff,
-                        universitySide: {
-                          ...prevState.academicStaff.universitySide,
-                          user: {
-                            ...prevState.academicStaff.universitySide.user,
-                            // Only update the name field
-                            initials: initials, // Assuming initials are the first part
-                            surname: surname,
-                          },
-                        },
-                      },
-                    };
-                  })
-                }
-              />
-           
-            </div>
-
-            <div className="flex flex-col">
-              <label
-                htmlFor="faculty"
-                className="text-sm font-medium text-gray-700"
-              >
-                Faculty:
-              </label>
-              <input
-                type="text"
-                id="faculty"
-                className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={selectedCoordinatorForEdit.faculty.name}
-                // Add an onChange handler to update selectedCoordinatorForEdit.faculty
-                onChange={(e) =>
-                  setSelectedCoordinatorForEdit((prevState) => ({
-                    ...prevState,
-                    faculty: {
-                      ...prevState.faculty,
-                      // Update the faculty name field
-                      name: e.target.value,
-                    },
-                  }))
-                }
-              />
-            </div>
-           
-            <div className="flex flex-col">
-              <label
-                htmlFor="role"
-                className="text-sm font-medium text-gray-700"
-              >
-                Role:
-              </label>
-              <input
-                type="text"
-                id="role"
-                className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={selectedCoordinatorForEdit.role}
-                onChange={(e) =>
-                  setSelectedCoordinatorForEdit((prevState) => ({
-                    ...prevState,
-                    // Update the role field
-                    role: e.target.value,
-                  }))
-                }
-              />
-            </div>
-         
-            
-          </form>
+        <DialogContent className="w-full" sx={{ textAlign: 'center' }}>
+          Once you unassign the person from the role, it is not possible to revert the changes. Moreover you will need to add a new person to the role.
+          Are you sure you want to unassign the person from the role?
         </DialogContent>
         <DialogActions className="mt-4 space-x-2">
-          <Button onClick={handleCloseEditDialog}>Cancel</Button>
-          <Button onClick={handleSaveEdit} color="primary">
-            Save
+          <Button onClick={handleCancelDialog}>No</Button>
+          <Button onClick={handleAccountRemove} color="primary">
+            Yes
           </Button>
         </DialogActions>
       </Dialog>
