@@ -266,9 +266,12 @@ class PostGraduateProgramController extends Controller
                         $programmeCoordinator -> loadMissing('academicStaff:id');
                     }
                 }
+                return new ProgrammeCoordinatorResource($programmeCoordinator);
+            }
+            else{
+                return response() -> json(['message' => 'No current coordinator found'], 404);
             }
 
-            return new ProgrammeCoordinatorResource($programmeCoordinator);
         }
         catch(\Exception $e){
             return response() -> json(['message' => $e -> getMessage()], 500);
