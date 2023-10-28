@@ -15,6 +15,7 @@ import getSelfEvaluationReport from '../../api/SelfEvaluationReport/getSelfEvalu
 import getAllCriteria from '../../api/Criteria/getAllCriteria';
 import getStandardEvidencesAndAdherenceForSER from '../../api/SelfEvaluationReport/getStandardEvidencesAndAdherenceForSER';
 import { SERVER_URL, SERVER_API_VERSION } from '../../assets/constants';
+import getSpecificPGPR from '../../api/Reviewer/getSpecificPGPR';
 
 const EvaluateDE = () => {
     const {pgprId,criteriaId} = useParams();
@@ -25,6 +26,8 @@ const EvaluateDE = () => {
     const [observationsErrMsg,setobservationsErrMsg ]= useState("");
     const [scoreErrMsg,setscoreErrMsg] = useState("");
     const [SERDetails,setSERDetails] = useState([]);
+    const [PGPRDetails,setPGPRDetails] = useState([]);
+    const [deskEvaluation,setDeskEvaluation] = useState([]);
     const [Standard,setStandard] = useState([]);
     const [evidencesForSelectedStandard,setevidencesForSelectedStandard] = useState([]);
     const [criterias,setCriterias] = useState([]);
@@ -36,7 +39,11 @@ const EvaluateDE = () => {
         const getSERDetails = async () => {
             setLoading(true);
             try {
-                const response1 = await getSelfEvaluationReport(pgprId);
+                const response0 = await getSpecificPGPR(pgprId);
+                setPGPRDetails(response0?.data);
+                console.log("PGPR Details : ",response0?.data);
+                setDeskEvaluation(response0?.data?.data?.postGraduateReviewProgram?.deskEvaluation);
+                const response1 = await getSelfEvaluationReport(response0?.data?.data?.postGraduateReviewProgram?.selfEvaluationReport?.id);
                 setSERDetails(response1?.data?.data);
                 const selectedStandards = response1?.data?.data?.criterias.find((criteria)=>{ return criteria.id==criteriaId}).standards;
                 setStandard(selectedStandards);
@@ -75,6 +82,7 @@ const EvaluateDE = () => {
     useEffect(() => {
         //get standard details/ data from endpoint
         const result = getStandardEvidencesAndAdherence(pgprId,Standard[standardID-1]?.id);
+        console.log("deskEvaluation : ",deskEvaluation);
         // console.log("Standard : ",result);
     }, [standardID]);
 
@@ -92,6 +100,7 @@ const EvaluateDE = () => {
     };
 
     const handleClickNext = ()=>{
+        // TODO: check whether data is saved or not
         if(standardID<noOfAllStandards)
         {
             setstandardID(standardID+1);
@@ -99,6 +108,7 @@ const EvaluateDE = () => {
     };
 
     const handleClickPrev = ()=>{
+        // TODO: check whether data is saved or not
         if(standardID>1)
         {
             setstandardID(standardID-1);
@@ -110,6 +120,7 @@ const EvaluateDE = () => {
     };
 
     const handleClickCancel = ()=>{
+        // TODO: check whether data is saved or not
         //go back
 
     };
