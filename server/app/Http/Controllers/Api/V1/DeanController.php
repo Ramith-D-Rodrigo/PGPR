@@ -243,30 +243,22 @@ class DeanController extends Controller
             //check whether self evaluation is submitted or not
             if($pgpr -> status_of_pgpr == 'SUBMITTED'){ //ser is submitted, and review team accepted
                 //then we have to store the evidences in the google drive
-                $flag = PostGraduateProgramReviewService::StoreEvidencesInSystemDrive($pgpr);
-                if($flag){
-                    //if the evidences are stored successfully, then we can create the desk evaluation
+                PostGraduateProgramReviewService::StoreEvidencesInSystemDriveAggregateJob($pgpr);
 
-                    //after storing, we can create the desk evaluation
-                    $deskEvaluation = new DeskEvaluation();
-                    $deskEvaluation->pgpr_id = $reviewTeam->pgpr_id;
-                    $deskEvaluation->start_date = NULL; // or to set this is current time use => Carbon::now()
-                    $deskEvaluation->end_date = NULL;
-                    $deskEvaluation->save();
+                //after storing, we can create the desk evaluation
+                $deskEvaluation = new DeskEvaluation();
+                $deskEvaluation->pgpr_id = $reviewTeam->pgpr_id;
+                $deskEvaluation->start_date = NULL; // or to set this is current time use => Carbon::now()
+                $deskEvaluation->end_date = NULL;
+                $deskEvaluation->save();
 
-                    //change the status of the pgpr to desk evaluation
-                    $pgpr->status_of_pgpr = 'DE';
-                    $pgpr->save();
+                //change the status of the pgpr to desk evaluation
+                $pgpr->status_of_pgpr = 'DE';
+                $pgpr->save();
 
-                    DB::commit();
+                DB::commit();
 
-                    return response()->json(['message' => 'Your request is duly noted.']);
-                }
-
-                //if the evidences are not stored successfully, then we have to rollback the transaction
-                DB::rollBack();
-                return response()->json(['message' => 'An Error occurred while processing your request. Please Try again'], 500);
-
+                return response()->json(['message' => 'Your request is duly noted.']);
             }
             //no need to store the evidences in the system drive, because the ser is not submitted yet thus no desk evaluation is created
             DB::commit();

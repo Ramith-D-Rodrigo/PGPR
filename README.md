@@ -33,3 +33,10 @@ php artisan serve
 cd client
 npm run dev
 ```
+
+#### The Application Requires a Queue Worker to be running in the background for asynchronous tasks
+3. Open the 3rd CLI inside the root directory and run the following commands
+```
+cd server
+php artisan queue:work
+```
