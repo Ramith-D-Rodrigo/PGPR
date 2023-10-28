@@ -35,24 +35,23 @@ import ScrollableDiv from "../../components/ScrollableDiv";
 import useSetUserNavigations from "../../hooks/useSetUserNavigations";
 import useAuth from "../../hooks/useAuth.js";
 import getAssignedPGPRs from "../../api/Reviewer/getAssignedPGPRs";
-import updateDeskEvaluation from '../../api/DeskEvaluation/updateDeskEvalution';
+import updateDeskEvaluation from "../../api/DeskEvaluation/updateDeskEvalution";
 
-const PgAssignments = () => {
+const PGAssignments = () => {
   const { auth } = useAuth();
-  useSetUserNavigations(
-    [
-      {
-        name: "PG Assignments",
-        link: "/PG_Assignments"
-      }
-    ]
-  );
+  useSetUserNavigations([
+    {
+      name: "PG Assignments",
+      link: "/PG_Assignments",
+    },
+  ]);
 
   const theme = useTheme();
-  const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-
+  const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
   const [openDEDialog, setOpenDEDialog] = useState(false);
-  const [selectedFilterKeys, setSelectedFilterKeys] = useState([{ title: 'In-review' }]);
+  const [selectedFilterKeys, setSelectedFilterKeys] = useState([
+    { title: "In-review" },
+  ]);
   const [AcceptClicked, setAcceptClicked] = useState(false);
   const [acceptAssignment, setAcceptAssignment] = useState(false);
   const [selectedPGPRID, setSelectedPGPRID] = useState(null);
@@ -62,8 +61,22 @@ const PgAssignments = () => {
   const [errorMsg, setErrorMsg] = useState("");
   const [success, setSuccess] = useState(false);
   const [assignedPGPRs, setAssignedPGPRs] = useState([]);
-  const [DeEndDate, setDeEndDate] = useState('');
-  const [DeStartDate, setDeStartDate] = useState('');
+  const [DeEndDate, setDeEndDate] = useState("");
+  const [DeStartDate, setDeStartDate] = useState("");
+
+  const getPGPRAssignments = async () => {
+    try {
+      setLoading(true);
+      setErrorMsg("");
+      const response = await getAssignedPGPRs();
+      console.log("PGPR Assignments : ", response?.data?.data);
+      setAssignedPGPRs(response?.data?.data);
+      setLoading(false);
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     document.title = "PG Assignments";
@@ -96,7 +109,6 @@ const PgAssignments = () => {
     const formData = new FormData();
     formData.append("pgprID", selectedPGPRID);
     formData.append("file", appointmentLetter);
-    await axios.get("/sanctum/csrf-cookie");
     axios
       .post(
         `${SERVER_URL}${SERVER_API_VERSION}reviewers/accept-pgpr-assignment`,
@@ -180,30 +192,28 @@ const PgAssignments = () => {
   const minDateDiffInMS = 2592000000; //30 days in milliseconds
 
   async function handleSetDate(dates) {
-    if (DeEndDate === '') {
+    if (DeEndDate === "") {
       setErrorMsg("Please select the end date for the Desk Evaluation");
-      setDeEndDate('');
+      setDeEndDate("");
       return;
-    }
-    else if (DeStartDate === '') {
+    } else if (DeStartDate === "") {
       setErrorMsg("Please select the start date for the Desk Evaluation");
       return;
     }
     //else if startdate is less than today
     else if (DeStartDate <= new Date().toISOString().slice(0, 10)) {
       setErrorMsg("Please select a valid start date for the Desk Evaluation");
-      setDeStartDate('');
+      setDeStartDate("");
       return;
-    }
-    else if (DeEndDate <= DeStartDate) {
+    } else if (DeEndDate <= DeStartDate) {
       setErrorMsg("Please select a valid end date for the Desk Evaluation");
-      setDeEndDate('');
+      setDeEndDate("");
       return;
     }
     //else if date difference is less than 30 days
-    else if ((new Date(DeEndDate) - new Date(DeStartDate)) < minDateDiffInMS) {
+    else if (new Date(DeEndDate) - new Date(DeStartDate) < minDateDiffInMS) {
       setErrorMsg("Desk Evaluation should allocate at least a month");
-      setDeEndDate('');
+      setDeEndDate("");
       return;
     }
     console.log("set Dates Clicked : ", dates, DeEndDate);
@@ -216,120 +226,200 @@ const PgAssignments = () => {
         deskEvaluationId: dates.deId,
         startDate: DeStartDate,
         endDate: DeEndDate,
-      }
+      };
       const response = await updateDeskEvaluation(dates.deId, request);
 
       if (response && response.status == 200) {
         setSuccess(true);
         setErrorMsg("Desk Evaluation Date Updated Successfully!");
-
       }
-    }
-    catch (error) {
+    } catch (error) {
       setErrorMsg(error.response.data.message);
     }
+
+    getPGPRAssignments();
   }
 
-  function createData(PGPRDetails, University_Name, faculty_Name, pgp, Role, status, Actions, DE) {
+  function createData(
+    PGPRDetails,
+    University_Name,
+    faculty_Name,
+    pgp,
+    Role,
+    status,
+    Actions,
+    DE
+  ) {
     if (!PGPRDetails) return;
 
-    const dates = { id: PGPRDetails.id, startDate: DE?.startDate ?? "Not Set Yet", endDate: DE?.endDate ?? "Not Set yet", deId: DE?.id }
+    const dates = {
+      id: PGPRDetails.id,
+      startDate: DE?.startDate ?? "Not Set Yet",
+      endDate: DE?.endDate ?? "Not Set yet",
+      deId: DE?.id,
+    };
     Actions = Actions.map((action, index) => {
-
       let allow = action.allow ? { disabled: false } : { disabled: true };
       allow = loading ? { disabled: true } : allow;
-      if (action.action === 'View') {
-        return <Link key={index} to={action.allow ? PGPRDetails.id + '/ser/' + PGPRDetails.selfEvaluationReport.id : ''}><Button {...allow} style={{ margin: "0 8px" }} variant="contained" color="primary" size="small">{action.action}</Button></Link>
-      }
-      else if (action.action === 'Accept') {
-        return <Button key={index} onClick={() => { handleClickAccept(PGPRDetails.id) }} {...allow} style={{ margin: "0 8px" }} variant="contained" color="primary" size="small">{action.action}</Button>
-      }
-      else if (action.action === 'DE') {
+      if (action.action === "View") {
+        return (
+          <Link
+            key={index}
+            to={
+              action.allow
+                ? PGPRDetails.id + "/ser/" + PGPRDetails.selfEvaluationReport.id
+                : ""
+            }
+          >
+            <Button
+              {...allow}
+              style={{ margin: "0 8px" }}
+              variant="contained"
+              color="primary"
+              size="small"
+            >
+              {action.action}
+            </Button>
+          </Link>
+        );
+      } else if (action.action === "Accept") {
+        return (
+          <Button
+            key={index}
+            onClick={() => {
+              handleClickAccept(PGPRDetails.id);
+            }}
+            {...allow}
+            style={{ margin: "0 8px" }}
+            variant="contained"
+            color="primary"
+            size="small"
+          >
+            {action.action}
+          </Button>
+        );
+      } else if (action.action === "DE") {
         let onClickDate = null;
         if (DE?.endDate == null && Role == "CHAIR") {
           action.allow = false;
           onClickDate = () => setDate(dates);
-        }
-        else if (DE?.endDate == null && Role == "MEMBER") {
+        } else if (DE?.endDate == null && Role == "MEMBER") {
           action.allow = false;
-          onClickDate = () => setErrorMsg("Chairman should set the Desk Evaluation Date first");
+          onClickDate = () =>
+            setErrorMsg("Chairman should set the Desk Evaluation Date first");
         }
-        return <Link key={index} to={action.allow ? 'Conduct_DE/' + PGPRDetails.id : ''}><Button onClick={() => onClickDate()} {...allow} style={{ margin: "0 8px" }} variant="contained" color="primary" size="small">{action.action}</Button></Link>
+        return (
+          <Link
+            key={index}
+            to={action.allow ? "Conduct_DE/" + PGPRDetails.id : ""}
+          >
+            <Button
+              onClick={() => onClickDate()}
+              {...allow}
+              style={{ margin: "0 8px" }}
+              variant="contained"
+              color="primary"
+              size="small"
+            >
+              {action.action}
+            </Button>
+          </Link>
+        );
+      } else if (action.action === "PE") {
+        return (
+          <Link
+            key={index}
+            to={action.allow ? "Conduct_PE/" + PGPRDetails.id : ""}
+          >
+            <Button
+              {...allow}
+              style={{ margin: "0 8px" }}
+              variant="contained"
+              color="primary"
+              size="small"
+            >
+              {action.action}
+            </Button>
+          </Link>
+        );
       }
-      else if (action.action === 'PE') {
-        return <Link key={index} to={action.allow ? 'Conduct_PE/' + PGPRDetails.id : ''}><Button {...allow} style={{ margin: "0 8px" }} variant="contained" color="primary" size="small">{action.action}</Button></Link>
-      }
-
     });
-    return { pgprID: `PGPR-${PGPRDetails.id}`, University_Name, faculty_Name, pgp, Role, status, Actions };
+    return {
+      pgprID: `PGPR-${PGPRDetails.id}`,
+      University_Name,
+      faculty_Name,
+      pgp,
+      Role,
+      status,
+      Actions,
+    };
   }
 
   const rows = assignedPGPRs
     ? assignedPGPRs?.map((pgpr) => {
-      const PGPRDetails = pgpr?.postGraduateReviewProgram;
-      const pgProgramme = PGPRDetails?.postGraduateProgramme;
-      const faculty = pgProgramme?.faculty;
-      const university = faculty?.university;
+        const PGPRDetails = pgpr?.postGraduateReviewProgram;
+        const pgProgramme = PGPRDetails?.postGraduateProgramme;
+        const faculty = pgProgramme?.faculty;
+        const university = faculty?.university;
 
+        let actions = [];
+        if (PGPRDetails?.statusOfPgpr === "SUBMITTED") {
+          actions = [
+            { action: "Accept", allow: true },
+            { action: "View", allow: false },
+            { action: "DE", allow: false },
+            { action: "PE", allow: false },
+          ];
+        } else if (PGPRDetails?.statusOfPgpr === "DE") {
+          actions = [
+            { action: "Accept", allow: false },
+            { action: "View", allow: true },
+            { action: "DE", allow: true },
+            { action: "PE", allow: false },
+          ];
+        } else if (
+          PGPRDetails?.statusOfPgpr === "PE1" ||
+          PGPRDetails?.statusOfPgpr === "PE2"
+        ) {
+          actions = [
+            { action: "Accept", allow: false },
+            { action: "View", allow: true },
+            { action: "DE", allow: false },
+            { action: "PE", allow: true },
+          ];
+        } else if (PGPRDetails?.statusOfPgpr === "FINAL") {
+          actions = [
+            { action: "Accept", allow: false },
+            { action: "View", allow: true },
+            { action: "DE", allow: false },
+            { action: "PE", allow: false },
+          ];
+        } else if (PGPRDetails?.statusOfPgpr === "COMPLETED") {
+          actions = [
+            { action: "Accept", allow: false },
+            { action: "View", allow: true },
+            { action: "DE", allow: false },
+            { action: "PE", allow: false },
+          ];
+        } else {
+          actions = [
+            { action: "Accept", allow: false },
+            { action: "View", allow: false },
+            { action: "DE", allow: false },
+            { action: "PE", allow: false },
+          ];
+        }
 
-      let actions = [];
-      if (PGPRDetails?.statusOfPgpr === "SUBMITTED" || PGPRDetails?.statusOfPgpr === "PLANNING") {
-        actions = [
-          { action: "Accept", allow: true },
-          { action: "View", allow: false },
-          { action: "DE", allow: false },
-          { action: "PE", allow: false },
-        ];
-      } else if (PGPRDetails?.statusOfPgpr === "DE") {
-        actions = [
-          { action: "Accept", allow: false },
-          { action: "View", allow: true },
-          { action: "DE", allow: true },
-          { action: "PE", allow: false },
-        ];
-      } else if (
-        PGPRDetails?.statusOfPgpr === "PE1" ||
-        PGPRDetails?.statusOfPgpr === "PE2"
-      ) {
-        actions = [
-          { action: "Accept", allow: false },
-          { action: "View", allow: true },
-          { action: "DE", allow: false },
-          { action: "PE", allow: true },
-        ];
-      } else if (PGPRDetails?.statusOfPgpr === "FINAL") {
-        actions = [
-          { action: "Accept", allow: false },
-          { action: "View", allow: true },
-          { action: "DE", allow: false },
-          { action: "PE", allow: false },
-        ];
-      } else if (PGPRDetails?.statusOfPgpr === "COMPLETED") {
-        actions = [
-          { action: "Accept", allow: false },
-          { action: "View", allow: true },
-          { action: "DE", allow: false },
-          { action: "PE", allow: false },
-        ];
-      } else {
-        actions = [
-          { action: "Accept", allow: false },
-          { action: "View", allow: false },
-          { action: "DE", allow: false },
-          { action: "PE", allow: false },
-        ];
-      }
-
-      return createData(
-        PGPRDetails,
-        university?.name,
-        faculty?.name,
-        pgProgramme?.title,
-        pgpr?.role,
-        PGPRDetails?.statusOfPgpr,
-        actions
-      );
-    })
+        return createData(
+          PGPRDetails?.id,
+          university?.name,
+          faculty?.name,
+          pgProgramme?.title,
+          pgpr?.role,
+          PGPRDetails?.statusOfPgpr,
+          actions
+        );
+      })
     : [];
 
   // const rows = [
@@ -354,11 +444,23 @@ const PgAssignments = () => {
 
   return (
     <>
-      <Divider textAlign='left'>
-        <Chip label="Postgraduate Programme Review Assignments" style={{ margin: "10px 0" }} />
+      <Divider textAlign="left">
+        <Chip
+          label="Postgraduate Programme Review Assignments"
+          style={{ margin: "10px 0" }}
+        />
       </Divider>
-      {loading &&
-        <div style={{ position: 'absolute', left: 0, margin: "0 auto", display: "flex", justifyContent: "center", alignItems: "center" }}>
+      {loading && (
+        <div
+          style={{
+            position: "absolute",
+            left: 0,
+            margin: "0 auto",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
           <Typography variant="h6" style={{ margin: "0 0 0 20px" }}>
             Loading ...
           </Typography>
@@ -368,13 +470,19 @@ const PgAssignments = () => {
             size={24}
           />
         </div>
-      }
+      )}
 
-      <Box sx={{
-        display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', marginTop: '20px',
-      }}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: "100%",
+          marginTop: "20px",
+        }}
+      >
         <Autocomplete
-          sx={{ width: '50%', marginBottom: '20px', }}
+          sx={{ width: "50%", marginBottom: "20px" }}
           multiple
           id="tags-standard"
           options={statuses}
@@ -397,24 +505,38 @@ const PgAssignments = () => {
         />
       </Box>
       <ScrollableDiv height="500px">
-        <TableContainer component={Paper} >
+        <TableContainer component={Paper}>
           <Table sx={{ minWidth: 650 }} aria-label="simple table">
-            <TableHead style={{ backgroundColor: "#D8E6FC", }}>
+            <TableHead style={{ backgroundColor: "#D8E6FC" }}>
               <TableRow>
-                <TableCell align="left"><b>PGPR-ID</b></TableCell>
-                <TableCell align="center"><b>University Name</b></TableCell>
-                <TableCell align="center"><b>Faculty/Institute</b></TableCell>
-                <TableCell align="center"><b>PGP</b></TableCell>
-                <TableCell align="center"><b>Role</b></TableCell>
-                <TableCell align="center"><b>Status</b></TableCell>
-                <TableCell align="center"><b>Actions</b></TableCell>
+                <TableCell align="left">
+                  <b>PGPR-ID</b>
+                </TableCell>
+                <TableCell align="center">
+                  <b>University Name</b>
+                </TableCell>
+                <TableCell align="center">
+                  <b>Faculty/Institute</b>
+                </TableCell>
+                <TableCell align="center">
+                  <b>PGP</b>
+                </TableCell>
+                <TableCell align="center">
+                  <b>Role</b>
+                </TableCell>
+                <TableCell align="center">
+                  <b>Status</b>
+                </TableCell>
+                <TableCell align="center">
+                  <b>Actions</b>
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {rows.map((row) => (
                 <TableRow
                   key={row.pgprID}
-                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
                   <TableCell component="th" scope="row">
                     {row.pgprID}
@@ -431,13 +553,27 @@ const PgAssignments = () => {
           </Table>
         </TableContainer>
       </ScrollableDiv>
-      {AcceptClicked &&
-        <Box sx={{
-          position: 'absolute', margin: '0 auto', left: 0, right: 0, bottom: 0, top: 0,
-          display: 'flex', flexDirection: 'column', justifyContent: 'space-around', alignItems: 'center',
-          width: '50%', height: '90%', marginTop: '20px', backgroundColor: '#D8E6FC',
-          borderRadius: '10px', padding: '60px', boxShadow: '0 0 5px 0px black',
-        }}
+      {AcceptClicked && (
+        <Box
+          sx={{
+            position: "absolute",
+            margin: "0 auto",
+            left: 0,
+            right: 0,
+            bottom: 0,
+            top: 0,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-around",
+            alignItems: "center",
+            width: "50%",
+            height: "90%",
+            marginTop: "20px",
+            backgroundColor: "#D8E6FC",
+            borderRadius: "10px",
+            padding: "60px",
+            boxShadow: "0 0 5px 0px black",
+          }}
         >
           <Typography
             variant="h5"
@@ -546,7 +682,7 @@ const PgAssignments = () => {
             <CloseIcon fontSize="large" />
           </IconButton>
         </Box>
-      }
+      )}
 
       <Snackbar
         open={errorMsg == "" || success ? false : true}
@@ -601,14 +737,28 @@ const PgAssignments = () => {
         onClose={() => setOpenDEDialog(false)}
         aria-labelledby="Set-DE-Date"
       >
-        <DialogTitle id="Set-De-Date-ID" textAlign={'center'}>
+        <DialogTitle id="Set-De-Date-ID" textAlign={"center"}>
           {`Set the Desk Evaluation Date for ${openDEDialog.id} postgraduate programme review`}
         </DialogTitle>
         <DialogContent>
-          <p>Start Date : <strong>{openDEDialog.startDate}</strong></p>
-          <p>End Date : <strong>{openDEDialog.endDate}</strong></p>
+          <p>
+            Start Date : <strong>{openDEDialog.startDate}</strong>
+          </p>
+          <p>
+            End Date : <strong>{openDEDialog.endDate}</strong>
+          </p>
 
-          <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-around', alignItems: 'center', width: '100%', height: '100%', margin: "1rem 0" }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-around",
+              alignItems: "center",
+              width: "100%",
+              height: "100%",
+              margin: "1rem 0",
+            }}
+          >
             <TextField
               id="setStartDate"
               value={DeStartDate}
@@ -619,7 +769,17 @@ const PgAssignments = () => {
             />
           </Box>
 
-          <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-around', alignItems: 'center', width: '100%', height: '100%', margin: "1rem 0" }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-around",
+              alignItems: "center",
+              width: "100%",
+              height: "100%",
+              margin: "1rem 0",
+            }}
+          >
             <TextField
               id="setEndDate"
               value={DeEndDate}
@@ -643,5 +803,4 @@ const PgAssignments = () => {
   );
 };
 
-export default PgAssignments;
-
+export default PGAssignments;
