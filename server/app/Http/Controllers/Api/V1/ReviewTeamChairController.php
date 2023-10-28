@@ -82,7 +82,8 @@ class ReviewTeamChairController extends Controller
                         'assigned_by_chair_id' => Auth::id(),
                         'review_team_id' => $reviewTeam->id,
                         'assigned_to_reviewer_id' => $reviewer['reviewer_id'],
-                        'criteria_id' => $criteria
+                        'criteria_id' => $criteria,
+                        'created_at' => Carbon::now(),
                     ];
                     DB::table('review_team_set_criterias')->insertOrIgnore($values);
                 }
