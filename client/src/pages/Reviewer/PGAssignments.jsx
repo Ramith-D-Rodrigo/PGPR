@@ -414,7 +414,7 @@ const PGAssignments = () => {
         }
 
         return createData(
-          PGPRDetails?.id,
+          PGPRDetails,
           university?.name,
           faculty?.name,
           pgProgramme?.title,
