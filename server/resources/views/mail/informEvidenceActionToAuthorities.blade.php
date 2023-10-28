@@ -1,12 +1,23 @@
 Sir/Madam,<br>
 {{$user['surname'] . " " . $user['initials']}},<br><br>
 
-Through this email, we are informing you that your role as the {{$role}}<br>
-has been removed. This will revoke your access privileges as the {{$role}} and<br>
-you will no longer be able to log in to the platform as the {{$role}} or perform<br>
-any tasks related to the {{$role}}.<br>
+@if ($action == 'UPLOAD')
+    New evidence has been uploaded to our servers. Following are some details related to the evidence.<br>
+@elseif ($action == 'UPDATE')
+    Existing evidence has been update. Following are some details related to the evidence.<br>
+@elseif ($action == 'DELETE')
+    The below-mentioned evidences were deleted from our servers recently.<br>
+@endif
 
-If this happened due to a mistake, please contact the authorities and request for amendments.<br>
+Postgraduate program details:<br>
+    Postgraduate program name: {{$postgraduateProgram->title}}<br>
+
+Evidence details:<br>
+    Evidence name: {{$evidence->evidence_name}}<br>
+    Evidence code: {{$evidence->evidence_code}}<br>
+    Evidence applicable years: {{json_decode($evidence->applicable_years)}}<br>
+
+You can find more details regarding this on our platform. <br>
 Thank you.<br>
 
 Regards,<br>
