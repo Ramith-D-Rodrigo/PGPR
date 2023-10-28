@@ -137,7 +137,7 @@ class ReviewerPolicy
         }
     }
 
-    public function acceptRejectPGPRAssignmentAuthorize(User $user, UpdateAcceptPGPRRequest $request) : Response
+    public function acceptRejectPGPRAssignmentAuthorize(User $user, $request) : Response
     {
         //only reviewer can accept post graduate review program assignment
 
