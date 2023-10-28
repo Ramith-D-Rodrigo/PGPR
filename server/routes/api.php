@@ -153,7 +153,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     //reviewer view remarks of the sections A,B, and D in the SER
     Route::get('reviewer/pgpr/ser-remarks/view/{serId}', 'ReviewerController@viewRemarksOfSectionsABD')->middleware('auth');
     //reviewer update remarks of the sections A,B, and D in the SER
-    Route::post('reviewer/pgpr/ser-remarks/update', 'ReviewerController@viewRemarksOfSectionsABD')->middleware('auth');
+    Route::post('reviewer/pgpr/ser-remarks/update', 'ReviewerController@updateRemarksOfSectionsABD')->middleware('auth');
     //reviewer conduct desk evaluation
     Route::post('reviewer/conduct/desk-evaluation', 'ReviewerController@conductDeskEvaluation')->middleware('auth');
     //reviewer conduct proper evaluation
