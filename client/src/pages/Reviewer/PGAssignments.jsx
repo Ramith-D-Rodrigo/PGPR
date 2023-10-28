@@ -300,7 +300,7 @@ const PGAssignments = () => {
 
         let actions = [];
         if (
-          PGPRDetails?.statusOfPgpr === "SUBMITTED" ||
+          PGPRDetails?.statusOfPgpr === "SUBMITTED" 
         ) {
           actions = [
             { action: "Accept", allow: true },
@@ -574,7 +574,8 @@ const PGAssignments = () => {
             <CloseIcon fontSize="large" />
           </IconButton>
         </Box>
-      )}
+      
+    }
 
       <Snackbar
         open={errorMsg == "" || success ? false : true}
@@ -671,5 +672,5 @@ const PGAssignments = () => {
   );
 };
 
-export default PgAssignments;
+export default PGAssignments;
 
