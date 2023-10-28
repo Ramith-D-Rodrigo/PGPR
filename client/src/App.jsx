@@ -81,6 +81,7 @@ import PostGraduateProgrammes from "./pages/PostgraduateProgrammes/PostGraduateP
 import "./App.css";
 import BrowsePGPR from './pages/CQAdirector/BrowsePGPR';
 import ReviewerProfile from "./pages/QACOfficer/ReviewerProfile";
+import CQADashboard from "./pages/CQAdirector/CQADashboard";
 
 
 /* 
@@ -143,8 +144,8 @@ function App() {
 
             <Route element={<Authenticate allowedRoles={["cqa_director"]} />}>
               <Route path="cqa_director/">
-                <Route path="" element={<Dashboard />} />
-                <Route path="dashboard" element={<Dashboard />} />
+              <Route path="" element={<CQADashboard />} />
+                <Route path="dashboard" element={<CQADashboard />} />
                 <Route path="PGPRApplications" element={<PostGraduateProgramReviewApplications />} />
                 <Route path="AddPGProgramPage" element={<AddPGProgramPage />} />
                 <Route path="AddAccounts" element={<AddAccounts />} />

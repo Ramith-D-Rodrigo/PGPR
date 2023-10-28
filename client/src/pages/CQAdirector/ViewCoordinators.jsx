@@ -448,24 +448,7 @@ const Coordinators = () => {
         <SkipNext color="primary" fontSize="large" />
         <NavigateNext color="primary" fontSize="large" />
       </div>
-      <div className="flex justify-start mt-4">
-        {" "}
-        {/* Align buttons to the left */}
-        <Button
-          variant="contained"
-          color="primary"
-          style={{ marginRight: "8px" }}
-        >
-          Select Coordinator/Dean for PGPR
-        </Button>
-        <Button
-          variant="contained"
-          color="primary"
-          style={{ marginRight: "8px" }}
-        >
-          New Coordinator/Dean
-        </Button>
-      </div>
+      
     </div>
   );
 };
