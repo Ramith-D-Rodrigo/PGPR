@@ -16,12 +16,15 @@ import {
   Chip,
   Grid
 } from "@mui/material";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import useSetUserNavigations from "../../hooks/useSetUserNavigations";
-//import axios from "../../api/api.js";
+import useAuth from "../../hooks/useAuth";
+import getAllPostGraduatePrograms from "../../api/PostGraduateProgram/getAllPostGraduatePrograms";
+import getIQAUDirectorFaculty from "../../api/IQAUDirector/getIQAUDirectorFaculty";
 
 const ViewPGPs = () => {
+  const { auth } = useAuth();
   useSetUserNavigations([
     {
       name: "Dashboard",
@@ -35,9 +38,38 @@ const ViewPGPs = () => {
 
   const [selectedFilterKeys, setSelectedFilterKeys] = useState([]);
   const [searchKeyword, setSearchKeyword] = useState("");
-  //let [pgps, setPgps] = useState([]);
+  const [allPrograms, setAllPrograms] = useState([]);
+  const [faculty, setFaculty] = useState([]);
+  const [pgp, setPgp] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  useEffect(() => {
+    const fetchPgPrograms = async () => {
+      try {
+        const allPgPrograms = await getAllPostGraduatePrograms({
+          includeFaculty: true,
+        });
+        setAllPrograms(allPgPrograms.data);
+        console.log("All", allPrograms);
+
+        const facultyData = await getIQAUDirectorFaculty(auth.id);
+        setFaculty(facultyData.data);
+        console.log("Faculty", faculty);
+
+        if (allPrograms.length !== 0) {
+          const facultyPrograms = allPrograms.filter((program) => {
+            return program.faculty.id === faculty.id;
+          });
+          setPgp(facultyPrograms);
+          console.log("PGP", pgp);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchPgPrograms()
+  }, [ auth.id, allPrograms, faculty, pgp]);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -218,12 +250,12 @@ const ViewPGPs = () => {
         <Grid container spacing={1} columns={{ sm: 6, md: 12 }}>
           {uniAndFaculty.map((item, index) => (
             <>
-              <Grid item sm={2} md={2} key={index}>
+              <Grid item sm={2} md={2} key={`${index}-${item.title}`}>
                 <Typography variant="body1" textAlign={"left"}>
                   <b>{item.title}</b>
                 </Typography>
               </Grid>
-              <Grid item sm={4} md={4} key={index}>
+              <Grid item sm={4} md={4} key={`${index}-${item.value}`}>
                 <Typography variant="body1" textAlign={"left"}>
                   {item.value}
                 </Typography>
@@ -308,17 +340,23 @@ const ViewPGPs = () => {
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
                   {Object.values(row).map((col) => (
-                    <TableCell sx={{ paddingY: "0.5rem" }} key={col}>{col}</TableCell>
+                    <TableCell sx={{ paddingY: "0.5rem" }} key={col}>
+                      {col}
+                    </TableCell>
                   ))}
                   {actions.length != 0 && (
                     <TableCell
-                      sx={{ display: "flex", justifyContent: "center", paddingY: "0.5rem" }}
+                      sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        paddingY: "0.5rem",
+                      }}
                     >
                       {actions.map((action, index) => (
                         <Button
                           component={Link}
                           to={action.to}
-                          key={action.action+index}
+                          key={action.action + index}
                           onClick={action.onclick}
                           variant="contained"
                           size="small"
@@ -337,7 +375,7 @@ const ViewPGPs = () => {
                               marginRight: "0",
                             },
                           }}
-                          disabled={index===1 && row.status !== "In-review"}
+                          disabled={index === 1 && row.status !== "In-review"}
                         >
                           {action.action}
                         </Button>

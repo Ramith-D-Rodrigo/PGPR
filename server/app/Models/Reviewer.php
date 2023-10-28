@@ -39,7 +39,15 @@ class Reviewer extends Model
             'role',
             'declaration_letter',
             'reviewer_confirmation',
-        ])->with('postGraduateReviewProgram.postGraduateProgram.faculty.university');
+        ])->with(['postGraduateReviewProgram' => [
+            'postGraduateProgram' => [
+                'faculty' => [
+                    'university'
+                ]
+            ],
+            'selfEvaluationReport:id,post_graduate_program_review_id'
+            ]
+        ]);
     }
 
     // reviewers can score for many standards

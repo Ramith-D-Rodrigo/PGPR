@@ -81,9 +81,12 @@ class DeskEvaluationController extends Controller
         //
         try {
 
-            $this -> authorize('update', $id);
+            $this -> authorize('update', [DeskEvaluation::class, $id]);
 
             $validated = $request->validated();
+
+            //remove id from validated array
+            unset($validated['id']);
             $deskEvaluation = DeskEvaluation::findOrFail($id);
 
             if (array_key_exists('status', $validated)) {

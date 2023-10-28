@@ -470,7 +470,9 @@ class SelfEvaluationReportController extends Controller
             DB::rollBack();
             return response()->json([
                 'message' => 'Error occurred while recommending the self evaluation report',
-                'error' => $e -> getMessage()
+                'error' => $e -> getTrace(),
+                'errorMessage' => $e -> getMessage(),
+                'errorLine' => $e -> getLine(),
             ], 500);
         }
     }

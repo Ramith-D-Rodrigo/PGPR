@@ -21,7 +21,8 @@ const Dashboard = ({contents}) => {
   return (
     <>
       <ScrollableDiv height="600px">
-        <Grid container rowSpacing={6}  justifyContent="start" columnSpacing={{ xs: 1, sm: 2, md: 4 }}>
+      <Grid container rowSpacing={6} spacing={4} justifyContent="center" alignItems="center" columnSpacing={{ xs: 1, sm: 2, md: 4 }}>
+
                     
                     {contents && contents.map((content,index) => (
                         <Grid key={index} item>
@@ -38,7 +39,7 @@ const Dashboard = ({contents}) => {
                     <>
                       <Grid item>
                           <Card 
-                          title={'Requested Applications'}
+                          title={'PG Programs Added'}
                           content={'2023 Mar 30 - 2023 Jult 30'}
                           message={'Ends in 4 Days'}
                       />
@@ -46,7 +47,7 @@ const Dashboard = ({contents}) => {
 
                       <Grid item>
                           <Card 
-                          title={'Requested Applications'}
+                          title={'Number of Accounts Added'}
                           content={'2023 Mar 30 - 2023 Jult 30'}
                           message={'Ends in 4 Days'}
                       />

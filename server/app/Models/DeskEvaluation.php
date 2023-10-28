@@ -9,6 +9,12 @@ class DeskEvaluation extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'start_date',
+        'end_date',
+        'status',
+    ];
+
     // Desk Evaluation belongs to a PostGraduateReviewProgram
     public function postGraduateProgramReview(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {

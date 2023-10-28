@@ -101,7 +101,12 @@ class PostGraduateProgramReviewController extends Controller
                         'user:id,initials,surname,profile_pic'
                     ]
                 ],
-                'finalReports'
+                'finalReports',
+                'pendingReviewTeam' => [
+                    'reviewers' => [
+                        'user:id,initials,surname,profile_pic'
+                    ]
+                ],
             ]);
 
             return new PostGraduateProgramReviewResource($pgpr);
