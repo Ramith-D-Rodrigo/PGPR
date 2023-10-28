@@ -63,13 +63,28 @@ const PostGraduateProgrammes = () => {
 
                         //go through each pgp and get the faculty and the current coordinator
                         for (let i = 0; i < pgpData.length; i++) {
-                            const facultyResponse = await getPostGraduateProgramFaculty(pgpData[i].id);
+                            try{
+                                const facultyResponse = await getPostGraduateProgramFaculty(pgpData[i].id);
 
-                            const coordinatorResponse = await getCurrentCoordinator(pgpData[i].id, { includeAcademicStaff: true, includeUser: true, includeUniversitySide: true });
+                                if(facultyResponse.status === 200){
+                                    pgpData[i].faculty = facultyResponse.data.data;
+                                }
+                            }
+                            catch(error){
+                                console.log(error);
+                            }
 
-                            if (facultyResponse.status === 200 && coordinatorResponse.status === 200) {
-                                pgpData[i].faculty = facultyResponse.data.data;
-                                pgpData[i].programmeCoordinator = coordinatorResponse.data.data;
+                            try{
+                                const coordinatorResponse = await getCurrentCoordinator(pgpData[i].id, { includeAcademicStaff: true, includeUser: true, includeUniversitySide: true });
+                                
+                                if(coordinatorResponse.status === 200){
+                                    pgpData[i].programmeCoordinator = coordinatorResponse.data.data;
+                                }
+                            }
+                            catch(error){
+                                if(error.status === 404){
+                                    pgpData[i].programmeCoordinator = null;
+                                }
                             }
                         }
 
@@ -97,10 +112,17 @@ const PostGraduateProgrammes = () => {
                         const pgpData = pgpsResponse.data.data;
 
                         for (let i = 0; i < pgpData.length; i++) {
-                            const coordinatorResponse = await getCurrentCoordinator(pgpData[i].id, { includeAcademicStaff: true, includeUser: true, includeUniversitySide: true });
+                            try{
+                                const coordinatorResponse = await getCurrentCoordinator(pgpData[i].id, { includeAcademicStaff: true, includeUser: true, includeUniversitySide: true });
 
-                            if (coordinatorResponse.status === 200) {
-                                pgpData[i].programmeCoordinator = coordinatorResponse.data.data;
+                                if (coordinatorResponse.status === 200) {
+                                    pgpData[i].programmeCoordinator = coordinatorResponse.data.data;
+                                }
+                            }
+                            catch(error){
+                                if(error.status === 404){
+                                    pgpData[i].programmeCoordinator = null;
+                                }
                             }
                         }
 
@@ -184,7 +206,7 @@ const PostGraduateProgrammes = () => {
                                     }
                                     <TableCell>{pgp.commencementYear}</TableCell>
                                     <TableCell>{pgp.slqfLevel}</TableCell>
-                                    <TableCell>{pgp.programmeCoordinator.academicStaff.universitySide.user.initials + " " + pgp.programmeCoordinator.academicStaff.universitySide.user.surname}</TableCell>
+                                    <TableCell>{pgp.programmeCoordinator?.academicStaff.universitySide.user.initials + " " + pgp.programmeCoordinator?.academicStaff.universitySide.user.surname}</TableCell>
                                     <TableCell>
                                         <Button variant='contained'>
                                             View PGPRs
