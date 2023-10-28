@@ -2,55 +2,63 @@
 
 namespace App\Services\V1;
 
+use App\Jobs\V1\CreatePGPRFolder;
+use App\Jobs\V1\SetPermissionsForPGPRFolder;
+use App\Jobs\V1\StoreEvidenceInDrive;
 use App\Models\PostGraduateProgramReview;
 use App\Models\QualityAssuranceCouncilDirector;
 use App\Models\QualityAssuranceCouncilOfficer;
 use App\Models\User;
+use Illuminate\Bus\Batch;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 
 class PostGraduateProgramReviewService {
+    public static function CreatePGPRFolder($pgpr){
+        //create drive manager object
+        $driveManager = new DriveManager();
 
-    public static function StoreEvidencesInSystemDrive(PostGraduateProgramReview $pgpr) {
+        //create a folder for the pgpr
+        $pgprFolder = $driveManager -> createFolder("PGPR-".$pgpr -> id, env("GOOGLE_DRIVE_PGPR_PARENT_FOLDER_ID"));
+
+        return $pgprFolder;
+    }
+
+    public static function StoreSingleEvidenceInSystemDrive($evidence, $pgprFolder) {
         try{
-            //remove time limit
-            set_time_limit(0);
-
             //create drive manager object
-           $driveManager = new DriveManager();
+            $driveManager = new DriveManager();
+            //create a folder for the evidence
+            $evidenceFolder = $driveManager -> createFolder($evidence -> evidence_code, $pgprFolder -> getId());
 
-            //create a folder for the pgpr
-            $pgprFolder = $driveManager -> createFolder("PGPR-".$pgpr -> id, env("GOOGLE_DRIVE_PGPR_PARENT_FOLDER_ID"));
+            //get the url of the evidence
+            $url = $evidence -> url;
 
-            //get the evidences
-            $evidences = $pgpr -> selfEvaluationReport -> evidences;
+            //check if the content of the url is a folder or a file
 
-            //begin transaction
-            //DB::beginTransaction(); //transaction is handled by the controller
-
-            //go through each evidence
-            foreach($evidences as $evidence){
-                //create a folder for the evidence
-                $evidenceFolder = $driveManager -> createFolder($evidence -> evidence_code, $pgprFolder -> getId());
-
-                //get the url of the evidence
-                $url = $evidence -> url;
-
-                //check if the content of the url is a folder or a file
-
-                $storedUrl = "";
-                if($driveManager -> isFolder($url)){
-                    //copy the folder
-                    $storedUrl = $driveManager -> copyFolder($driveManager -> getFolderId($url), $evidenceFolder -> id) -> getWebViewLink();
-                }
-                else{
-                    //copy the file
-                    $storedUrl = $driveManager -> copyFile($driveManager -> getFileId($url), $evidenceFolder -> id) -> getWebViewLink();
-                }
-
-                //update the stored id of the evidence
-                $evidence -> stored_url = $storedUrl;
-                $evidence -> save();
+            $storedUrl = "";
+            if($driveManager -> isFolder($url)){
+                //copy the folder
+                $storedUrl = $driveManager -> copyFolder($driveManager -> getFolderId($url), $evidenceFolder -> id) -> getWebViewLink();
             }
+            else{
+                //copy the file
+                $storedUrl = $driveManager -> copyFile($driveManager -> getFileId($url), $evidenceFolder -> id) -> getWebViewLink();
+            }
+
+            //update the stored id of the evidence
+            $evidence -> stored_url = $storedUrl;
+            $evidence -> save();
+        }
+        catch(\Exception $e){
+            throw $e;
+        }
+    }
+
+    public static function SetPermissionsOfPGPRFolder($pgprFolder, $pgpr){
+        try{
+            //create drive manager object
+            $driveManager = new DriveManager();
 
             //set the permission of the pgpr folder
             //these are the people who can view the pgpr folder
@@ -95,15 +103,36 @@ class PostGraduateProgramReviewService {
                 $driveManager -> setPermissions($pgprFolder -> getId(), $email['official_email'], 'reader');
             }
 
-            //commit the transaction
-            //DB::commit(); //transaction is handled by the controller
             return true;
         }
         catch(\Exception $e){
-            //DB::rollback(); //transaction is handled by the controller
-            //if an error occurs, delete all the files and folders created
-            $driveManager -> deleteFile($pgprFolder -> id);
             throw $e;
         }
+    }
+
+    public static function StoreEvidencesInSystemDriveAggregateJob($pgpr){
+        //dispath the job to create the pgpr folder
+        $pgprFolder = CreatePGPRFolder::dispatchSync($pgpr);
+
+        //create batch jobs for each evidence
+        $evidences = $pgpr -> selfEvaluationReport -> evidences;
+
+        $evidenceJobs = [];
+
+        foreach($evidences as $evidence){
+            //dispatch the job to store the evidence in system drive
+            $storeEvidenceInDriveJob = new StoreEvidenceInDrive($evidence, $pgprFolder);
+            $evidenceJobs[] = $storeEvidenceInDriveJob;
+        }
+
+        //dispatch the job batch
+        $batch = Bus::batch($evidenceJobs)
+            -> then(function (Batch $batch) use ($pgpr, $pgprFolder) {
+                // All jobs completed successfully...
+
+                //dispatch the job to set the permissions of the pgpr folder
+                SetPermissionsForPGPRFolder::dispatch($pgpr, $pgprFolder);
+            })
+            -> dispatch();
     }
 }

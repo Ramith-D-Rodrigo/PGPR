@@ -91,7 +91,6 @@ const PostGraduateProgrammes = () => {
                         setPgps(pgpData);
                     }
                 }
-                setIsLoaded(true);
             }
             else if (authRole === 'dean' || authRole === 'iqau_director') {
                 let facultyResponse = null;
@@ -131,7 +130,6 @@ const PostGraduateProgrammes = () => {
                     }
                 }
 
-                setIsLoaded(true);
             }
             else if (authRole === 'qac_officer' || authRole === 'qac_director') {
                 const pgpResponse = await getAllPostGraduatePrograms({ includeFaculty: true, includeProgrammeCoordinator: true, includeAcademicStaff: true, includeUser: true, includeUniversitySide: true, includeUniversity: true });
