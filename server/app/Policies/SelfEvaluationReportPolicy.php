@@ -123,34 +123,23 @@ class SelfEvaluationReportPolicy
             return Response::deny('You cannot recommend self evaluation report because the PGPR is not in PLANNING stage');
         }
 
-        //only iqau director, cqa_director and vice_chancellor can recommend self evaluation report
+        //only cqa_director and vice_chancellor can recommend self evaluation report
         $currRole = request() -> session() -> get('authRole');
 
-        if(!in_array($currRole, ['iqau_director', 'cqa_director', 'vice_chancellor'])){
+        if(!in_array($currRole, ['cqa_director', 'vice_chancellor'])){
             return Response::deny('You are not authorized to recommend self evaluation report');
         }
 
-        //iqau director can only recommend self evaluation report if that report belongs to his faculty
         //cqa director can only recommend self evaluation report if that report belongs to his university
         //vice chancellor can only recommend self evaluation report if that report belongs to his university
 
         switch($currRole){
-            case 'iqau_director':
-                $iqauFaculty = $user -> universitySide -> qualityAssuranceStaff
-                                    -> internalQualityAssuranceUnitDirector -> internalQualityAssuranceUnit
-                                    -> faculty;
-
-                if($selfEvaluationReport -> postGraduateProgramReview -> postGraduateProgram -> faculty_id != $iqauFaculty -> id){
-                    return Response::deny('You are not authorized to recommend self evaluation report for this self evaluation report');
-                }
-                break;
-
             case 'cqa_director':
                 $cqaUniversity = $user -> universitySide -> qualityAssuranceStaff
                                     -> centerForQualityAssuranceDirector -> centerForQualityAssurance
                                     -> university;
 
-                if($selfEvaluationReport -> postGraduateProgramReview -> postGraduateProgram -> university_id != $cqaUniversity -> id){
+                if($selfEvaluationReport -> postGraduateProgramReview -> postGraduateProgram -> faculty -> university_id != $cqaUniversity -> id){
                     return Response::deny('You are not authorized to recommend self evaluation report for this self evaluation report');
                 }
                 break;
@@ -158,7 +147,7 @@ class SelfEvaluationReportPolicy
             case 'vice_chancellor':
                 $viceChancellorUniversity = $user -> universitySide -> viceChancellor -> university;
 
-                if($selfEvaluationReport -> postGraduateProgramReview -> postGraduateProgram -> university_id != $viceChancellorUniversity -> id){
+                if($selfEvaluationReport -> postGraduateProgramReview -> postGraduateProgram -> faculty -> university_id != $viceChancellorUniversity -> id){
                     return Response::deny('You are not authorized to recommend self evaluation report for this self evaluation report');
                 }
                 break;

@@ -2,7 +2,7 @@
 
 namespace App\Policies;
 
-use App\Http\Requests\V1\StoreFacultyRequest;
+use App\Http\Requests\V1\StorePostGraduateProgramRequest;
 use App\Models\Faculty;
 use App\Models\PostGraduateProgram;
 use App\Models\User;
@@ -29,7 +29,7 @@ class PostGraduateProgramPolicy
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user, StoreFacultyRequest $request): Response
+    public function create(User $user, StorePostGraduateProgramRequest $request): Response
     {
         //only cqa director of a univeristy can create
 
@@ -114,5 +114,66 @@ class PostGraduateProgramPolicy
     public function forceDelete(User $user, PostGraduateProgram $postGraduateProgram): bool
     {
         //
+    }
+
+    public function authorizeReviews(User $user, PostGraduateProgram $postGraduateProgram): Response
+    {
+        //get curr logged in role from session
+        $currRole = request() -> session() -> get('authRole');
+
+        //programme_coordinator can only view reviews of the postgraduate programme they are coordinating
+        //dean can only view reviews of the postgraduate programme of the faculty they are dean of
+        //vice chancellor can view all reviews of all postgraduate programmes of their university
+        //reviewer cannot use this endpoint
+        //cqa_director can view all reviews of all postgraduate programmes of their university
+        //iqau_director can view all reviews of all postgraduate programmes of their university
+        //qac_director and qac_officer can view all the reviews
+
+        switch($currRole){
+            case 'programme_coordinator':
+                $coordinatorPGPId = $user -> universitySide -> academicStaff -> programmeCoordinator -> postGraduateProgram -> id;
+                if($coordinatorPGPId !== $postGraduateProgram -> id){
+                    return Response::deny('You can only view reviews of the postgraduate programme you are coordinating');
+                }
+                break;
+            case 'dean':
+                $deanFacultyId = $user -> universitySide -> academicStaff -> dean -> faculty -> id;
+                if($deanFacultyId !== $postGraduateProgram -> faculty -> id){
+                    return Response::deny('You can only view reviews of the postgraduate programme of the faculty you are dean of');
+                }
+                break;
+            case 'vice_chancellor':
+                $vcUniId = $user -> universitySide -> viceChancellor -> university -> id;
+                if($vcUniId !== $postGraduateProgram -> faculty -> university ->  id){
+                    return Response::deny('You can only view reviews of the postgraduate programme of your university');
+                }
+                break;
+            case 'cqa_director':
+                $cqaUniId = $user -> universitySide
+                                -> qualityAssuranceStaff -> centerForQualityAssuranceDirector
+                                -> centerForQualityAssurance -> university -> id;
+
+                if($cqaUniId !== $postGraduateProgram -> university -> id){
+                    return Response::deny('You can only view reviews of the postgraduate programme of your university');
+                }
+                break;
+            case 'iqau_director':
+                $iqauFacultyId = $user -> universitySide
+                                -> qualityAssuranceStaff -> internalQualityAssuranceUnitDirector
+                                -> internalQualityAssuranceUnit -> faculty -> id;
+                if($iqauFacultyId !== $postGraduateProgram -> faculty -> id){
+                    return Response::deny('You can only view reviews of the postgraduate programme of your faculty');
+                }
+                break;
+            case 'qac_director':
+            case 'qac_officer':
+                return Response::allow();
+                break;
+
+            default:
+                return Response::deny('You are not authorized to view reviews of postgraduate programmes');
+        }
+
+        return Response::allow();
     }
 }

@@ -11,7 +11,7 @@ import Select from '@mui/material/Select';
 import { Link } from 'react-router-dom';
 
 function Standardwise_details() {
-    const {uniId} = useParams();
+    const {pgprId} = useParams();
     const [criteriaId, setCriteriaId] = useState(1);
     const [standards, setStandards] = useState([]);
     useSetUserNavigations(
@@ -22,11 +22,11 @@ function Standardwise_details() {
             },
             {
                 name: "DE",
-                link: "/PG_Assignments/Conduct_DE/"+uniId
+                link: "/PG_Assignments/Conduct_DE/"+pgprId
             },
             {
                 name: "Standard Wise Details",
-                link: "/PG_Assignments/Conduct_DE/Standardwise_details/"+uniId
+                link: "/PG_Assignments/Conduct_DE/Standardwise_details/"+pgprId
             },
         ]
     );
@@ -105,7 +105,7 @@ function Standardwise_details() {
             </Table>
         </TableContainer>
         <Box sx={{display:'flex',justifyContent:'center',margin:'10px'}}>
-            <Link to={`../Summary_details/${uniId}`}><Button variant="contained" color="primary" style={{margin:'0 10px'}}>View Summary Details of Criteria Wise</Button></Link>
+            <Link to={`../Summary_details/${pgprId}`}><Button variant="contained" color="primary" style={{margin:'0 10px'}}>View Summary Details of Criteria Wise</Button></Link>
         </Box>
       </Box>
       </>

@@ -13,7 +13,7 @@ import DiscriptiveDiv from '../../components/DiscriptiveDiv';
 
 
 function UpdateABC() {
-    const {uniId} = useParams();
+    const {pgprId} = useParams();
     useSetUserNavigations(
         [
             {
@@ -22,11 +22,11 @@ function UpdateABC() {
             },
             {
                 name: "DE",
-                link: "/PG_Assignments/Conduct_DE/"+uniId
+                link: "/PG_Assignments/Conduct_DE/"+pgprId
             },
             {
                 name: "Update Remarks",
-                link: "/PG_Assignments/Conduct_DE/UpdateABC/"+uniId
+                link: "/PG_Assignments/Conduct_DE/UpdateABC/"+pgprId
             },
         ]
     );

@@ -30,7 +30,7 @@ class AcademicStaffFactory extends Factory
             'conference_preceedings_count' => fake()->numberBetween([1], [200]),
             'book_chapters' => fake()->numberBetween([1], [200]),
             'involvement_in_internal_quality_assurance' => json_encode(['INV_1', 'INV_2', 'INV_3', 'INV_4']),
-            'involment_in_study_programme_development' => json_encode(['INV_1', 'INV_2', 'INV_3', 'INV_4']),
+            'involvement_in_study_programme_development' => json_encode(['INV_1', 'INV_2', 'INV_3', 'INV_4']),
             'postgraduate_teaching_experience' => json_encode(['EXP_1', 'EXP_2', 'EXP_3', 'EXP_4']),
             'postgraduate_qualifications' => json_encode(['QUA_1', 'QUA_2', 'QUA_3', 'QUA_4']),
             'prior_training_in_programme_review' => json_encode(['TRA_1', 'TRA_2', 'TRA_3', 'TRA_4']),

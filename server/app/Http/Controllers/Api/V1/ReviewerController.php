@@ -145,14 +145,14 @@ class ReviewerController extends Controller
             $reviewer = Reviewer::findOrFail(Auth::user()->id);
 
             //reviewer can on submit one declaration per role acceptance
-            if ($reviewer->status != 'pending') {
+            if ($reviewer->reviewer_status != 'pending') {
                 return response()->json(["message" => "Declarations can only be submitted only once."], 400);
             }
 
             //get the file
             $file = $request->file('file');
 
-            if ($file) {
+            if (!$file) {
                 return response("The submission must have a pdf that contains the signed declaration.", 400);
             }
 
@@ -264,7 +264,7 @@ class ReviewerController extends Controller
             //find the review teams
             $review_teams = $reviewer
                 ->reviewTeams
-                ->whereIn('status', ['PENDING', 'APPROVED']); //only get either pending or accepted review teams only
+                ->whereIn('status', ['PENDING', 'ACCEPTED']); //only get either pending or accepted review teams only
 
             if (!count($review_teams)) {
                 return response()->json(["message" => "Currently you don't have any reviews", "data" => []]);
@@ -435,7 +435,9 @@ class ReviewerController extends Controller
                 $validated = $validator->validated();
                 $reviewer = Reviewer::findOrFail(Auth::id());
 
-                $reviewTeam = $reviewer->reviewTeams->where('pgpr_id', $validated['pgprId'])->first();
+                $reviewTeams = $reviewer
+                    ->reviewTeams
+                    ->where('pgpr_id', $validator->validated()['pgprId'])->load(['postGraduateReviewProgram' => 'selfEvaluationReport']);
 
                 if (!$reviewTeam) {
                     return response()->json(['message' => 'Hmm, seems this reviewer is not a member of the review team of the given pgpr'], 403);

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Filters\V1\FacultyFilter;
 use App\Http\Resources\V1\FacultyCollection;
 use App\Http\Resources\V1\FacultyResource;
+use App\Http\Resources\V1\InternalQualityAssuranceUnitDirectorResource;
 use App\Http\Resources\V1\PostGraduateProgramCollection;
 use App\Http\Resources\V1\UniversityResource;
 use App\Models\Faculty;
@@ -360,7 +361,7 @@ class FacultyController extends Controller
                         $iqauDirector = $iqauDirector -> loadMissing('qualityAssuranceStaff:id');
                     }
                 }
-                return new DeanResource($iqauDirector);
+                return new InternalQualityAssuranceUnitDirectorResource($iqauDirector);
             }
             else{
                 return response() -> json([
