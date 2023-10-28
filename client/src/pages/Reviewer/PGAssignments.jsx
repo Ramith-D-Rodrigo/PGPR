@@ -260,7 +260,7 @@ const PGAssignments = () => {
             allow = loading? {disabled:true} : allow;
             if(action.action === 'View')
             {
-                return <Link key={index} to={action.allow? PGPRDetails.id+'/ser/' +PGPRDetails.selfEvaluationReport.id:''}><Button {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button></Link>
+                return <Link key={index} to={action.allow? PGPRDetails.id+'/ser/' +PGPRDetails?.selfEvaluationReport?.id:''}><Button {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button></Link>
             }
             else if(action.action === 'Accept')
             {
@@ -269,6 +269,7 @@ const PGAssignments = () => {
             else if(action.action === 'DE')
             {   
                 let onClickDate = null;
+                console.log("DE : ",DE);
                 if (DE?.endDate == null && Role == "CHAIR")
                     {
                         action.allow = false;
@@ -296,6 +297,7 @@ const PGAssignments = () => {
         const pgProgramme = PGPRDetails?.postGraduateProgramme;
         const faculty = pgProgramme?.faculty;
         const university = faculty?.university;
+        const DE = PGPRDetails?.deskEvaluation;
 
 
         let actions = [];
@@ -349,13 +351,14 @@ const PGAssignments = () => {
         }
 
         return createData(
-          PGPRDetails?.id,
+          PGPRDetails,
           university?.name,
           faculty?.name,
           pgProgramme?.title,
           pgpr?.role,
           PGPRDetails?.statusOfPgpr,
-          actions
+          actions,
+          DE
         );
       })
     : [];
