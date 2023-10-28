@@ -4,15 +4,18 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Resources\V1\CenterForQualityAssuranceDirectorResource;
 use App\Http\Resources\V1\UniversityResource;
+use App\Mail\InformCenterForQualityAssuranceDirectorRoleRevoke;
 use App\Models\CenterForQualityAssurance;
 use App\Models\CenterForQualityAssuranceDirector;
 use App\Http\Requests\V1\StoreCenterForQualityAssuranceDirectorRequest;
 use App\Http\Requests\V1\UpdateCenterForQualityAssuranceDirectorRequest;
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Services\V1\CenterForQualityAssuranceDirectorService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class CenterForQualityAssuranceDirectorController extends Controller
@@ -120,6 +123,16 @@ class CenterForQualityAssuranceDirectorController extends Controller
             DB::beginTransaction();
 
             $result = CenterForQualityAssuranceDirectorService::removeRole($cqaDirector);
+            $user = User::find($cqaDirector->id);
+
+            Mail::to($user->official_email)
+                        ->send(
+                            new InformCenterForQualityAssuranceDirectorRoleRevoke(
+                                formerCQADirector: $user,
+                                subject: "Access revokation to the platform as Center for Quality Assuarance Director",
+                                content: 'mail.informCQADirectorRoleRevoke'
+                            )
+                        );
 
             DB::commit();
 
