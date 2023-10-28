@@ -9,6 +9,7 @@ use App\Http\Requests\V1\DeanRejectReviewTeamRequest;
 use App\Http\Resources\V1\DeanResource;
 use App\Mail\InformReviewTeamAcceptanceToQAC;
 use App\Mail\InformReviewTeamRejectionToQAC;
+use App\Mail\InformUserRoleRevocation;
 use App\Mail\RejectReviewerRole;
 use App\Http\Resources\V1\FacultyResource;
 use App\Models\Dean;
@@ -19,6 +20,7 @@ use App\Mail\sendPassword;
 use App\Models\DeskEvaluation;
 use App\Models\Faculty;
 use App\Models\ReviewTeam;
+use App\Models\User;
 use App\Services\V1\DeanService;
 use App\Services\V1\PostGraduateProgramReviewService;
 use Exception;
@@ -378,6 +380,16 @@ class DeanController extends Controller
             DB::beginTransaction();
 
             $result = DeanService::removeRole($dean);
+            $user = User::find($dean->id);
+
+            Mail::to($user->official_email)->send(
+                new InformUserRoleRevocation(
+                    user: $user,
+                    role: 'Dean',
+                    subject: 'Access revocation to the platform as Dean',
+                    content: 'mail.informRoleRevocation'
+               )
+            );
 
             DB::commit();
 
