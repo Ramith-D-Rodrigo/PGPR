@@ -16,7 +16,14 @@ class InformEvidenceActionToAuthorities extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct()
+    public function __construct(
+        public $user,
+        public $action,
+        public $evidenceInfo,
+        public $postgraduateProgram,
+        public $subject,
+        public $content
+    )
     {
         //
     }
