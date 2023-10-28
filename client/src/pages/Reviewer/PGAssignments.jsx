@@ -684,8 +684,7 @@ const PGAssignments = () => {
             <CloseIcon fontSize="large" />
           </IconButton>
         </Box>
-      
-    }
+      )}
 
       <Snackbar
         open={errorMsg == "" || success ? false : true}
