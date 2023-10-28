@@ -1,21 +1,20 @@
 Sir/Madam,<br>
 {{$user['surname'] . " " . $user['initials']}},<br><br>
 
-@if ($action == 'UPLOAD')
-    New evidence has been uploaded to our servers. Following are some details related to the evidence.<br>
+@if ($action == 'CREATED')
+    A new faculty was added to the system. Following are some details related to the evidence.<br>
 @elseif ($action == 'UPDATE')
-    Existing evidence has been update. Following are some details related to the evidence.<br>
-@elseif ($action == 'DELETE')
-    The below-mentioned evidences were deleted from our servers recently.<br>
+    Deatails about a faculty has been updated. Following are some details related to the changes that were made.<br>
 @endif
 
-Postgraduate program details:<br>
-    Postgraduate program name: {{$postgraduateProgram->title}}<br>
+Faculty details:<br>
+    Faculty name: {{$faculty->name}}<br>
+    University name: {{$university->name}}<br>
+    Faculty address: {{$faculty->address}}<br>
+    Faculty contact information: {{json_decode($faculty->contact_no)}}<br>
 
-Evidence details:<br>
-    Evidence name: {{$evidence->evidence_name}}<br>
-    Evidence code: {{$evidence->evidence_code}}<br>
-    Evidence applicable years: {{json_decode($evidence->applicable_years)}}<br>
+You can find more details regarding this on our platform. <br>
+Thank you.<br>
 
 Regards,<br>
 Postgraduate Programme Review System,<br>
