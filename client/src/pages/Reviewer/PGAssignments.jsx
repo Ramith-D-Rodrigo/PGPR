@@ -364,7 +364,8 @@ const PGAssignments = () => {
 
         let actions = [];
         if (
-          PGPRDetails?.statusOfPgpr === "SUBMITTED"
+          PGPRDetails?.statusOfPgpr === "SUBMITTED" ||
+          PGPRDetails?.statusOfPgpr === "PLANNING"
         ) {
           actions = [
             { action: "Accept", allow: true },
