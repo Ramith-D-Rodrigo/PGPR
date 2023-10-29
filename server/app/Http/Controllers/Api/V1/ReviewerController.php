@@ -682,12 +682,12 @@ class ReviewerController extends Controller
             $data = [];
 
             if (array_key_exists('criteria_id', $validated)) {
-                $evaluated_standards = DB::table('desk_evaluation_scores')
-                    ->join('standards', 'desk_evaluation_scores.standard_id', '=', 'standards.id')
+                $evaluated_standards = DB::table('desk_evaluation_score')
+                    ->join('standards', 'desk_evaluation_score.standard_id', '=', 'standards.id')
                     ->where([
                         'standards.criteria_id' => $validated['criteria_id'],
-                        'desk_evaluation_scores.desk_evaluation_id' => $validated['desk_evaluation_id'],
-                        'desk_evaluation_scores.reviewer_id' => Auth::id()
+                        'desk_evaluation_score.desk_evaluation_id' => $validated['desk_evaluation_id'],
+                        'desk_evaluation_score.reviewer_id' => Auth::id()
                     ])
                     ->count();
 
@@ -722,12 +722,12 @@ class ReviewerController extends Controller
                     $evaluated_standards = [];
                     // Count number of evaluated standards for this criteria
 
-                    $evaluated_standards = DB::table('desk_evaluation_scores')
-                        ->join('standards', 'desk_evaluation_scores.standard_id', '=', 'standards.id')
+                    $evaluated_standards = DB::table('desk_evaluation_score')
+                        ->join('standards', 'desk_evaluation_score.standard_id', '=', 'standards.id')
                         ->where([
                             'standards.criteria_id' => $criteria_id,
-                            'desk_evaluation_scores.desk_evaluation_id' => $validated['desk_evaluation_id'],
-                            'desk_evaluation_scores.reviewer_id' => Auth::id()
+                            'desk_evaluation_score.desk_evaluation_id' => $validated['desk_evaluation_id'],
+                            'desk_evaluation_score.reviewer_id' => Auth::id()
                         ])
                         ->count();
 

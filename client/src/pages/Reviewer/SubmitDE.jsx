@@ -24,6 +24,7 @@ import SubmitDeskEvaluation from '../../api/Reviewer/SubmitDeskEvaluation';
 import StatusMessage from '../../components/StatusMessage';
 import { useNavigate } from 'react-router-dom';
 import GetDeskEvaluationProgress from '../../api/DeskEvaluation/getDeskEvaluationProgress';
+import DialogMenu from '../../components/DialogMenu';
 
 const SubmitDE = () => {
     const theme = useTheme();
@@ -32,9 +33,11 @@ const SubmitDE = () => {
     const open = useDrawerState().drawerState.open;
     const [SERDetails,setSERDetails] = useState([]);
     const [pgprDetails,setPGPRDetails] = useState([]);
+    const [criteriaProgress, setCriteriaProgress] = useState([]);
     const [loading,SetLoading] = useState(false);
     const {reviewerRole, setReviewerRole} = useReviewerRole();
     const [openDialog, setOpenDialog] = useState(false);
+    const [submitAnyway,setSubmitAnyway] = useState(false);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
@@ -70,6 +73,7 @@ const SubmitDE = () => {
                 setSERDetails(response2?.data?.data);
                 const response3 = await GetDeskEvaluationProgress(response1?.data?.data?.postGraduateReviewProgram?.deskEvaluation?.id);
                 console.log("DE Progress : ",response3?.data?.data);
+                setCriteriaProgress(response3.data.data);
                 SetLoading(false);
             } catch (err) {
                 console.error(err);
@@ -82,6 +86,26 @@ const SubmitDE = () => {
     function createData(criteriaData,DE_progress) {
         const Actions = [<Link key={1} to={`../${pgprId}/${criteriaData.id}`}><Button style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{"Update"}</Button></Link>]
         return {criteria:criteriaData.name, DE_progress, Actions };
+    }
+
+    const handleClickSubmitBtn = () =>{
+        let allEvaluated = false;
+
+        criteriaProgress.forEach((criteria)=>{
+            if (criteria.evaluatedStandards == criteria.totalStandards)
+            {
+                allEvaluated=true;
+            }
+            else{
+                allEvaluated=false;
+                return;
+            }
+        })
+        
+        allEvaluated==true?
+        setOpenDialog(true)
+        :
+        setSubmitAnyway(true);
     }
 
     const handleSubmitDE_results = async() => {
@@ -151,7 +175,11 @@ const SubmitDE = () => {
     //   console.log("Criterias : ",Criterias);
     //     console.log("evidencesForGivenStandards : ",evidencesForGivenStandards);
   
-    const rows = Criterias? createSERRows(SERDetails?.criterias,SERDetails?.evidenceGivenStandards,createData) : [];
+    const rows = criteriaProgress? criteriaProgress.map((criteria,index) => {
+        let criteriaData = {name : criteria.criteriaName, id:criteria.criteriaId}
+        let De_Progress = `${criteria.evaluatedStandards}/${criteria.totalStandards}` 
+        return createData(criteriaData,De_Progress)
+    } )  : [];
 
     return (
         <>
@@ -212,7 +240,7 @@ const SubmitDE = () => {
                 </TableContainer>
 
                 <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', width: '100%', padding: '20px 0',height:"auto" }}>
-                        <Button onClick={()=>setOpenDialog(true)} variant="contained" size="small" style={{width:"300px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>Submit The Desk Evaluation Results</Button>
+                        <Button onClick={handleClickSubmitBtn} variant="contained" size="small" style={{width:"300px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>Submit The Desk Evaluation Results</Button>
                 </Box>
 
                 <Dialog
@@ -238,6 +266,16 @@ const SubmitDE = () => {
                     </Button>
                     </DialogActions>
                 </Dialog>
+
+                <DialogMenu 
+                    Message="Warning" 
+                    Warning="You haven't evaluated all the available standards in some/all criteria ! If it's okay click Proceed Anyway" 
+                    Actions={{submit:"Proceed Anyway",
+                    cancel:"cancle"}} 
+                    Open={submitAnyway} 
+                    onClose={()=>setSubmitAnyway(false)} 
+                    onSubmit={()=>{setSubmitAnyway(false);setOpenDialog(true)}}>
+                </DialogMenu>
 
                 <StatusMessage
                     open={error==null? false : true}
