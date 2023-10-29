@@ -1247,8 +1247,6 @@ class ReviewerController extends Controller
      * review view comments and scores provided for the assigned proper evaluation criteria
      *
      *  GET request +>
-     *               pgpr=8&properEvaluation=12&criteria=10
-     *                                or
      *               pgpr=8&properEvaluation=12
      */
     public function viewOwnProperEvaluationCommentsAndScores(ShowOwnProperEvaluationCriteriaWiseRequest $request): JsonResponse
