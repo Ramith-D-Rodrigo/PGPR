@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\V1\EvidenceResource;
+use App\Mail\InformEvidenceActionToAuthorities;
 use App\Models\Evidence;
+use App\Models\SelfEvaluationReport;
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Requests\V1\StoreEvidenceRequest;
 use App\Http\Requests\V1\UpdateEvidenceRequest;
@@ -12,6 +15,7 @@ use App\Services\V1\DriveManager;
 use Google_Service_Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class EvidenceController extends Controller
 {
@@ -87,6 +91,36 @@ class EvidenceController extends Controller
                 'created_at' => now(),
                 'updated_at' => now()
             ]);
+
+            // IQAU DIR, PROGRAM COORDINATOR
+            // get the user data from the SER
+            $selfEvaluationReport = SelfEvaluationReport::find($validatedData['self_evaluation_report_id']);
+            $postGraduateProgram = $selfEvaluationReport->postGraduateProgramReview->postGraduateProgram;
+            $programCoordinator = User::find($selfEvaluationReport->programmeCoordinator->id);
+            $iqauDirector = User::find($selfEvaluationReport->internalQualityAssuranceUnitDirector->id);
+
+            //sending the mail to programCoordinator
+            Mail::to($programCoordinator->official_email)->send(
+                new InformEvidenceActionToAuthorities(
+                    user: $programCoordinator,
+                    action: 'UPLOAD',
+                    evidenceInfo: $evidence,
+                    postgraduateProgram: $postGraduateProgram,
+                    subject: 'New Evidence Uploaded',
+                    content: 'mail.informEvidenceActionToAuthorities'
+                )
+            );
+            //sending the mail to iqauDirector
+            Mail::to($iqauDirector->official_email)->send(
+                new InformEvidenceActionToAuthorities(
+                    user: $iqauDirector,
+                    action: 'UPLOAD',
+                    evidenceInfo: $evidence,
+                    postgraduateProgram: $postGraduateProgram,
+                    subject: 'New Evidence Uploaded',
+                    content: 'mail.informEvidenceActionToAuthorities'
+                )
+            );
 
             DB::commit();
 
@@ -175,6 +209,36 @@ class EvidenceController extends Controller
 
             $evidence -> update($validatedData);
 
+            // IQAU DIR, PROGRAM COORDINATOR
+            // get the user data from the SER
+            $selfEvaluationReport = $evidence->selfEvaluationReport();
+            $postGraduateProgram = $selfEvaluationReport->postGraduateProgramReview->postGraduateProgram;
+            $programCoordinator = User::find($selfEvaluationReport->programmeCoordinator->id);
+            $iqauDirector = User::find($selfEvaluationReport->internalQualityAssuranceUnitDirector->id);
+
+            //sending the mail to programCoordinator
+            Mail::to($programCoordinator->official_email)->send(
+                new InformEvidenceActionToAuthorities(
+                    user: $programCoordinator,
+                    action: 'UPDATE',
+                    evidenceInfo: $evidence,
+                    postgraduateProgram: $postGraduateProgram,
+                    subject: 'Update of Existing Evidence',
+                    content: 'mail.informEvidenceActionToAuthorities'
+                )
+            );
+            //sending the mail to iqauDirector
+            Mail::to($iqauDirector->official_email)->send(
+                new InformEvidenceActionToAuthorities(
+                    user: $iqauDirector,
+                    action: 'UPDATE',
+                    evidenceInfo: $evidence,
+                    postgraduateProgram: $postGraduateProgram,
+                    subject: 'Update of Existing Evidence',
+                    content: 'mail.informEvidenceActionToAuthorities'
+                )
+            );
+
             return response()->json([
                 'success' => true,
                 'message' => 'Evidence updated successfully',
@@ -217,6 +281,37 @@ class EvidenceController extends Controller
             $evidence -> standards() -> detach();
 
             $evidence->delete();
+
+            // IQAU DIR, PROGRAM COORDINATOR
+            // get the user data from the SER
+            $selfEvaluationReport = $evidence->selfEvaluationReport();
+            $postGraduateProgram = $selfEvaluationReport->postGraduateProgramReview->postGraduateProgram;
+            $programCoordinator = User::find($selfEvaluationReport->programmeCoordinator->id);
+            $iqauDirector = User::find($selfEvaluationReport->internalQualityAssuranceUnitDirector->id);
+
+            //sending the mail to programCoordinator
+            Mail::to($programCoordinator->official_email)->send(
+                new InformEvidenceActionToAuthorities(
+                    user: $programCoordinator,
+                    action: 'DELETE',
+                    evidenceInfo: $evidence,
+                    postgraduateProgram: $postGraduateProgram,
+                    subject: 'Removal of Existing Evidence',
+                    content: 'mail.informEvidenceActionToAuthorities'
+                )
+            );
+            //sending the mail to iqauDirector
+            Mail::to($iqauDirector->official_email)->send(
+                new InformEvidenceActionToAuthorities(
+                    user: $iqauDirector,
+                    action: 'DELETE',
+                    evidenceInfo: $evidence,
+                    postgraduateProgram: $postGraduateProgram,
+                    subject: 'Removal of Existing Evidence',
+                    content: 'mail.informEvidenceActionToAuthorities'
+                )
+            );
+
 
             return response()->json([
                 'success' => true,

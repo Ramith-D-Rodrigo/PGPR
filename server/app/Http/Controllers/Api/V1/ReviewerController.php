@@ -330,6 +330,8 @@ class ReviewerController extends Controller
             $review_team->pivot->declaration_letter = Storage::disk('public')->url($path); //add the file url here
             $review_team->pivot->save(); //save the data to the pivot table
 
+            // TODO: INFORM REVIEW TEAM CREATOR
+
             return response()->json(['message' => 'Your declaration was successfully uploaded.'], 201);
         } catch (AuthorizationException $e) {
             return response()->json([
@@ -669,31 +671,19 @@ class ReviewerController extends Controller
      *
      * GET request +>
      *              deskEvaluation=12&criteria=10
+     *                      or
+     *              deskEvaluation=12
      */
     public function viewOwnDeskEvaluationCriteria(ShowOwnDeskEvaluationCriteriaWiseRequest $request): JsonResponse
     {
         try {
-            // Get all criteria
             $validated = $request->validated();
-            $criteria_ids = DB::table('criterias')->pluck('id');
-
             $deskEvaluation = DeskEvaluation::find($validated['desk_evaluation_id']);
             $pgp = $deskEvaluation->postGraduateProgramReview->postGraduateProgram;
 
             $data = [];
 
-            foreach ($criteria_ids as $criteria_id) {
-                // Get criteria name
-                $criteria_name = DB::table('criterias')->where('id', $criteria_id)->value('name');
-
-                // Count total number of standards for this criteria
-                $total_standards = count(StandardService::getApplicableStandards(
-                    $pgp->slqf_level,
-                    $pgp->is_professional_pg_programme,
-                    $criteria_id
-                ));
-
-                // Count number of evaluated standards for this criteria
+            if (array_key_exists('criteria_id', $validated)) {
                 $evaluated_standards = DB::table('desk_evaluation_scores')
                     ->join('standards', 'desk_evaluation_scores.standard_id', '=', 'standards.id')
                     ->where([
@@ -703,13 +693,54 @@ class ReviewerController extends Controller
                     ])
                     ->count();
 
-                // Store in data
+                $criteria_name = DB::table('criterias')->where('id', $validated['criteria_id'])->value('name');
+
+                // Count total number of standards for this criteria
+                $total_standards = count(StandardService::getApplicableStandards(
+                    $pgp->slqf_level,
+                    $pgp->is_professional_pg_programme,
+                    $validated['criteria_id']
+                ));
+
                 $data[] = [
-                    'criteriaId' => $criteria_id,
                     'criteriaName' => $criteria_name,
                     'totalStandards' => $total_standards,
                     'evaluatedStandards' => $evaluated_standards,
                 ];
+            } else {
+                $criteria_ids = DB::table('criterias')->pluck('id');
+
+                foreach ($criteria_ids as $criteria_id) {
+                    // Get criteria name
+                    $criteria_name = DB::table('criterias')->where('id', $criteria_id)->value('name');
+
+                    // Count total number of standards for this criteria
+                    $total_standards = count(StandardService::getApplicableStandards(
+                        $pgp->slqf_level,
+                        $pgp->is_professional_pg_programme,
+                        $criteria_id
+                    ));
+
+                    $evaluated_standards = [];
+                    // Count number of evaluated standards for this criteria
+
+                    $evaluated_standards = DB::table('desk_evaluation_scores')
+                        ->join('standards', 'desk_evaluation_scores.standard_id', '=', 'standards.id')
+                        ->where([
+                            'standards.criteria_id' => $criteria_id,
+                            'desk_evaluation_scores.desk_evaluation_id' => $validated['desk_evaluation_id'],
+                            'desk_evaluation_scores.reviewer_id' => Auth::id()
+                        ])
+                        ->count();
+
+                    // Store in data
+                    $data[] = [
+                        'criteriaId' => $criteria_id,
+                        'criteriaName' => $criteria_name,
+                        'totalStandards' => $total_standards,
+                        'evaluatedStandards' => $evaluated_standards,
+                    ];
+                }
             }
             return response()->json(['message' => 'Success', 'data' => $data]);
         } catch (Exception $exception) {
@@ -720,6 +751,8 @@ class ReviewerController extends Controller
     /**
      *  GET request +>
      *               pgpr=8&properEvaluation=12&criteria=10
+     *                                or
+     *               pgpr=8&properEvaluation=12
      */
     public function viewOwnProperEvaluationCriteria(ShowOwnProperEvaluationCriteriaWiseRequest $request): JsonResponse
     {
@@ -730,25 +763,9 @@ class ReviewerController extends Controller
             $properEvaluation = ProperEvaluation::find($validated['proper_evaluation_id']);
             $pgp = $properEvaluation->postGraduateProgramReview->postGraduateProgram;
 
-            $criteria_ids = DB::table('reviewer_team_set_criteria')
-                ->where([
-                    'assigned_to_reviewer_id' => Auth::id(),
-                    'pgpr_id' => $validated['pgpr_id'],
-                ])
-                ->pluck('criteria_id');
-
             $data = [];
 
-            foreach ($criteria_ids as $criteria_id) {
-                // Get criteria name
-                $criteria_name = DB::table('criterias')->where('id', $criteria_id)->value('name');
-
-                // Count total number of standards for this criteria
-                $total_standards = count(StandardService::getApplicableStandards(
-                    $pgp->slqf_level,
-                    $pgp->is_professional_pg_programme,
-                    $criteria_id
-                ));
+            if (array_key_exists('criteria_id', $validated)) {
 
                 // Count number of evaluated standards for this criteria
                 $evaluated_standards = DB::table('proper_evaluation_score')
@@ -760,15 +777,59 @@ class ReviewerController extends Controller
                     ])
                     ->count();
 
-                // Store in data
+                $criteria_name = DB::table('criterias')->where('id', $validated['criteria_id'])->value('name');
+
+                // Count total number of standards for this criteria
+                $total_standards = count(StandardService::getApplicableStandards(
+                    $pgp->slqf_level,
+                    $pgp->is_professional_pg_programme,
+                    $validated['criteria_id']
+                ));
+
                 $data[] = [
-                    'criteriaId' => $criteria_id,
+                    'criteriaId' => $validated['criteria_id'],
                     'criteriaName' => $criteria_name,
                     'totalStandards' => $total_standards,
                     'evaluatedStandards' => $evaluated_standards,
                 ];
-            }
+            } else {
+                $criteria_ids = DB::table('reviewer_team_set_criteria')
+                    ->where([
+                        'assigned_to_reviewer_id' => Auth::id(),
+                        'pgpr_id' => $validated['pgpr_id'],
+                    ])
+                    ->pluck('criteria_id');
 
+                foreach ($criteria_ids as $criteria_id) {
+                    // Get criteria name
+                    $criteria_name = DB::table('criterias')->where('id', $criteria_id)->value('name');
+
+                    // Count total number of standards for this criteria
+                    $total_standards = count(StandardService::getApplicableStandards(
+                        $pgp->slqf_level,
+                        $pgp->is_professional_pg_programme,
+                        $criteria_id
+                    ));
+
+                    // Count number of evaluated standards for this criteria
+                    $evaluated_standards = DB::table('proper_evaluation_score')
+                        ->join('standards', 'proper_evaluation_score.standard_id', '=', 'standards.id')
+                        ->where([
+                            'standards.criteria_id' => $criteria_id,
+                            'proper_evaluation_score.proper_evaluation_id' => $validated['proper_evaluation_id'],
+                            'proper_evaluation_score.reviewer_id' => Auth::id()
+                        ])
+                        ->count();
+
+                    // Store in data
+                    $data[] = [
+                        'criteriaId' => $criteria_id,
+                        'criteriaName' => $criteria_name,
+                        'totalStandards' => $total_standards,
+                        'evaluatedStandards' => $evaluated_standards,
+                    ];
+                }
+            }
             return response()->json(['message' => 'Successful', 'data' => $data]);
         } catch (Exception $exception) {
             return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
@@ -1149,6 +1210,8 @@ class ReviewerController extends Controller
                         content: 'mail.informToOfficialsAboutReviewTeamPGPRRejection',
                     ));
 
+                // TODO: send the mail to the IQAU DIR
+
                 //set the pgpr status as rejected/suspended
                 $postGraduateProgramReview->status_of_pgpr = 'SUSPENDED';
                 $postGraduateProgramReview->save();
@@ -1176,6 +1239,71 @@ class ReviewerController extends Controller
             return response()->json(['message' => 'Your request is duly noted, thank you for responding.']);
         } catch (Exception $exception) {
             DB::rollBack();
+            return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+        }
+    }
+
+    /**
+     * review view comments and scores provided for the assigned proper evaluation criteria
+     *
+     *  GET request +>
+     *               pgpr=8&properEvaluation=12
+     */
+    public function viewOwnProperEvaluationCommentsAndScores(ShowOwnProperEvaluationCriteriaWiseRequest $request): JsonResponse
+    {
+        try {
+            $validated = $request->validated();
+
+            $properEvaluation = ProperEvaluation::find($validated['proper_evaluation_id']);
+            $pgp = $properEvaluation->postGraduateProgramReview->postGraduateProgram;
+
+            $records = [];
+
+            $criteria_ids = DB::table('reviewer_team_set_criteria')
+                ->where([
+                    'assigned_to_reviewer_id' => Auth::id(),
+                    'pgpr_id' => $validated['pgpr_id'],
+                ])
+                ->pluck('criteria_id');
+
+            foreach ($criteria_ids as $criteria_id) {
+                // Get criteria name
+                $criteria_name = DB::table('criterias')->where('id', $criteria_id)->value('name');
+
+                // Count total number of standards for this criteria
+                $total_standards = count(StandardService::getApplicableStandards(
+                    $pgp->slqf_level,
+                    $pgp->is_professional_pg_programme,
+                    $criteria_id
+                ));
+
+                // Count number of evaluated standards for this criteria
+                $evaluated_standards = DB::table('proper_evaluation_score')
+                    ->join('standards', 'proper_evaluation_score.standard_id', '=', 'standards.id')
+                    ->where([
+                        'standards.criteria_id' => $criteria_id,
+                        'proper_evaluation_score.proper_evaluation_id' => $validated['proper_evaluation_id'],
+                        'proper_evaluation_score.reviewer_id' => Auth::id()
+                    ])
+                    ->select(
+                        'proper_evaluation_scores.proper_evaluation_id AS properEvaluationId',
+                        'proper_evaluation_scores.reviewer_id AS reviewerId',
+                        'proper_evaluation_scores.standard_id AS standardId',
+                        'proper_evaluation_scores.pe_score AS peScore',
+                        'proper_evaluation_scores.comment'
+                    )
+                    ->get();
+
+                // Store in data
+                $records[] = [
+                    'criteriaId' => $criteria_id,
+                    'criteriaName' => $criteria_name,
+                    'totalStandards' => $total_standards,
+                    'evaluatedStandards' => $evaluated_standards,
+                ];
+            }
+            return response()->json($records);
+        } catch (Exception $exception) {
             return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
         }
     }

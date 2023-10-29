@@ -4,16 +4,19 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Resources\V1\FacultyResource;
 use App\Http\Resources\V1\InternalQualityAssuranceUnitDirectorResource;
+use App\Mail\InformUserRoleRevocation;
 use App\Models\Faculty;
 use App\Models\InternalQualityAssuranceUnitDirector;
 use App\Http\Requests\V1\StoreInternalQualityAssuranceUnitDirectorRequest;
 use App\Http\Requests\V1\UpdateInternalQualityAssuranceUnitDirectorRequest;
 use App\Http\Controllers\Controller;
 use App\Models\InternalQualityAssuranceUnit;
+use App\Models\User;
 use App\Services\V1\InternalQualityAssuranceUnitDirectorService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class InternalQualityAssuranceUnitDirectorController extends Controller
@@ -129,6 +132,17 @@ class InternalQualityAssuranceUnitDirectorController extends Controller
             DB::beginTransaction();
 
             $result = InternalQualityAssuranceUnitDirectorService::removeRole($iqauDirector);
+
+            $user = User::find($iqauDirector->id);
+
+            Mail::to($user->official_email)->send(
+                new InformUserRoleRevocation(
+                    user: $user,
+                    role: 'Internal Quality Assurance Unit Director',
+                    subject: 'Access revocation to the platform as Internal Quality Assurance Unit Director',
+                    content: 'mail.informRoleRevocation'
+                )
+            );
 
             DB::commit();
 

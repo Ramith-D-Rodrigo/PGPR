@@ -9,13 +9,17 @@ use App\Http\Resources\V1\FacultyResource;
 use App\Http\Resources\V1\PostGraduateProgramResource;
 use App\Http\Resources\V1\PostGraduateProgramReviewCollection;
 use App\Http\Resources\V1\PostGraduateProgramReviewResource;
+use App\Mail\InformPostGraduateProgramActionToAuthorities;
+use App\Models\Faculty;
 use App\Models\PostGraduateProgram;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\V1\PostGraduateProgramCollection;
 use App\Http\Resources\V1\ProgrammeCoordinatorResource;
+use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class PostGraduateProgramController extends Controller
 {
@@ -117,7 +121,63 @@ class PostGraduateProgramController extends Controller
             //get validated data
             $validatedData = $request -> validated();
             $validatedData['added_by_cqa_director_id'] = Auth::user() -> id;
-            PostGraduateProgram::create($validatedData);
+            $postGraduateProgram = PostGraduateProgram::create($validatedData);
+
+            $faculty = Faculty::find($validatedData['faculty_id']);
+            $university = $faculty->university;
+
+            $dean = User::find($faculty->dean->id);
+            $iqauDirector = User::find($faculty->internalQualityAssuranceUnit->internalQualityAssuranceUnitDirector->id);
+            $viceChancellor = User::find($university->viceChancellor->id);
+            $cqaDirector = User::find($university->centerForQualityAssurance->currentQualityAssuranceDirector->id);
+
+            Mail::to($dean->official_email)->send(
+                new InformPostGraduateProgramActionToAuthorities(
+                    user: $dean,
+                    action: 'CREATED',
+                    faculty: $faculty,
+                    university: $university,
+                    postGraduateProgram: $postGraduateProgram,
+                    subject: 'A New Postgradute Study Program Was Created',
+                    content: 'mali.informPostGraduateProgramActionToAuthorities',
+                )
+            );
+
+            Mail::to($dean->official_email)->send(
+                new InformPostGraduateProgramActionToAuthorities(
+                    user: $iqauDirector,
+                    action: 'CREATED',
+                    faculty: $faculty,
+                    university: $university,
+                    postGraduateProgram: $postGraduateProgram,
+                    subject: 'A New Postgradute Study Program Was Created',
+                    content: 'mali.informPostGraduateProgramActionToAuthorities',
+                )
+            );
+
+            Mail::to($dean->official_email)->send(
+                new InformPostGraduateProgramActionToAuthorities(
+                    user: $cqaDirector,
+                    action: 'CREATED',
+                    faculty: $faculty,
+                    university: $university,
+                    postGraduateProgram: $postGraduateProgram,
+                    subject: 'A New Postgraduate Study Program Was Created',
+                    content: 'mali.informPostGraduateProgramActionToAuthorities',
+                )
+            );
+
+            Mail::to($dean->official_email)->send(
+                new InformPostGraduateProgramActionToAuthorities(
+                    user: $viceChancellor,
+                    action: 'CREATED',
+                    faculty: $faculty,
+                    university: $university,
+                    postGraduateProgram: $postGraduateProgram,
+                    subject: 'A New Postgraduate Study Program Was Created',
+                    content: 'mali.informPostGraduateProgramActionToAuthorities',
+                )
+            );
 
             return response() -> json(['message' => 'Post Graduate Program created successfully'], 201);
         }
@@ -206,6 +266,63 @@ class PostGraduateProgramController extends Controller
             //add authorized cqa director id to the validated data
             $validatedData['edited_by_cqa_director_id'] = Auth::user() -> id;
             $postGraduateProgram -> update($validatedData);
+
+            $faculty = Faculty::find($validatedData['faculty_id']);
+            $university = $faculty->university;
+
+            $dean = User::find($faculty->dean->id);
+            $iqauDirector = User::find($faculty->internalQualityAssuranceUnit->internalQualityAssuranceUnitDirector->id);
+            $viceChancellor = User::find($university->viceChancellor->id);
+            $cqaDirector = User::find($university->centerForQualityAssurance->currentQualityAssuranceDirector->id);
+
+            Mail::to($dean->official_email)->send(
+                new InformPostGraduateProgramActionToAuthorities(
+                    user: $dean,
+                    action: 'UPDATED',
+                    faculty: $faculty,
+                    university: $university,
+                    postGraduateProgram: $postGraduateProgram,
+                    subject: 'Postgraduate Study Program Was Updated',
+                    content: 'mali.informPostGraduateProgramActionToAuthorities',
+                )
+            );
+
+            Mail::to($dean->official_email)->send(
+                new InformPostGraduateProgramActionToAuthorities(
+                    user: $iqauDirector,
+                    action: 'UPDATED',
+                    faculty: $faculty,
+                    university: $university,
+                    postGraduateProgram: $postGraduateProgram,
+                    subject: 'Postgraduate Study Program Was Updated',
+                    content: 'mali.informPostGraduateProgramActionToAuthorities',
+                )
+            );
+
+            Mail::to($dean->official_email)->send(
+                new InformPostGraduateProgramActionToAuthorities(
+                    user: $cqaDirector,
+                    action: 'UPDATED',
+                    faculty: $faculty,
+                    university: $university,
+                    postGraduateProgram: $postGraduateProgram,
+                    subject: 'Postgraduate Study Program Was Updated',
+                    content: 'mali.informPostGraduateProgramActionToAuthorities',
+                )
+            );
+
+            Mail::to($dean->official_email)->send(
+                new InformPostGraduateProgramActionToAuthorities(
+                    user: $viceChancellor,
+                    action: 'UPDATED',
+                    faculty: $faculty,
+                    university: $university,
+                    postGraduateProgram: $postGraduateProgram,
+                    subject: 'Postgraduate Study Program Was Updated',
+                    content: 'mali.informPostGraduateProgramActionToAuthorities',
+                )
+            );
+
             return response() -> json(['message' => 'Post Graduate Program Updated Successfully'], 200);
         }
         catch(AuthorizationException $e){

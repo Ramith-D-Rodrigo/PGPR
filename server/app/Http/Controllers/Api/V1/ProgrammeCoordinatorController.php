@@ -6,12 +6,14 @@ use App\Filters\V1\ProgrammeCoordinatorFilter;
 use App\Http\Resources\V1\PostGraduateProgramResource;
 use App\Http\Resources\V1\ProgrammeCoordinatorCollection;
 use App\Http\Resources\V1\ProgrammeCoordinatorResource;
+use App\Mail\InformUserRoleRevocation;
 use App\Mail\sendPassword;
 use App\Models\ProgrammeCoordinator;
 use App\Http\Requests\V1\StoreProgrammeCoordinatorRequest;
 use App\Http\Requests\V1\UpdateProgrammeCoordinatorRequest;
 use App\Http\Controllers\Controller;
 use App\Models\PostGraduateProgram;
+use App\Models\User;
 use App\Services\V1\ProgrammeCoordinatorService;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -228,6 +230,17 @@ class ProgrammeCoordinatorController extends Controller
             DB::beginTransaction();
 
             $result = ProgrammeCoordinatorService::removeRole($programmeCoordinator);
+
+            $user = User::find($programmeCoordinator->id);
+
+            Mail::to($user->official_email)->send(
+                new InformUserRoleRevocation(
+                    user: $user,
+                    role:'Programme Co-ordinator',
+                    subject: 'Access revocation for the platform as Program coordinator',
+                    content: 'mail.informUserRoleRevocation'
+                )
+            );
 
             DB::commit();
 

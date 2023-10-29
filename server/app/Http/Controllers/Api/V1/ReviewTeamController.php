@@ -237,7 +237,7 @@ class ReviewTeamController extends Controller
             $reviewerRecords = DB::table('review_team_set_criterias')
                 ->where('review_team_id', $validated['review_team_id'])
                 ->where('pgpr_id', $validated['pgpr_id'])
-                ->groupBy('assigned_to_reviewer_id')
+                ->groupBy(['assigned_to_reviewer_id', 'criteria_id'])
                 ->get();
 
             if ($reviewerRecords->isEmpty()) {
@@ -246,7 +246,12 @@ class ReviewTeamController extends Controller
 
             $data = [];
 
-            foreach ($reviewerRecords as $reviewerId => $records) {
+            $reviewerRecordsTemp = [];
+            foreach ($reviewerRecords as $record) {
+                $reviewerRecordsTemp[$record->assigned_to_reviewer_id][] = $record;
+            }
+
+            foreach ($reviewerRecordsTemp as $reviewerId => $records) {
                 $temp = [];
                 $temp['reviewer'] = new UserResource(Reviewer::find($reviewerId)->user);
                 $temp['criteria'] = [];

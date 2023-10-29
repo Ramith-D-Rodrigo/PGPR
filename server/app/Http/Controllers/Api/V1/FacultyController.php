@@ -8,15 +8,18 @@ use App\Http\Resources\V1\FacultyResource;
 use App\Http\Resources\V1\InternalQualityAssuranceUnitDirectorResource;
 use App\Http\Resources\V1\PostGraduateProgramCollection;
 use App\Http\Resources\V1\UniversityResource;
+use App\Mail\InformFacultyActionToAuthorities;
 use App\Models\Faculty;
 use App\Http\Requests\V1\StoreFacultyRequest;
 use App\Http\Requests\V1\UpdateFacultyRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\V1\DeanResource;
 use App\Models\InternalQualityAssuranceUnit;
+use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class FacultyController extends Controller
@@ -114,6 +117,37 @@ class FacultyController extends Controller
 
             //create the iqau
             InternalQualityAssuranceUnit::create($iqauDetails);
+
+            // send mail to all the QAC officers and director and the dean of the faculty
+            $qacMembers = User::whereJsonContains('roles', 'qac_officer')->whereJsonContains('roles', 'qac_director')->get();
+            $dean = User::find($validatedData['dean_id']);
+            $university = $faculty->university;
+
+            // send dean the mail
+            Mail::to($dean->official_email)->send(
+                new InformFacultyActionToAuthorities(
+                    user: $dean,
+                    action: 'CREATED',
+                    facultyInfo: $faculty,
+                    university: $university,
+                    subject: 'A new faculty has been added',
+                    content: 'mail.informFacultyActionToAuthorities'
+                )
+            );
+
+            foreach ($qacMembers as $user ) {
+                Mail::to($user->official_email)->send(
+                    new InformFacultyActionToAuthorities(
+                        user: $user,
+                        action: 'CREATED',
+                        facultyInfo: $faculty,
+                        university: $university,
+                        subject: 'A new faculty has been added',
+                        content: 'mail.informFacultyActionToAuthorities'
+                    )
+                );
+            }
+
             DB::commit();
 
             return response()->json([
@@ -224,6 +258,36 @@ class FacultyController extends Controller
 
             //update the iqau
             $faculty -> internalQualityAssuranceUnit -> update($iqauDetails);
+
+            // send mail to all the QAC officers and director and the dean of the faculty
+            $qacMembers = User::whereJsonContains('roles', 'qac_officer')->whereJsonContains('roles', 'qac_director')->get();
+            $dean = User::find($validatedData['dean_id']);
+            $university = $faculty->university;
+
+            // send dean the mail
+            Mail::to($dean->official_email)->send(
+                new InformFacultyActionToAuthorities(
+                    user: $dean,
+                    action: 'UPDATED',
+                    facultyInfo: $faculty,
+                    university: $university,
+                    subject: 'A new faculty has been added',
+                    content: 'mail.informFacultyActionToAuthorities'
+                )
+            );
+
+            foreach ($qacMembers as $user ) {
+                Mail::to($user->official_email)->send(
+                    new InformFacultyActionToAuthorities(
+                        user: $user,
+                        action: 'UPDATED',
+                        facultyInfo: $faculty,
+                        university: $university,
+                        subject: 'A new faculty has been added',
+                        content: 'mail.informFacultyActionToAuthorities'
+                    )
+                );
+            }
 
             DB::commit();
 

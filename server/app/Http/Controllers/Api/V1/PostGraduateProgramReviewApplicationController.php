@@ -91,6 +91,8 @@ class PostGraduateProgramReviewApplicationController extends Controller
             //authorize the action
             $this -> authorize('create', [PostGraduateProgramReviewApplication::class, $request]);
 
+            // TODO: inform the dean, vice chancellor, iqau, cqa director, program coordinator.
+
             return new PostGraduateProgramReviewApplicationResource(
                 PostGraduateProgramReviewApplication::create($request->validated())
             );
