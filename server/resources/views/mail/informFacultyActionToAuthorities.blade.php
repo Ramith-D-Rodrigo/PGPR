@@ -3,7 +3,7 @@ Sir/Madam,<br>
 
 @if ($action == 'CREATED')
     A new faculty was added to the system. Following are some details related to the evidence.<br>
-@elseif ($action == 'UPDATE')
+@elseif ($action == 'UPDATED')
     Deatails about a faculty has been updated. Following are some details related to the changes that were made.<br>
 @endif
 
