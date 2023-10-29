@@ -73,7 +73,7 @@ function FinalizeDE() {
               const response0 = await getAssignedPGPR(pgprId);
               console.log("PGPR Details : ",response0?.data?.data);
               setPGPRDetails(response0?.data?.data);
-              setReviewerRole(response0?.data?.data?.reviewerRole);
+              setReviewerRole(response0?.data?.data?.role);
               const response = await getPGPR(pgprId);
               console.log("2nd req pgpr details ",response?.data?.data);
               setReviewTeam(response?.data?.data?.acceptedReviewTeam);
@@ -128,6 +128,20 @@ function FinalizeDE() {
         console.log("rows: ",rows);
     return (
       <>
+        {
+            loading?
+                <div style={{display:"flex",justifyContent:"center",alignItems:"center",height:"100%"}}> 
+                    <Typography variant="h6" style={{ margin: "0 0 0 20px" }}>
+                        Loading ...
+                    </Typography>
+                    <CircularProgress
+                    style={{ margin: "0 0 0 20px", color: "darkblue" }}
+                    thickness={5}
+                    size={24}
+                    />
+                </div>
+                :
+            <>
             <DiscriptiveDiv
                 description={`${reviewerRole?? ""}`}
                 width="100%"
@@ -216,7 +230,9 @@ function FinalizeDE() {
             <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', width: '100%', padding: '20px 0',height:"auto" }}>
                 <Link to={`../End_DE/${pgprId}`}><Button variant="contained" size="small" style={{width:"300px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>End the Desk Evaluation</Button></Link>
             </Box>
-      </>
+            </>
+}
+    </>
     )
 }
 

@@ -9,8 +9,9 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import { Link } from 'react-router-dom';
-import GetDeskEvaluationProgress from '../../api/DeskEvaluation/getDeskEvaluationProgress';
+import GetDeEvaluationScores from '../../api/DeskEvaluation/GetDeEvaluationScores';
 import getAssignedPGPR from '../../api/Reviewer/getAssignedPGPR';
+import getSpecificPGPR from '../../api/Reviewer/getSpecificPGPR';
 
 function Standardwise_details() {
     const {pgprId} = useParams();
@@ -43,8 +44,8 @@ function Standardwise_details() {
                 console.log("PGPR details ", response0?.data?.data);
                 setCriteriaList(response0?.data?.data?.postGraduateReviewProgram?.selfEvaluationReport?.criterias);
                 setCriteriaId('1');
-                // const response = await GetDeskEvaluationProgress(response0?.data?.data?.postGraduateReviewProgram?.deskEvaluation.id,1);
-                // console.log("DE progress ",response?.data?.data);
+                const response = await GetDeEvaluationScores(response0?.data?.data?.postGraduateReviewProgram?.deskEvaluation.id,1);
+                console.log("DE progress ",response?.data?.data);
                 setLoading(false);
             }
             catch (err) {
