@@ -8,6 +8,7 @@ use App\Http\Resources\V1\SelfEvaluationReportResource;
 use App\Http\Resources\V1\StandardCollection;
 use App\Jobs\V1\CreatePGPRFolder;
 use App\Jobs\V1\StoreEvidenceInDrive;
+use App\Mail\InformSelfEvaluationReportActionToAuthorities;
 use App\Models\Criteria;
 use App\Models\DeskEvaluation;
 use App\Models\SelfEvaluationReport;
@@ -25,6 +26,7 @@ use Illuminate\Bus\Batch;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 
@@ -316,6 +318,38 @@ class SelfEvaluationReportController extends Controller
             ]);
 
             // TODO: VICE CHANCELLOR, CQA DIR
+            $viceChancellor = $selfEvaluationReport->viceChancellor->user;
+            $cqaDirector = $selfEvaluationReport->centerForQualityAssuranceDirector->user;
+            $postGraduateProgramReview = $selfEvaluationReport->postGraduateProgramReview;
+            $postGraduateProgram = $postGraduateProgramReview->postGraduateProgram;
+            $university = $viceChancellor->university;
+            $faculty = $postGraduateProgram->faculty;
+
+            Mail::to($viceChancellor->official_email)->send(
+                new InformSelfEvaluationReportActionToAuthorities(
+                    user:$viceChancellor,
+                    action: 'SUBMITTING_SER_FOR_IQAU_CQA_VC_RECOMMENDATIONS',
+                    university: $university,
+                    faculty: $faculty,
+                    postGraduateProgram: $postGraduateProgram,
+                    selfEvaluationReport: $selfEvaluationReport,
+                    subject: 'Self evaluation report was submitted for recommendation',
+                    content: 'mail.informSelfEvaluationReportActionToAuthorities'
+                )
+            );
+
+            Mail::to($cqaDirector->official_email)->send(
+                new InformSelfEvaluationReportActionToAuthorities(
+                    user:$cqaDirector,
+                    action: 'SUBMITTING_SER_FOR_IQAU_CQA_VC_RECOMMENDATIONS',
+                    university: $university,
+                    faculty: $faculty,
+                    postGraduateProgram: $postGraduateProgram,
+                    selfEvaluationReport: $selfEvaluationReport,
+                    subject: 'Self evaluation report was submitted for recommendation',
+                    content: 'mail.informSelfEvaluationReportActionToAuthorities'
+                )
+            );
 
             DB::commit();
 
@@ -387,7 +421,43 @@ class SelfEvaluationReportController extends Controller
 
             //role should be either cqa_director or vice_chancellor
             DB::beginTransaction();
+            $iqauDirector = $selfEvaluationReport->internalQualityAssuranceUnitDirector->user;
+            $viceChancellor = $selfEvaluationReport->viceChancellor->user;
+            $programCoordinator = $selfEvaluationReport->programmeCoordinator->user;
+            $postGraduateProgramReview = $selfEvaluationReport->postGraduateProgramReview;
+            $qacDirector = $postGraduateProgramReview->qualityAssuranceCouncilDirectors;
+            $postGraduateProgram = $postGraduateProgramReview->postGraduateProgram;
+            $university = $viceChancellor->university;
+            $faculty = $postGraduateProgram->faculty;
+
             // TODO: INFORM PROGRAMME CO, IQAU
+            Mail::to($iqauDirector->official_email)->send(
+                new InformSelfEvaluationReportActionToAuthorities(
+                    user:$iqauDirector,
+                    action: 'RECOMMEND_SELFEVALUATION_REPORT',
+                    university: $university,
+                    faculty: $faculty,
+                    postGraduateProgram: $postGraduateProgram,
+                    selfEvaluationReport: $selfEvaluationReport,
+                    subject: 'A self evaluation report was recommended',
+                    content: 'mail.informSelfEvaluationReportActionToAuthorities'
+                )
+            );
+
+            Mail::to($programCoordinator->official_email)->send(
+                new InformSelfEvaluationReportActionToAuthorities(
+                    user:$programCoordinator,
+                    action: 'RECOMMEND_SELFEVALUATION_REPORT',
+                    university: $university,
+                    faculty: $faculty,
+                    postGraduateProgram: $postGraduateProgram,
+                    selfEvaluationReport: $selfEvaluationReport,
+                    subject: 'A self evaluation report was recommended',
+                    content: 'mail.informSelfEvaluationReportActionToAuthorities'
+                )
+            );
+
+
             if ($userRole === 'cqa_director') {
                 //we have to update center_for_quality_assurance_director_id in self evaluation report
                 $selfEvaluationReport->update([
@@ -395,6 +465,18 @@ class SelfEvaluationReportController extends Controller
                     'updated_at' => now(),
                 ]);
                 // TODO: INFORM VICE CHANCELLOR
+                Mail::to($viceChancellor->official_email)->send(
+                    new InformSelfEvaluationReportActionToAuthorities(
+                        user:$viceChancellor,
+                        action: 'RECOMMEND_SELFEVALUATION_REPORT',
+                        university: $university,
+                        faculty: $faculty,
+                        postGraduateProgram: $postGraduateProgram,
+                        selfEvaluationReport: $selfEvaluationReport,
+                        subject: 'A self evaluation report was recommended',
+                        content: 'mail.informSelfEvaluationReportActionToAuthorities'
+                    )
+                );
             } else if ($userRole === 'vice_chancellor') {
                 //we have to update vice_chancellor_id in self evaluation report
                 $selfEvaluationReport->update([
@@ -402,6 +484,19 @@ class SelfEvaluationReportController extends Controller
                     'updated_at' => now(),
                 ]);
                 // TODO: INFORM CQA DIR
+                $cqaDirector = $selfEvaluationReport->centerForQualityAssuranceDirector->user;
+                Mail::to($cqaDirector->official_email)->send(
+                new InformSelfEvaluationReportActionToAuthorities(
+                    user:$cqaDirector,
+                    action: 'RECOMMEND_SELFEVALUATION_REPORT',
+                    university: $university,
+                    faculty: $faculty,
+                    postGraduateProgram: $postGraduateProgram,
+                    selfEvaluationReport: $selfEvaluationReport,
+                    subject: 'A self evaluation report was recommended',
+                    content: 'mail.informSelfEvaluationReportActionToAuthorities'
+                )
+            );
             } else {
                 return response()->json([
                     'message' => 'You are not authorized to recommend the self evaluation report',
@@ -417,6 +512,18 @@ class SelfEvaluationReportController extends Controller
                 ]);
 
                 // TODO: INFORM THE QAC DIRECTOR ABOUT THE SUBMISSION OF THE SER
+                Mail::to($qacDirector->official_email)->send(
+                    new InformSelfEvaluationReportActionToAuthorities(
+                        user:$qacDirector,
+                        action: 'RECOMMEND_SELFEVALUATION_REPORT',
+                        university: $university,
+                        faculty: $faculty,
+                        postGraduateProgram: $postGraduateProgram,
+                        selfEvaluationReport: $selfEvaluationReport,
+                        subject: 'A self evaluation report was recommended',
+                        content: 'mail.informSelfEvaluationReportActionToAuthorities'
+                    )
+                );
 
                 //check if reviewer team has been assigned to the postgraduate programme review
                 $pgpr = $selfEvaluationReport -> postGraduateProgramReview;
@@ -441,7 +548,23 @@ class SelfEvaluationReportController extends Controller
                         'updated_at' => now(),
                     ]);
 
-                    // TODO: INFORM THE REVIEW THAT THE DE HAS STARTED
+                    // TODO: INFORM THE REVIEW TEAM THAT THE DE HAS STARTED
+                    $reviewers = $postGraduateProgramReview->reviewTeam->reviewers;
+
+                    foreach ($reviewers as $reviewer) {
+                        Mail::to($reviewer->user->official_email)->send(
+                            new InformSelfEvaluationReportActionToAuthorities(
+                                user:$reviewer->user,
+                                action: 'RECOMMEND_SELFEVALUATION_REPORT',
+                                university: $university,
+                                faculty: $faculty,
+                                postGraduateProgram: $postGraduateProgram,
+                                selfEvaluationReport: $selfEvaluationReport,
+                                subject: 'The desk evaluation process has begun for a request',
+                                content: 'mail.informSelfEvaluationReportActionToAuthorities'
+                            )
+                        );
+                    }
 
                     DB::commit();
 
