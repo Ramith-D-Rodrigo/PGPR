@@ -1,21 +1,16 @@
 Sir/Madam,<br>
 {{$user['surname'] . " " . $user['initials']}},<br><br>
 
-@if ($action == 'REMOVED')
-    The following review team was removed from the assigned postgraduate program reviewer.<br>
-    The Following are some details related<br>
+@if ($action == 'SUBMITTING_SER_FOR_IQAU_CQA_VC_RECOMMENDATIONS')
+    A self-evaluation report was submitted for recommendations. Please refer to the details below.<br>
 @elseif ($action == 'UPDATED')
+    A self-evaluation report with the following details, was submitted to be recommended.<br>
 @endif
 
 Details:<br>
 &#9;postGraduateProgram name: {{$postGraduateProgram->title}}<br>
 &#9;Faculty name: {{$faculty->name}}<br>
 &#9;University name: {{$university->name}}<br>
-&#9;Reviewers:<br>
-@foreach($reviewers as $reviewer)
-&#9;&#9;Reviewer name: {{$reviewer->user->full_name}}<br>
-&#9;&#9;Reviewer email: {{$reviewer->user->offical_email}}<br>
-@endforeach
 
 You can find more details regarding this on our platform. <br>
 Thank you.<br>
