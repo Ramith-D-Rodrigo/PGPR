@@ -271,7 +271,7 @@ const SubmitDE = () => {
                     Message="Warning" 
                     Warning="You haven't evaluated all the available standards in some/all criteria ! If it's okay click Proceed Anyway" 
                     Actions={{submit:"Proceed Anyway",
-                    cancel:"cancle"}} 
+                    cancel:"cancel"}} 
                     Open={submitAnyway} 
                     onClose={()=>setSubmitAnyway(false)} 
                     onSubmit={()=>{setSubmitAnyway(false);setOpenDialog(true)}}>
