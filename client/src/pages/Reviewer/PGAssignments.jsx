@@ -240,35 +240,43 @@ const PGAssignments = () => {
     getPGPRAssignments();
   }
 
-  function createData(
-    PGPRDetails,
-    University_Name,
-    faculty_Name,
-    pgp,
-    Role,
-    status,
-    Actions,
-    DE
-  ) {
-    if (!PGPRDetails) return;
+    
 
-    const dates = {
-      id: PGPRDetails.id,
-      startDate: DE?.startDate ?? "Not Set Yet",
-      endDate: DE?.endDate ?? "Not Set yet",
-      deId: DE?.id,
-    };
-    Actions = Actions.map((action, index) => {
-      let allow = action.allow ? { disabled: false } : { disabled: true };
-      allow = loading ? { disabled: true } : allow;
-      if (action.action === "View") {
-        return (
-          <Link
-            key={index}
-            to={
-              action.allow
-                ? PGPRDetails.id + "/ser/" + PGPRDetails.selfEvaluationReport.id
-                : ""
+    function createData(PGPRDetails,University_Name, faculty_Name, pgp, Role, status, Actions,DE) {
+        if(!PGPRDetails) return;
+
+        const dates = {id:PGPRDetails.id,startDate:DE?.startDate ?? "Not Set Yet",endDate:DE?.endDate?? "Not Set yet", deId: DE?.id}
+        Actions = Actions.map((action,index) => {
+            
+            let allow = action.allow? {disabled:false} : {disabled:true};
+            allow = loading? {disabled:true} : allow;
+            if(action.action === 'View')
+            {
+                return <Link key={index} to={action.allow? PGPRDetails.id+'/ser/' +PGPRDetails?.selfEvaluationReport?.id:''}><Button {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button></Link>
+            }
+            else if(action.action === 'Accept')
+            {
+                return <Button key={index} onClick={()=>{handleClickAccept(PGPRDetails.id)}} {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button>
+            }
+            else if(action.action === 'DE')
+            {   
+                let onClickDate = null;
+                console.log("DE : ",DE);
+                if (DE?.endDate == null && Role == "CHAIR")
+                    {
+                        action.allow = false;
+                        onClickDate = () => setDate(dates);
+                    }
+                else if (DE?.endDate == null && Role == "MEMBER")
+                {
+                    action.allow = false;
+                    onClickDate = () => setErrorMsg("Chairman should set the Desk Evaluation Date first");
+                }
+                return <Link key={index} to={action.allow? 'Conduct_DE/'+PGPRDetails.id : ''}><Button onClick={() => onClickDate()} {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button></Link>
+            }
+            else if(action.action === 'PE')
+            {
+                return <Link key={index} to={action.allow? 'Conduct_PE/'+PGPRDetails.id : ''}><Button {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button></Link>
             }
           >
             <Button
@@ -361,6 +369,7 @@ const PGAssignments = () => {
         const pgProgramme = PGPRDetails?.postGraduateProgramme;
         const faculty = pgProgramme?.faculty;
         const university = faculty?.university;
+        const DE = PGPRDetails?.deskEvaluation;
 
         let actions = [];
         if (
@@ -420,7 +429,8 @@ const PGAssignments = () => {
           pgProgramme?.title,
           pgpr?.role,
           PGPRDetails?.statusOfPgpr,
-          actions
+          actions,
+          DE
         );
       })
     : [];

@@ -31,11 +31,13 @@ use App\Services\V1\ScoreCalculationService;
 use App\Services\V1\StandardService;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -67,6 +69,8 @@ class ReviewTeamChairController extends Controller
     {
 
         try {
+            Gate::authorize('assignReviewTeamMembersCriteriaForProperEvaluationAuthorize', [$request]);
+
             $validated = $request->validated();
             $reviewTeam = ReviewTeam::findOrFail($validated['review_team_id']);
 
@@ -77,6 +81,7 @@ class ReviewTeamChairController extends Controller
             }
 
             DB::beginTransaction();
+
             foreach ($validated['reviewers'] as $reviewer) {
                 //first remove all the previous assignments
                 DB::table('review_team_set_criterias')
@@ -98,8 +103,10 @@ class ReviewTeamChairController extends Controller
 
             DB::commit();
             return response()->json(['message' => 'Criteria were successfully assigned.']);
-        } catch (ModelNotFoundException $exception) {
-            return response()->json(['message' => 'The review team that you requested is not amongst our record, please check and retry'], 500);
+        }
+        catch(AuthorizationException $e){
+            return response()->json(['message' => $e->getMessage()], 403);
+
         } catch (Exception $exception) {
             DB::rollBack();
             return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
@@ -262,6 +269,9 @@ class ReviewTeamChairController extends Controller
     public function submitDeskEvaluation(UpdateReviewChairSubmitDERequest $request): \Illuminate\Http\JsonResponse
     {
         try {
+            Gate::authorize('submitDeskEvaluationAuthorize', [$request]);
+
+
             $validated = $request->validated();
             if (self::canSubmitDeskEvaluation($validated['pgpr_id'])) {
                 // the desk evaluation can be submitted
@@ -350,6 +360,9 @@ class ReviewTeamChairController extends Controller
                 'message' => 'The desk evaluation cannot be submitted yet, there are some inconsistencies with the scores provided by the review team, please check the progress.',
                 'data' => []
             ]);
+
+        } catch (AuthorizationException $e) {
+            return response()->json(['message' => $e->getMessage()], 403);
         } catch (Exception $exception) {
             DB::rollBack();
             return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
@@ -406,6 +419,8 @@ class ReviewTeamChairController extends Controller
     public function submitProperEvaluation(UpdateReviewChairSubmitPERequest $request): \Illuminate\Http\JsonResponse
     {
         try {
+            Gate::authorize('submitProperEvaluationAuthorize', [$request]);
+
             $validated = $request->validated();
             if (self::canSubmitProperEvaluation($validated['pgpr_id'])) {
                 // the proper evaluation can be submitted
@@ -480,6 +495,9 @@ class ReviewTeamChairController extends Controller
                 'message' => 'The proper evaluation cannot be submitted yet, there are some inconsistencies with the scores provided by the review team, please check the progress.',
                 'data' => []
             ]);
+        } catch (AuthorizationException $e) {
+            return response()->json(['message' => $e->getMessage()], 403);
+
         } catch (Exception $exception) {
             DB::rollBack();
             return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
@@ -596,9 +614,11 @@ class ReviewTeamChairController extends Controller
      *           score: 0 <= x <= 3
      *       }
      */
-    public function updateDEScoresOfEachStandard(StoreConductDeskEvaluationRequest $request): \Illuminate\Http\JsonResponse
+    public function updatePEScoresOfEachStandard(StoreConductProperEvaluationRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
+            Gate::authorize('updatePEScoresOfEachStandardAuthorize', [$request]);
+
             $validated = $request->validated();
             $postGraduateReviewProgram = PostGraduateProgramReview::findOrFail($validated['pgpr_id']);
             $properEvaluation = $postGraduateReviewProgram->properEvaluation;
@@ -616,6 +636,10 @@ class ReviewTeamChairController extends Controller
                     422
                 );
             }
+        }
+        catch(AuthorizationException $e){
+            return response()->json(['message' => $e->getMessage()], 403);
+
         } catch (ModelNotFoundException $exception) {
             return response()->json(
                 ['message' => 'We could find the requested post graduate review program, please check and retry'],
@@ -636,9 +660,11 @@ class ReviewTeamChairController extends Controller
      *           score: 0 <= x <= 3
      *       }
      */
-    public function updatePEScoresOfEachStandard(StoreConductProperEvaluationRequest $request): \Illuminate\Http\JsonResponse
+    public function updateDEScoresOfEachStandard(StoreConductDeskEvaluationRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
+            Gate::authorize('updateDEScoresOfEachStandardAuthorize', [$request]);
+
             $validated = $request->validated();
             $postGraduateReviewProgram = PostGraduateProgramReview::findOrFail($validated['pgpr_id']);
             $deskEvaluation = $postGraduateReviewProgram->deskEvaluation;
@@ -656,6 +682,9 @@ class ReviewTeamChairController extends Controller
                     422
                 );
             }
+        }catch(AuthorizationException $e){
+            return response()->json(['message' => $e->getMessage()], 403);
+
         } catch (ModelNotFoundException $exception) {
             return response()->json(
                 ['message' => 'We could find the requested post graduate review program, please check and retry'],

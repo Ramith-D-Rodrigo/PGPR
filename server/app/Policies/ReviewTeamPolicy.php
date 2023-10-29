@@ -182,7 +182,7 @@ class ReviewTeamPolicy
         $currRole = request() -> session() -> get('authRole');
 
         //check if the user is a quality assurance officer or quality assurance director
-        if($currRole === 'qac_director' || $currRole === 'qac_officer'){
+        if($currRole === 'qac_director'){
             return Response::allow();
         }
 

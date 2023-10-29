@@ -3,7 +3,7 @@ import useSetUserNavigations from '../../hooks/useSetUserNavigations';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import Button from '@mui/material/Button';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box, Typography, Snackbar } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, CircularProgress , Box, Typography, Snackbar } from '@mui/material';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
@@ -140,6 +140,7 @@ function UpdateABC() {
 
   const updateRemark = async (remarkRequest) => {
     try {
+      SetLoading(true);
       const response = await updateRemarksOfSERSections(remarkRequest);
 
       if(response && response.status === 200){
@@ -156,6 +157,7 @@ function UpdateABC() {
           severity: "error"
         });
       }
+      SetLoading(false);
 
     }
     catch (error) {
@@ -165,6 +167,7 @@ function UpdateABC() {
         message: error.response.data.message,
         severity: "error"
       });
+      SetLoading(false);
 
     }
   }
@@ -185,6 +188,18 @@ function UpdateABC() {
         </Alert>
       </Snackbar>
       <DiscriptiveDiv description="Desk Evaluation" width='100%' height="auto" backgroundColor="#D8E6FC" >
+        {
+          loading && 
+          <div style={{position:'absolute',left:0,margin:"0 auto",display:"flex",justifyContent:"center",alignItems:"center"}}> 
+            <Typography variant="h6" style={{ margin: "0 0 0 20px" }}>
+                Loading ...
+            </Typography>
+            <CircularProgress
+            style={{ margin: "0 0 0 20px", color: "darkblue" }}
+            thickness={5}
+            size={24}
+            />
+        </div>}
         <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', maxHeight: '100%', height: '100%', alignItems: 'center', margin: '10px' }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', width: "100%", alignItems: "center", margin: '2rem' }}>
             <Typography variant="h6" component="h2" gutterBottom>
@@ -200,7 +215,7 @@ function UpdateABC() {
             </Box>
             <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', alignItems: "flex-end", width: '100%' }}>
               <textarea onChange={(e) => setSectionARemark(e.target.value)} value={sectionARemark} placeholder='Enter Remarks here' style={{ width: "70%", height: "100px", margin: '0 0 0.5rem' }}></textarea>
-              <Button variant="contained" color="primary" onClick={() => updateRemarkForA()}>Update</Button>
+              <Button{...{disabled:loading}} variant="contained" color="primary" onClick={() => updateRemarkForA()}>Update</Button>
             </Box>
 
           </Box>
@@ -213,7 +228,7 @@ function UpdateABC() {
             </Box>
             <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', alignItems: "flex-end", width: '100%' }}>
               <textarea onChange={(e) => setSectionBRemark(e.target.value)} value={sectionBRemark} placeholder='Enter Remarks here' style={{ width: "70%", height: "100px", margin: '0 0 0.5rem' }}></textarea>
-              <Button variant="contained" color="primary" onClick={() => updateRemarkForB()}>Update</Button>
+              <Button{...{disabled:loading}} variant="contained" color="primary" onClick={() => updateRemarkForB()}>Update</Button>
             </Box>
 
           </Box>
@@ -226,7 +241,7 @@ function UpdateABC() {
             </Box>
             <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', alignItems: "flex-end", width: '100%' }}>
               <textarea onChange={(e) => setSectionDRemark(e.target.value)} value={sectionDRemark} placeholder='Enter Remarks here' style={{ width: "70%", height: "100px", margin: '0 0 0.5rem' }}></textarea>
-              <Button variant="contained" color="primary" onClick={() => updateRemarkForD()}>Update</Button>
+              <Button{...{disabled:loading}} variant="contained" color="primary" onClick={() => updateRemarkForD()}>Update</Button>
             </Box>
 
           </Box>
