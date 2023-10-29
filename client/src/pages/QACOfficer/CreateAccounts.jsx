@@ -19,6 +19,7 @@ const CreateAccounts = () => {
     const [errorMsg, setErrorMsg] = React.useState("");
     const [success, setSuccess] = React.useState(false);
     const [Loading, setLoading] = React.useState(false);
+    const [wait, setWait] = React.useState(false);
 
     useSetUserNavigations(
         [   {
@@ -49,15 +50,14 @@ const CreateAccounts = () => {
 
             setLoading(false);
             setSuccess(true);
-            setTimeout(() => {
-                navigate("../");
-            }, 1500);
         }
         catch (err) {
             console.log(err);
             setErrorMsg(err?.response?.data?.message);
             setLoading(false);
         }
+
+        setWait(false);
     }
 
     const handleCQASubmit = async (e) => {
@@ -70,9 +70,6 @@ const CreateAccounts = () => {
             console.log(cqaCreationResult.data);
             setLoading(false);
             setSuccess(true);
-            setTimeout(() => {
-                navigate("../");
-            }, 1500);
         }
         catch (err) {
             console.log(err);
@@ -80,10 +77,17 @@ const CreateAccounts = () => {
             setLoading(false);
         }
 
+        setWait(false);
+
     }
 
     const handleSubmit = (e) => {
         e.preventDefault();
+
+        if(wait){   //if already waiting for response
+            return;
+        }
+
         //get the form data
         formData = new FormData(e.target);
 
@@ -92,6 +96,8 @@ const CreateAccounts = () => {
 
         const contactArr = contactNo.map((contact) => contact.trim());
         formData.set("contactNo", JSON.stringify(contactArr));
+
+        setWait(true);
 
         if (role === "vice_chancellor") {
             handleVCSubmit(e);
@@ -147,6 +153,17 @@ const CreateAccounts = () => {
                     Created Successfully!
                 </Alert>
             </Snackbar>
+
+            <Snackbar
+                open={wait}
+                onClose={() => setWait(false)}
+                anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            >
+                <Alert onClose={() => setWait(false)} severity="info">
+                    Please Wait...
+                </Alert>
+            </Snackbar>
+
         </>
     )
 }
