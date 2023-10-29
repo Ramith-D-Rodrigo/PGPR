@@ -19,7 +19,6 @@ import useSetUserNavigations from "../../hooks/useSetUserNavigations";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
@@ -41,9 +40,9 @@ const ConductPE = () => {
   const { pgprId } = useParams();
 
   const [criteriaList, setCriteriaList] = useState([]);
-  const [selectedCriteriaList, setSelectedCriteriaList] = useState([]);
+  //const [selectedCriteriaList, setSelectedCriteriaList] = useState([]);
   const [reviewerCreitriaList, setReviewerCreitriaList] = useState([]);
-  const [allSelectedCriteriaList, setAllSelectedCriteriaList] = useState([]);
+  //const [allSelectedCriteriaList, setAllSelectedCriteriaList] = useState([]);
   const [allTemporary, setAllTemporary] = useState([]); 
   const [selectedReviewer, setSelectedReviewer] = useState("");
 
@@ -85,11 +84,11 @@ const ConductPE = () => {
 
       try {
         const pgprResponse = await getPGPR(pgprId);
-        //console.log("PGPR : ", pgprResponse?.data?.data);
+        console.log("PGPR : ", pgprResponse?.data?.data);
         setPgpr(pgprResponse?.data?.data);
 
         if (pgprResponse?.data?.data) {
-          const team = pgprResponse?.data?.data?.acceptedReviewTeam;
+          const team = pgpr.acceptedReviewTeam;
           setReviewTeam(team);
 
           const reviewerDetails = team?.reviewers;
@@ -288,7 +287,7 @@ const ConductPE = () => {
 
   useEffect(() => {
     const allSelectedCriteria = mergeAndDeDuplicate(PEData);
-    setAllSelectedCriteriaList(allSelectedCriteria);
+    //setAllSelectedCriteriaList(allSelectedCriteria);
     setAllTemporary(allSelectedCriteria);
     console.log("All Selected Criteria : ", allSelectedCriteria);
   }, [PEData]);
