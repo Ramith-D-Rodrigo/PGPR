@@ -39,6 +39,17 @@ class PostGraduateProgramReviewController extends Controller
                 'postGraduateProgramReviewApplication'
             ]);
 
+            $includeDE = request() -> query('includeDE');
+            $includePE = request() -> query('includePE');
+
+            if($includeDE) {
+                $pgprs = $pgprs -> with(['deskEvaluations']);
+            }
+
+            if($includePE) {
+                $pgprs = $pgprs -> with(['properEvaluations']);
+            }
+
             return new PostGraduateProgramReviewCollection($pgprs->get());
         } catch (AuthorizationException $e) {
             return response()->json([
