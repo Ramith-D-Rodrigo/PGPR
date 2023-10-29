@@ -17,6 +17,7 @@ function Standardwise_details() {
     const {pgprId} = useParams();
     const [criteriaId, setCriteriaId] = useState('');
     const [criteriaList,setCriteriaList] = useState([]);
+    const [deskEvaluationId,setDeskEvaluationId] = useState('');
     const [standards, setStandards] = useState([]);
     const [loading,setLoading] = useState(false)
     useSetUserNavigations(
@@ -43,9 +44,9 @@ function Standardwise_details() {
                 const response0 = await getAssignedPGPR(pgprId);
                 console.log("PGPR details ", response0?.data?.data);
                 setCriteriaList(response0?.data?.data?.postGraduateReviewProgram?.selfEvaluationReport?.criterias);
-                setCriteriaId('1');
-                const response = await GetDeEvaluationScores(response0?.data?.data?.postGraduateReviewProgram?.deskEvaluation.id,1);
-                console.log("DE progress ",response?.data?.data);
+                setCriteriaId(response0?.data?.data?.postGraduateReviewProgram?.selfEvaluationReport?.criterias[0].id);
+                setDeskEvaluationId(response0?.data?.data?.postGraduateReviewProgram?.deskEvaluation.id);
+                await getevaluationData(response0?.data?.data?.postGraduateReviewProgram?.deskEvaluation.id,response0?.data?.data?.postGraduateReviewProgram?.selfEvaluationReport?.criterias[0].id);
                 setLoading(false);
             }
             catch (err) {
@@ -56,20 +57,52 @@ function Standardwise_details() {
         getData();
     },[]);
 
+    const getevaluationData=  async(deId,criteriaId)=>{
+        if(deId=='' || criteriaId==''){
+            return;
+        }
+        setLoading(true);
+        try{
+            const response = await GetDeEvaluationScores(deId,criteriaId);
+            console.log("DE progress ",response?.data?.data);
+            setStandards(response?.data?.data);
+            setLoading(false)
+        }
+        catch (err)
+        {
+            console.log(err);
+            setLoading(false);
+        }
+    }
+
     useEffect(() => {
         // get data for selected criteriaId
-        console.log("selected ",criteriaList[criteriaId-1]);
+        getevaluationData(deskEvaluationId,criteriaId);
 
     }, [criteriaId]);
 
-    const rows = [
-        {no:1.1,score:2,review_comments:"good justification and evidences"},
-        {no:1.2,score:3,review_comments:"Very good justification and evidences"},
-        {no:1.3,score:3,review_comments:"Very good justification and evidences"},
-        {no:1.4,score:3,review_comments:"Very good justification and evidences"},
-        {no:1.5,score:3,review_comments:"Very good justification and evidences"},
-        {no:1.6,score:3,review_comments:"Very good justification and evidences"},
-    ];
+    //all standards for the current selected criteria
+    let allStandards = criteriaList[criteriaId-1]? criteriaList[criteriaId-1].standards : [];
+
+    //filter standards s.t. evaluated ones replace with which are not
+    allStandards = allStandards.map((standard,index)=>
+    {
+        let evaluatedStabndardIndex=-1;
+        let isEvaluated = standards.some((evaluatedStandard,index)=>{
+            evaluatedStabndardIndex = index;
+            return evaluatedStandard.standardNo == standard.standardNo
+        });
+        return isEvaluated? standards[evaluatedStabndardIndex] : standard;
+    })
+
+    //create rows for the table
+    const rows = 
+        allStandards?
+        allStandards.map((standard,index)=>{
+            return {no:standard.standardNo,score:standard.score??"not added",review_comments:standard.comment?? "not added"}
+        })
+        :
+        [];
   
   return (
       <>
