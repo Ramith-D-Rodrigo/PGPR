@@ -59,7 +59,7 @@ function FinalizeDE() {
       const getSERDetails = async () => {
           SetLoading(true);
           try {
-              const response = await getSelfEvaluationReport(pgprId);
+              const response = await getSelfEvaluationReport(pgprDetails?.postGraduateReviewProgram?.selfEvaluationReport?.id);
               console.log("SER Details : ",response?.data?.data);
               setSERDetails(response?.data?.data);
               SetLoading(false);
@@ -143,18 +143,20 @@ function FinalizeDE() {
         console.log("rows: ",rows);
 
     function getRemainingDates(endDate) {
-            const endDateObject = new Date(endDate);
-            const currentDate = new Date();
+        const endDateObject = new Date(endDate);
+        const currentDate = new Date();
 
-            const millisecondsInADay = 1000 * 60 * 60 * 24;
-            const millisecondsDifference = endDateObject.getTime() - currentDate.getTime();
-          
-            const daysRemaining = millisecondsDifference / millisecondsInADay;
-            const monthsRemaining = Math.floor(daysRemaining / 30);
-            const daysRemainingAfterMonths = daysRemaining % 30;
-          
-            return monthsRemaining>0? `${monthsRemaining} months and` : `` + `${Math.ceil(daysRemainingAfterMonths)} day(s) Remaining`;
-          }
+        const millisecondsInADay = 1000 * 60 * 60 * 24;
+        const millisecondsDifference = endDateObject.getTime() - currentDate.getTime();
+        
+        const daysRemaining = millisecondsDifference / millisecondsInADay;
+        const monthsRemaining = Math.floor(daysRemaining / 30);
+        const daysRemainingAfterMonths = daysRemaining % 30;
+        
+        return monthsRemaining>0? `${monthsRemaining} months and` : `` + `${Math.ceil(daysRemainingAfterMonths)} day(s) Remaining`;
+    }
+
+
     return (
       <>
         {
