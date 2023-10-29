@@ -22,6 +22,9 @@ import {
 
 //import useDrawerState from "../../hooks/useDrawerState";
 import useSetUserNavigations from "../../hooks/useSetUserNavigations";
+import axios from "../../api/api";
+import { SERVER_API_VERSION, SERVER_URL } from "../../assets/constants";
+import getPGPR from "../../api/PostGraduateProgramReview/getPGPR";
 
 const EvaluatePE = () => {
   const { pgprId, criteriaId } = useParams();
@@ -33,10 +36,26 @@ const EvaluatePE = () => {
   const [scoreErrMsg, setscoreErrMsg] = useState("");
 
   const [value, setValue] = useState(0);
+
+  const [pgpr, setPgpr] = useState({});
+  const [ser, setSer] = useState([]);
+  const [standards, setStandards] = useState([]);
+
   
   useEffect(() => {
-    //get all initial (1)standard details/ data from endpoint
-  }, []);
+    const fetchData = async () => {
+      try {
+        const res = await getPGPR(pgprId);
+        setPgpr(res?.data?.data);
+        console.log(pgpr);
+      } catch (err) {
+        console.log(err);
+      }
+    }
+    fetchData();
+  }, [pgprId]);
+
+  console.log(pgpr);
 
   useEffect(() => {
     //get standard details/ data from endpoint
