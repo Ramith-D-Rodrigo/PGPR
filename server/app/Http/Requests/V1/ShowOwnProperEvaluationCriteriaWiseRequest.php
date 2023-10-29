@@ -28,19 +28,22 @@ class ShowOwnProperEvaluationCriteriaWiseRequest extends FormRequest
         return [
             'pgpr_id' => 'required|exists:post_graduate_program_reviews,id',
             'proper_evaluation_id' => 'required|exists:proper_evaluations,id',
-            'criteria_id' => 'sometimes|exists:criteria,id',
+            'criteria_id' => 'sometimes|exists:criterias,id',
         ];
     }
 
     protected function prepareForValidation(): void
     {
-        $this->merge(
-            [
-                'pgpr_id' => $this->pgpr,
-                'proper_evaluation_id' => $this->properEvaluation,
-                'criteria_id' => $this->criteria,
-            ]
-        );
+        $data = [
+            'pgpr_id' => $this->pgpr,
+            'proper_evaluation_id' => $this->properEvaluation,
+        ];
+
+        if (isset($this->criteria)) {
+           $data['criteria_id'] = $this->criteria;
+        }
+
+        $this->merge($data);
     }
 
     public function messages(): array
