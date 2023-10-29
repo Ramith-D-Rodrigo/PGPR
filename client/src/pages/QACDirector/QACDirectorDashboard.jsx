@@ -4,6 +4,7 @@ import useAuth from '../../hooks/useAuth';
 import getAllPGPRApplications from '../../api/PostGraduateProgramApplication/getAllPGPRApplications';
 import getAllPGPRs from '../../api/PostGraduateProgramReview/getAllPGPRs';
 import Card from '../../components/DashboardCard';
+import useSetUserNavigations from '../../hooks/useSetUserNavigations';
 
 const QACDirectorDashboard = () => {
 
@@ -27,6 +28,16 @@ const QACDirectorDashboard = () => {
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         return diffDays;
     }
+
+    useSetUserNavigations(
+        [{
+            name: "Dashboard",
+            link: "/"
+        },
+        ]
+    );
+
+    document.title = "Dashboard";
 
 
     useEffect(() => {
