@@ -119,13 +119,12 @@ class ReviewTeamChairController extends Controller
             // Get all reviewer ids in your team
             $reviewer_ids = DB::table('reviewer_review_teams')
                 ->where([
-                    'review_team_id' => $validated['review_team_id'],
-                    'role' => 'MEMBER',
+                    'review_team_id' => $validated['review_team_id']
                 ])
                 ->pluck('reviewer_id');
 
             $reviewTeam = ReviewTeam::find($validated['review_team_id']);
-            $pgp = $reviewTeam->postGraduateProgramReview->postGraduateProgram;
+            $pgp = $reviewTeam->postGraduateReviewProgram->postGraduateProgram;
             $data = [];
 
             foreach ($reviewer_ids as $reviewer_id) {
@@ -146,12 +145,12 @@ class ReviewTeamChairController extends Controller
                     ));
 
                     // Count the number of evaluated standards for this criteria
-                    $evaluated_standards = DB::table('desk_evaluation_scores')
-                        ->join('standards', 'desk_evaluation_scores.standard_id', '=', 'standards.id')
+                    $evaluated_standards = DB::table('desk_evaluation_score')
+                        ->join('standards', 'desk_evaluation_score.standard_id', '=', 'standards.id')
                         ->where([
                             'standards.criteria_id' => $criteria_id,
-                            'desk_evaluation_scores.desk_evaluation_id' => $validated['desk_evaluation_id'],
-                            'desk_evaluation_scores.reviewer_id' => $reviewer_id
+                            'desk_evaluation_score.desk_evaluation_id' => $validated['desk_evaluation_id'],
+                            'desk_evaluation_score.reviewer_id' => $reviewer_id
                         ])
                         ->count();
 
@@ -194,7 +193,7 @@ class ReviewTeamChairController extends Controller
                 ->pluck('reviewer_id');
 
             $reviewTeam = ReviewTeam::find($validated['review_team_id']);
-            $pgp = $reviewTeam->postGraduateProgramReview->postGraduateProgram;
+            $pgp = $reviewTeam->postGraduateReviewProgram->postGraduateProgram;
             $data = [];
 
             foreach ($reviewer_ids as $reviewer_id) {
