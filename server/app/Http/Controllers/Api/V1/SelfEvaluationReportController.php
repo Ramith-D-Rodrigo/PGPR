@@ -315,6 +315,8 @@ class SelfEvaluationReportController extends Controller
                 'updated_at' => now(),
             ]);
 
+            // TODO: VICE CHANCELLOR, CQA DIR
+
             DB::commit();
 
             return response()->json([
@@ -385,18 +387,21 @@ class SelfEvaluationReportController extends Controller
 
             //role should be either cqa_director or vice_chancellor
             DB::beginTransaction();
+            // TODO: INFORM PROGRAMME CO, IQAU
             if ($userRole === 'cqa_director') {
                 //we have to update center_for_quality_assurance_director_id in self evaluation report
                 $selfEvaluationReport->update([
                     'center_for_quality_assurance_director_id' => request()->user()->id,
                     'updated_at' => now(),
                 ]);
+                // TODO: INFORM VICE CHANCELLOR
             } else if ($userRole === 'vice_chancellor') {
                 //we have to update vice_chancellor_id in self evaluation report
                 $selfEvaluationReport->update([
                     'vice_chancellor_id' => request()->user()->id,
                     'updated_at' => now(),
                 ]);
+                // TODO: INFORM CQA DIR
             } else {
                 return response()->json([
                     'message' => 'You are not authorized to recommend the self evaluation report',
@@ -411,6 +416,7 @@ class SelfEvaluationReportController extends Controller
                     'updated_at' => now(),
                 ]);
 
+                // TODO: INFORM THE QAC DIRECTOR ABOUT THE SUBMISSION OF THE SER
 
                 //check if reviewer team has been assigned to the postgraduate programme review
                 $pgpr = $selfEvaluationReport -> postGraduateProgramReview;
@@ -434,6 +440,8 @@ class SelfEvaluationReportController extends Controller
                         'status_of_pgpr' => 'DE',
                         'updated_at' => now(),
                     ]);
+
+                    // TODO: INFORM THE REVIEW THAT THE DE HAS STARTED
 
                     DB::commit();
 
