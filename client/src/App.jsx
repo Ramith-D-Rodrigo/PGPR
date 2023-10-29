@@ -79,6 +79,7 @@ import "./App.css";
 import BrowsePGPR from './pages/CQAdirector/BrowsePGPR';
 import ReviewerProfile from "./pages/QACOfficer/ReviewerProfile";
 import CQADashboard from "./pages/CQAdirector/CQADashboard";
+import QACDirectorDashboard from "./pages/QACDirector/QACDirectorDashboard";
 
 
 /* 
@@ -143,8 +144,8 @@ function App() {
 
             <Route element={<Authenticate allowedRoles={["qac_director"]} />}>
               <Route path="qac_director/">
-                <Route path="" element={<Dashboard />} />
-                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="" element={<QACDirectorDashboard />} />
+                <Route path="dashboard" element={<QACDirectorDashboard />} />
                 <Route path="universities/">
                   <Route path="" element={<ViewUniversities />} />
                   <Route path="view/:id" element={<ViewUniversity />} />
