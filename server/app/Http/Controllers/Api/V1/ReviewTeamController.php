@@ -15,6 +15,7 @@ use App\Http\Resources\V1\ReviewTeamResource;
 use App\Http\Resources\V1\UserResource;
 use App\Mail\InformDeanOfReviewTeamAssignment;
 use App\Mail\InformReviewerOfReviewAssignment;
+use App\Mail\InformReviewTeamActionToAuthorities;
 use App\Models\Criteria;
 use App\Models\PostGraduateProgramReview;
 use App\Models\Reviewer;
@@ -206,6 +207,56 @@ class ReviewTeamController extends Controller
             }
 
             DB::beginTransaction();
+
+            $qacOfficer = $reviewTeam->qualityAssuranceCouncilOfficer->user;
+            $postGraduateProgram = $reviewTeam->postGraduateReviewProgram->postGraduateProgram;
+            $faculty = $postGraduateProgram->faculty;
+            $university = $faculty->university;
+            $dean = $faculty->currentDean->user;
+            $reviewers = $reviewTeam->reviewers;
+
+            // TODO: INFORM DEAN, AND THE REVIEW TEAM
+            Mail::to($dean->official_email)->send(
+                new InformReviewTeamActionToAuthorities(
+                    user: $dean,
+                    action: 'REMOVED',
+                    faculty: $faculty,
+                    university: $university,
+                    postGraduateProgram: $postGraduateProgram,
+                    reviewTeamInfo: $reviewers,
+                    subject: 'Review team assigned to the a postgraduate program was removed',
+                    content: 'mail.informReviewTeamActionToAuthorities',
+                )
+            );
+
+            Mail::to($qacOfficer->official_email)->send(
+                new InformReviewTeamActionToAuthorities(
+                    user: $qacOfficer,
+                    action: 'REMOVED',
+                    faculty: $faculty,
+                    university: $university,
+                    postGraduateProgram: $postGraduateProgram,
+                    reviewTeamInfo: $reviewers,
+                    subject: 'Review team assigned to the a postgraduate program was removed',
+                    content: 'mail.informReviewTeamActionToAuthorities',
+                )
+            );
+
+            foreach ($reviewers as $reviewer) {
+                Mail::to($reviewer->user->official_email)->send(
+                    new InformReviewTeamActionToAuthorities(
+                        user: $reviewer->user,
+                        action: 'REMOVED',
+                        faculty: $faculty,
+                        university: $university,
+                        postGraduateProgram: $postGraduateProgram,
+                        reviewTeamInfo: $reviewers,
+                        subject: 'Review team assigned to the a postgraduate program was removed',
+                        content: 'mail.informReviewTeamActionToAuthorities',
+                    )
+                );
+            }
+
             $reviewTeam->reviewers()->detach(); // remove the reviewers first
             $reviewTeam->delete(); // delete the review team
             DB::commit();
