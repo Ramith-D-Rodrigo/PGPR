@@ -48,19 +48,23 @@ a{
 }
 ::-webkit-scrollbar{
     /* display: none; */
-    width: 10px;
+    width: 0.5rem;
 }
 ::-webkit-scrollbar-track{
     background: #D8E6FC;
-    border-radius: 10px;
+    border-radius: 2rem;
 }
 ::-webkit-scrollbar-thumb{
-    background: #191970;
-    border-radius: 10px;
+    background: #616161;
+    border-radius: 2rem;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #000000;
+  background: #494949;
+}
+
+::-webkit-scrollbar:horizontal{
+    height: 0.5rem;
 }
 
 .ScrollableDiv .scroll-indicator {
