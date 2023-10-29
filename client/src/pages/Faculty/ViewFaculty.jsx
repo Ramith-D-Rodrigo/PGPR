@@ -17,7 +17,7 @@ import { TableCell } from "@mui/material";
 import { TableHead } from "@mui/material";
 import { TableRow } from "@mui/material";
 import Box from '@mui/material/Box';
-import  useSetUserNavigations from "../../hooks/useSetUserNavigations.js";
+import useSetUserNavigations from "../../hooks/useSetUserNavigations.js";
 import { CircularProgress } from "@mui/material";
 
 
@@ -135,226 +135,173 @@ const ViewFaculty = () => {
             }
             {!loading && faculty &&
                 <>
-                
-                
-                </>
-            
-            }
-            <Divider textAlign="left" sx={{ mb: 2 }}>
-                <Chip label="Faculty Details" />
-            </Divider>
+                    <Divider textAlign="left" sx={{ mb: 2 }}>
+                        <Chip label="Faculty Details" />
+                    </Divider>
 
-            <Box sx={{ display: 'flex' }}>
-                <Box sx={{ width: '50%' }}>
-                    {
-                        faculty &&
-                        <>
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, mx:2 }}>
-                                <Typography variant="h6">
-                                    Name
-                                </Typography>
-                                <Typography variant="h6">
-                                    {faculty.name}
-                                </Typography>
-                            </Box>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', alignItems: 'center' }}>
+                        <Box sx={styled}>
+                            <Typography sx={{ width: '50%' }}>
+                                Faculty
+                            </Typography>
+                            <Typography sx={{ width: '50%' }}>
+                                {faculty.name}
+                            </Typography>
+                        </Box>
 
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, mx:2 }}>
-                                <Typography variant="h6">
-                                    Website
-                                </Typography>
-                                <Button
-                                    variant="outlined"
-                                    component={Link}
-                                    to={faculty.website}
-                                    target="_blank"
-                                >
-                                    Visit Website
-                                </Button>
-                            </Box>
+                        <Box sx={styled}>
+                            <Typography sx={{ width: '50%' }}>
+                                Address
+                            </Typography>
+                            <Typography sx={{ width: '50%' }}>
+                                {faculty.address}
+                            </Typography>
+                        </Box>
 
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, mx:2 }}>
-                                <Typography variant="h6">
-                                    Address
-                                </Typography>
-                                <Typography variant="h6" sx={{ width: '70%' }} align='right'>
-                                    {faculty.address}
-                                </Typography>
-                            </Box>
+                        <Box sx={styled}>
+                            <Typography sx={{ width: '50%' }}>
+                                Contact Numbers
+                            </Typography>
+                            <Select defaultValue={faculty.contactNo.data[0]} sx={{ minWidth: '50%' }}>
+                                {faculty.contactNo.data.map((contactNo) => (
+                                    <MenuItem key={contactNo} value={contactNo}>{contactNo}</MenuItem>
+                                ))}
+                            </Select>
+                        </Box>
 
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, mx:2 }}>
-                                <Box>
-                                    <Select value={'Contact Numbers'}>
-                                        <MenuItem variant="h6" sx={{ mb: 2 }} key={faculty.id + 'defaultcontact'} value={'Contact Numbers'}>
-                                            Contact Numbers
-                                        </MenuItem>
-                                        {faculty.contactNo.data.map(contactNo => {
-                                            return (
-                                                <MenuItem variant="h6" sx={{ mb: 2 }} key={faculty.id + contactNo}>
-                                                    {contactNo}
-                                                </MenuItem>
-                                            )
-                                        }
+                        <Box sx={styled}>
+                            <Typography sx={{ width: '50%' }}>
+                                Fax Numbers
+                            </Typography>
+                            <Select defaultValue={faculty.faxNo.data[0]} sx={{ minWidth: '50%' }}>
+                                {faculty.faxNo.data.map((faxNo) => (
+                                    <MenuItem key={faxNo} value={faxNo}>{faxNo}</MenuItem>
+                                ))}
+                            </Select>
+                        </Box>
 
-                                        )}
-                                    </Select>
-                                </Box>
+                        <Box sx={styled}>
+                            <Typography sx={{ width: '50%' }}>
+                                Current Dean
+                            </Typography>
+                            <Typography sx={{ width: '50%' }}>
+                                {faculty.dean.academicStaff.universitySide.user.initials + " " + faculty.dean.academicStaff.universitySide.user.surname}
+                            </Typography>
+                        </Box>
 
-                                <Box>
-                                    <Select value={'Fax Numbers'}>
-                                        <MenuItem variant="h6" sx={{ mb: 2 }} key={faculty.id + 'defaultfax'} value={'Fax Numbers'}>
-                                            Fax Numbers
-                                        </MenuItem>
-                                        {faculty.faxNo.data.map(faxNo => {
-                                            return (
-                                                <MenuItem variant="h6" sx={{ mb: 2 }} key={faculty.id + faxNo}>
-                                                    {faxNo}
-                                                </MenuItem>
-                                            )
-                                        }
+                        <Box sx={styled}>
+                            <Typography sx={{ width: '50%' }}>
+                                Website
+                            </Typography>
+                            <Button>
+                                <a href={faculty.website} target="_blank" rel="noreferrer">
+                                    View Website
+                                </a>
+                            </Button>
+                        </Box>
 
-                                        )}
-                                    </Select>
-                                </Box>
-                            </Box>
-                        </>
-                    }
-                </Box>
-                <Box sx={{ width: '50%', borderLeft: '1px solid lightgrey' }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, mx:2 }}>
-                        {faculty &&
+                        <Divider textAlign="center" sx={{ margin: '1rem 0' }}>
+                            <Chip label="Internal Quality Assurance Unit" color="primary" />
+                        </Divider>
+
+                        <Box sx={styled}>
+                            <Typography sx={{ width: '50%' }}>
+                                Email
+                            </Typography>
+                            <Typography sx={{ width: '50%' }}>
+                                {faculty.internalQualityAssuranceUnit.email}
+                            </Typography>
+                        </Box>
+
+                        <Box sx={styled}>
+                            <Typography sx={{ width: '50%' }}>
+                                Contact Numbers
+                            </Typography>
+                            <Select defaultValue={faculty.internalQualityAssuranceUnit.contactNo.data[0]} sx={{ minWidth: '50%' }}>
+                                {faculty.internalQualityAssuranceUnit.contactNo.data.map((contactNo) => (
+                                    <MenuItem key={contactNo} value={contactNo}>{contactNo}</MenuItem>
+                                ))}
+                            </Select>
+                        </Box>
+
+                        <Box sx={styled}>
+                            <Typography sx={{ width: '50%' }}>
+                                Fax Numbers
+                            </Typography>
+                            <Select defaultValue={faculty.internalQualityAssuranceUnit.faxNo.data[0]} sx={{ minWidth: '50%' }}>
+                                {faculty.internalQualityAssuranceUnit.faxNo.data.map((faxNo) => (
+                                    <MenuItem key={faxNo} value={faxNo}>{faxNo}</MenuItem>
+                                ))}
+                            </Select>
+                        </Box>
+
+                        <Box sx={styled}>
+                            <Typography sx={{ width: '50%' }}>
+                                Address
+                            </Typography>
+                            <Typography sx={{ width: '50%' }}>
+                                {faculty.internalQualityAssuranceUnit.address}
+                            </Typography>
+                        </Box>
+                        {
+                            faculty &&
                             <>
-                                <Typography variant="h6" sx={{ mb: 2 }}>
-                                    Dean
-                                </Typography>
-                                <Box sx={{ display: 'flex' }}>
-                                    <Typography variant="h6" sx={{ mb: 2 }}>
-                                        {faculty.dean.academicStaff.universitySide.user.initials + ' ' + faculty.dean.academicStaff.universitySide.user.surname}
-                                    </Typography>
-                                    <Avatar src={SERVER_URL.slice(0, -1) + faculty.dean.academicStaff.universitySide.user.profilePic} sx={{ ml: 2 }} />
-                                    {auth.authRole[0] === 'cqa_director' &&
-                                        <>
-                                            {/*edit button for Dean*/}
+                                <Divider textAlign="center" sx={{ margin: '1rem 0' }}>
+                                    <Chip label="Postgraduate Programmes" color="primary" />
+                                </Divider>
+
+                                <TableContainer component={Paper} sx={{ maxWidth: '70%' }}>
+                                    <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                                        <TableHead sx={{ backgroundColor: '#D8E6FC' }}>
+                                            <TableRow>
+                                                <TableCell sx={{ fontWeight: 'bold', textAlign: 'center' }}>Programme Name</TableCell>
+                                                <TableCell sx={{ fontWeight: 'bold', textAlign: 'center' }}>SLQF Level</TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {faculty.postGraduatePrograms.map((pgp) => (
+                                                <TableRow
+                                                    key={pgp.id}
+                                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                >
+                                                    <TableCell component="th" scope="row" sx={{ textAlign: 'center' }}>
+                                                        {pgp.title}
+                                                    </TableCell>
+                                                    <TableCell sx={{ textAlign: 'center' }}>{pgp.slqfLevel}</TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
+
+
+                                <Divider sx={{ my: 2 }} />
+
+                                {
+
+                                    (auth.authRole[0] == 'qac_director' || auth.authRole[0] == 'qac_officer') &&
+
+                                    <>
+                                        <Typography variant="h6" sx={{ mb: 2 }}>
+                                            University
                                             <Button
                                                 variant="contained"
                                                 sx={{ ml: 2 }}
+                                                component={Link}
+                                                to={`/${auth.authRole[0]}/universities/view/${faculty.university.id}`}
                                             >
-                                                Edit Dean
+                                                View University
                                             </Button>
+                                        </Typography>
+                                    </>
+                                }
 
-                                        </>
-                                    }
-                                </Box>
                             </>
                         }
                     </Box>
-
-                    <Divider textAlign="center" sx={{margin: '1rem 0'}}>
-                        <Chip label="Internal Quality Assurance Unit" color="primary"/>
-                    </Divider>
-
-                    <Box>
-                        {faculty &&
-                            <>
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, mx:2 }}>
-                                    <Typography variant="h6" sx={{ mb: 2 }}>
-                                        Address
-                                    </Typography>
-                                    <Typography variant="h6" sx={{ width: '70%' }} align='right'>
-                                        {faculty.internalQualityAssuranceUnit.address}
-                                    </Typography>
-                                </Box>
-
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, mx:2 }}>
-                                    <Select value={'Contact Numbers'}>
-                                        <MenuItem variant="h6" sx={{ mb: 2 }} key={faculty.id + 'defaultcontactiqau'} value={'Contact Numbers'}>
-                                            Contact Numbers
-                                        </MenuItem>
-                                        {faculty.internalQualityAssuranceUnit.contactNo.data.map(contactNo => {
-                                            return (
-                                                <MenuItem variant="h6" sx={{ mb: 2 }} key={faculty.id + contactNo}>
-                                                    {contactNo}
-                                                </MenuItem>
-                                            )
-                                        }
-
-                                        )}
-                                    </Select>
-
-                                    <Select value={'Fax Numbers'}>
-                                        <MenuItem variant="h6" sx={{ mb: 2 }} key={faculty.id + 'defaultfaxiqau'} value={'Fax Numbers'}>
-                                            Fax Numbers
-                                        </MenuItem>
-                                        {faculty.internalQualityAssuranceUnit.faxNo.data.map(faxNo => {
-                                            return (
-                                                <MenuItem variant="h6" sx={{ mb: 2 }} key={faculty.id + faxNo}>
-                                                    {faxNo}
-                                                </MenuItem>
-                                            )
-                                        }
-
-                                        )}
-                                    </Select>
-                                </Box>
-                            </>
-                        }
-                    </Box>
-
-                </Box>
-            </Box>
-
-            {
-                faculty &&
-                <>
-                    <Divider textAlign="center" sx={{margin: '1rem 0'}}>
-                        <Chip label="Postgraduate Programmes" color="primary" />
-                    </Divider>
-
-                    <TableContainer component={Paper}>
-                        <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                            <TableHead sx={{ backgroundColor: '#D8E6FC' }}>
-                                <TableRow>
-                                    <TableCell sx={{ fontWeight: 'bold', textAlign: 'center' }}>Programme Name</TableCell>
-                                    <TableCell sx={{ fontWeight: 'bold', textAlign: 'center' }}>SLQF Level</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {faculty.postGraduatePrograms.map((pgp) => (
-                                    <TableRow
-                                        key={pgp.id}
-                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                    >
-                                        <TableCell component="th" scope="row" sx={{ textAlign: 'center' }}>
-                                            {pgp.title}
-                                        </TableCell>
-                                        <TableCell sx={{ textAlign: 'center' }}>{pgp.slqfLevel}</TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-
-
-                    <Divider sx={{ my: 2 }} />
-
-                    {
-                        auth.authRole[0] === 'qac_director' || auth.authRole[0] === 'qac_officer' &&
-                        <Typography variant="h6" sx={{ mb: 2 }}>
-                            University
-                            <Button
-                                variant="contained"
-                                sx={{ ml: 2 }}
-                                component={Link}
-                                to={`/${auth.authRole[0]}/universities/${faculty.university.id}`}
-                            >
-                                View University
-                            </Button>
-                        </Typography>
-                    }
-
-
                 </>
-            }
 
+            }
         </>
     )
 }

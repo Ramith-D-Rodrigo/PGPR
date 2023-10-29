@@ -33,6 +33,8 @@ const CreateAccounts = () => {
         ]
     );
 
+    document.title = "Create Accounts";
+
     let formData = null;
 
     const selectRole = (e) => {

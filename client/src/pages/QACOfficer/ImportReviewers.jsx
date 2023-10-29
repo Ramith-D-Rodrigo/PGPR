@@ -60,6 +60,8 @@ const ImportReviewers = () => {
     const [searchTerm, setSearchTerm] = useState("");
 
     useEffect(() => {
+        document.title = "Import Reviewers";
+
         const handleGetUniversitiesAndFaculties = async () => {
             try {
                 const universitiesResult = await getAllUniversities();
