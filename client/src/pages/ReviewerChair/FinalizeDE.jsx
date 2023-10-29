@@ -20,6 +20,8 @@ import getSelfEvaluationReport from '../../api/SelfEvaluationReport/getSelfEvalu
 import createSERRows from '../../assets/reviewer/createSERRows';
 import useReviewerRole from '../../hooks/useReviewerRole';
 import getAssignedPGPR from '../../api/Reviewer/getAssignedPGPR';
+import getPGPR from '../../api/PostGraduateProgramReview/getPGPR';
+import GetDEprogress from '../../api/reviewChair/getDEprogress';
 
 function FinalizeDE() {
 
@@ -30,7 +32,9 @@ function FinalizeDE() {
     const [SERDetails,setSERDetails] = useState([]);
     const [loading,SetLoading] = useState(false);
     const {reviewerRole, setReviewerRole} = useReviewerRole();
+    const [reviewTeam,setReviewTeam] = useState([]);
     const [openDialog, setOpenDialog] = useState(false);
+    const [pgprDetails,setPGPRDetails] = useState([]);
 
     useSetUserNavigations(
       [
@@ -66,17 +70,23 @@ function FinalizeDE() {
       const getPGPRDetails = async () => {
           SetLoading(true);
           try {
-              const response = await getAssignedPGPR(pgprId);
-              console.log("PGPR Details : ",response?.data?.data);
-              setReviewerRole(response?.data?.data?.reviewerRole);
+              const response0 = await getAssignedPGPR(pgprId);
+              console.log("PGPR Details : ",response0?.data?.data);
+              setPGPRDetails(response0?.data?.data);
+              setReviewerRole(response0?.data?.data?.reviewerRole);
+              const response = await getPGPR(pgprId);
+              console.log("2nd req pgpr details ",response?.data?.data);
+              setReviewTeam(response?.data?.data?.acceptedReviewTeam);
+              const response1 = await GetDEprogress(response?.data?.data?.acceptedReviewTeam?.id,response?.data?.data?.deskEvaluation?.id)
+              console.log(response1?.data?.data);
               SetLoading(false);
           } catch (err) {
               console.error(err);
               SetLoading(false);
           }
       };
+      getPGPRDetails();
       getSERDetails();
-      // getPGPRDetails();
     }, []);
 
     const pgProgrammeDetails = SERDetails?.postGraduateProgramReview?.postGraduateProgramme;
@@ -102,16 +112,20 @@ function FinalizeDE() {
       console.log("Criterias : ",Criterias);
       // console.log("evidencesForGivenStandards : ",evidencesForGivenStandards);
 
-      const createData = (reviewer,designation,role,progress) => {
+      const createData = (reviewer,role,progress) => {
         const actions = <Link key={1} to={`../view_DE_progress/${pgprId}/${reviewer.id}`}><Button variant="contained" color="primary">View</Button></Link>
-        return {id:reviewer.id,name:reviewer.name,designation,role,progress,actions}
+        // console.log({id:reviewer.id,name:reviewer.name,role,progress,actions});
+        return {id:reviewer.id,name:reviewer.name,role,progress,actions}
       }
 
-      const rows = [
-        createData({id:1,name:"Dr. K. K. K. Perera"},"Senior Lecturer","Chair","100%"),
-        createData({id:2,name:"Dr. K. K. K. Perera"},"Senior Lecturer","Reviewer","100%"),
-        createData({id:3,name:"Dr. K. K. K. Perera"},"Senior Lecturer","Reviewer","100%"),
-      ]
+      const rows = reviewTeam?.reviewers? 
+        reviewTeam.reviewers.map((reviewer,index)=>{
+            return createData({id:reviewer.userData.id,name:reviewer.userData.initials+"."+reviewer.userData.surname},reviewer.role,"unprocessable data !!")
+        })
+        :
+        [];
+
+        console.log("rows: ",rows);
     return (
       <>
             <DiscriptiveDiv
@@ -154,7 +168,6 @@ function FinalizeDE() {
                     <TableHead>
                         <TableRow>
                             <TableCell style={{backgroundColor:"#D8E6FC",}} align="left"><b>Name</b></TableCell>
-                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Designation</b></TableCell>
                             <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Role</b></TableCell>
                             <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Progress</b></TableCell>
                             <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Actions</b></TableCell>
@@ -191,7 +204,6 @@ function FinalizeDE() {
                                 <TableCell component="th" scope="row">
                                     {row.name}
                                 </TableCell>
-                                <TableCell align="center">{row.designation}</TableCell>
                                 <TableCell align="center">{row.role}</TableCell>
                                 <TableCell align="center">{row.progress}</TableCell>
                                 <TableCell align="center">{row.actions}</TableCell>
