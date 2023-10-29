@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Resources\V1\UniversityResource;
 use App\Http\Resources\V1\ViceChancellorResource;
+use App\Mail\InformUserRoleRevocation;
 use App\Models\University;
 use App\Models\ViceChancellor;
 use App\Http\Requests\V1\StoreViceChancellorRequest;
@@ -13,6 +14,7 @@ use App\Services\V1\ViceChancellorService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class ViceChancellorController extends Controller
@@ -143,6 +145,17 @@ class ViceChancellorController extends Controller
             DB::beginTransaction();
 
             $result = ViceChancellorService::removeRole($viceChancellor, $termDate);
+
+            // TODO: INFORM ROLE REMOVE
+            $user = $viceChancellor->user();
+            Mail::to($user->official_email)->send(
+                new InformUserRoleRevocation(
+                    user: $user,
+                    role:'Vice Chancellor',
+                    subject: 'Access revocation for the platform as Vice Chancellor',
+                    content: 'mail.informUserRoleRevocation'
+                )
+            );
 
             DB::commit();
 
