@@ -81,6 +81,7 @@ function DEProgress() {
               setPGPRDetails(response0?.data?.data);
               getSERDetails(response0?.data?.data);
               setReviewerRole(response0?.data?.data?.role);
+              if(response0?.data?.data?.role != "CHAIR") history.goback();
               // const response = await getPGPR(pgprId);
               // console.log("2nd req pgpr details ",response?.data?.data);
               SetLoading(false);
@@ -171,7 +172,6 @@ function DEProgress() {
               >
                   <p>Desk Evaluation Period : <strong>{`${pgprDetails?.postGraduateReviewProgram?.deskEvaluation?.startDate} To ${pgprDetails?.postGraduateReviewProgram?.deskEvaluation?.endDate}`}</strong></p>
                   <p>Reviewer Name : <strong>Reviewer 1</strong></p>
-                  <p>Progress : <strong>Completed</strong></p>
               </Typography>
               <Typography
                   variant="button"

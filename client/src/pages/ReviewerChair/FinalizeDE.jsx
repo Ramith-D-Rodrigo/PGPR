@@ -73,8 +73,9 @@ function FinalizeDE() {
           try {
               const response0 = await getAssignedPGPR(pgprId);
               console.log("PGPR Details : ",response0?.data?.data);
-              setPGPRDetails(response0?.data?.data);
               setReviewerRole(response0?.data?.data?.role);
+              if(response0?.data?.data?.role != "CHAIR") history.back();
+              setPGPRDetails(response0?.data?.data);
               const response = await getPGPR(pgprId);
               console.log("2nd req pgpr details ",response?.data?.data);
               setReviewTeam(response?.data?.data?.acceptedReviewTeam);
