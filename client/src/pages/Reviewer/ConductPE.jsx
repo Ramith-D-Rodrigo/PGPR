@@ -36,12 +36,15 @@ const ConductPE = () => {
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
   const [openDateDialog, setOpenDateDialog] = useState(false);
   const [openCriteriaDialog, setOpenCriteriaDialog] = useState(false);
+  const [PEStartDate, setPEStartDate] = useState("");
   const [PEEndDate, setPEEndDate] = useState("");
   const { pgprId } = useParams();
 
   const [criteriaList, setCriteriaList] = useState([]);
   const [selectedCriteriaList, setSelectedCriteriaList] = useState([]);
   const [reviewerCreitriaList, setReviewerCreitriaList] = useState([]);
+  const [allSelectedCriteriaList, setAllSelectedCriteriaList] = useState([]);
+  const [allTemporary, setAllTemporary] = useState([]); 
   const [selectedReviewer, setSelectedReviewer] = useState("");
 
   const [loading, setLoading] = useState(false);
@@ -58,7 +61,7 @@ const ConductPE = () => {
     requestDate: "",
     yearEnd: "",
   });
-  const [PEData, setPEData] = useState({});
+  const [PEData, setPEData] = useState([]);
   const [chairId, setChairId] = useState("");
   const [isChair, setIsChair] = useState(false);
   const [reviewTeam, setReviewTeam] = useState({});
@@ -108,12 +111,10 @@ const ConductPE = () => {
             pgprResponse?.data?.data?.postGraduateProgramReviewApplication;
           const applicationDate = programApplication?.applicationDate;
           const requestDate = programApplication?.requestDate;
-          const yearEnd = programApplication?.yEnd;
 
           const program = pgprResponse?.data?.data?.postGraduateProgramme;
           const title = program?.title;
           const slqfLevel = program?.slqfLevel;
-          const commencementYear = program?.commencementYear;
           const facultyData = program?.faculty;
           const faculty = facultyData?.name;
           const universityData = facultyData?.university;
@@ -135,12 +136,10 @@ const ConductPE = () => {
             title,
             slqfLevel,
             coordinator,
-            commencementYear,
             faculty,
             university,
             applicationDate,
             requestDate,
-            yearEnd,
           });
 
           //console.log("Program : ", programData);
@@ -148,7 +147,7 @@ const ConductPE = () => {
           const PEResponse = await axios.get(
             `${SERVER_URL}${SERVER_API_VERSION}review-team/proper-evaluation/view-details/${pgprId}/${team?.id}`
           );
-          console.log("PE Data : ", PEResponse?.data?.data);
+          //console.log("PE Data : ", PEResponse?.data?.data);
           setPEData(PEResponse?.data?.data);
         }
       } catch (error) {
@@ -160,7 +159,7 @@ const ConductPE = () => {
     fetchData();
   }, [pgprId, auth?.id, chairId]);
 
-  //console.log("Team : ", reviewTeam);
+  console.log("PE : ", PEData);
 
   const handleSetDate = (openDateDialog) => {
     console.log(openDateDialog);
@@ -169,7 +168,7 @@ const ConductPE = () => {
   };
 
   const HandleselectCriteria = (e, id) => {
-    console.log("selected re : ", selectedReviewer);
+    //console.log("selected re : ", selectedReviewer);
     e.target.style.backgroundColor = "black";
     e.target.style.color = "white";
     //if already selected
@@ -190,12 +189,23 @@ const ConductPE = () => {
     ]);
   };
 
+  const HandleUnselectCriteria = (e, id) => {
+    const updatedReviewerCreitriaList = reviewerCreitriaList.filter(
+      (criteria) => criteria.id !== id
+    );
+    const updateTemporary = allTemporary.filter(
+      (criteria) => criteria.id !== id
+    );
+    setAllTemporary(updateTemporary);
+    setReviewerCreitriaList(updatedReviewerCreitriaList);
+  }
+
   const handlesetCriteria = () => {
     if (reviewerCreitriaList.length === 0) {
       alert("Please select at least one criteria");
       return;
     }
-    console.log(reviewerCreitriaList);
+    //console.log(reviewerCreitriaList);
     assignCriteria();
     setOpenCriteriaDialog(false);
     //get PGPR data again
@@ -238,19 +248,6 @@ const ConductPE = () => {
     }
   }
 
-  const headerInfo = [
-    { label: "University:", value: "University of Colombo" },
-    {
-      label: "Faculty/Institute:",
-      value: "University of Colombo School of Computing",
-    },
-    { label: "PGPR ID:", value: pgprId },
-    { label: "PGPR Name:", value: "MSc" },
-    { label: "Application Start Date:", value: "12/12/2020" },
-    { label: "Submission Date:", value: "01/01/2021" },
-    { label: "Program Coordinator:", value: "Mr. Smantha Karunanayake" },
-  ];
-
   //console.log("Reviewers : ", reviewers);
 
   const rows = reviewers 
@@ -259,7 +256,13 @@ const ConductPE = () => {
       const id = userData?.id;
       const name = userData?.initials + " . " + userData?.surname;
       const role = reviewer?.role=== "CHAIR" ? "Review Chair Person" : "Review Team Member";
-      const listOfCriteria = [];
+
+      const reviewerCriterias = PEData?.find(peData => peData?.reviewer?.id === id)?.criteria;
+      
+      const listOfCriteria = reviewerCriterias 
+      ? reviewerCriterias.map(reviewerCriteria => reviewerCriteria) : [];
+
+      //console.log("List Criterias : ", listOfCriteria);
 
       return {
         id,
@@ -268,6 +271,29 @@ const ConductPE = () => {
         listOfCriteria,
       };  
     }) : [];
+
+  function mergeAndDeDuplicate (PEData) {
+    let merged = {};
+    PEData?.forEach(peData => {
+      peData?.criteria?.forEach(child => {
+        const key = `${child?.id}_${child?.name}`;
+        if (!merged[key]) {
+          merged[key] = child;
+        }
+      });
+    });
+    //console.log("All Selected Criteria : ", merged);
+    return Object.values(merged);
+  }
+
+  useEffect(() => {
+    const allSelectedCriteria = mergeAndDeDuplicate(PEData);
+    setAllSelectedCriteriaList(allSelectedCriteria);
+    setAllTemporary(allSelectedCriteria);
+    console.log("All Selected Criteria : ", allSelectedCriteria);
+  }, [PEData]);
+  
+  //console.log("Rows : ", rows)
 
   const finalButtons = [
     {
@@ -292,14 +318,54 @@ const ConductPE = () => {
         backgroundColor="#D8E6FC"
       >
         <Grid container spacing={2}>
-          {headerInfo.map((infoItem, index) => (
-            <Grid item xs={12} sm={6} key={index}>
-              <Typography variant="subtitle1">
-                <b>{infoItem.label}</b>
-              </Typography>
-              <Typography>{infoItem.value}</Typography>
-            </Grid>
-          ))}
+          <Grid item xs={12} sm={6}>
+            <Typography variant="subtitle1">
+              <b>PGPR ID</b>
+            </Typography>
+            <Typography>{pgprId}</Typography>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <Typography variant="subtitle1">
+              <b>PG Program Title</b>
+            </Typography>
+            <Typography>{programData.title}</Typography>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <Typography variant="subtitle1">
+              <b>SLQF Level</b>
+            </Typography>
+            <Typography>{programData.slqfLevel}</Typography>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <Typography variant="subtitle1">
+              <b>Program Coordinator</b>
+            </Typography>
+            <Typography>{programData.coordinator}</Typography>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <Typography variant="subtitle1">
+              <b>Faculty/Institute</b>
+            </Typography>
+            <Typography>{programData.faculty}</Typography>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <Typography variant="subtitle1">
+              <b>University</b>
+            </Typography>
+            <Typography>{programData.university}</Typography>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <Typography variant="subtitle1">
+              <b>Application Date</b>
+            </Typography>
+            <Typography>{programData.applicationDate}</Typography>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <Typography variant="subtitle1">
+              <b>Request Date</b>
+            </Typography>
+            <Typography>{programData.requestDate}</Typography>
+          </Grid>
         </Grid>
       </DiscriptiveDiv>
 
@@ -352,7 +418,9 @@ const ConductPE = () => {
                   <TableCell align="center">{row.role}</TableCell>
                   <TableCell align="center">
                     {row.listOfCriteria.length === 0 ? (
-                      <Typography color="primary">No Criteria Selected</Typography>
+                      <Typography color="primary">
+                        No Criteria Selected
+                      </Typography>
                     ) : (
                       <ul
                         style={{
@@ -363,7 +431,7 @@ const ConductPE = () => {
                       >
                         {row.listOfCriteria.map((criteriaItem, index) => (
                           <li key={index}>
-                            <Typography>{criteriaItem}</Typography>
+                            <Typography>{criteriaItem.name}</Typography>
                           </li>
                         ))}
                       </ul>
@@ -378,6 +446,7 @@ const ConductPE = () => {
                               id: row.id,
                               name: row.name,
                             });
+                          setReviewerCreitriaList(row.listOfCriteria);
                         }}
                         variant="contained"
                         size="small"
@@ -416,8 +485,6 @@ const ConductPE = () => {
                   ? () =>
                       setOpenDateDialog({
                         id: pgprId,
-                        startDate: "12/12/2020",
-                        endDate: "01/01/2021",
                       })
                   : null
               }
@@ -467,6 +534,14 @@ const ConductPE = () => {
             }}
           >
             <TextField
+              id="setStartDate"
+              value={PEStartDate}
+              helperText="Please select the start date for the Proper Evaluation"
+              variant="standard"
+              onChange={(e) => setPEStartDate(e.target.value)}
+              type="date"
+            />
+            <TextField
               id="setEndDate"
               value={PEEndDate}
               helperText="Please select the end date for the Proper Evaluation"
@@ -511,7 +586,7 @@ const ConductPE = () => {
             }}
           >
             {criteriaList.map((criteria, index) =>
-              selectedCriteriaList.some(
+              allTemporary.some(
                 (selectedCriteria) => selectedCriteria.id === criteria.id
               ) ? (
                 ""
@@ -549,7 +624,7 @@ const ConductPE = () => {
             {reviewerCreitriaList.map((criteria, index) => (
               <Button
                 key={index}
-                disabled
+                onClick={(e) => HandleUnselectCriteria(e, criteria.id)}
                 style={{
                   border: "1px solid black",
                   borderRadius: "10px",
