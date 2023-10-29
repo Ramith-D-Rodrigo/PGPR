@@ -35,6 +35,7 @@ function FinalizeDE() {
     const [reviewTeam,setReviewTeam] = useState([]);
     const [deProgress,setDeProgress] = useState([]);
     const [openDialog, setOpenDialog] = useState(false);
+    const [rows,setRows] = useState([]);
     const [pgprDetails,setPGPRDetails] = useState([]);
 
     useSetUserNavigations(
@@ -92,6 +93,32 @@ function FinalizeDE() {
       getPGPRDetails();
     }, []);
 
+    const setTableRows = ()=>{
+        setRows(reviewTeam ?.reviewers? 
+        reviewTeam.reviewers.map((reviewer,index)=>{
+            let progress = 0;
+            deProgress.forEach((de_reviewer)=>{
+                if(de_reviewer.reviewerId == reviewer.userData.id)
+                {
+                    let noOfStandards=0;
+                    let noOfEvaluatedStandard=0;
+                    de_reviewer.criteriaData.forEach((criteria)=>{
+                        noOfStandards+=criteria.totalStandards;
+                        noOfEvaluatedStandard+=criteria.evaluatedStandards;
+                    });
+                    progress = Math.trunc(noOfEvaluatedStandard/noOfStandards*100)+"%";
+                }
+            })
+            return createData({id:reviewer.userData.id,name:reviewer.userData.initials+"."+reviewer.userData.surname},reviewer.role,progress)
+        })
+        :
+        []);
+    }
+
+    useEffect(()=>{
+        setTableRows();
+    },[deProgress]);
+
     const pgProgrammeDetails = SERDetails?.postGraduateProgramReview?.postGraduateProgramme;
     const facultyDetails = pgProgrammeDetails?.faculty;
     const universityDetails = facultyDetails?.university;
@@ -121,27 +148,6 @@ function FinalizeDE() {
         return {id:reviewer.id,name:reviewer.name,role,progress,actions}
       }
 
-      const rows = reviewTeam ?.reviewers? 
-        reviewTeam.reviewers.map((reviewer,index)=>{
-            let progress = 0;
-            deProgress.forEach((de_reviewer)=>{
-                if(de_reviewer.reviewerId == reviewer.userData.id)
-                {
-                    let noOfStandards=0;
-                    let noOfEvaluatedStandard=0;
-                    de_reviewer.criteriaData.forEach((criteria)=>{
-                        noOfStandards+=criteria.totalStandards;
-                        noOfEvaluatedStandard+=criteria.evaluatedStandards;
-                    });
-                    progress = Math.trunc(noOfEvaluatedStandard/noOfStandards*100)+"%";
-                }
-            })
-            return createData({id:reviewer.userData.id,name:reviewer.userData.initials+"."+reviewer.userData.surname},reviewer.role,progress)
-        })
-        :
-        [];
-
-        console.log("rows: ",rows);
 
     function getRemainingDates(endDate) {
         const endDateObject = new Date(endDate);
