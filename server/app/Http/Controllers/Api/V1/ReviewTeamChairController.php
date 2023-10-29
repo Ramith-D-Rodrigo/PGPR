@@ -75,15 +75,12 @@ class ReviewTeamChairController extends Controller
 
             DB::beginTransaction();
 
-            //first remove all the previous assignments
-            DB::table('review_team_set_criterias')
-                ->where('pgpr_id', $postGraduateReviewProgram->id)
-                ->where('review_team_id', $reviewTeam->id)
-                ->delete();
-            
-
-
             foreach ($validated['reviewers'] as $reviewer) {
+                //first remove all the previous assignments
+                DB::table('review_team_set_criterias')
+                    ->where('pgpr_id', $postGraduateReviewProgram->id)
+                    ->where('assigned_to_reviewer_id', $reviewer['reviewer_id'])
+                    ->delete();
                 foreach ($reviewer['criteria'] as $criteria) {
                     $values = [
                         'pgpr_id' => $postGraduateReviewProgram->id,
