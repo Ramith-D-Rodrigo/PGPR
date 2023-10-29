@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\UniversitySide;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ViceChancellor extends Model
 {
@@ -15,6 +16,11 @@ class ViceChancellor extends Model
         'term_date',
         'vc_status',
     ];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'id', 'id');
+    }
 
     //vice chancellor is a university side
     public function universitySide()

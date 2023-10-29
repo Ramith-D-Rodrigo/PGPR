@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Requests\V1\StoreQualityAssuranceCouncilDirectorRequest;
 use App\Http\Requests\V1\UpdateQualityAssuranceCouncilDirectorRequest;
+use App\Mail\InformReviewProcessActionToAuthorities;
 use App\Models\PostGraduateProgramReview;
 use App\Models\QualityAssuranceCouncilDirector;
 use App\Http\Controllers\Controller;
@@ -11,6 +12,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
@@ -130,6 +132,82 @@ class QualityAssuranceCouncilDirectorController extends Controller
         try {
             $pgpr = PostGraduateProgramReview::find($validated['pgpr_id']);
             $pgpr->status_of_pgpr = 'COMPLETED';
+
+            // TODO: INFORM DEAN, VICE CHANCELLOR, PROGRAMME COR, AND CQA DIR
+            $postGraduateProgram = $pgpr->postGraduateProgram;
+            $faculty = $postGraduateProgram->faculty;
+            $university = $faculty->university;
+            $viceChancellor = $university->viceChancellor->user;
+            $cqaDirector = $university->centerForQualityAssurance->currentQualityAssuranceDirector->user;
+            $dean = $faculty->currentDean->user;
+            $programmeCoordinator = $postGraduateProgram->currentProgrammeCoordinator->user;
+            $reviewers = $pgpr->acceptedReviewTeam->reviewers;
+
+            // dean
+            Mail::to($dean->official_mail)->send(
+                new InformReviewProcessActionToAuthorities(
+                    user: $dean,
+                    action: 'COMPLETED',
+                    faculty: $faculty,
+                    university: $university,
+                    postGraduateProgram: $postGraduateProgram,
+                    subject: 'Review process was declared as finalized',
+                    content: 'mail.informReviewProcessActionToAuthorities',
+                )
+            );
+            // programmeCoordinator
+            Mail::to($programmeCoordinator->official_mail)->send(
+                new InformReviewProcessActionToAuthorities(
+                    user: $programmeCoordinator,
+                    action: 'COMPLETED',
+                    faculty: $faculty,
+                    university: $university,
+                    postGraduateProgram: $postGraduateProgram,
+                    subject: 'Review process was declared as finalized',
+                    content: 'mail.informReviewProcessActionToAuthorities',
+                )
+            );
+
+            // cqaDirector
+            Mail::to($cqaDirector->official_mail)->send(
+                new InformReviewProcessActionToAuthorities(
+                    user: $cqaDirector,
+                    action: 'COMPLETED',
+                    faculty: $faculty,
+                    university: $university,
+                    postGraduateProgram: $postGraduateProgram,
+                    subject: 'Review process was declared as finalized',
+                    content: 'mail.informReviewProcessActionToAuthorities',
+                )
+            );
+
+            // viceChancellor
+            Mail::to($viceChancellor->official_mail)->send(
+                new InformReviewProcessActionToAuthorities(
+                    user: $viceChancellor,
+                    action: 'COMPLETED',
+                    faculty: $faculty,
+                    university: $university,
+                    postGraduateProgram: $postGraduateProgram,
+                    subject: 'Review process was declared as finalized',
+                    content: 'mail.informReviewProcessActionToAuthorities',
+                )
+            );
+
+            foreach($reviewers as $reviewer) {
+                Mail::to($reviewer->user->official_mail)->send(
+                    new InformReviewProcessActionToAuthorities(
+                        user: $reviewer->user,
+                        action: 'COMPLETED',
+                        faculty: $faculty,
+                        university: $university,
+                        postGraduateProgram: $postGraduateProgram,
+                        subject: 'Review process was declared as finalized',
+                        content: 'mail.informReviewProcessActionToAuthorities',
+                    )
+                );
+            }
+
             return response()->json(['message' => 'The review was successful marked as completed']);
         } catch (Exception $exception) {
             return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);

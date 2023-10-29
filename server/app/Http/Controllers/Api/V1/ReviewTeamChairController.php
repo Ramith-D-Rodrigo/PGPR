@@ -1092,6 +1092,7 @@ class ReviewTeamChairController extends Controller
         try {
             $validated = $request->validated();
             $properEvaluation1 = PostGraduateProgramReview::find($validated['pgpr_id'])->properEvaluations->properEvaluation1;
+            unset($validated['pgpr_id']);
             $properEvaluation1->update($validated);
             return response()->json(['message' => 'The update operation was successful']);
         } catch (Exception $exception) {
@@ -1112,6 +1113,7 @@ class ReviewTeamChairController extends Controller
         try {
             $validated = $request->validated();
             $properEvaluation2 = PostGraduateProgramReview::find($validated['pgpr_id'])->properEvaluations->properEvaluation2;
+            unset($validated['pgpr_id']);
             $properEvaluation2->update($validated);
             return response()->json(['message' => 'The update operation was successful']);
         } catch (Exception $exception) {
