@@ -27,18 +27,21 @@ class ShowOwnDeskEvaluationCriteriaWiseRequest extends FormRequest
     {
         return [
             'desk_evaluation_id' => 'required|exists:desk_evaluations,id',
-            'criteria_id' => 'sometimes|exists:criteria,id',
+            'criteria_id' => 'sometimes|exists:criterias,id',
         ];
     }
 
     protected function prepareForValidation(): void
     {
-        $this->merge(
-            [
-                'desk_evaluation_id' => $this->deskEvaluation,
-                'criteria_id' => $this->criteria,
-            ]
-        );
+        $data = [
+            'desk_evaluation_id' => $this->deskEvaluation,
+        ];
+
+        if (isset($this->criteria)) {
+            $data['criteria_id'] = $this->criteria;
+        }
+
+        $this->merge($data);
     }
 
     public function messages(): array
@@ -46,7 +49,6 @@ class ShowOwnDeskEvaluationCriteriaWiseRequest extends FormRequest
         return [
             'desk_evaluation_id.required' => 'The desk evaluation id is required',
             'desk_evaluation_id.exists' => 'The desk evaluation does not exist in the database',
-            // 'criteria_id.sometimes' => 'The criteria id is required',
             'criteria_id.exists' => 'The criteria does not exists in the database',
         ];
     }
