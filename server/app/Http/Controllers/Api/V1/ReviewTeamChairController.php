@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\V1\SetDatesForPE1Request;
+use App\Http\Requests\V1\SetDatesForPE2Request;
 use App\Http\Requests\V1\ShowDEScoresOfReviewTeamRequest;
 use App\Http\Requests\V1\ShowFinalReportRequest;
 use App\Http\Requests\V1\ShowPEScoresOfReviewTeamRequest;
@@ -31,6 +33,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -79,22 +82,20 @@ class ReviewTeamChairController extends Controller
 
             DB::beginTransaction();
 
-            //first remove all the previous assignments
-            DB::table('review_team_set_criterias')
-                ->where('pgpr_id', $postGraduateReviewProgram->id)
-                ->where('review_team_id', $reviewTeam->id)
-                ->delete();
-
-
-
             foreach ($validated['reviewers'] as $reviewer) {
+                //first remove all the previous assignments
+                DB::table('review_team_set_criterias')
+                    ->where('pgpr_id', $postGraduateReviewProgram->id)
+                    ->where('assigned_to_reviewer_id', $reviewer['reviewer_id'])
+                    ->delete();
                 foreach ($reviewer['criteria'] as $criteria) {
                     $values = [
                         'pgpr_id' => $postGraduateReviewProgram->id,
                         'assigned_by_chair_id' => Auth::id(),
                         'review_team_id' => $reviewTeam->id,
                         'assigned_to_reviewer_id' => $reviewer['reviewer_id'],
-                        'criteria_id' => $criteria
+                        'criteria_id' => $criteria,
+                        'created_at' => Carbon::now(),
                     ];
                     DB::table('review_team_set_criterias')->insertOrIgnore($values);
                 }
@@ -1074,6 +1075,46 @@ class ReviewTeamChairController extends Controller
             return response()->json(['message' => 'File successfully submitted.']);
         } catch (Exception $exception) {
             DB::rollBack();
+            return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+        }
+    }
+
+    /*
+     * pgprId=10
+     * startDate=
+     * pe1MeetingDate
+     * endDate
+     * remark
+     *
+     */
+    public function setDatesForPE1(SetDatesForPE1Request $request): JsonResponse
+    {
+        try {
+            $validated = $request->validated();
+            $properEvaluation1 = PostGraduateProgramReview::find($validated['pgpr_id'])->properEvaluations->properEvaluation1;
+            $properEvaluation1->update($validated);
+            return response()->json(['message' => 'The update operation was successful']);
+        } catch (Exception $exception) {
+            return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+        }
+    }
+
+    /*
+     * pgprId=10
+     * startDate
+     * siteVisitStartDate
+     * siteVisitEndDate
+     * endDate
+     * remark
+     */
+    public function setDatesForPE2(SetDatesForPE2Request $request): JsonResponse
+    {
+        try {
+            $validated = $request->validated();
+            $properEvaluation2 = PostGraduateProgramReview::find($validated['pgpr_id'])->properEvaluations->properEvaluation2;
+            $properEvaluation2->update($validated);
+            return response()->json(['message' => 'The update operation was successful']);
+        } catch (Exception $exception) {
             return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
         }
     }
