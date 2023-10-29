@@ -2,8 +2,13 @@
 
 namespace App\Policies;
 
+use App\Http\Requests\V1\ReviewerSubmitDeskEvaluation;
+use App\Http\Requests\V1\StoreConductDeskEvaluationRequest;
+use App\Http\Requests\V1\StoreConductProperEvaluationRequest;
 use App\Http\Requests\V1\UpdateAcceptPGPRRequest;
 use App\Http\Requests\V1\UpdateSERRemarksOfSectionsABDRequest;
+use App\Http\Requests\V1\ReviewerSubmitProperEvaluation;
+use App\Models\DeskEvaluation;
 use App\Models\PostGraduateProgramReview;
 use App\Models\Reviewer;
 use App\Models\SelfEvaluationReport;
@@ -157,7 +162,7 @@ class ReviewerPolicy
             foreach ($reviewTeams as $reviewTeam) {
                 $reviewers = $reviewTeam -> reviewers;
                 foreach ($reviewers as $reviewer) {
-                    if ($reviewer -> reviewer_id == $user -> id && ($reviewTeam -> status == 'ACCEPTED' || $reviewTeam -> status == 'PENDING')) {
+                    if ($reviewer -> pivot -> reviewer_id == $user -> id && ($reviewTeam -> status == 'ACCEPTED' || $reviewTeam -> status == 'PENDING')) {
                         return Response::allow();
                     }
                 }
@@ -196,5 +201,116 @@ class ReviewerPolicy
         }
 
         return Response::deny('You are not allowed to update remarks of sections A, B and D.');
+    }
+
+
+    public function conductDeskEvaluationAuthorize(User $user, StoreConductDeskEvaluationRequest $request) : Response {
+        $currRole = request() -> session() -> get('authRole');
+
+        if($currRole != 'reviewer'){
+            return Response::deny('You are not allowed to conduct desk evaluation.');
+        }
+
+        //check if the reviewer is in the review team who is assigned to the pgpr
+        $postGraduateReviewProgram = PostGraduateProgramReview::findOrFail($request ->pgpr_id);
+
+        return $this -> DEandPEAuthorization($user, $postGraduateReviewProgram, 'DE', 'conduct');
+    }
+
+    public function conductProperEvaluationAuthorize(User $user, StoreConductProperEvaluationRequest $request) : Response {
+        $currRole = request() -> session() -> get('authRole');
+
+        if($currRole != 'reviewer'){
+            return Response::deny('You are not allowed to conduct proper evaluation.');
+        }
+
+        //check if the reviewer is in the review team who is assigned to the pgpr
+        $postGraduateReviewProgram = PostGraduateProgramReview::findOrFail($request ->pgpr_id);
+
+        return $this -> DEandPEAuthorization($user, $postGraduateReviewProgram, 'PE', 'conduct');
+    }
+
+    public function submitDeskEvaluationAuthorize(User $user, ReviewerSubmitDeskEvaluation $request) : Response {
+        $currRole = request() -> session() -> get('authRole');
+
+        if($currRole != 'reviewer'){
+            return Response::deny('You are not allowed to submit desk evaluation.');
+        }
+
+        $postGraduateProgramReview = DeskEvaluation::findOrFail($request -> desk_evaluation_id) -> postGraduateProgramReview;
+
+        return $this -> DEandPEAuthorization($user, $postGraduateProgramReview, 'DE', 'submit');
+
+    }
+
+    public function submitProperEvaluationAuthorize(User $user, ReviewerSubmitProperEvaluation $request) : Response {
+        $currRole = request() -> session() -> get('authRole');
+
+        if($currRole != 'reviewer'){
+            return Response::deny('You are not allowed to submit proper evaluation.');
+        }
+
+        //check if the reviewer is in the review team who is assigned to the pgpr
+        $postGraduateReviewProgram = PostGraduateProgramReview::findOrFail($request -> proper_evaluation_id) -> postGraduateProgramReview;
+
+        return $this -> DEandPEAuthorization($user, $postGraduateReviewProgram, 'PE', 'submit');
+    }
+
+
+    private function DEandPEAuthorization(User $user, PostGraduateProgramReview $pgpr, string $stage, string $requestType) : Response {
+        switch($stage) {
+            case 'DE' :
+                if($pgpr -> status_of_pgpr != 'DE'){
+                    return Response::deny('You are not allowed to ' . $requestType . ' desk evaluation.');
+                }
+                break;
+            case 'PE' :
+                if($pgpr -> status_of_pgpr != 'PE1' && $pgpr -> status_of_pgpr != 'PE2'){
+                    return Response::deny('You are not allowed to ' . $requestType . ' proper evaluation.');
+                }
+                break;
+
+        }
+
+        //get the review team
+        $team = $pgpr -> acceptedReviewTeam;
+
+        //get the reviewers
+        foreach($team -> reviewers as $reviewer){
+            if($reviewer -> pivot -> reviewer_id == $user -> id){
+                return Response::allow();
+            }
+        }
+
+        return Response::deny('You are not allowed to ' . $requestType . ' evaluation.');
+    }
+
+
+    public function rejectPGPRInEvaluationAuthorize(User $user, UpdateAcceptPGPRRequest $request) : Response {
+        $currRole = request() -> session() -> get('authRole');
+
+        if($currRole != 'reviewer'){
+            return Response::deny('You are not allowed to reject post graduate review program.');
+        }
+
+        //check if the reviewer is in the review team who is assigned to the pgpr
+        $postGraduateReviewProgram = PostGraduateProgramReview::findOrFail($request -> pgpr_id);
+
+        //check if the pgpr is in the evaluation stage
+        if($postGraduateReviewProgram -> status_of_pgpr != 'DE' && $postGraduateReviewProgram -> status_of_pgpr != 'PE1' && $postGraduateReviewProgram -> status_of_pgpr != 'PE2'){
+            return Response::deny('You are not allowed to reject post graduate review program.');
+        }
+
+        //get the review team
+        $team = $postGraduateReviewProgram -> acceptedReviewTeam;
+
+        //get the reviewers
+        foreach($team -> reviewers as $reviewer){
+            if($reviewer -> pivot -> reviewer_id == $user -> id){
+                return Response::allow();
+            }
+        }
+
+        return Response::deny('You are not allowed to reject post graduate review program.');
     }
 }
