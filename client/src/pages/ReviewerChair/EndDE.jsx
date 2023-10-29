@@ -20,7 +20,7 @@ import getSelfEvaluationReport from '../../api/SelfEvaluationReport/getSelfEvalu
 import createSERRows from '../../assets/reviewer/createSERRows';
 import useReviewerRole from '../../hooks/useReviewerRole';
 import getSpecificPGPR from '../../api/Reviewer/getSpecificPGPR';
-import SubmitDeskEvaluation from '../../api/Reviewer/SubmitDeskEvaluation';
+import EndDeskEvaluation from '../../api/reviewChair/endDeskEvaluation';
 import StatusMessage from '../../components/StatusMessage';
 import { useNavigate } from 'react-router-dom';
 import GetDeskEvaluationProgress from '../../api/DeskEvaluation/getDeskEvaluationProgress';
@@ -87,11 +87,11 @@ const SubmitDE = () => {
         return {criteria:criteriaData.name, DE_progress, Actions };
     }
 
-    const handleSubmitDE_results = async() => {
+    const handleEndDE_results = async() => {
         SetLoading(true);
         try{
-            const response = await SubmitDeskEvaluation(pgprDetails?.data?.postGraduateReviewProgram?.deskEvaluation);
-            console.log("Submit DE Results : ",response);
+            const response = await EndDeskEvaluation(pgprId);
+            console.log("End DE Results : ",response);
             SetLoading(false);
             setError({status:response?.status, msg:response?.data?.message});
             if(response?.status==200){
@@ -230,7 +230,7 @@ const SubmitDE = () => {
                     cancel:"cancel"}} 
                     Open={openDialog}
                     onClose={()=>setOpenDialog(false)}
-                    onSubmit={()=>handleSubmitDE_results()}>
+                    onSubmit={()=>handleEndDE_results()}>
                 </DialogMenu>
 
                 <StatusMessage
