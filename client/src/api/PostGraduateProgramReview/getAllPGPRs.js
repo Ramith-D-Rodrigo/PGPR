@@ -5,9 +5,16 @@ import axios from "../api.js";
 
 //url is : SERVER_URL + SERVER_API_VERSION + 'postGraduateProgramReviews'
 
-const getAllPGPRs = async () => {
+//possible query params:
+// 1 - includeDE (boolean -> true if you want to include the DE)
+// 2 - includePE (boolean -> true if you want to include the PE)
+
+const getAllPGPRs = async (queryParams = null) => {
     const URL = SERVER_URL + SERVER_API_VERSION + 'postGraduateProgramReviews';
 
+    if(queryParams !== null){
+        return await axios.get(URL, {params: queryParams});
+    }
     return await axios.get(URL);
 }
 
