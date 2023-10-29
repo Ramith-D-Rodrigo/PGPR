@@ -107,6 +107,12 @@ class ReviewerController extends Controller
                 'error' => $e->errors(),
             ], 500);
         }
+        catch(Exception $e){
+            return response() -> json([
+                'message' => $e -> getMessage() ?? 'Error occurred while importing reviewers',
+                'error' => $e -> getTrace()
+            ], 500);
+        }
     }
 
     /**
