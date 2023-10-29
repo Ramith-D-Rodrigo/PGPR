@@ -103,7 +103,7 @@ class EvidenceController extends Controller
             Mail::to($programCoordinator->official_email)->send(
                 new InformEvidenceActionToAuthorities(
                     user: $programCoordinator,
-                    action: 'Upload',
+                    action: 'UPLOAD',
                     evidenceInfo: $evidence,
                     postgraduateProgram: $postGraduateProgram,
                     subject: 'New Evidence Uploaded',
@@ -114,7 +114,7 @@ class EvidenceController extends Controller
             Mail::to($iqauDirector->official_email)->send(
                 new InformEvidenceActionToAuthorities(
                     user: $iqauDirector,
-                    action: 'Upload',
+                    action: 'UPLOAD',
                     evidenceInfo: $evidence,
                     postgraduateProgram: $postGraduateProgram,
                     subject: 'New Evidence Uploaded',
