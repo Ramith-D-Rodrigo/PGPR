@@ -31,10 +31,6 @@ Route::post('/initial-password-reset', [ResetPasswordController::class, 'store']
                 // ->middleware('guest')
                 ->name('register');
 
-Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])
-                // ->middleware('guest')
-                ->name('password.email');
-
 Route::post('/initial-password-reset', [ResetPasswordController::class, 'store'])
     // ->middleware('guest')
     ->name('initial.password.reset');
