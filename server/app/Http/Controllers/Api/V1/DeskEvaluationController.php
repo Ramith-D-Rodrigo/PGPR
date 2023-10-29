@@ -144,7 +144,7 @@ class DeskEvaluationController extends Controller
     public function viewStandardWiseDetailsOfEachCriteriaInDE(ShowStandardWiseDetailsOfEachCriteriaRequest $request): JsonResponse
     {
         try {
-            $this -> authorize('viewStandardWiseDetailsOfEachCriteriaInDE', $request);
+            $this -> authorize('viewStandardWiseDetailsOfEachCriteriaInDE', [DeskEvaluation::class, $request]);
 
             $validated = $request->validated();
             $data = DB::table('desk_evaluation_score')
@@ -194,7 +194,7 @@ class DeskEvaluationController extends Controller
     public function getDeskEvaluationRemarkAndScoreForStandard(ShowDeskEvaluationRemarksRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
-            $this -> authorize('getDeskEvaluationRemarkAndScoreForStandard', $request);
+            $this -> authorize('getDeskEvaluationRemarkAndScoreForStandard',[DeskEvaluation::class, $request]);
 
             $validated = $request->validated();
             $data = DB::table('desk_evaluation_score')->select([

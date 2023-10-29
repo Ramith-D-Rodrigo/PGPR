@@ -88,7 +88,7 @@ class StoreAssignReviewTeamMemberCriteriaRequest extends FormRequest
         $reviewers = [];
 
         foreach ($this->reviewers as $reviewer) {
-            $reviewer[] = [
+            $reviewers[] = [
                'reviewer_id' => $reviewer['reviewerId'],
                'criteria' => $reviewer['criteria']
             ];
