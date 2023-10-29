@@ -86,12 +86,12 @@ const ReviewerProfile = () => {
         },
     }
 
-
-
-
     return (
         isLoaded &&
         <>
+            
+
+
             <Divider textAlign='left'>
                 <Chip label="Reviewer Profile" />
             </Divider>
@@ -161,31 +161,6 @@ const ReviewerProfile = () => {
                     <Box sx={child}>Designation</Box>
                     <Box sx={child}>{academicProfile.designation}</Box>
                 </Box>
-
-                <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '70%', margin: '1rem' }}>
-                    <Box sx={{ margin: '1rem' }}>Department</Box>
-                    <TableContainer component={Paper}>
-                        <Table sx={tableStyle}>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell align='center'>Name</TableCell>
-                                    <TableCell align='center'>Department Head</TableCell>
-                                    <TableCell align='center'>Department Head Email</TableCell>
-                                    <TableCell align='center'>Department Postal Address</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                <TableRow>
-                                    <TableCell align='center'>{academicProfile.department.name}</TableCell>
-                                    <TableCell align='center'>{academicProfile.department.headName}</TableCell>
-                                    <TableCell align='center'>{academicProfile.department.headEmail}</TableCell>
-                                    <TableCell align='center'>{academicProfile.department.postalAddress}</TableCell>
-                                </TableRow>
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                </Box>
-
                 <Box sx={container}>
                     <Box sx={child}>Number of Abstracts</Box>
                     <Box sx={child}>{academicProfile.abstractCount}</Box>
@@ -226,6 +201,30 @@ const ReviewerProfile = () => {
                     ) :
                         <Box sx={child}>No CV provided</Box>
                     }
+                </Box>
+
+                <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '70%', margin: '1rem' }}>
+                    <Box sx={{ margin: '1rem' }}>Department</Box>
+                    <TableContainer>
+                        <Table sx={tableStyle}>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell align='center'>Name</TableCell>
+                                    <TableCell align='center'>Department Head</TableCell>
+                                    <TableCell align='center'>Department Head Email</TableCell>
+                                    <TableCell align='center'>Department Postal Address</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                <TableRow>
+                                    <TableCell align='center'>{academicProfile.department.name}</TableCell>
+                                    <TableCell align='center'>{academicProfile.department.headName}</TableCell>
+                                    <TableCell align='center'>{academicProfile.department.headEmail}</TableCell>
+                                    <TableCell align='center'>{academicProfile.department.postalAddress}</TableCell>
+                                </TableRow>
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
                 </Box>
 
                 <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '70%' }}>
