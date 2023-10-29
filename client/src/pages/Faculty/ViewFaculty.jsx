@@ -18,11 +18,13 @@ import { TableHead } from "@mui/material";
 import { TableRow } from "@mui/material";
 import Box from '@mui/material/Box';
 import  useSetUserNavigations from "../../hooks/useSetUserNavigations.js";
+import { CircularProgress } from "@mui/material";
 
 
 const ViewFaculty = () => {
     const { auth } = useAuth();
     const { facultyId } = useParams();
+    const [loading, setLoading] = useState(true);
 
     useSetUserNavigations(
         [
@@ -48,6 +50,8 @@ const ViewFaculty = () => {
 
         const getFaculty = async () => {
             try {
+                setLoading(true);
+
                 //get the faculty
                 const queryParams = {
                     includeUniversity: true,
@@ -97,6 +101,8 @@ const ViewFaculty = () => {
 
                     setFaculty(facultyData);
                 }
+
+                setLoading(false);
             }
             catch (error) {
                 console.log(error);
@@ -106,9 +112,35 @@ const ViewFaculty = () => {
         getFaculty();
     }, [facultyId]);
 
+    const styled = {
+        display: 'flex',
+        width: '80%',
+        margin: '0.6rem',
+    }
+
     return (
         <>
-            <Divider textAlign="left">
+
+            {loading &&
+                <div style={{ display: "flex", width: "100%", justifyContent: "center", alignItems: "center" }}>
+                    <Typography variant="h6" style={{ margin: "0 0 0 20px" }}>
+                        Loading Data...
+                    </Typography>
+                    <CircularProgress
+                        style={{ margin: "0 0 0 20px", color: "darkblue" }}
+                        thickness={5}
+                        size={24}
+                    />
+                </div>
+            }
+            {!loading && faculty &&
+                <>
+                
+                
+                </>
+            
+            }
+            <Divider textAlign="left" sx={{ mb: 2 }}>
                 <Chip label="Faculty Details" />
             </Divider>
 
