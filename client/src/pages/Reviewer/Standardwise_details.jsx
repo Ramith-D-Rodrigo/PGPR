@@ -9,11 +9,14 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import { Link } from 'react-router-dom';
+import GetDeskEvaluationProgress from '../../api/DeskEvaluation/getDeskEvaluationProgress';
+import getAssignedPGPR from '../../api/Reviewer/getAssignedPGPR';
 
 function Standardwise_details() {
     const {pgprId} = useParams();
     const [criteriaId, setCriteriaId] = useState(1);
     const [standards, setStandards] = useState([]);
+    const [loading,setLoading] = useState(false)
     useSetUserNavigations(
         [
             {
@@ -30,6 +33,24 @@ function Standardwise_details() {
             },
         ]
     );
+
+    useEffect(()=>{
+        const getData = async () =>{
+            setLoading(true);
+            try{
+                const response0 = await getAssignedPGPR(pgprId);
+                console.log("PGPR details ", response0?.data?.data);
+                const response = await GetDeskEvaluationProgress(response0?.data?.data?.postGraduateReviewProgram?.deskEvaluation.id);
+                console.log("DE progress ",response?.data?.data);
+                setLoading(false);
+            }
+            catch (err) {
+                console.log(err);
+                setLoading(false);
+            }
+        };
+        getData();
+    },[]);
 
     useEffect(() => {
         // get data for selected criteriaId
