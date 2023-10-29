@@ -56,7 +56,7 @@ function FinalizeDE() {
 
     useEffect(() => {
       document.title = "End the Desk Evaluation process";
-      const getSERDetails = async () => {
+      const getSERDetails = async (pgprDetails) => {
           SetLoading(true);
           try {
               const response = await getSelfEvaluationReport(pgprDetails?.postGraduateReviewProgram?.selfEvaluationReport?.id);
@@ -75,6 +75,7 @@ function FinalizeDE() {
               console.log("PGPR Details : ",response0?.data?.data);
               setReviewerRole(response0?.data?.data?.role);
               if(response0?.data?.data?.role != "CHAIR") history.back();
+              getSERDetails(response0?.data?.data);
               setPGPRDetails(response0?.data?.data);
               const response = await getPGPR(pgprId);
               console.log("2nd req pgpr details ",response?.data?.data);
@@ -89,7 +90,6 @@ function FinalizeDE() {
           }
       };
       getPGPRDetails();
-      getSERDetails();
     }, []);
 
     const pgProgrammeDetails = SERDetails?.postGraduateProgramReview?.postGraduateProgramme;
