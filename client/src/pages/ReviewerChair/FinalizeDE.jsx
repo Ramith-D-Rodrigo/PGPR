@@ -33,6 +33,7 @@ function FinalizeDE() {
     const [loading,SetLoading] = useState(false);
     const {reviewerRole, setReviewerRole} = useReviewerRole();
     const [reviewTeam,setReviewTeam] = useState([]);
+    const [deProgress,setDeProgress] = useState([]);
     const [openDialog, setOpenDialog] = useState(false);
     const [pgprDetails,setPGPRDetails] = useState([]);
 
@@ -78,7 +79,8 @@ function FinalizeDE() {
               console.log("2nd req pgpr details ",response?.data?.data);
               setReviewTeam(response?.data?.data?.acceptedReviewTeam);
               const response1 = await GetDEprogress(response?.data?.data?.acceptedReviewTeam?.id,response?.data?.data?.deskEvaluation?.id)
-              console.log(response1?.data?.data);
+              console.log("de progress :",response1?.data?.data);
+              setDeProgress(response1?.data?.data);
               SetLoading(false);
           } catch (err) {
               console.error(err);
@@ -109,7 +111,7 @@ function FinalizeDE() {
       const Criterias = SERDetails?.criterias;
       // const evidencesForGivenStandards = SERDetails?.evidenceGivenStandards;
 
-      console.log("Criterias : ",Criterias);
+    //   console.log("Criterias : ",Criterias);
       // console.log("evidencesForGivenStandards : ",evidencesForGivenStandards);
 
       const createData = (reviewer,role,progress) => {
@@ -118,14 +120,41 @@ function FinalizeDE() {
         return {id:reviewer.id,name:reviewer.name,role,progress,actions}
       }
 
-      const rows = reviewTeam?.reviewers? 
+      const rows = reviewTeam ?.reviewers? 
         reviewTeam.reviewers.map((reviewer,index)=>{
-            return createData({id:reviewer.userData.id,name:reviewer.userData.initials+"."+reviewer.userData.surname},reviewer.role,"unprocessable data !!")
+            let progress = 0;
+            deProgress.forEach((de_reviewer)=>{
+                if(de_reviewer.reviewerId == reviewer.userData.id)
+                {
+                    let noOfStandards=0;
+                    let noOfEvaluatedStandard=0;
+                    de_reviewer.criteriaData.forEach((criteria)=>{
+                        noOfStandards+=criteria.totalStandards;
+                        noOfEvaluatedStandard+=criteria.evaluatedStandards;
+                    });
+                    progress = Math.trunc(noOfEvaluatedStandard/noOfStandards*100)+"%";
+                }
+            })
+            return createData({id:reviewer.userData.id,name:reviewer.userData.initials+"."+reviewer.userData.surname},reviewer.role,progress)
         })
         :
         [];
 
         console.log("rows: ",rows);
+
+    function getRemainingDates(endDate) {
+            const endDateObject = new Date(endDate);
+            const currentDate = new Date();
+
+            const millisecondsInADay = 1000 * 60 * 60 * 24;
+            const millisecondsDifference = endDateObject.getTime() - currentDate.getTime();
+          
+            const daysRemaining = millisecondsDifference / millisecondsInADay;
+            const monthsRemaining = Math.floor(daysRemaining / 30);
+            const daysRemainingAfterMonths = daysRemaining % 30;
+          
+            return monthsRemaining>0? `${monthsRemaining} months and` : `` + `${Math.ceil(daysRemainingAfterMonths)} day(s) Remaining`;
+          }
     return (
       <>
         {
@@ -167,13 +196,13 @@ function FinalizeDE() {
                     variant="button"
                     style={{ margin: "0 0 0 20px" }}
                 >
-                    Desk Evaluation Period : <strong>2023 AUG 12 To 2023 AUG 12</strong>
+                    Desk Evaluation Period : <strong>{`${pgprDetails?.postGraduateReviewProgram?.deskEvaluation?.startDate} To ${pgprDetails?.postGraduateReviewProgram?.deskEvaluation?.endDate}`}</strong>
                 </Typography>
                 <Typography
                     variant="button"
                     style={{ margin: "0 0 0 20px" }}
                 >
-                    <strong>1 month and 12 days Remaining</strong>
+                    <strong>{getRemainingDates(pgprDetails?.postGraduateReviewProgram?.deskEvaluation?.endDate)}</strong>
                 </Typography>
             </Box>
 
