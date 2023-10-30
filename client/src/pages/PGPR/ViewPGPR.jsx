@@ -116,7 +116,7 @@ const ViewPGPR = () => {
 
         const fetchPGPRs = async () => {
             try {
-                const pgprs = await getAllPGPRs();
+                const pgprs = await getAllPGPRs({status: 'SUBMITTED,PLANNING'});
 
                 if (pgprs.status) {
                     console.log('pgprs', pgprs.data.data);
@@ -416,13 +416,22 @@ const ViewPGPR = () => {
                                     }
                                     <Box align='left'>
                                         <Typography key={reviewerChair?.userData?.id + 'selectedChair'} variant="h6" sx={{ mb: 1 }} align='left'>
-                                            {reviewerChair?.userData?.initials + " " + reviewerChair?.userData?.surname}
+                                            {
+                                            reviewerChair ? reviewerChair?.userData?.initials + " " + reviewerChair?.userData?.surname :
+                                            "Not Selected"
+                                            }
                                         </Typography>
                                         <Typography key={reviewer1?.userData?.id + 'selectedMember1'} variant="h6" sx={{ mb: 1 }} align='left'>
-                                            {reviewer1?.userData?.initials + " " + reviewer1?.userData?.surname}
+                                            {
+                                            reviewer1 ? reviewer1?.userData?.initials + " " + reviewer1?.userData?.surname : 
+                                            "Not Selected"
+                                            }
                                         </Typography>
                                         <Typography key={reviewer2?.userData?.id + 'selectedMember2'} variant="h6" sx={{ mb: 1 }} align='left'>
-                                            {reviewer2?.userData?.initials + " " + reviewer2?.userData?.surname}
+                                            {
+                                            reviewer2 ? reviewer2?.userData?.initials + " " + reviewer2?.userData?.surname : 
+                                            "Not Selected"
+                                            }
                                         </Typography>
                                     </Box>
 
