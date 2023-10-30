@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import downloadExcelFile from '../../api/Reviewer/downloadExcelFile';
 import { Button, Input, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Box, Typography, ButtonGroup } from '@mui/material';
 import FormField from '../../components/FormField';
+import TextField from '@mui/material/TextField';
 import getAllUniversities from '../../api/University/getAllUniversities';
 import getUniversityFaculties from '../../api/University/getUniversityFaculties';
 import importReviewers from '../../api/Reviewer/importReviewers';
@@ -15,7 +16,7 @@ import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import getAllUniversitySides from '../../api/UniversitySide/getAllUniversitySides';
 import DialogMenu from '../../components/DialogMenu';
-
+import assignReviewerRole from '../../api/QACOfficer/assignReviewerRole';
 
 const ImportReviewers = () => {
 
@@ -67,6 +68,7 @@ const ImportReviewers = () => {
     const [openModal,setOpenModal] = useState(false);
     const [openDialog,setOpenDialog] = useState(false);
     const [assigningUserId, setAssigningUserId] = useState(null);
+    const [submitDialogMenu,setSubmitDialogMenu] = useState(()=>{return ()=>setOpenDialog(false)});
 
     useEffect(() => {
         document.title = "Import Reviewers";
@@ -156,8 +158,34 @@ const ImportReviewers = () => {
         setSearchUser(event.target.value);
     }
 
-    const handleSubmitAddUser= async(evt)=>{
+    const handleSubmitAddUser= (evt)=>{
         evt.preventDefault();
+        setSubmitDialogMenu(()=>{
+            return ()=>{
+                handleAddUser(evt,false);
+                setOpenDialog(false);
+                setOpenModal(false);
+            }
+        });
+        setOpenDialog(true);
+    }
+
+    const handleAddUser = async(evt,isUniversitySide)=>{
+        try{
+            if(isUniversitySide)
+            {
+                const response = await assignReviewerRole();
+                console.log(response?.data?.data);
+            }
+            else{
+                const formData = new FormData(evt.target);
+                const response = await assignReviewerRole(formData);
+                console.log(response?.data?.data);
+            }
+        }
+        catch(err){
+            console.log(err);
+        }
     }
 
     const handleReviewerAssignRole = async (userRoles) => {
@@ -171,10 +199,20 @@ const ImportReviewers = () => {
             true : false;
         })
 
-        isNonAcedamicUser? 
+        if(isNonAcedamicUser)
+        {
             setOpenModal(true)
-            :
+        }
+        else{
+            setSubmitDialogMenu(()=>{
+                return ()=>{
+                    handleAddUser(null,true);
+                    setOpenDialog(false);
+                    setOpenModal(false);
+                }
+            });
             setOpenDialog(true);
+        }
 
     }
 
@@ -183,12 +221,16 @@ const ImportReviewers = () => {
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
-        width: 400,
+        width: 700,
         bgcolor: 'background.paper',
         border: '2px solid #000',
         boxShadow: 24,
         p: 4,
       };
+
+    const dialogFieldStyle = {
+        margin:'0.5rem 1rem'
+    }
 
     const [errorMsg, setErrorMsg] = useState("");
     const [successMsg, setSuccessMsg] = useState("");
@@ -308,7 +350,7 @@ const ImportReviewers = () => {
                                         <TableCell align="center">
                                             <ButtonGroup>
                                                 <Button variant="contained" color="success" onClick={() => {
-                                                        setAssigningUserId(universitySide.id);
+                                                        setAssigningUserId(universitySide.user.id);
                                                         handleReviewerAssignRole(JSON.parse(universitySide.user.roles));
                                                     }}
                                                     disabled={
@@ -342,15 +384,132 @@ const ImportReviewers = () => {
                     Fill the Additional required details
                 </Typography>
                 <Divider sx={{ marginTop: "1rem", marginBottom: "1rem" }} />
-                <form style={{ padding: "20px 40px" }} onSubmit={handleSubmitAddUser}>
+                <form id="additionalFormId" style={{ padding: "20px 40px" }} onSubmit={handleSubmitAddUser}>
                     <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", flexWrap: "wrap" }}>
-                        <FormField required={true} label={"Account For"} type={"select"} key={"VCCQA"} options={[
-                            { name: "vc", value: "vice_chancellor", label: "Vice Chancellor" },
-                            { name: "cqa", value: "cqa_director", label: "CQA Director" },
-                        ]} />
+                    {
+                    // 'google_scholar_link' => ['required', 'string', 'url'],
+                    // 'designation' => ['required', 'string'],
+                    // 'qualification_1' => ['required', 'string', 'max:255'],
+                    // 'qualification_1_slqf_level' => ['required', 'integer'],
+                    // 'qualification_2' => ['required', 'string', 'max:255'],
+                    // 'qualification_2_slqf_level' => ['required', 'integer'],
+                    // 'qualification_3' => ['string', 'max:255', 'present', 'nullable'],
+                    // 'qualification_3_slqf_level'=> ['integer', 'present', 'nullable'],
+                    // 'qualification_4' => ['string', 'max:255', 'present', 'nullable'],
+                    // 'qualification_4_slqf_level' => ['integer', 'present', 'nullable'],
+                    // 'working_faculty' => ['required', 'integer', 'exists:faculties,id'],
+                    }
+                    <TextField
+                        sx={dialogFieldStyle}
+                        id="google_scholar_link_id"
+                        label="google_scholar_link"
+                        name="google_scholar_link"
+                        type="url"
+                        helperText="google_scholar_link"
+                        variant="standard"
+                        required
+                    />
+                    <TextField
+                        sx={dialogFieldStyle}
+                        id="designation_id"
+                        label="designation"
+                        name="designation"
+                        helperText="designation"
+                        variant="standard"
+                        required
+                    />
+                    <TextField
+                        sx={dialogFieldStyle}
+                        id="working_faculty_id"
+                        label="working_faculty"
+                        name="working_faculty"
+                        helperText="working_faculty"
+                        variant="standard"
+                        required
+                    />
+                    <TextField
+                        sx={dialogFieldStyle}
+                        id="qualification_1_id"
+                        label="qualification_1"
+                        name="qualification_1"
+                        helperText="qualification_1"
+                        variant="standard"
+                        required
+                    />
+                    <TextField
+                        sx={dialogFieldStyle}
+                        id="qualification_1_slqf_level_id"
+                        type='number'
+                        min='8'
+                        max='12'
+                        label="qualification_1_slqf_level"
+                        name="qualification_1_slqf_level"
+                        helperText="qualification_1_slqf_level"
+                        variant="standard"
+                        required
+                    />
+                    <TextField
+                        sx={dialogFieldStyle}
+                        id="qualification_2_id"
+                        label="qualification_2"
+                        name="qualification_2"
+                        helperText="qualification_2"
+                        variant="standard"
+                        required
+                    />
+                    <TextField
+                        sx={dialogFieldStyle}
+                        id="qualification_2_slqf_level_id"
+                        type='number'
+                        min='8'
+                        max='12'
+                        label="qualification_2_slqf_level"
+                        name="qualification_2_slqf_level"
+                        helperText="qualification_2_slqf_level"
+                        variant="standard"
+                        required
+                    />
+                    <TextField
+                        sx={dialogFieldStyle}
+                        id="qualification_3_id"
+                        label="qualification_3"
+                        name="qualification_3"
+                        helperText="not required"
+                        variant="standard"
+                    />
+                    <TextField
+                        sx={dialogFieldStyle}
+                        id="qualification_3_slqf_level_id"
+                        type='number'
+                        min='8'
+                        max='12'
+                        label="qualification_3_slqf_level"
+                        name="qualification_3_slqf_level"
+                        helperText="not required"
+                        variant="standard"
+                    />
+                    <TextField
+                        sx={dialogFieldStyle}
+                        id="qualification_4_id"
+                        label="qualification_4"
+                        name="qualification_4"
+                        helperText="not required"
+                        variant="standard"
+                    />
+                    <TextField
+                        sx={dialogFieldStyle}
+                        id="qualification_4_slqf_level_id"
+                        type='number'
+                        min='8'
+                        max='12'
+                        label="qualification_4_slqf_level"
+                        name="qualification_4_slqf_level"
+                        helperText="not required"
+                        variant="standard"
+                    />
                     </Box>
-                    <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", flexWrap: "wrap" }}>
-                        
+                    <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", flexWrap: "wrap",margin:'1rem 0 0' }}>
+                        <Button type='submit' variant='contained'>Assign as Reviewer</Button>
                     </Box>
                     {/* <Box sx={{margin:"0.5rem 0",display:'flex',flexWrap:"wrap",justifyContent:'center',alignItems:'center',width:'100%'}}>
                             {Loading? "Processing " : ""}
@@ -369,7 +528,7 @@ const ImportReviewers = () => {
                 Actions={{submit:'add user',cancel:'cancel'}}
                 onClose={()=>setOpenDialog(false)}
                 Open={openDialog}
-                onSubmit={()=>setOpenDialog(false)}
+                onSubmit={submitDialogMenu}
             ></DialogMenu>
 
 
