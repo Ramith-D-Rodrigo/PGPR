@@ -54,22 +54,15 @@ function AddProgrammeCoordinator({onSubmit,onSelectedFaculty,isLoading,faculties
           </Divider>
           <Box style={{display:"flex",flexWrap:"wrap",alignItems:"start",justifyContent:"space-between",width:"100%",padding:"0 2rem",margin:"3rem 0"}}>
 
-              <FormControl style={TextFieldStyle} fullWidth>
-                  <InputLabel id="designationId">Designation*</InputLabel>
-                  <Select
-                      labelId="designationLabel"
-                      id="designationSelect"
-                      label="designation*"
-                      value = {destination}
-                      name="designation"
-                      onChange={(e)=>setDestination(e.target.value)}
-                      disabled={isLoading}
-                      required
-                  >
-                  <MenuItem value={"Director"}>Director</MenuItem>
-                  <MenuItem value={"Dean"}>Dean</MenuItem>
-                  </Select>
-              </FormControl>
+                <TextField
+                    style={TextFieldStyle}
+                    id= "desginationID"
+                    name="designation"
+                    label="Designation"
+                    disabled={isLoading}
+                    required
+                    onChange={(e)=>setDestination(e.target.value)}
+                />
 
               <FormControl style={TextFieldStyle} fullWidth>
                   <InputLabel id="FacultyId">Faculty*</InputLabel>
@@ -92,12 +85,12 @@ function AddProgrammeCoordinator({onSubmit,onSelectedFaculty,isLoading,faculties
               </FormControl>
 
               <FormControl style={TextFieldStyle} fullWidth>
-                  <InputLabel id="postgraduateProgrammeId">Postgraduate Programme*</InputLabel>
+                  <InputLabel id="postGradProgramId">Postgraduate Programme*</InputLabel>
                   <Select
                       labelId="postgraduateProgrammeLabel"
                       id="postgraduateProgrammeSelect"
                       label="postgraduateProgramme*"
-                      name="postgraduateProgrammeid"
+                      name="postGradProgramId"
                       value={postgraduateProgramme}
                       onChange={(e)=>setPostgraduateProgramme(e.target.value)}
                       disabled={isLoading}
