@@ -2,10 +2,17 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Requests\V1\AssignReviewerRoleRequest;
+use App\Http\Resources\V1\UniversitySideCollection;
+use App\Models\AcademicStaff;
+use App\Models\Reviewer;
 use App\Models\UniversitySide;
 use App\Http\Requests\StoreUniversitySideRequest;
 use App\Http\Requests\UpdateUniversitySideRequest;
 use App\Http\Controllers\Controller;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Request;
 
 class UniversitySideController extends Controller
 {
@@ -15,7 +22,13 @@ class UniversitySideController extends Controller
     public function index()
     {
         //
-        return UniversitySide::all();
+        return new UniversitySideCollection(
+            UniversitySide::with(['user', 'university'])
+                ->whereHas('user', function ($query) {
+                    $query->whereJsonDoesntContain('roles', 'vice_chancellor');
+                })
+                ->get()
+        );
     }
 
     /**

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import downloadExcelFile from '../../api/Reviewer/downloadExcelFile';
-import { Button, Input, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Box, Typography } from '@mui/material';
+import { Button, Input, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Box, Typography, ButtonGroup } from '@mui/material';
 import getAllUniversities from '../../api/University/getAllUniversities';
 import getUniversityFaculties from '../../api/University/getUniversityFaculties';
 import importReviewers from '../../api/Reviewer/importReviewers';
@@ -11,6 +11,7 @@ import Paper from '@mui/material/Paper';
 import tableStyle from '../../assets/tableStyle';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+import getAllUniversitySides from '../../api/UniversitySide/getAllUniversitySides';
 
 
 const ImportReviewers = () => {
@@ -58,35 +59,45 @@ const ImportReviewers = () => {
     const [universities, setUniversities] = useState([]);
     const [excelFile, setExcelFile] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
+    const [searchUser, setSearchUser] = useState("");
+    const [userList, setUserList] = useState([]);
+    const [assigningUserId, setAssigningUserId] = useState(null);
 
     useEffect(() => {
         document.title = "Import Reviewers";
 
         const handleGetUniversitiesAndFaculties = async () => {
             try {
-                const universitiesResult = await getAllUniversities();
+                getAllUniversities().then(async (response) => {
+                    if (response.status === 200) {
 
-                if (universitiesResult.status === 200) {
-
-                    const universityWithFaculties = await Promise.all(
-                        //get faculties of each university
-                        universitiesResult.data.data.map(async (university) => {
+                        const universityWithFaculties = await Promise.all(
                             //get faculties of each university
-                            const facultiesResult = await getUniversityFaculties(university.id);
+                            response.data.data.map(async (university) => {
+                                //get faculties of each university
+                                const facultiesResult = await getUniversityFaculties(university.id);
 
-                            if (facultiesResult.status === 200) {
-                                return {
-                                    ...university,
-                                    faculties: facultiesResult.data.data
-                                };
-                            }
+                                if (facultiesResult.status === 200) {
+                                    return {
+                                        ...university,
+                                        faculties: facultiesResult.data.data
+                                    };
+                                }
 
-                            return university;
-                        })
-                    )
+                                return university;
+                            })
+                        )
 
-                    setUniversities(universityWithFaculties);
-                }
+                        setUniversities(universityWithFaculties);
+                    }
+                });
+
+                getAllUniversitySides().then((response) => {
+                    if (response.status === 200) {
+                        console.log(response.data.data);
+                        setUserList(response.data.data);
+                    }
+                });
             }
             catch (error) {
                 console.log(error);
@@ -100,7 +111,7 @@ const ImportReviewers = () => {
 
     const handleExcelUpload = async (e) => {
         e.preventDefault();
-        
+
         if (!excelFile) {
             setErrorMsg("Please upload the excel file");
             return;
@@ -113,7 +124,7 @@ const ImportReviewers = () => {
             setErrorMsg("Please upload a valid excel file");
             return;
         }
-        
+
         setWait(true);
 
         try {
@@ -134,6 +145,13 @@ const ImportReviewers = () => {
 
     const handleSearch = (event) => {
         setSearchTerm(event.target.value);
+    }
+
+    const handleUserSearch = (event) => {
+        setSearchUser(event.target.value);
+    }
+
+    const handleReviewerAssignRole = async (event) => {
     }
 
 
@@ -198,10 +216,93 @@ const ImportReviewers = () => {
                 </Box>
             </Box>
 
+            <Divider textAlign='left'>
+                <Chip label="Registered User List" />
+            </Divider>
 
-            <Typography sx={{margin: '3rem 0'}}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', my: '1rem' }}>
+                <Box sx={{ m: 1 }}>
+                    If registering user is present in the system, go through the following table and assign the reviewer role to the user.
+                </Box>
+                <Box sx={{ m: 1 }}>
+                    Search by Name : <Input type="text" placeholder="Search" onChange={handleUserSearch} />
+                </Box>
+                <Box sx={{ m: 1 }}>
+                    <TableContainer component={Paper}>
+                        <Table sx={tableStyle}>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell align="center">User&apos;s Initials</TableCell>
+                                    <TableCell align="center">User&apos;s Last Name</TableCell>
+                                    <TableCell align="center">User&apos;s Full Name</TableCell>
+                                    <TableCell align="center">University</TableCell>
+                                    <TableCell align="center">Current Roles</TableCell>
+                                    <TableCell align="center">Actions</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {userList.filter((universitySide) => {
+                                    if (searchUser === "") {
+                                        return universitySide;
+                                    } else if (universitySide.user.fullName.toLowerCase().includes(searchUser.toLowerCase())) {
+                                        return universitySide;
+                                    }
+                                }).map((universitySide) => (
+                                    <TableRow
+                                        key={universitySide.id}
+                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                    >
+                                        <TableCell align="center">
+                                            {universitySide.user.initials}
+                                        </TableCell>
+                                        <TableCell align="center">{universitySide.user.surname}</TableCell>
+                                        <TableCell align="center">{universitySide.user.fullName}</TableCell>
+                                        <TableCell align="center">{universitySide.university.name}</TableCell>
+                                        <TableCell align="center">
+                                            {JSON.parse(universitySide.user.roles).map(role => {
+                                                return (
+                                                    <Typography key={role + universitySide.user.id}>{
+                                                        role.split("_").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ")
+
+                                                    }</Typography>
+                                                )
+                                            })
+
+                                            }
+                                        </TableCell>
+                                        <TableCell align="center">
+                                            <ButtonGroup>
+                                                <Button variant="contained" color="success" onClick={() => {
+                                                        setAssigningUserId(universitySide.id);
+                                                        handleReviewerAssignRole();
+                                                    }}
+                                                    disabled={
+                                                        JSON.parse(universitySide.user.roles).includes("reviewer") ? true : false || wait 
+                                                    }>
+                                                    Assign Reviewer Role
+                                                </Button>
+                                                <Button variant="contained" color="primary">
+                                                    View Profile
+                                                </Button>
+                                            </ButtonGroup>
+                                        </TableCell>
+
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </Box>
+            </Box>
+
+            <Divider textAlign='left'>
+                <Chip label="Universities and Faculties" />
+            </Divider>
+
+
+            <Box sx={{ margin: '3rem 0' }}>
                 Use the following information regarding the faculties of each university to fill the excel file.
-            </Typography>
+            </Box>
 
             <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
                 <Box sx={{ m: 1 }}>
@@ -214,7 +315,7 @@ const ImportReviewers = () => {
 
 
 
-            <TableContainer>
+            <TableContainer component={Paper}>
                 <Table sx={tableStyle}>
                     <TableHead>
                         <TableRow>
