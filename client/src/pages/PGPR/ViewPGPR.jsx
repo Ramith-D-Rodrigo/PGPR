@@ -1,4 +1,4 @@
-import { Box, ButtonGroup, Chip, Dialog, Divider } from '@mui/material';
+import { Box, ButtonGroup, Chip, Dialog, Divider, InputLabel, MenuItem } from '@mui/material';
 import React from 'react'
 import { Link, useParams } from 'react-router-dom';
 import { useEffect } from 'react';
@@ -12,10 +12,13 @@ import getAllReviewers from '../../api/Reviewer/getAllReviewers';
 import submitReviewTeam from '../../api/ReviewTeam/submitReviewTeam';
 import removePendingReviewTeam from '../../api/ReviewTeam/removePendingReviewTeam';
 import { Alert, Snackbar } from '@mui/material';
-import {CircularProgress} from '@mui/material';
+import { CircularProgress } from '@mui/material';
 import getAllPGPRs from '../../api/PostGraduateProgramReview/getAllPGPRs';
 import groupPGPRs from '../../api/PostGraduateProgramReview/groupPGPRS';
 import tableStyle from '../../assets/tableStyle';
+import TextField from '@mui/material/TextField';
+import acceptReviewTeam from '../../api/ReviewTeam/acceptReviewTeam';
+import rejectReviewTeam from '../../api/ReviewTeam/rejectReviewTeam';
 
 const ViewPGPR = () => {
     const { pgprId, serId } = useParams();
@@ -42,6 +45,8 @@ const ViewPGPR = () => {
                     setReviewerChair(acceptedReviewTeam.filter(reviewer => reviewer.role.toLowerCase() === 'chair')[0]);
                     setReviewer1(acceptedReviewTeam.filter(reviewer => reviewer.role.toLowerCase() === 'member')[0]);
                     setReviewer2(acceptedReviewTeam.filter(reviewer => reviewer.role.toLowerCase() === 'member')[1]);
+                    setDeanDecision(pgprResults.data.data.acceptedReviewTeam?.status?.toLowerCase());
+                    setDeanRemarks(pgprResults.data.data.acceptedReviewTeam?.remark);
                 }
                 else {
                     const pendingReviewTeam = pgprResults.data.data.pendingReviewTeam?.reviewers;
@@ -67,7 +72,7 @@ const ViewPGPR = () => {
         pgprResults(pgprId);
     }, [pgprId]);
 
-    const reviewTeam = pgpr?.acceptedReviewTeam?.reviewers ?? pgpr?.pendingReviewTeam?.reviewers;
+    const reviewTeam = pgpr?.acceptedReviewTeam ?? pgpr?.pendingReviewTeam;
     const status = pgpr?.acceptedReviewTeam?.status ?? pgpr?.pendingReviewTeam?.status;
 
     const deskEvaluation = pgpr?.deskEvaluation;
@@ -95,13 +100,13 @@ const ViewPGPR = () => {
     };
 
     const handleClickDeselect = (memberType) => {
-        if(memberType == 'chair'){
+        if (memberType == 'chair') {
             setReviewerChair(null);
         }
-        else if(memberType == '1'){
+        else if (memberType == '1') {
             setReviewer1(null);
         }
-        else if(memberType == '2'){
+        else if (memberType == '2') {
             setReviewer2(null);
         }
     };
@@ -135,7 +140,7 @@ const ViewPGPR = () => {
 
         const fetchPGPRs = async () => {
             try {
-                const pgprs = await getAllPGPRs({status: 'SUBMITTED,PLANNING'});
+                const pgprs = await getAllPGPRs({ status: 'SUBMITTED,PLANNING' });
 
                 if (pgprs.status) {
                     console.log('pgprs', pgprs.data.data);
@@ -145,10 +150,12 @@ const ViewPGPR = () => {
                 console.log(error);
             }
         }
-        
-        
+
+
         fetchReviewers();
-        fetchPGPRs();
+        if (auth.authRole[0] == 'qac_officer' || auth.authRole[0] == 'qac_director') {
+            fetchPGPRs();
+        }
     }, []);
 
     const handleSubmitReviewTeam = async () => {
@@ -217,7 +224,7 @@ const ViewPGPR = () => {
                 });
             }
         }
-        else{
+        else {
             setSnackbar({
                 open: true,
                 message: 'Please Select a Review Team',
@@ -243,7 +250,7 @@ const ViewPGPR = () => {
                 const response = await removePendingReviewTeam(pgpr.pendingReviewTeam?.id);
 
                 if (response && response.status === 200) {
-                    
+
                     await pgprResults(pgprId);
 
                     setSnackbar({
@@ -275,7 +282,7 @@ const ViewPGPR = () => {
     }
 
     const handleGrouping = async (id) => {
-        try{
+        try {
             setSnackbar({
                 open: true,
                 message: 'Grouping PGPRs...',
@@ -296,7 +303,7 @@ const ViewPGPR = () => {
 
             setOpen2(false);
         }
-        catch(error){
+        catch (error) {
             setSnackbar({
                 open: true,
                 message: error.response.data.message,
@@ -314,6 +321,67 @@ const ViewPGPR = () => {
         severity: 'success',
         time: 6000
     });
+
+    const [deanDecision, setDeanDecision] = useState('accept');
+    const [deanRemarks, setDeanRemarks] = useState('');
+
+    const handleSubmitDeanDecision = async () => {
+        try {
+
+            if(deanDecision === ''){
+                setSnackbar({
+                    open: true,
+                    message: 'Please Select a Decision',
+                    severity: 'error',
+                    time: 3000
+                });
+                return;
+            }
+
+            setSnackbar({
+                open: true,
+                message: 'Submitting Decision...',
+                severity: 'info',
+                time: 20000
+            });
+
+            const formData = new FormData();
+            formData.append('remark', deanRemarks);
+            formData.append('reviewTeamId', reviewTeam.id);
+
+            console.log(deanRemarks);
+
+            let response = null;
+
+            if(deanDecision === 'accept'){
+                response = await acceptReviewTeam(formData);
+            }
+            else{
+                response = await rejectReviewTeam(formData);
+            }
+            
+            if (response && response.status === 200) {
+                await pgprResults(pgprId);
+
+                setSnackbar({
+                    open: true,
+                    message: deanDecision === 'accept' ? 'Review Team Accepted Successfully' : 'Review Team Rejected Successfully',
+                    severity: 'success',
+                    time: 10000
+                });
+
+            }
+        }
+        catch (error) {
+            setSnackbar({
+                open: true,
+                message: error.response.data.message,
+                severity: 'error',
+                time: 10000
+            });
+        }
+    }
+
 
 
     //we have to get the final report separately
@@ -428,7 +496,7 @@ const ViewPGPR = () => {
                                     </Box>
                                 </Box>
                                 {
-                                    (auth?.authRole[0] === 'qac_officer' || auth?.authRole[0] === 'qac_director')  && (pgpr.statusOfPgpr === 'PLANNING' || pgpr.statusOfPgpr === 'SUBMITTED') &&
+                                    (auth?.authRole[0] === 'qac_officer' || auth?.authRole[0] === 'qac_director') && (pgpr.statusOfPgpr === 'PLANNING' || pgpr.statusOfPgpr === 'SUBMITTED') &&
                                     <Box sx={itemBox}>
                                         <Typography variant="h6" align='left'>
                                             Edit Group
@@ -474,20 +542,20 @@ const ViewPGPR = () => {
                                     <Box align='left'>
                                         <Typography key={reviewerChair?.userData?.id + 'selectedChair'} variant="h6" sx={{ mb: 1 }} align='left'>
                                             {
-                                            reviewerChair ? reviewerChair?.userData?.initials + " " + reviewerChair?.userData?.surname :
-                                            "Not Selected"
+                                                reviewerChair ? reviewerChair?.userData?.initials + " " + reviewerChair?.userData?.surname :
+                                                    "Not Selected"
                                             }
                                         </Typography>
                                         <Typography key={reviewer1?.userData?.id + 'selectedMember1'} variant="h6" sx={{ mb: 1 }} align='left'>
                                             {
-                                            reviewer1 ? reviewer1?.userData?.initials + " " + reviewer1?.userData?.surname : 
-                                            "Not Selected"
+                                                reviewer1 ? reviewer1?.userData?.initials + " " + reviewer1?.userData?.surname :
+                                                    "Not Selected"
                                             }
                                         </Typography>
                                         <Typography key={reviewer2?.userData?.id + 'selectedMember2'} variant="h6" sx={{ mb: 1 }} align='left'>
                                             {
-                                            reviewer2 ? reviewer2?.userData?.initials + " " + reviewer2?.userData?.surname : 
-                                            "Not Selected"
+                                                reviewer2 ? reviewer2?.userData?.initials + " " + reviewer2?.userData?.surname :
+                                                    "Not Selected"
                                             }
                                         </Typography>
                                     </Box>
@@ -506,12 +574,9 @@ const ViewPGPR = () => {
 
                                 </Box>
 
-                                <Box sx={itemBox}>
-                                    <Typography variant="h6" align='left'>
+                                <Box>
+                                    <Typography variant="h6" align='center'>
                                         Team Status : {status}
-                                    </Typography>
-                                    <Typography variant="h6" align='left'>
-                                        Dean Decision : {reviewTeam?.deanDecision}
                                     </Typography>
                                 </Box>
 
@@ -529,9 +594,50 @@ const ViewPGPR = () => {
                                     </Box>
                                 }
 
+                                <Divider sx={{ mt: '1rem' }}>
+                                    <strong>Decision of Dean</strong>
+                                </Divider>
+
+                                <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                                    <TextField
+                                        select
+                                        label="Decision"
+                                        defaultValue={status === 'ACCEPTED' ? 'ACCEPTED' : ''}
+                                        sx={{ width: '50%', my: '1rem' }}
+                                        onChange={(e) => setDeanDecision(e.target.value)}
+                                        value={status}
+                                        disabled={snackbar.open || auth.authRole[0] !== 'dean' || (pgpr.statusOfPgpr !== 'PLANNING' && pgpr.statusOfPgpr !== 'SUBMITTED') || status?.toLowerCase() !== 'pending'}
+                                    >
+                                        <MenuItem value={'ACCEPTED'}>Accept</MenuItem>
+                                        <MenuItem value={'REJECTED'}>Reject</MenuItem>
+                                    </TextField>
+
+                                    <TextField
+                                        label="Remarks / Comments"
+                                        multiline
+                                        rows={4}
+                                        defaultValue={''}
+                                        sx={{ width: '80%' }}
+                                        value={deanRemarks}
+                                        onChange={(e) => setDeanRemarks(e.target.value)}
+                                        disabled={snackbar.open || auth.authRole[0] !== 'dean' || (pgpr.statusOfPgpr !== 'PLANNING' && pgpr.statusOfPgpr !== 'SUBMITTED') || status?.toLowerCase() !== 'pending'}
+                                        
+                                    />
+
+                                    {
+                                        auth.authRole[0] === 'dean' && (pgpr.statusOfPgpr === 'PLANNING' || pgpr.statusOfPgpr === 'SUBMITTED') && (status?.toLowerCase() === 'pending') &&
+                                        <Button variant='contained' size='small' sx={{ mt: '1rem' }} color="primary" disabled={snackbar.open} onClick={() => handleSubmitDeanDecision()}>Submit Decision</Button>
+                                    }
+                                </Box>
+
+
+
                             </Box>
 
-                            <Divider><strong>Evaluations</strong></Divider>
+                            
+
+                        </Box>
+                        <Divider><strong>Evaluations</strong></Divider>
                             <Box sx={detailedBox}>
                                 <Box sx={{ ...itemBox, flexWrap: 'wrap' }}>
 
@@ -563,11 +669,7 @@ const ViewPGPR = () => {
                                     </Typography>
                                 </Box>
                             </Box>
-
-                        </Box>
-
                         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around', width: '100%', mt: 2 }}>
-                            {auth?.authRole[0] === 'dean' && <Button variant="contained" color="primary" sx={{ width: "300px" }} disabled={snackbar.open}>Submit Consent Letter</Button>}
                             {
                                 (auth?.authRole[0] === 'qac_officer' || auth?.authRole[0] === 'qac_director' || auth?.authRole[0] === 'reviewer') && pgpr?.statusOfPgpr !== 'PLANNING' ?
                                     <Button variant="contained" color="primary" sx={{ width: "300px" }} component={Link} to={`/${auth.authRole[0]}/pgprs/${pgprId}/ser/${pgpr?.selfEvaluationReport?.id}`} disabled={snackbar.open}>
@@ -621,19 +723,19 @@ const ViewPGPR = () => {
                                                     setReviewer1(reviewer);
                                                     handleClose();
                                                 }}
-                                                disabled={
-                                                    reviewer.userData.id === reviewer1?.userData.id
-                                                    || reviewer.userData.id === reviewerChair?.userData.id
-                                                    || reviewer.userData.id === reviewer2?.userData.id
+                                                    disabled={
+                                                        reviewer.userData.id === reviewer1?.userData.id
+                                                        || reviewer.userData.id === reviewerChair?.userData.id
+                                                        || reviewer.userData.id === reviewer2?.userData.id
                                                     }>Select as Member 1</Button>
                                                 <Button size='small' sx={{ mb: 1 }} color="primary" onClick={() => {
                                                     setReviewer2(reviewer);
                                                     handleClose();
                                                 }}
-                                                disabled={
-                                                    reviewer.userData.id === reviewer2?.userData.id
-                                                    || reviewer.userData.id === reviewer1?.userData.id
-                                                    || reviewer.userData.id === reviewerChair?.userData.id
+                                                    disabled={
+                                                        reviewer.userData.id === reviewer2?.userData.id
+                                                        || reviewer.userData.id === reviewer1?.userData.id
+                                                        || reviewer.userData.id === reviewerChair?.userData.id
                                                     }>Select as Member 2</Button>
                                             </ButtonGroup>
                                             <br />
@@ -670,7 +772,7 @@ const ViewPGPR = () => {
                             </TableHead>
                             <TableBody>
                                 {pgprs?.map((pgpr) => {
-                                    if(pgpr?.id == pgprId) return null;
+                                    if (pgpr?.id == pgprId) return null;
                                     return (
                                         <TableRow key={pgpr?.id}>
                                             <TableCell align='center'>{pgpr?.id}</TableCell>
@@ -678,7 +780,7 @@ const ViewPGPR = () => {
                                             <TableCell align='center'>{pgpr?.postGraduateProgramme?.faculty.name}</TableCell>
                                             <TableCell align='center'>{pgpr?.postGraduateProgramme?.faculty.university.name}</TableCell>
                                             <TableCell align='center'>
-                                                <Button variant="contained" onClick={()=> handleGrouping(pgpr?.id)}>
+                                                <Button variant="contained" onClick={() => handleGrouping(pgpr?.id)}>
                                                     Group with this PGPR
                                                 </Button>
                                             </TableCell>

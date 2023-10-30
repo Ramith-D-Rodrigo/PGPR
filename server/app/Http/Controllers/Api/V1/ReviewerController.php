@@ -381,19 +381,17 @@ class ReviewerController extends Controller
                 return response()->json(["message" => "The review that you are trying to reject doesn't exist."], 400);
             }
 
-            if ($review_team->pivot->reviewer_Confirmation == 'PENDING') {
+            if ($review_team->pivot->reviewer_confirmation == 'PENDING') {
                 //set the state to reject
                 DB::beginTransaction();
                 $review_team->pivot->reviewer_confirmation = 'REJECTED';
                 $review_team->pivot->save();
 
-                /* //add the reviewer when rejecting the review to the reviewer_reject_post_graduate_program_review table
-                DB::table('reviewer_reject_post_graduate_program_review')->insert([
-                    'pgpr_id' => $review_team->pgpr_id,
-                    'reviewer_id' => $reviewer->id,
-                    'comment' => $request->comment ?? "",
-                ]); */
+                //now, the review team is rejected as a whole
+                $review_team->status = 'REJECTED';
+                $review_team->save();
 
+                //inform the creator of the review team
                 Mail::to($creatorOfReviewTeam->official_email)
                     ->send(
                         new ReviewerRejectReviewAssignment(

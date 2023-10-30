@@ -17,7 +17,7 @@ Review Team:<br>
     @foreach($reviewTeam["reviewers"] as $reviewer)
         <tr>
             <td>{{$reviewer->user->full_name}}</td>
-            <td>{{ $reviewer->pivot->position == "CHAIR" ? "Chair person" : "Member" }}</td>
+            <td>{{ $reviewer->pivot->role  == "CHAIR" ? "Chair person" : "Member" }}</td>
         </tr>
     @endforeach
 </table>

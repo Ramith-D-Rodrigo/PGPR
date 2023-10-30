@@ -59,7 +59,7 @@ const PGAssignments = () => {
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
-    const [success, setSuccess] = useState(false);
+    const [successMsg, setSuccessMsg] = useState("");
     const [assignedPGPRs, setAssignedPGPRs] = useState([]);
     const [DeEndDate, setDeEndDate] = useState('');
     const [DeStartDate, setDeStartDate] = useState('');
@@ -74,7 +74,7 @@ const PGAssignments = () => {
             console.log("PGPR Assignments : ",response?.data?.data);
             setAssignedPGPRs(response?.data?.data);
             createRows(response?.data?.data);
-            setSelectedFilterKeys([{ title: 'In-review' }]);
+            setSelectedFilterKeys([]);
             setLoading(false);
         } catch (err) {
             console.error(err);
@@ -90,7 +90,7 @@ const PGAssignments = () => {
   useEffect(()=>{
     if(originalRows.length == 0 || selectedFilterKeys.length == 0) 
     {
-      return;
+      setFilteredRows(originalRows);
     }
     else
     {       
@@ -135,17 +135,17 @@ const PGAssignments = () => {
   
           let actions = [];
           if (
-            PGPRDetails?.statusOfPgpr === "SUBMITTED" 
+            PGPRDetails?.statusOfPgpr === "SUBMITTED"  || PGPRDetails?.statusOfPgpr === "PLANNING"
           ) {
             actions = [
-              { action: "Accept", allow: true },
+              { action: "Accept or Reject", allow:  reviewerConfirmation == "PENDING" ? true : false},
               { action: "View", allow: false },
               { action: "DE", allow: false },
               { action: "PE", allow: false },
             ];
           } else if (PGPRDetails?.statusOfPgpr === "DE") {
             actions = [
-              { action: "Accept", allow: false },
+              { action: "Accept or Reject", allow: false },
               { action: "View", allow: true },
               { action: "DE", allow: true },
               { action: "PE", allow: false },
@@ -155,28 +155,28 @@ const PGAssignments = () => {
             PGPRDetails?.statusOfPgpr === "PE2"
           ) {
             actions = [
-              { action: "Accept", allow: false },
+              { action: "Accept or Reject", allow: false },
               { action: "View", allow: true },
               { action: "DE", allow: false },
               { action: "PE", allow: true },
             ];
           } else if (PGPRDetails?.statusOfPgpr === "FINAL") {
             actions = [
-              { action: "Accept", allow: false },
+              { action: "Accept or Reject", allow: false },
               { action: "View", allow: true },
               { action: "DE", allow: false },
               { action: "PE", allow: false },
             ];
           } else if (PGPRDetails?.statusOfPgpr === "COMPLETED") {
             actions = [
-              { action: "Accept", allow: false },
+              { action: "Accept or Reject", allow: false },
               { action: "View", allow: true },
               { action: "DE", allow: false },
               { action: "PE", allow: false },
             ];
           } else {
             actions = [
-              { action: "Accept", allow: false },
+              { action: "Accept or Reject", allow: false },
               { action: "View", allow: false },
               { action: "DE", allow: false },
               { action: "PE", allow: false },
@@ -221,12 +221,14 @@ const PGAssignments = () => {
           },
         }
       )
-      .then((response) => {
+      .then(async (response) => {
         console.log("Response : ", response);
-        setLoading(false);
-        setSuccess(true);
-        setErrorMsg("Accepted Successfully!");
+        setSuccessMsg(response.data.message);
+        
         //TODO : reload current assignment data
+        await getPGPRAssignments();
+        setLoading(false);
+        
       })
       .catch((error) => {
         if (error.response.status === 401) {
@@ -257,10 +259,11 @@ const PGAssignments = () => {
         }
       );
       console.log("Response : ", response);
+      setSuccessMsg(response.data.message);
+      
+      await getPGPRAssignments();
       setLoading(false);
-      setSuccess(true);
-      setErrorMsg("Rejected Successfully!");
-      //TODO : reload current assignment data
+
     } catch (error) {
       if (error.response.status === 401) {
         setErrorMsg(error.response.data.message);
@@ -332,8 +335,8 @@ const PGAssignments = () => {
       const response = await updateDeskEvaluation(dates.deId, request);
 
       if (response && response.status == 200) {
-        setSuccess(true);
-        setErrorMsg("Desk Evaluation Date Updated Successfully!");
+        setSuccessMsg("Desk Evaluation Date Updated Successfully!");
+        
       }
     } catch (error) {
       setErrorMsg(error.response.data.message);
@@ -355,7 +358,7 @@ const PGAssignments = () => {
             {
                 return <Link key={index} to={action.allow? PGPRDetails.id+'/ser/' +PGPRDetails?.selfEvaluationReport?.id:''}><Button {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button></Link>
             }
-            else if(action.action === 'Accept')
+            else if(action.action === 'Accept or Reject')
             {
                 return <Button key={index} onClick={()=>{handleClickAccept(PGPRDetails.id)}} {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button>
             }
@@ -616,7 +619,7 @@ const PGAssignments = () => {
       )}
 
       <Snackbar
-        open={errorMsg == "" || success ? false : true}
+        open={errorMsg == ""  ? false : true}
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
         onClose={() => setErrorMsg("")}
       >
@@ -626,12 +629,12 @@ const PGAssignments = () => {
       </Snackbar>
 
       <Snackbar
-        open={success}
+        open={successMsg == "" ? false : true}
         autoHideDuration={1500}
-        onClose={() => setSuccess(false)}
+        onClose={() => setSuccessMsg("")}
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
-        <Alert onClose={() => setSuccess(false)} severity="success">
+        <Alert onClose={() => setSuccessMsg("")} severity="success">
           {errorMsg}
           {/* on success */}
         </Alert>

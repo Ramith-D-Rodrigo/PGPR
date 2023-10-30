@@ -81,7 +81,7 @@ class ReviewTeamController extends Controller
             $qac = Auth::user(); // since the auth user must be a qac
             $postGraduateReviewProgram = PostGraduateProgramReview::findOrFail($request->validated('pgpr_id')); // find the PGPR
 
-            if ($postGraduateReviewProgram->reviewTeam && $postGraduateReviewProgram->reviewTeam->whereIn('status', ['PENDING', 'APPROVED'])) {
+            if ($postGraduateReviewProgram->reviewTeam && $postGraduateReviewProgram->reviewTeam->whereIn('status', ['PENDING', 'APPROVED'])->exists()) {
                 return response()->json(['message' => 'This review already contains a review team. You cannot add another review team'], 422);
             }
 
