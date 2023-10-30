@@ -245,7 +245,7 @@ class PostGraduateProgramReviewController extends Controller
             $reviewTeam = new ReviewTeam();
             $reviewTeam->quality_assurance_council_officer_id = Auth::id();
             $reviewTeam->pgpr_id = $toAssignPGPR -> id;
-            $reviewTeam->dean_id = $faculty -> dean ->id;
+            $reviewTeam->dean_id = $faculty -> currentDean ->id;
             $reviewTeam->status = "PENDING";
             $reviewTeam->dean_decision = "N/A";
             $reviewTeam->remarks = "N/A";
@@ -289,10 +289,10 @@ class PostGraduateProgramReviewController extends Controller
             }
 
             // send the mail to the dean
-            Mail::to($faculty -> dean -> academicStaff -> universitySide -> user ->official_email)
+            Mail::to($faculty -> currentDean -> academicStaff -> universitySide -> user ->official_email)
                 ->send(
                     new InformDeanOfReviewTeamAssignment(
-                        $faculty -> dean,
+                        $faculty -> currentDean,
                         $toAssignPGPR -> postGraduateProgram,
                         $reviewers,
                         "Assignment of review team to postgraduate program review",

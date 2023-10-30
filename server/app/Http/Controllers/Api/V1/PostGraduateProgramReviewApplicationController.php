@@ -253,13 +253,14 @@ class PostGraduateProgramReviewApplicationController extends Controller
             }
 
             //update the model
+            DB::beginTransaction();
             $pgprApplication -> update($validatedData);
 
             $postGraduateProgram = $pgprApplication->postGraduateProgram;
             $faculty = $postGraduateProgram->faculty;
             $university = $faculty->university;
 
-            $dean = User::find($faculty->deans->id);
+            $dean = User::find($faculty->currentDean->id);
             $viceChancellor = User::find($university->viceChancellor->id);
             $iqauDirector = User::find($faculty->internalQualityAssuranceUnit->internalQualityAssuranceUnitDirector->id);
             $cqaDirector = User::find($university->centerForQualityAssurance->currentQualityAssuranceDirector->id);
@@ -312,12 +313,15 @@ class PostGraduateProgramReviewApplicationController extends Controller
                 )
             );
 
+            DB::commit();
+
             return response()->json(['message' => 'Post graduate program review application updated successfully.'], 200);
         }
         catch(AuthorizationException $e){
             return response()->json(['message' => $e -> getMessage()], 403);
         }
         catch(\Exception $e){
+            DB::rollBack();
             return response()->json(['message' => 'Error updating post graduate program review application.',
                 'error' => $e->getMessage()]
             , 400);
@@ -375,6 +379,8 @@ class PostGraduateProgramReviewApplicationController extends Controller
             //authorize the cqa director
             $this -> authorize('cqaDirectorRecommendationAuthorize', $pgprApplication);
 
+            DB::beginTransaction();
+
             $pgprApplication -> update(['application_date' => today() -> toDateString(), 'status' => 'applied']);
             // TODO: Inform QAC DIR AND ALL QAC OFFICERS
 
@@ -382,7 +388,7 @@ class PostGraduateProgramReviewApplicationController extends Controller
             $faculty = $postGraduateProgram->faculty;
             $university = $faculty->university;
 
-            $qacEmployees = User::whereJsonContains('roles', 'qac_officer')->whereJsonContains('role', 'qac_director')->get();
+            $qacEmployees = User::whereJsonContains('roles', 'qac_officer')->whereJsonContains('roles', 'qac_director')->get();
 
             foreach ($qacEmployees as $qacEmployee) {
                 Mail::to($qacEmployee->official_email)->send(
@@ -398,12 +404,15 @@ class PostGraduateProgramReviewApplicationController extends Controller
                 );
             }
 
+            DB::commit();
+
             return response()->json(['message' => 'Post graduate program review application recommended successfully.'], 200);
         }
         catch(AuthorizationException $e){
             return response()->json(['message' => $e -> getMessage()], 403);
         }
         catch(\Exception $e){
+            DB::rollBack();
             return response()->json(['message' => 'Error recommending post graduate program review application.',
                 'error' => $e->getMessage()]
             , 400);
@@ -444,7 +453,7 @@ class PostGraduateProgramReviewApplicationController extends Controller
             $faculty = $postGraduateProgram->faculty;
             $university = $faculty->university;
 
-            $dean = User::find($faculty->deans->id);
+            $dean = User::find($faculty->currentDean->id);
             $viceChancellor = User::find($university->viceChancellor->id);
             $iqauDirector = User::find($faculty->internalQualityAssuranceUnit->internalQualityAssuranceUnitDirector->id);
             $cqaDirector = User::find($university->centerForQualityAssurance->currentQualityAssuranceDirector->id);

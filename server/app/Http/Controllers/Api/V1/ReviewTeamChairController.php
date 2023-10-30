@@ -308,7 +308,7 @@ class ReviewTeamChairController extends Controller
                 $programCoordinator = User::find($pgp->programme_coordinator_id);
                 $faculty = $pgp->faculty;
                 $university = $faculty->university;
-                $dean = User::find($faculty->dean->id);
+                $dean = User::find($faculty->currentDean->id);
 
                 // qac dir
                 Mail::to(
@@ -436,7 +436,7 @@ class ReviewTeamChairController extends Controller
                 $programCoordinator = User::find($pgp->programme_coordinator_id);
                 $faculty = $pgp->faculty;
                 $university = $faculty->university;
-                $dean = User::find($faculty->dean->id);
+                $dean = User::find($faculty->currentDean->id);
 
                 DB::beginTransaction();
 
@@ -825,7 +825,7 @@ class ReviewTeamChairController extends Controller
             $programCoordinator = User::find($pgp->programme_coordinator_id);
             $faculty = $pgp->faculty;
             $university = $faculty->university;
-            $dean = User::find($faculty->dean->id);
+            $dean = User::find($faculty->currentDean->id);
 
             // qac director
             Mail::to($qacDir->official_email)->send(
@@ -913,7 +913,7 @@ class ReviewTeamChairController extends Controller
             $programCoordinator = User::find($pgp->programme_coordinator_id);
             $faculty = $pgp->faculty;
             $university = $faculty->university;
-            $dean = User::find($faculty->dean->id);
+            $dean = User::find($faculty->currentDean->id);
 
             // qac director
             Mail::to($qacDir->official_email)->send(
@@ -1013,7 +1013,7 @@ class ReviewTeamChairController extends Controller
             $programCoordinator = User::find($pgp->programme_coordinator_id);
             $faculty = $pgp->faculty;
             $university = $faculty->university;
-            $dean = User::find($faculty->dean->id);
+            $dean = User::find($faculty->currentDean->id);
 
             // qac director
             Mail::to($qacDir->official_email)->send(
@@ -1116,7 +1116,7 @@ class ReviewTeamChairController extends Controller
             $programCoordinator = User::find($pgp->programme_coordinator_id);
             $faculty = $pgp->faculty;
             $university = $faculty->university;
-            $dean = User::find($faculty->dean->id);
+            $dean = User::find($faculty->currentDean->id);
 
             // qac director
             Mail::to($qacDir->official_email)->send(

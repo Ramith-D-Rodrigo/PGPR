@@ -129,7 +129,7 @@ class PostGraduateProgramController extends Controller
             $faculty = Faculty::find($validatedData['faculty_id']);
             $university = $faculty->university;
 
-            $dean = User::find($faculty->dean->id ?? null);
+            $dean = User::find($faculty->currentDean->id ?? null);
             $iqauDirector = User::find($faculty->internalQualityAssuranceUnit->internalQualityAssuranceUnitDirector->id ?? null);
             $viceChancellor = User::find($university->viceChancellor->id);
             $cqaDirector = User::find($university->centerForQualityAssurance->currentQualityAssuranceDirector->id);
@@ -280,7 +280,7 @@ class PostGraduateProgramController extends Controller
             $faculty = Faculty::find($validatedData['faculty_id']);
             $university = $faculty->university;
 
-            $dean = User::find($faculty->dean->id);
+            $dean = User::find($faculty->currentDean->id);
             $iqauDirector = User::find($faculty->internalQualityAssuranceUnit->internalQualityAssuranceUnitDirector->id);
             $viceChancellor = User::find($university->viceChancellor->id);
             $cqaDirector = User::find($university->centerForQualityAssurance->currentQualityAssuranceDirector->id);
