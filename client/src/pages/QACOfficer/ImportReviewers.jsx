@@ -293,7 +293,7 @@ const ImportReviewers = () => {
 
             <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
                 <Box sx={{ m: 1 }}>
-                    Upload the Excel File Here
+                    <strong>Upload the Excel File Here</strong>
                 </Box>
                 <Box sx={{ m: 1 }}>
                     <form onSubmit={handleExcelUpload}>
@@ -302,7 +302,10 @@ const ImportReviewers = () => {
                                 setExcelFile(e.target.files[0]);
                             }
                         } />
-                        <Button type="submit" disabled={wait}>Upload</Button>
+                        <Button sx={{margin:'0 0 0 1rem'}} variant="outlined" type="submit" disabled={wait}>Upload</Button>
+                        <Typography sx={{margin:'1rem 0'}} id="modal-modal-title" variant="subtitle1" component="h2">
+                           <strong> Note* : Please use university and faculty details at the bottom when filling user data in excel file or the forms in this page</strong>
+                        </Typography>
                     </form>
                 </Box>
             </Box>
@@ -313,7 +316,7 @@ const ImportReviewers = () => {
 
             <Box sx={{ display: 'flex', flexDirection: 'column', my: '1rem' }}>
                 <Box sx={{ m: 1 }}>
-                    If registering user is present in the system, go through the following table and assign the reviewer role to the user.
+                    <strong>If registering user is present in the system, go through the following table and assign the reviewer role to the user.</strong>
                 </Box>
                 <Box sx={{ m: 1 }}>
                     Search by Name : <Input type="text" placeholder="Search" onChange={handleUserSearch} />
