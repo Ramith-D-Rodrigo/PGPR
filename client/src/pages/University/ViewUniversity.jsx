@@ -158,7 +158,15 @@ const ViewUniversity = () => {
                                 Current Vice Chancellor
                             </Typography>
                             <Typography sx={{ width: '50%' }}>
-                                {university.viceChancellor?.universitySide.user.initials + " " + university.viceChancellor?.universitySide.user.surname}
+                                {university.viceChancellor ?
+                                    <>
+                                        {university.viceChancellor.universitySide.user.initials + " " + university.viceChancellor.universitySide.user.surname}
+                                    </>
+                                    :
+                                    <>
+                                        No Vice Chancellor Assigned Yet
+                                    </>
+                                }
                             </Typography>
                         </Box>
 
@@ -173,8 +181,8 @@ const ViewUniversity = () => {
                             </Button>
                         </Box>
 
-                        <Divider sx={{ width: '80%', my:2 }}>
-                            <Chip label="Center For Quality Assurance" color='primary'/>
+                        <Divider sx={{ width: '80%', my: 2 }}>
+                            <Chip label="Center For Quality Assurance" color='primary' />
                         </Divider>
 
                         <Box sx={styled}>
@@ -190,8 +198,8 @@ const ViewUniversity = () => {
                             <Typography sx={{ width: '50%' }}>
                                 Contact Numbers
                             </Typography>
-                            <Select defaultValue={university.centerForQualityAssurance.contactNo[0]} sx={{ minWidth: '50%' }}>
-                                {university.centerForQualityAssurance.contactNo.map((contactNo) => (
+                            <Select defaultValue={university.centerForQualityAssurance.contactNo.data[0]} sx={{ minWidth: '50%' }}>
+                                {university.centerForQualityAssurance.contactNo.data.map((contactNo) => (
                                     <MenuItem key={contactNo} value={contactNo}>{contactNo}</MenuItem>
                                 ))}
                             </Select>
@@ -201,8 +209,8 @@ const ViewUniversity = () => {
                             <Typography sx={{ width: '50%' }}>
                                 Fax Numbers
                             </Typography>
-                            <Select defaultValue={university.centerForQualityAssurance.faxNo[0]} sx={{ minWidth: '50%' }}>
-                                {university.centerForQualityAssurance.faxNo.map((faxNo) => (
+                            <Select defaultValue={university.centerForQualityAssurance.faxNo.data[0]} sx={{ minWidth: '50%' }}>
+                                {university.centerForQualityAssurance.faxNo.data.map((faxNo) => (
                                     <MenuItem key={faxNo} value={faxNo}>{faxNo}</MenuItem>
                                 ))}
                             </Select>
@@ -213,17 +221,29 @@ const ViewUniversity = () => {
                                 Current Center For Quality Assurance Director
                             </Typography>
                             <Typography sx={{ width: '50%' }}>
-                                {university.centerForQualityAssurance?.currentCQADirector.qualityAssuranceStaff.universitySide.user.initials + " " + university.centerForQualityAssurance?.currentCQADirector.qualityAssuranceStaff.universitySide.user.surname}
+                                {
+                                    university.centerForQualityAssurance?.currentCQADirector ?
+                                        <>
+                                            {
+                                                university.centerForQualityAssurance?.currentCQADirector.qualityAssuranceStaff.universitySide.user.initials + " " + university.centerForQualityAssurance?.currentCQADirector.qualityAssuranceStaff.universitySide.user.surname
+                                            }
+
+                                        </>
+                                        :
+                                        <>
+                                            No Director Assigned Yet
+                                        </>
+                                }
                             </Typography>
                         </Box>
 
-                        <Divider sx={{ width: '80%' , my:2 }}>
-                            <Chip label="Faculties" color='primary'/>
+                        <Divider sx={{ width: '80%', my: 2 }}>
+                            <Chip label="Faculties" color='primary' />
                         </Divider>
 
                         <TableContainer sx={styled}>
                             <Table>
-                                <TableHead style={{backgroundColor:"#D8E6FC",}}>
+                                <TableHead style={{ backgroundColor: "#D8E6FC", }}>
                                     <TableRow>
                                         <TableCell align="center"><strong>Name</strong></TableCell>
                                         <TableCell align="center"><strong>Current Dean</strong></TableCell>

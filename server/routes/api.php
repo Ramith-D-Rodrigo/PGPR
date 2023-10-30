@@ -54,6 +54,8 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
 
     Route::apiResource('users', 'UserController');
     Route::apiResource('universitySides', 'UniversitySideController');
+    Route::post('assignReviewerRole', 'UniversitySide@assignReviewerRole')->middleware('auth');
+
     Route::apiResource('universities', 'UniversityController')->middleware('auth');
     //other routes of the universities
     //get the current vice chancellor of a university
@@ -75,6 +77,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::delete('programmeCoordinators/{programmeCoordinator}/removeRole', 'ProgrammeCoordinatorController@removeRole')->middleware('auth');
 
     Route::apiResource('postGraduateProgramReviews', 'PostGraduateProgramReviewController');
+    Route::post('postGraduateProgramReviews/{postGraduateProgramReviewOne}/group/{postGraduateProgramReviewTwo}', 'PostGraduateProgramReviewController@groupWithAnotherPGPR')->middleware('auth');
 
     Route::apiResource('pgprApplications', 'PostGraduateProgramReviewApplicationController')->middleware('auth');
     Route::apiResource('iqauDirectors', 'InternalQualityAssuranceUnitDirectorController')->middleware('auth');

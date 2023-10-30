@@ -5,29 +5,28 @@ namespace App\Mail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class InformFacultyActionToAuthorities extends Mailable
+class AssignReviewerRole extends Mailable
 {
     use Queueable, SerializesModels;
 
     /**
      * Create a new message instance.
+     *
+     *
      */
-    public function __construct(
-        public $user,
-        public $action,
-        public $facultyInfo,
-        public $university,
-        public $subject,
-        public $content
-    )
+
+    public $user;
+    public function __construct($user, $subject, $relatedView)
     {
-        $this->view($this->content);
+        $this->subject = $subject;
+        $this->user = $user;
+        $this->view($relatedView);
     }
+
 
     /**
      * Get the message envelope.
@@ -52,7 +51,7 @@ class InformFacultyActionToAuthorities extends Mailable
     /**
      * Get the attachments for the message.
      *
-     * @return array<int, Attachment>
+     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
      */
     public function attachments(): array
     {

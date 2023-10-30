@@ -5,7 +5,7 @@ import MainLayout from "./components/MainLayout";
 import Authenticate from "./components/Authenticate";
 import Unauthorized from "./components/Unauthorized";
 import LoginPersist from "./components/LoginPersist.jsx";
-import ResetInitialPassword from "./components/ResetInitialPassword.jsx";
+import ResetInitialPassword from "./pages/ResetInitialPassword"
 import View from './components/View';
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";

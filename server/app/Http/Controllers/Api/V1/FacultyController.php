@@ -120,13 +120,15 @@ class FacultyController extends Controller
 
             // send mail to all the QAC officers and director and the dean of the faculty
             $qacMembers = User::whereJsonContains('roles', 'qac_officer')->whereJsonContains('roles', 'qac_director')->get();
-            $dean = User::find($validatedData['dean_id']);
+
+            //get vice chancellor
+            $viceChancellor = $faculty -> university -> viceChancellor -> universitySide -> user;
             $university = $faculty->university;
 
             // send dean the mail
-            Mail::to($dean->official_email)->send(
+            Mail::to($viceChancellor -> official_email)->send(
                 new InformFacultyActionToAuthorities(
-                    user: $dean,
+                    user: $viceChancellor,
                     action: 'CREATED',
                     facultyInfo: $faculty,
                     university: $university,

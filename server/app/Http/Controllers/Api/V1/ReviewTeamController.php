@@ -88,14 +88,13 @@ class ReviewTeamController extends Controller
             $postGraduateProgram = $postGraduateReviewProgram->postGraduateProgram; // find the postgraduate program
             $faculty = $postGraduateProgram->faculty; // find the faculty
             $university = $faculty->university; // find the university
-            $postGraduateProgramReviewApplication = $postGraduateReviewProgram->postGraduateProgramReviewApplications; // find the PGPR application of the PGPR
-            $dean = $faculty->deans[0]->user; // find the dean of the faculty
+            $dean = $faculty->currentDean->user; // find the dean of the faculty
 
             DB::beginTransaction();
 
             $reviewTeam = new ReviewTeam();
             $reviewTeam->quality_assurance_council_officer_id = $qac->id;
-            $reviewTeam->pgpr_id = $postGraduateProgramReviewApplication->id;
+            $reviewTeam->pgpr_id = $postGraduateReviewProgram->id;
             $reviewTeam->dean_id = $dean->id;
             $reviewTeam->status = "PENDING";
             $reviewTeam->dean_decision = "N/A";
@@ -119,7 +118,7 @@ class ReviewTeamController extends Controller
                     ]
                 );
                 $user = User::find($reviewer['reviewer_id']);
-                $user->position = $reviewer['position'];
+                $user->position = $reviewer['position'];    //to send the mail
                 $reviewers[] = $user;
             }
 

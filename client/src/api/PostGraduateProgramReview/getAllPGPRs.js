@@ -8,6 +8,7 @@ import axios from "../api.js";
 //possible query params:
 // 1 - includeDE (boolean -> true if you want to include the DE)
 // 2 - includePE (boolean -> true if you want to include the PE)
+// 3 - status (comma separated string -> "PLANNING,SUBMITTED,DE" if you want to include all of them)
 
 const getAllPGPRs = async (queryParams = null) => {
     const URL = SERVER_URL + SERVER_API_VERSION + 'postGraduateProgramReviews';

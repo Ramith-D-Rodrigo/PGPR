@@ -27,24 +27,7 @@ class AcademicStaffService extends UniversitySideService {
             ]
         );
 
-        $validatedData['postgraduate_qualifications'] = json_encode([
-                'qualification_1' => [
-                    'qualification' => $validatedData['qualification_1'],
-                    'slqf_level' => $validatedData['qualification_1_slqf_level']
-                ],
-                'qualification_2' => [
-                    'qualification' => $validatedData['qualification_2'],
-                    'slqf_level' => $validatedData['qualification_2_slqf_level']
-                ],
-                'qualification_3' => [
-                    'qualification' => $validatedData['qualification_3'],
-                    'slqf_level' => $validatedData['qualification_3_slqf_level']
-                ],
-                'qualification_4' => [
-                    'qualification' => $validatedData['qualification_4'],
-                    'slqf_level' => $validatedData['qualification_4_slqf_level']
-                ]
-            ]);
+        $validatedData['postgraduate_qualifications'] = self::concatPostgraudateQualifications($validatedData);
 
         $academicStaff -> fill($validatedData);
         $academicStaff -> id = $universitySide -> id;
@@ -75,5 +58,26 @@ class AcademicStaffService extends UniversitySideService {
         }
 
         return $validatedData;
+    }
+
+    public static function concatPostgraudateQualifications($arr){
+        return json_encode([
+            'qualification_1' => [
+                'qualification' => $arr['qualification_1'],
+                'slqf_level' => $arr['qualification_1_slqf_level']
+            ],
+            'qualification_2' => [
+                'qualification' => $arr['qualification_2'],
+                'slqf_level' => $arr['qualification_2_slqf_level']
+            ],
+            'qualification_3' => [
+                'qualification' => $arr['qualification_3'],
+                'slqf_level' => $arr['qualification_3_slqf_level']
+            ],
+            'qualification_4' => [
+                'qualification' => $arr['qualification_4'],
+                'slqf_level' => $arr['qualification_4_slqf_level']
+            ]
+        ]);
     }
 }
