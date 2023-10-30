@@ -54,7 +54,8 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
 
     Route::apiResource('users', 'UserController');
     Route::apiResource('universitySides', 'UniversitySideController');
-    Route::post('assignReviewerRole', 'ReviewerController@assignReviewerRole')->middleware('auth');
+    Route::post('assignReviewerRole', 'UniversitySide@assignReviewerRole')->middleware('auth');
+    
     Route::apiResource('universities', 'UniversityController')->middleware('auth');
     //other routes of the universities
     //get the current vice chancellor of a university
