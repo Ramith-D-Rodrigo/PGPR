@@ -82,8 +82,11 @@ class ReviewTeamController extends Controller
             $postGraduateReviewProgram = PostGraduateProgramReview::findOrFail($request->validated('pgpr_id')); // find the PGPR
 
             if ($postGraduateReviewProgram->reviewTeam && $postGraduateReviewProgram->reviewTeam->whereIn('status', ['PENDING', 'APPROVED'])) {
-                return response()->json(['message' => 'This review already contains a review team you cannot add another review team'], 422);
+                return response()->json(['message' => 'This review already contains a review team. You cannot add another review team'], 422);
             }
+
+
+
 
             $postGraduateProgram = $postGraduateReviewProgram->postGraduateProgram; // find the postgraduate program
             $faculty = $postGraduateProgram->faculty; // find the faculty
@@ -196,10 +199,10 @@ class ReviewTeamController extends Controller
     public function destroy(string $id): JsonResponse
     {
         try {
-            $this->authorize('forceDelete', ReviewTeam::class);
-
             // find the reviewer team
             $reviewTeam = ReviewTeam::findOrFail($id)->load('reviewers');
+
+            $this->authorize('forceDelete', [ReviewTeam::class, $reviewTeam]);
 
             if ($reviewTeam->status == 'ACCEPTED') {
                 return response()->json(["message" => "This review team cannot be deleted."]);
@@ -266,7 +269,7 @@ class ReviewTeamController extends Controller
             DB::rollBack();
             return response()->json(["message" => "There is not such review team in our databases."], 400);
         } catch (Exception $exception) {
-            return response()->json(["message" => "Something bad happened!, We are working on it."], 500);
+            return response()->json(["message" => "Something bad happened!, We are working on it.", 'error' => $exception -> getMessage()], 500);
         }
     }
 
