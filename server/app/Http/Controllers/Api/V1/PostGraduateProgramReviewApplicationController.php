@@ -439,12 +439,9 @@ class PostGraduateProgramReviewApplicationController extends Controller
                 $pgpr = PostGraduateProgramReview::create([
                     'post_graduate_program_id' => $pgprApplication -> post_graduate_program_id,
                     'pgpr_application_id' => $pgprApplication -> id
-                ]);
-
-                //now create self evaluation report for the pgpr
-                $ser = SelfEvaluationReport::create([
-                    'post_graduate_program_review_id' => $pgpr -> id,
-                    'pgp_coordinator_id' => $pgpr -> postGraduateProgram -> currentProgrammeCoordinator -> id //get the current pgp coordinator
+                ])->selfEvaluationReport()->create([
+                    'pgp_coordinator_id' => $pgprApplication -> postGraduateProgram -> currentProgrammeCoordinator -> id, //get the current pgp coordinator
+                    'iqau_dir_id' => $pgprApplication -> postGraduateProgram -> faculty -> internalQualityAssuranceUnit -> internalQualityAssuranceUnitDirector -> id ?? null//get the current iqau director
                 ]);
             }
 
