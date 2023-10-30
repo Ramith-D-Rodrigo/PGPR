@@ -1,17 +1,20 @@
 import { useState, useEffect } from 'react';
 import downloadExcelFile from '../../api/Reviewer/downloadExcelFile';
 import { Button, Input, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Box, Typography, ButtonGroup } from '@mui/material';
+import FormField from '../../components/FormField';
 import getAllUniversities from '../../api/University/getAllUniversities';
 import getUniversityFaculties from '../../api/University/getUniversityFaculties';
 import importReviewers from '../../api/Reviewer/importReviewers';
 import Chip from '@mui/material/Chip';
 import { Divider } from '@mui/material';
 import useSetUserNavigations from '../../hooks/useSetUserNavigations';
+import Modal from '@mui/material/Modal';
 import Paper from '@mui/material/Paper';
 import tableStyle from '../../assets/tableStyle';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import getAllUniversitySides from '../../api/UniversitySide/getAllUniversitySides';
+import DialogMenu from '../../components/DialogMenu';
 
 
 const ImportReviewers = () => {
@@ -61,6 +64,8 @@ const ImportReviewers = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [searchUser, setSearchUser] = useState("");
     const [userList, setUserList] = useState([]);
+    const [openModal,setOpenModal] = useState(false);
+    const [openDialog,setOpenDialog] = useState(false);
     const [assigningUserId, setAssigningUserId] = useState(null);
 
     useEffect(() => {
@@ -151,9 +156,39 @@ const ImportReviewers = () => {
         setSearchUser(event.target.value);
     }
 
-    const handleReviewerAssignRole = async (event) => {
+    const handleSubmitAddUser= async(evt)=>{
+        evt.preventDefault();
     }
 
+    const handleReviewerAssignRole = async (userRoles) => {
+        console.log((userRoles));
+        const isNonAcedamicUser = userRoles.some((userRole,index)=>{
+            return (
+                userRole == "cqa_director" ||
+                userRole == "cqa_officer" ||
+                userRole == "iqau_director"
+            )? 
+            true : false;
+        })
+
+        isNonAcedamicUser? 
+            setOpenModal(true)
+            :
+            setOpenDialog(true);
+
+    }
+
+    const dialogStyle = {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: 400,
+        bgcolor: 'background.paper',
+        border: '2px solid #000',
+        boxShadow: 24,
+        p: 4,
+      };
 
     const [errorMsg, setErrorMsg] = useState("");
     const [successMsg, setSuccessMsg] = useState("");
@@ -274,7 +309,7 @@ const ImportReviewers = () => {
                                             <ButtonGroup>
                                                 <Button variant="contained" color="success" onClick={() => {
                                                         setAssigningUserId(universitySide.id);
-                                                        handleReviewerAssignRole();
+                                                        handleReviewerAssignRole(JSON.parse(universitySide.user.roles));
                                                     }}
                                                     disabled={
                                                         JSON.parse(universitySide.user.roles).includes("reviewer") ? true : false || wait 
@@ -294,6 +329,49 @@ const ImportReviewers = () => {
                     </TableContainer>
                 </Box>
             </Box>
+
+            {/* modal */}
+            <Modal
+                open={openModal}
+                onClose={()=>setOpenModal(false)}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <Box sx={dialogStyle}>
+                <Typography id="modal-modal-title" variant="h6" component="h2">
+                    Fill the Additional required details
+                </Typography>
+                <Divider sx={{ marginTop: "1rem", marginBottom: "1rem" }} />
+                <form style={{ padding: "20px 40px" }} onSubmit={handleSubmitAddUser}>
+                    <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", flexWrap: "wrap" }}>
+                        <FormField required={true} label={"Account For"} type={"select"} key={"VCCQA"} options={[
+                            { name: "vc", value: "vice_chancellor", label: "Vice Chancellor" },
+                            { name: "cqa", value: "cqa_director", label: "CQA Director" },
+                        ]} />
+                    </Box>
+                    <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", flexWrap: "wrap" }}>
+                        
+                    </Box>
+                    {/* <Box sx={{margin:"0.5rem 0",display:'flex',flexWrap:"wrap",justifyContent:'center',alignItems:'center',width:'100%'}}>
+                            {Loading? "Processing " : ""}
+                            {Loading && <CircularProgress style={{margin:"0 0.5rem"}} color="primary" size={24} />}
+                        </Box> */}
+                </form>
+                {/* <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                    Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
+                </Typography> */}
+                </Box>
+            </Modal>
+
+            <DialogMenu
+                Message={"Are you sure you want to add this user as a reviewer?"}
+                Warning={"Once you assign this user as a reviewer, you can't undo this action"}
+                Actions={{submit:'add user',cancel:'cancel'}}
+                onClose={()=>setOpenDialog(false)}
+                Open={openDialog}
+                onSubmit={()=>setOpenDialog(false)}
+            ></DialogMenu>
+
 
             <Divider textAlign='left'>
                 <Chip label="Universities and Faculties" />
