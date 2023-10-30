@@ -95,7 +95,7 @@ class PostGraduateProgramReviewApplicationController extends Controller
             //authorize the action
             $this -> authorize('create', [PostGraduateProgramReviewApplication::class, $request]);
 
-            // TODO: inform the dean, vice chancellor, iqau, cqa director, program coordinator.
+            DB::beginTransaction();
             $postGraduateProgramReviewApplication = PostGraduateProgramReviewApplication::create($request->validated());
 
             $postGraduateProgram = $postGraduateProgramReviewApplication->postGraduateProgram;
@@ -155,12 +155,15 @@ class PostGraduateProgramReviewApplicationController extends Controller
                 )
             );
 
+            DB::commit();
+
             return new PostGraduateProgramReviewApplicationResource($postGraduateProgramReviewApplication);
         }
         catch(AuthorizationException $e){
             return response() -> json(['message' => $e -> getMessage()], 403);
         }
         catch(\Exception $e){
+            DB::rollBack();
             return response() -> json(['message' => $e -> getMessage()], 500);
         }
     }
