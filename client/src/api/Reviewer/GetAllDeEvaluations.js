@@ -5,7 +5,7 @@ import axios from "../api.js";
 
 //url is : SERVER_URL + SERVER_API_VERSION + '/reviewers/reviewer-desk-evaluations'
 
-const URL = SERVER_URL + SERVER_API_VERSION + '/reviewers/reviewer-desk-evaluations';
+const URL = SERVER_URL + SERVER_API_VERSION + 'reviewers/reviewer-desk-evaluations';
 
 const GetAllDeEvaluations = async () => {
 

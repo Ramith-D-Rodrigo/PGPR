@@ -6,8 +6,10 @@ import axios from '../api.js';
 
 //url = reviewers/pgprs
 
-export default getAllPgprs = async()=>
+const getAllPgprs = async()=>
 {
     const URL = SERVER_URL + SERVER_API_VERSION + 'reviewers/pgprs';
-    return await axios.post(URL);
+    return await axios.get(URL);
 }
+
+export default getAllPgprs;
