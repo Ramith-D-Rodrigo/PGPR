@@ -6,7 +6,7 @@ Please note that you have other roles in the system as well.<br>
 You have currently have access to following roles.<br>
 
 <ul>
-    @foreach($user['roles'] as $role)
+    @foreach(json_decode($user['roles'], true) as $role)
         <li>{{$role}}</li>
     @endforeach
 </ul>
