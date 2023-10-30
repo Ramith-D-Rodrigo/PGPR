@@ -27,12 +27,13 @@ import getAssignedPGPR from '../../api/Reviewer/getAssignedPGPR';
 import getAllCriteria from '../../api/Criteria/getAllCriteria';
 
 function DEProgress() {
-    const {pgprId} = useParams();
+    const {pgprId,reviwerId} = useParams();
     const [SERDetails,setSERDetails] = useState([]);
     const [loading,SetLoading] = useState(false);
     const [criteriaId, setCriteriaId] = useState(null);
     const [criteriaList, setCriteriaList] = useState([]);
     const {reviewerRole, setReviewerRole} = useReviewerRole();
+    const [pgprDetails,setPGPRDetails] = useState([]);
 
     useSetUserNavigations(
         [
@@ -58,10 +59,10 @@ function DEProgress() {
 
     useEffect(() => {
         document.title = "End the Desk Evaluation process";
-        const getSERDetails = async () => {
+        const getSERDetails = async (pgprDetails) => {
           SetLoading(true);
           try {
-              const response = await getSelfEvaluationReport(pgprId);
+              const response = await getSelfEvaluationReport(pgprDetails?.postGraduateReviewProgram?.selfEvaluationReport?.id);
               console.log("SER Details : ",response?.data?.data);
               setSERDetails(response?.data?.data);
               setCriteriaList(response?.data?.data?.criterias?? []);
@@ -72,25 +73,66 @@ function DEProgress() {
               SetLoading(false);
           }
         };
-        getSERDetails();
+        const getPGPRDetails = async () => {
+          SetLoading(true);
+          try {
+              const response0 = await getAssignedPGPR(pgprId);
+              console.log("PGPR Details : ",response0?.data?.data);
+              setPGPRDetails(response0?.data?.data);
+              getSERDetails(response0?.data?.data);
+              setReviewerRole(response0?.data?.data?.role);
+              if(response0?.data?.data?.role != "CHAIR") history.goback();
+              // const response = await getPGPR(pgprId);
+              // console.log("2nd req pgpr details ",response?.data?.data);
+              SetLoading(false);
+          } catch (err) {
+              console.error(err);
+              SetLoading(false);
+          }
+        };
+        getPGPRDetails();
       }, []);
+
+      useEffect(()=>{
+        if(!criteriaId)
+        {
+          return;
+        }
+        //get standard details of selected reviewer for selected criteria
+        console.log("selected criteria :",criteriaList[criteriaId-1]);
+        // criteriaId,reviwerId
+      },[criteriaId]);
     
       const pgProgrammeDetails = SERDetails?.postGraduateProgramReview?.postGraduateProgramme;
-        const facultyDetails = pgProgrammeDetails?.faculty;
-        const universityDetails = facultyDetails?.university;
-        const pgCoordinatorDetails = pgProgrammeDetails?.programmeCoordinator?.academicStaff?.universitySide?.user;
-        const headerInfo = [
-            { label: "University:", value: universityDetails?.name?? "" },
-            {
-              label: "Faculty/Institute:",
-              value: facultyDetails?.name?? "",
-            },
-            { label: "PGPR ID:", value: `PGPR-${pgprId?? ""}` },
-            { label: "PGPR Name:", value: pgProgrammeDetails?.title?? "" },
-            { label: "Application Start Date:", value: "12/12/2020" },
-            { label: "Submission Date:", value: "01/01/2021" },
-            { label: "Program Coordinator:", value: `${pgCoordinatorDetails?.initials?? ""} ${pgCoordinatorDetails?.surname?? ""}` },
-          ];
+      const facultyDetails = pgProgrammeDetails?.faculty;
+      const universityDetails = facultyDetails?.university;
+      const pgCoordinatorDetails = pgProgrammeDetails?.programmeCoordinator?.academicStaff?.universitySide?.user;
+      const headerInfo = [
+        { label: "University:", value: universityDetails?.name?? "" },
+        {
+          label: "Faculty/Institute:",
+          value: facultyDetails?.name?? "",
+        },
+        { label: "PGPR ID:", value: `PGPR-${pgprId?? ""}` },
+        { label: "PGPR Name:", value: pgProgrammeDetails?.title?? "" },
+        { label: "Application Start Date:", value: "12/12/2020" },
+        { label: "Submission Date:", value: "01/01/2021" },
+        { label: "Program Coordinator:", value: `${pgCoordinatorDetails?.initials?? ""} ${pgCoordinatorDetails?.surname?? ""}` },
+      ];
+
+        function getRemainingDates(endDate) {
+          const endDateObject = new Date(endDate);
+          const currentDate = new Date();
+
+          const millisecondsInADay = 1000 * 60 * 60 * 24;
+          const millisecondsDifference = endDateObject.getTime() - currentDate.getTime();
+        
+          const daysRemaining = millisecondsDifference / millisecondsInADay;
+          const monthsRemaining = Math.floor(daysRemaining / 30);
+          const daysRemainingAfterMonths = daysRemaining % 30;
+        
+          return monthsRemaining>0? `${monthsRemaining} months and` : `` + `${Math.ceil(daysRemainingAfterMonths)} day(s) Remaining`;
+        }
     
           
           //setCriteriaId(criteriaList[0]?.id?? "");
@@ -128,19 +170,18 @@ function DEProgress() {
                   variant="button"
                   style={{ margin: "0 0 0 20px" }}
               >
-                  <p>Desk Evaluation Period : <strong>2023 AUG 12 To 2023 AUG 12</strong></p>
+                  <p>Desk Evaluation Period : <strong>{`${pgprDetails?.postGraduateReviewProgram?.deskEvaluation?.startDate} To ${pgprDetails?.postGraduateReviewProgram?.deskEvaluation?.endDate}`}</strong></p>
                   <p>Reviewer Name : <strong>Reviewer 1</strong></p>
-                  <p>Progress : <strong>Completed</strong></p>
               </Typography>
               <Typography
                   variant="button"
                   style={{ margin: "0 0 0 20px" }}
               >
-                  <strong>1 month and 12 days Remaining</strong>
+                  <strong>{getRemainingDates(pgprDetails?.postGraduateReviewProgram?.deskEvaluation?.endDate)}</strong>
               </Typography>
             </Box>
     
-            <Box sx={{display:'flex',flexDirection:'column',justifyContent:'center',width:"100%",alignItems:"center",margin:'10px'}}>
+            <Box sx={{display:'flex',flexDirection:'column',justifyContent:'center',alignItems:"center",margin:'10px'}}>
                 <FormControl style={{margin:"3rem 0 2rem",width:"50%"}} variant="standard" sx={{ m: 1, minWidth: 120 }}>
                   <InputLabel id="select-criteria">Criteria</InputLabel>
                   <Select

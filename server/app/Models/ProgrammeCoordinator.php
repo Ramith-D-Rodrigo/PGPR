@@ -17,6 +17,11 @@ class ProgrammeCoordinator extends Model
         'current_status'
     ];
 
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'id', 'id');
+    }
+
     //program coordinator is an academic staff
     public function academicStaff(): BelongsTo
     {

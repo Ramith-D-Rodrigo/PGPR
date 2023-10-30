@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Filters\V1\UniversityFilter;
 use App\Http\Resources\V1\FacultyCollection;
 use App\Http\Resources\V1\PostGraduateProgramCollection;
+use App\Mail\InformUniversityActionToAuthorities;
 use App\Models\University;
 use App\Http\Requests\V1\StoreUniversityRequest;
 use App\Http\Requests\V1\UpdateUniversityRequest;
@@ -16,6 +17,7 @@ use App\Models\CenterForQualityAssurance;
 use App\Services\V1\UniversityService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class UniversityController extends Controller
 {
@@ -173,6 +175,51 @@ class UniversityController extends Controller
             DB::beginTransaction();
             $university = UniversityService::update($validatedData, $university);
             //commit db transactions
+
+            // TODO: INFORM THE CQA DIR AND VICE CHANCELLOR IF EXISTS
+            $viceChancellor = $university->viceChancellor;
+            $cqaDirector = $university->centerForQualityAssurance;
+            $qacDirector = $university->createdQACDirector->user;
+
+           if ($viceChancellor) {
+               $viceChancellor = $viceChancellor->user;
+               Mail::to($viceChancellor->officail_email)->send(
+                   new InformUniversityActionToAuthorities(
+                       user: $viceChancellor,
+                       action: 'UPDATED',
+                       university: $university,
+                       subject: 'Details regarding a university was updated recently.',
+                       content: 'mail.informUniversityActionToAuthorities'
+                   )
+               );
+           }
+
+           if ($cqaDirector) {
+               $cqaDirector = $cqaDirector->currentQualityAssuranceDirector;
+               if ($cqaDirector) {
+                  $cqaDirector = $cqaDirector->user;
+                   Mail::to($cqaDirector->officail_email)->send(
+                       new InformUniversityActionToAuthorities(
+                           user: $viceChancellor,
+                           action: 'UPDATED',
+                           university: $university,
+                           subject: 'Details regarding a university was updated recently.',
+                           content: 'mail.informUniversityActionToAuthorities'
+                       )
+                   );
+               }
+           }
+
+            Mail::to($qacDirector->officail_email)->send(
+                new InformUniversityActionToAuthorities(
+                    user: $qacDirector,
+                    action: 'UPDATED',
+                    university: $university,
+                    subject: 'Details regarding a university was updated recently.',
+                    content: 'mail.informUniversityActionToAuthorities'
+                )
+            );
+
             DB::commit();
 
             return response()->json([

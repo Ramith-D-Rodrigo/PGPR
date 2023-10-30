@@ -34,7 +34,7 @@ class SetDatesForPE2Request extends FormRequest
     {
         return [
             'pgpr_id' => ['required', Rule::exists('post_graduate_program_reviews', 'id')->where(function ($query) {
-                $query->where('status_of_pqpr', 'PE1');
+                $query->where('status_of_pgpr', 'PE1');
             })],
             'start_date' => 'required|date|after_or_equal:today',
             'end_date' => 'required|date|after:start_date',

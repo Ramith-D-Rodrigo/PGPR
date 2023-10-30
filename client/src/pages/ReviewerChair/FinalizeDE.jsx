@@ -20,6 +20,8 @@ import getSelfEvaluationReport from '../../api/SelfEvaluationReport/getSelfEvalu
 import createSERRows from '../../assets/reviewer/createSERRows';
 import useReviewerRole from '../../hooks/useReviewerRole';
 import getAssignedPGPR from '../../api/Reviewer/getAssignedPGPR';
+import getPGPR from '../../api/PostGraduateProgramReview/getPGPR';
+import GetDEprogress from '../../api/reviewChair/getDEprogress';
 
 function FinalizeDE() {
 
@@ -30,7 +32,11 @@ function FinalizeDE() {
     const [SERDetails,setSERDetails] = useState([]);
     const [loading,SetLoading] = useState(false);
     const {reviewerRole, setReviewerRole} = useReviewerRole();
+    const [reviewTeam,setReviewTeam] = useState([]);
+    const [deProgress,setDeProgress] = useState([]);
     const [openDialog, setOpenDialog] = useState(false);
+    const [rows,setRows] = useState([]);
+    const [pgprDetails,setPGPRDetails] = useState([]);
 
     useSetUserNavigations(
       [
@@ -51,10 +57,10 @@ function FinalizeDE() {
 
     useEffect(() => {
       document.title = "End the Desk Evaluation process";
-      const getSERDetails = async () => {
+      const getSERDetails = async (pgprDetails) => {
           SetLoading(true);
           try {
-              const response = await getSelfEvaluationReport(pgprId);
+              const response = await getSelfEvaluationReport(pgprDetails?.postGraduateReviewProgram?.selfEvaluationReport?.id);
               console.log("SER Details : ",response?.data?.data);
               setSERDetails(response?.data?.data);
               SetLoading(false);
@@ -66,18 +72,52 @@ function FinalizeDE() {
       const getPGPRDetails = async () => {
           SetLoading(true);
           try {
-              const response = await getAssignedPGPR(pgprId);
-              console.log("PGPR Details : ",response?.data?.data);
-              setReviewerRole(response?.data?.data?.reviewerRole);
+              const response0 = await getAssignedPGPR(pgprId);
+              console.log("PGPR Details : ",response0?.data?.data);
+              setReviewerRole(response0?.data?.data?.role);
+              if(response0?.data?.data?.role != "CHAIR") history.back();
+              getSERDetails(response0?.data?.data);
+              setPGPRDetails(response0?.data?.data);
+              const response = await getPGPR(pgprId);
+              console.log("2nd req pgpr details ",response?.data?.data);
+              setReviewTeam(response?.data?.data?.acceptedReviewTeam);
+              const response1 = await GetDEprogress(response?.data?.data?.acceptedReviewTeam?.id,response?.data?.data?.deskEvaluation?.id)
+              console.log("de progress :",response1?.data?.data);
+              setDeProgress(response1?.data?.data);
               SetLoading(false);
           } catch (err) {
               console.error(err);
               SetLoading(false);
           }
       };
-      getSERDetails();
-      // getPGPRDetails();
+      getPGPRDetails();
     }, []);
+
+    const setTableRows = ()=>{
+        setRows(reviewTeam ?.reviewers? 
+        reviewTeam.reviewers.map((reviewer,index)=>{
+            let progress = 0;
+            deProgress.forEach((de_reviewer)=>{
+                if(de_reviewer.reviewerId == reviewer.userData.id)
+                {
+                    let noOfStandards=0;
+                    let noOfEvaluatedStandard=0;
+                    de_reviewer.criteriaData.forEach((criteria)=>{
+                        noOfStandards+=criteria.totalStandards;
+                        noOfEvaluatedStandard+=criteria.evaluatedStandards;
+                    });
+                    progress = Math.trunc(noOfEvaluatedStandard/noOfStandards*100)+"%";
+                }
+            })
+            return createData({id:reviewer.userData.id,name:reviewer.userData.initials+"."+reviewer.userData.surname},reviewer.role,progress)
+        })
+        :
+        []);
+    }
+
+    useEffect(()=>{
+        setTableRows();
+    },[deProgress]);
 
     const pgProgrammeDetails = SERDetails?.postGraduateProgramReview?.postGraduateProgramme;
     const facultyDetails = pgProgrammeDetails?.faculty;
@@ -99,21 +139,47 @@ function FinalizeDE() {
       const Criterias = SERDetails?.criterias;
       // const evidencesForGivenStandards = SERDetails?.evidenceGivenStandards;
 
-      console.log("Criterias : ",Criterias);
+    //   console.log("Criterias : ",Criterias);
       // console.log("evidencesForGivenStandards : ",evidencesForGivenStandards);
 
-      const createData = (reviewer,designation,role,progress) => {
+      const createData = (reviewer,role,progress) => {
         const actions = <Link key={1} to={`../view_DE_progress/${pgprId}/${reviewer.id}`}><Button variant="contained" color="primary">View</Button></Link>
-        return {id:reviewer.id,name:reviewer.name,designation,role,progress,actions}
+        // console.log({id:reviewer.id,name:reviewer.name,role,progress,actions});
+        return {id:reviewer.id,name:reviewer.name,role,progress,actions}
       }
 
-      const rows = [
-        createData({id:1,name:"Dr. K. K. K. Perera"},"Senior Lecturer","Chair","100%"),
-        createData({id:2,name:"Dr. K. K. K. Perera"},"Senior Lecturer","Reviewer","100%"),
-        createData({id:3,name:"Dr. K. K. K. Perera"},"Senior Lecturer","Reviewer","100%"),
-      ]
+
+    function getRemainingDates(endDate) {
+        const endDateObject = new Date(endDate);
+        const currentDate = new Date();
+
+        const millisecondsInADay = 1000 * 60 * 60 * 24;
+        const millisecondsDifference = endDateObject.getTime() - currentDate.getTime();
+        
+        const daysRemaining = millisecondsDifference / millisecondsInADay;
+        const monthsRemaining = Math.floor(daysRemaining / 30);
+        const daysRemainingAfterMonths = daysRemaining % 30;
+        
+        return monthsRemaining>0? `${monthsRemaining} months and` : `` + `${Math.ceil(daysRemainingAfterMonths)} day(s) Remaining`;
+    }
+
+
     return (
       <>
+        {
+            loading?
+                <div style={{display:"flex",justifyContent:"center",alignItems:"center",height:"100%"}}> 
+                    <Typography variant="h6" style={{ margin: "0 0 0 20px" }}>
+                        Loading ...
+                    </Typography>
+                    <CircularProgress
+                    style={{ margin: "0 0 0 20px", color: "darkblue" }}
+                    thickness={5}
+                    size={24}
+                    />
+                </div>
+                :
+            <>
             <DiscriptiveDiv
                 description={`${reviewerRole?? ""}`}
                 width="100%"
@@ -139,13 +205,13 @@ function FinalizeDE() {
                     variant="button"
                     style={{ margin: "0 0 0 20px" }}
                 >
-                    Desk Evaluation Period : <strong>2023 AUG 12 To 2023 AUG 12</strong>
+                    Desk Evaluation Period : <strong>{`${pgprDetails?.postGraduateReviewProgram?.deskEvaluation?.startDate} To ${pgprDetails?.postGraduateReviewProgram?.deskEvaluation?.endDate}`}</strong>
                 </Typography>
                 <Typography
                     variant="button"
                     style={{ margin: "0 0 0 20px" }}
                 >
-                    <strong>1 month and 12 days Remaining</strong>
+                    <strong>{getRemainingDates(pgprDetails?.postGraduateReviewProgram?.deskEvaluation?.endDate)}</strong>
                 </Typography>
             </Box>
 
@@ -154,7 +220,6 @@ function FinalizeDE() {
                     <TableHead>
                         <TableRow>
                             <TableCell style={{backgroundColor:"#D8E6FC",}} align="left"><b>Name</b></TableCell>
-                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Designation</b></TableCell>
                             <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Role</b></TableCell>
                             <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Progress</b></TableCell>
                             <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Actions</b></TableCell>
@@ -191,7 +256,6 @@ function FinalizeDE() {
                                 <TableCell component="th" scope="row">
                                     {row.name}
                                 </TableCell>
-                                <TableCell align="center">{row.designation}</TableCell>
                                 <TableCell align="center">{row.role}</TableCell>
                                 <TableCell align="center">{row.progress}</TableCell>
                                 <TableCell align="center">{row.actions}</TableCell>
@@ -204,7 +268,9 @@ function FinalizeDE() {
             <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', width: '100%', padding: '20px 0',height:"auto" }}>
                 <Link to={`../End_DE/${pgprId}`}><Button variant="contained" size="small" style={{width:"300px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>End the Desk Evaluation</Button></Link>
             </Box>
-      </>
+            </>
+}
+    </>
     )
 }
 
