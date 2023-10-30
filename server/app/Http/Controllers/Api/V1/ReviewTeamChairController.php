@@ -612,7 +612,7 @@ class ReviewTeamChairController extends Controller
                             ->get();
                     } else {
                         $standardIds = Criteria::find($validated['criteria_id'])->standards->pluck('id');
-                        $reviewerName = Reviewer::find($validated['reviewer_id'])->user->pluck('full_name');
+                        $reviewerName = Reviewer::find($validated['reviewer_id'])->user->full_name;
                         $data['reviewerName'] = $reviewerName;
                         $data['scores'] = DB::table('desk_evaluation_score')
                             ->join('standards', 'desk_evaluation_score.standard_id', '=', 'standards.id')
@@ -632,10 +632,11 @@ class ReviewTeamChairController extends Controller
                     $criteriaIds = DB::table('criterias')->pluck('id');
                     $reviewerName = Reviewer::find($validated['reviewer_id'])->user->pluck('full_name');
                     $data['reviewerName'] = $reviewerName;
+                    $data['scores'] =[];
                     foreach ($criteriaIds as $criteriaId) {
                         $standardIds = Criteria::find($criteriaId)->standards->pluck('id');
 
-                        $data = DB::table('desk_evaluation_score')
+                        $data['scores'][] = DB::table('desk_evaluation_score')
                             ->join('standards', 'criterias.id', '=', 'standards.criteria_id')
                             ->join('criterias', 'standards.criteria_id', '=', 'criterias.id')
                             ->where('desk_evaluation_score.desk_evaluation_id', $deskEvaluation->id)
