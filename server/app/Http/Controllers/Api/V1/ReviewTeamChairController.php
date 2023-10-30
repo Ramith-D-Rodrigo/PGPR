@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\V1\SetDatesForPE1Request;
 use App\Http\Requests\V1\SetDatesForPE2Request;
 use App\Http\Requests\V1\ShowDEScoresOfReviewTeamRequest;
+use App\Http\Requests\V1\ShowDEScoresOfTeamMemberRequest;
 use App\Http\Requests\V1\ShowFinalReportRequest;
 use App\Http\Requests\V1\ShowPEScoresOfReviewTeamRequest;
 use App\Http\Requests\V1\ShowPreliminaryReportRequest;
@@ -21,10 +22,12 @@ use App\Http\Requests\V1\UploadPreliminaryReportRequest;
 use App\Http\Resources\V1\ReviewTeamResource;
 use App\Mail\InformEvaluationSubmissionToOfficials;
 use App\Mail\InformReportUploadsToOfficials;
+use App\Models\Criteria;
 use App\Models\DeskEvaluation;
 use App\Models\PostGraduateProgramReview;
 use App\Models\ProperEvaluation;
 use App\Models\ProperEvaluation1;
+use App\Models\Reviewer;
 use App\Models\ReviewTeam;
 use App\Models\User;
 use App\Services\V1\ScoreCalculationService;
@@ -542,7 +545,7 @@ class ReviewTeamChairController extends Controller
 
     /**
      *
-     * review chair can view summary of proper evaluation grades of each member of the team(including himself)
+     * review chair can view summary of desk evaluation grades of each member of the team(including himself)
      * /{pgpr}/{criteria}/{standard}
      *
      */
@@ -571,10 +574,99 @@ class ReviewTeamChairController extends Controller
         }
     }
 
-
     /**
      *
      * review chair can view summary of desk evaluation grades of each member of the team(including himself)
+     *  /{pgpr}/{reviewer}/{criteria}/{standard}
+     *               or
+     *  /{pgpr}/{reviewer}
+     *              or
+     *   /{pgpr}/{reviewer}/{criteria}
+     */
+    public function viewDEScoresOfTeamMember(ShowDEScoresOfTeamMemberRequest $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $validated = $request->validated();
+            $postGraduateProgramReview = PostGraduateProgramReview::find($validated['pgpr_id']);
+            $deskEvaluation = $postGraduateProgramReview->deskEvaluation();
+
+            if ($deskEvaluation) {
+                $data = [];
+                if (array_key_exists('criteria_id', $validated)) {
+                    if (array_key_exists('standard_id', $validated)) {
+                        $data = DB::table('desk_evaluation_score')
+                            ->join('standards', 'desk_evaluation_score.standard_id', '=', 'standards.id')
+                            ->join('criterias', 'standards.criteria_id', '=', 'criterias.id')
+                            ->join('users', 'users.id', '=', 'desk_evaluation_scores.reviewer_id')
+                            ->where('desk_evaluation_score.desk_evaluation_id', $deskEvaluation->id)
+                            ->where('desk_evaluation_score.reviewer_id', $validated['reviewer_id'])
+                            ->where('desk_evaluation_score.standard_id', $validated['standard_id'])
+                            ->where('criterias.id', $validated['criteria_id'])
+                            ->select(
+                                'users.full_name as reviewerFullName',
+                                'desk_evaluation_score.reviewer_id as reviewerId',
+                                'standards.description as standardDescription',
+                                'desk_evaluation_score.de_score as deScore',
+                                'desk_evaluation_score.comment as comment',
+                            )
+                            ->get();
+                    } else {
+                        $standardIds = Criteria::find($validated['criteria_id'])->standards->pluck('id');
+                        $reviewerName = Reviewer::find($validated['reviewer_id'])->user->pluck('full_name');
+                        $data['reviewerName'] = $reviewerName;
+                        $data['scores'] = DB::table('desk_evaluation_score')
+                            ->join('standards', 'desk_evaluation_score.standard_id', '=', 'standards.id')
+                            ->join('criterias', 'standards.criteria_id', '=', 'criterias.id')
+                            ->where('desk_evaluation_score.desk_evaluation_id', $deskEvaluation->id)
+                            ->where('desk_evaluation_score.reviewer_id', $validated['reviewer_id'])
+                            ->whereIn('desk_evaluation_score.standard_id', $standardIds)
+                            ->select(
+                                'desk_evaluation_score.reviewer_id as reviewerId',
+                                'standards.description as standardDescription',
+                                'desk_evaluation_score.de_score as deScore',
+                                'desk_evaluation_score.comment as comment',
+                            )
+                            ->get();
+                    }
+                }else {
+                    $criteriaIds = DB::table('criterias')->pluck('id');
+                    $reviewerName = Reviewer::find($validated['reviewer_id'])->user->pluck('full_name');
+                    $data['reviewerName'] = $reviewerName;
+                    foreach ($criteriaIds as $criteriaId) {
+                        $standardIds = Criteria::find($criteriaId)->standards->pluck('id');
+
+                        $data = DB::table('desk_evaluation_score')
+                            ->join('standards', 'criterias.id', '=', 'standards.criteria_id')
+                            ->join('criterias', 'standards.criteria_id', '=', 'criterias.id')
+                            ->where('desk_evaluation_score.desk_evaluation_id', $deskEvaluation->id)
+                            ->where('desk_evaluation_score.reviewer_id', $validated['reviewer_id'])
+                            ->whereIn('desk_evaluation_score.standard_id', $standardIds)
+                            ->select(
+                                'desk_evaluation_score.reviewer_id as reviewerId',
+                                'standards.description as standardDescription',
+                                'desk_evaluation_score.de_score as deScore',
+                                'desk_evaluation_score.comment as comment',
+                            )
+                            ->get();
+                    }
+
+                }
+                return response()->json(['message' => 'Successful', 'data' => $data]);
+            } else {
+                return response()->json(
+                    ['message' => 'Desk evaluation for this postgraduate program is not scheduled yet, will be informed when scheduled'],
+                    422
+                );
+            }
+        } catch (Exception $exception) {
+            return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+        }
+    }
+
+
+    /**
+     *
+     * review chair can view summary of proper evaluation grades of each member of the team(including himself)
      * /{pgpr}/{criteria}/{standard}
      *
      */
