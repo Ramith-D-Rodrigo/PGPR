@@ -181,7 +181,7 @@ function DEProgress() {
               </Typography>
             </Box>
     
-            <Box sx={{display:'flex',flexDirection:'column',justifyContent:'center',width:"100%",alignItems:"center",margin:'10px'}}>
+            <Box sx={{display:'flex',flexDirection:'column',justifyContent:'center',alignItems:"center",margin:'10px'}}>
                 <FormControl style={{margin:"3rem 0 2rem",width:"50%"}} variant="standard" sx={{ m: 1, minWidth: 120 }}>
                   <InputLabel id="select-criteria">Criteria</InputLabel>
                   <Select
