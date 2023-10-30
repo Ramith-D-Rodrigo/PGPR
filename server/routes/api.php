@@ -54,7 +54,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
 
     Route::apiResource('users', 'UserController');
     Route::apiResource('universitySides', 'UniversitySideController');
-    Route::post('assignReviewerRole', 'UniversitySide@assignReviewerRole')->middleware('auth');
+    Route::post('assignReviewerRole/{universitySide}', 'UniversitySideController@assignReviewerRole')->middleware('auth');
     
     Route::apiResource('universities', 'UniversityController')->middleware('auth');
     //other routes of the universities

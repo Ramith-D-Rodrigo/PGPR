@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import downloadExcelFile from '../../api/Reviewer/downloadExcelFile';
-import { Button, Input, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Box, Typography, ButtonGroup } from '@mui/material';
+import { Button, Input, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Box, Typography, ButtonGroup, CircularProgress } from '@mui/material';
 import FormField from '../../components/FormField';
 import TextField from '@mui/material/TextField';
 import getAllUniversities from '../../api/University/getAllUniversities';
@@ -69,6 +69,7 @@ const ImportReviewers = () => {
     const [openDialog,setOpenDialog] = useState(false);
     const [assigningUserId, setAssigningUserId] = useState(null);
     const [submitDialogMenu,setSubmitDialogMenu] = useState(()=>{return ()=>setOpenDialog(false)});
+    const [loading,setLoading] = useState(false);
 
     useEffect(() => {
         document.title = "Import Reviewers";
@@ -174,12 +175,12 @@ const ImportReviewers = () => {
         try{
             if(isUniversitySide)
             {
-                const response = await assignReviewerRole();
+                const response = await assignReviewerRole(assigningUserId);
                 console.log(response?.data?.data);
             }
             else{
                 const formData = new FormData(evt.target);
-                const response = await assignReviewerRole(formData);
+                const response = await assignReviewerRole(assigningUserId,formData);
                 console.log(response?.data?.data);
             }
         }
@@ -193,7 +194,6 @@ const ImportReviewers = () => {
         const isNonAcedamicUser = userRoles.some((userRole,index)=>{
             return (
                 userRole == "cqa_director" ||
-                userRole == "cqa_officer" ||
                 userRole == "iqau_director"
             )? 
             true : false;
@@ -237,6 +237,19 @@ const ImportReviewers = () => {
     const [wait, setWait] = useState(false);
 
     return (
+        <>
+        {loading?
+                    <div style={{position:'absolute',left:0,margin:"0 auto",display:"flex",justifyContent:"center",alignItems:"center"}}> 
+                        <Typography variant="h6" style={{ margin: "0 0 0 20px" }}>
+                            Loading ...
+                        </Typography>
+                        <CircularProgress
+                        style={{ margin: "0 0 0 20px", color: "darkblue" }}
+                        thickness={5}
+                        size={24}
+                        />
+                    </div>
+        :
         <>
             <Snackbar
                 open={errorMsg == "" ? false : true}
@@ -603,6 +616,8 @@ const ImportReviewers = () => {
                     </TableBody>
                 </Table>
             </TableContainer>
+            </>
+        }
         </>
     );
 }
