@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from "../api.js";
 import { SERVER_URL, SERVER_API_VERSION } from '../../assets/constants.js';
 
 
@@ -22,10 +22,17 @@ import { SERVER_URL, SERVER_API_VERSION } from '../../assets/constants.js';
 // 'working_faculty' => ['required', 'integer', 'exists:faculties,id'],
 
 
-const assignReviewerRole = async (params=null) => {
-    const URL = SERVER_URL + SERVER_API_VERSION + 'assignReviewerRole';
+const assignReviewerRole = async (universitySide,formdata=null) => {
+    const URL = SERVER_URL + SERVER_API_VERSION + 'assignReviewerRole'+`/${universitySide}`;
 
-    return params==null? axios.post(URL) : axios.post(URL, {...params});
+    await axios.get("/sanctum/csrf-cookie"); //csrf-cookie is required for post requests
+    if(formdata==null){
+        return axios.post(URL);
+    }
+    else
+    {
+        return axios.post(URL, formdata);
+    }
 }
 
 export default assignReviewerRole;
