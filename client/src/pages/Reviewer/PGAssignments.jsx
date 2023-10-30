@@ -341,11 +341,6 @@ const PGAssignments = () => {
 
     getPGPRAssignments();
   }
-
-
-
-        getPGPRAssignments();
-    }
     
 
     function createData(PGPRDetails,University_Name, faculty_Name, pgp, Role, status, Actions,DE,reviewerConfirmation) {
