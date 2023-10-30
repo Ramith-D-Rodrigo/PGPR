@@ -164,6 +164,8 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::post('reviewer/submit/proper-evaluation', 'ReviewerController@submitProperEvaluation')->middleware('auth');
     //reviewer reject pgpr in de if the evidences aren't up to the standards
     Route::post('reviewer/reject-pgpr-in-evaluation', 'ReviewerController@rejectPGPRInEvaluation')->middleware('auth');
+    //reviewer display the standards of a criteria with scores and comments +> URL params properEvaluation=10
+    Route::get('reviewer/proper-evaluation/display-remarks-scores', 'DeskEvaluationController@viewOwnProperEvaluationCommentsAndScores')->middleware('auth');
 
     //REVIEW TEAM CHAIR ENDPOINTS
     //review team chair assign criteria to team members (including himself)
@@ -194,6 +196,10 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::post('review-team-chair/submit/preliminary-report', 'ReviewTeamChairController@submitFinalReport')->middleware('auth');
     //review team chair submit final report
     Route::post('review-team-chair/submit/final-report', 'ReviewTeamChairController@submitFinalReport')->middleware('auth');
+    //review team chair change the dates of the PE1
+    Route::post('review-team-chair/proper-evaluation/set-dates/phase-one', 'ReviewTeamChairController@setDatesForPE1')->middleware('auth');
+    //review team chair change the dates of the PE2
+    Route::post('review-team-chair/proper-evaluation/set-dates/phase-two', 'ReviewTeamChairController@setDatesForPE2')->middleware('auth');
 
     //REVIEW TEAM ENDPOINTS
     //reviewer view proper evaluation details of the review team (could be either review team head or a member)

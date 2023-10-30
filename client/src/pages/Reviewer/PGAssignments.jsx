@@ -24,7 +24,7 @@ import {
   DialogTitle,
   useMediaQuery,
   useTheme,
-  Chip, 
+  Chip,
   Divider,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
@@ -35,7 +35,7 @@ import ScrollableDiv from "../../components/ScrollableDiv";
 import useSetUserNavigations from "../../hooks/useSetUserNavigations";
 import useAuth from "../../hooks/useAuth.js";
 import getAssignedPGPRs from "../../api/Reviewer/getAssignedPGPRs";
-import updateDeskEvaluation from '../../api/DeskEvaluation/updateDeskEvalution';
+import updateDeskEvaluation from "../../api/DeskEvaluation/updateDeskEvalution";
 
 const PGAssignments = () => {
     const {auth} = useAuth();
@@ -84,21 +84,6 @@ const PGAssignments = () => {
 
   useEffect(() => {
     document.title = "PG Assignments";
-    const getPGPRAssignments = async () => {
-      try {
-        setLoading(true);
-        setErrorMsg("");
-        const response = await getAssignedPGPRs();
-        console.log("PGPR Assignments : ", response?.data?.data);
-        setAssignedPGPRs(response?.data?.data);
-        createRows(response?.data?.data);
-        setSelectedFilterKeys([{ title: 'In-review' }]);
-        setLoading(false);
-      } catch (err) {
-        console.error(err);
-        setLoading(false);
-      }
-    };
     getPGPRAssignments();
   }, []);
 
@@ -289,78 +274,74 @@ const PGAssignments = () => {
     }
   }
 
-    function handleClickCancel() {
-        setAcceptClicked(false);
-        setAcceptAssignment(false);
-        setSelectedPGPRID(null);
+  function handleClickCancel() {
+    setAcceptClicked(false);
+    setAcceptAssignment(false);
+    setSelectedPGPRID(null);
+  }
+
+  function handleClickAccept(pgprID) {
+    setAcceptClicked(true);
+    setSelectedPGPRID(pgprID);
+    console.log("Accept Clicked : ", pgprID);
+  }
+
+  function setDate(dates) {
+    console.log("DE Clicked : ", dates);
+    setOpenDEDialog(dates);
+  }
+
+  const minDateDiffInMS = 2592000000; //30 days in milliseconds
+
+  async function handleSetDate(dates) {
+    if (DeEndDate === "") {
+      setErrorMsg("Please select the end date for the Desk Evaluation");
+      setDeEndDate("");
+      return;
+    } else if (DeStartDate === "") {
+      setErrorMsg("Please select the start date for the Desk Evaluation");
+      return;
+    }
+    //else if startdate is less than today
+    else if (DeStartDate <= new Date().toISOString().slice(0, 10)) {
+      setErrorMsg("Please select a valid start date for the Desk Evaluation");
+      setDeStartDate("");
+      return;
+    } else if (DeEndDate <= DeStartDate) {
+      setErrorMsg("Please select a valid end date for the Desk Evaluation");
+      setDeEndDate("");
+      return;
+    }
+    //else if date difference is less than 30 days
+    else if (new Date(DeEndDate) - new Date(DeStartDate) < minDateDiffInMS) {
+      setErrorMsg("Desk Evaluation should allocate at least a month");
+      setDeEndDate("");
+      return;
+    }
+    console.log("set Dates Clicked : ", dates, DeEndDate);
+    // setDeEndDate('');
+    setOpenDEDialog(false);
+    setDeEndDate(DeEndDate);
+
+    try {
+      const request = {
+        deskEvaluationId: dates.deId,
+        startDate: DeStartDate,
+        endDate: DeEndDate,
+      };
+      const response = await updateDeskEvaluation(dates.deId, request);
+
+      if (response && response.status == 200) {
+        setSuccess(true);
+        setErrorMsg("Desk Evaluation Date Updated Successfully!");
+      }
+    } catch (error) {
+      setErrorMsg(error.response.data.message);
     }
 
-    function handleClickAccept(pgprID) {
-        setAcceptClicked(true);
-        setSelectedPGPRID(pgprID);
-        console.log("Accept Clicked : ",pgprID);
-    }
+    getPGPRAssignments();
+  }
 
-    function setDate(dates) {
-        console.log("DE Clicked : ",dates);
-        setOpenDEDialog(dates);
-    }
-
-    const minDateDiffInMS = 2592000000; //30 days in milliseconds
-
-    async function handleSetDate(dates) {
-        if(DeEndDate === '')
-        {
-            setErrorMsg("Please select the end date for the Desk Evaluation");
-            setDeEndDate('');
-            return;
-        }
-        else if(DeStartDate === ''){
-            setErrorMsg("Please select the start date for the Desk Evaluation");
-            return;
-        }
-        //else if startdate is less than today
-        else if(DeStartDate <= new Date().toISOString().slice(0,10))
-        {
-            setErrorMsg("Please select a valid start date for the Desk Evaluation");
-            setDeStartDate('');
-            return;
-        }
-        else if(DeEndDate <= DeStartDate)
-        {
-            setErrorMsg("Please select a valid end date for the Desk Evaluation");
-            setDeEndDate('');
-            return;
-        }
-        //else if date difference is less than 30 days
-        else if((new Date(DeEndDate) - new Date(DeStartDate)) < minDateDiffInMS)
-        {
-            setErrorMsg("Desk Evaluation should allocate at least a month");
-            setDeEndDate('');
-            return;
-        }
-        console.log("set Dates Clicked : ",dates, DeEndDate);
-        // setDeEndDate('');
-        setOpenDEDialog(false);
-        setDeEndDate(DeEndDate);
-
-        try{
-            const request = {
-                deskEvaluationId : dates.deId,
-                startDate : DeStartDate,
-                endDate : DeEndDate,
-            }
-            const response = await updateDeskEvaluation(dates.deId, request);
-
-            if(response && response.status == 200){
-                setSuccess(true);
-                setErrorMsg("Desk Evaluation Date Updated Successfully!");
-
-            }
-        }
-        catch(error){
-            setErrorMsg(error.response.data.message);
-        }
 
 
         getPGPRAssignments();
@@ -408,7 +389,6 @@ const PGAssignments = () => {
         return {pgprID:`PGPR-${PGPRDetails.id}`, University_Name, faculty_Name, pgp, Role, status, Actions,reviewerConfirmation };
     }
 
-
   // const rows = [
   //     createData("Uoc-11",'University of Colombo', "UCSC","MCS","Chairman", 'In-review', [{action:'Accept',allow:false},{action:'View',allow:true}, {action:'DE',allow:false}, {action:'PE',allow:false}]),
   //     createData("Uoc-13",'University of Colombo', "FOC","MCS", "Reviewer", 'In-review', [{action:'Accept',allow:true},{action:'View',allow:true}, {action:'DE',allow:false}, {action:'PE',allow:false}]),
@@ -428,6 +408,7 @@ const PGAssignments = () => {
     // console.log("option : value : ",option,value);
     return option.title === value.title;
   };
+
 
     return (
         <>
@@ -508,14 +489,28 @@ const PGAssignments = () => {
                     </Table>
                 </TableContainer>
             </ScrollableDiv>
-            { AcceptClicked &&
-                <Box sx={{
-                    position:'absolute',margin:'0 auto',left:0,right:0,bottom:0,top:0,
-                    display:'flex',flexDirection:'column',justifyContent:'space-around',alignItems:'center',
-                    width:'50%',height:'90%',marginTop:'20px',backgroundColor:'#D8E6FC',
-                    borderRadius:'10px',padding:'60px',boxShadow:'0 0 5px 0px black',
-                    }}
-                >
+      {AcceptClicked && (
+        <Box
+          sx={{
+            position: "absolute",
+            margin: "0 auto",
+            left: 0,
+            right: 0,
+            bottom: 0,
+            top: 0,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-around",
+            alignItems: "center",
+            width: "50%",
+            height: "90%",
+            marginTop: "20px",
+            backgroundColor: "#D8E6FC",
+            borderRadius: "10px",
+            padding: "60px",
+            boxShadow: "0 0 5px 0px black",
+          }}
+        >
           <Typography
             variant="h5"
             gutterBottom
@@ -623,8 +618,7 @@ const PGAssignments = () => {
             <CloseIcon fontSize="large" />
           </IconButton>
         </Box>
-      
-    }
+      )}
 
       <Snackbar
         open={errorMsg == "" || success ? false : true}
@@ -643,7 +637,7 @@ const PGAssignments = () => {
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
         <Alert onClose={() => setSuccess(false)} severity="success">
-          {errorMsg} 
+          {errorMsg}
           {/* on success */}
         </Alert>
       </Snackbar>
@@ -674,49 +668,73 @@ const PGAssignments = () => {
         </DialogActions>
       </Dialog>
       <Dialog
-                fullScreen={fullScreen}
-                open={openDEDialog? true : false}
-                onClose={()=>setOpenDEDialog(false)}
-                aria-labelledby="Set-DE-Date"
-            >
-                <DialogTitle id="Set-De-Date-ID" textAlign={'center'}>
-                {`Set the Desk Evaluation Date for ${openDEDialog.id} postgraduate programme review`}
-                </DialogTitle>
-                <DialogContent>
-                    <p>Start Date : <strong>{openDEDialog.startDate}</strong></p>
-                    <p>End Date : <strong>{openDEDialog.endDate}</strong></p>
+        fullScreen={fullScreen}
+        open={openDEDialog ? true : false}
+        onClose={() => setOpenDEDialog(false)}
+        aria-labelledby="Set-DE-Date"
+      >
+        <DialogTitle id="Set-De-Date-ID" textAlign={"center"}>
+          {`Set the Desk Evaluation Date for ${openDEDialog.id} postgraduate programme review`}
+        </DialogTitle>
+        <DialogContent>
+          <p>
+            Start Date : <strong>{openDEDialog.startDate}</strong>
+          </p>
+          <p>
+            End Date : <strong>{openDEDialog.endDate}</strong>
+          </p>
 
-                    <Box sx={{display:'flex',flexDirection:'column',justifyContent:'space-around',alignItems:'center',width:'100%',height:'100%',margin:"1rem 0"}}>
-                        <TextField
-                            id="setStartDate"
-                            value={DeStartDate}
-                            helperText="Please select the start date for the Desk Evaluation"
-                            variant="standard"
-                            onChange={(e)=>setDeStartDate(e.target.value)}
-                            type="date"
-                        />
-                    </Box>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-around",
+              alignItems: "center",
+              width: "100%",
+              height: "100%",
+              margin: "1rem 0",
+            }}
+          >
+            <TextField
+              id="setStartDate"
+              value={DeStartDate}
+              helperText="Please select the start date for the Desk Evaluation"
+              variant="standard"
+              onChange={(e) => setDeStartDate(e.target.value)}
+              type="date"
+            />
+          </Box>
 
-                    <Box sx={{display:'flex',flexDirection:'column',justifyContent:'space-around',alignItems:'center',width:'100%',height:'100%',margin:"1rem 0"}}>
-                        <TextField
-                            id="setEndDate"
-                            value={DeEndDate}
-                            helperText="Please select the end date for the Desk Evaluation"
-                            variant="standard"
-                            onChange={(e)=>setDeEndDate(e.target.value)}
-                            type="date"
-                        />
-                    </Box>
-                </DialogContent>
-                <DialogActions>
-                <Button autoFocus onClick={()=>setOpenDEDialog(false)}>
-                    Cancel
-                </Button>
-                <Button onClick={()=>handleSetDate(openDEDialog)} autoFocus>
-                    Set Dates
-                </Button>
-                </DialogActions>
-            </Dialog>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-around",
+              alignItems: "center",
+              width: "100%",
+              height: "100%",
+              margin: "1rem 0",
+            }}
+          >
+            <TextField
+              id="setEndDate"
+              value={DeEndDate}
+              helperText="Please select the end date for the Desk Evaluation"
+              variant="standard"
+              onChange={(e) => setDeEndDate(e.target.value)}
+              type="date"
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button autoFocus onClick={() => setOpenDEDialog(false)}>
+            Cancel
+          </Button>
+          <Button onClick={() => handleSetDate(openDEDialog)} autoFocus>
+            Set Dates
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };

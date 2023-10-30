@@ -45,6 +45,8 @@ const SelfEvaluationReport = () => {
 
     const { auth } = useAuth();
 
+    document.title = "Self Evaluation Report";
+
     useEffect(() => {
         const getPGPRData = async () => {
             try {

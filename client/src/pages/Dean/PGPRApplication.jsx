@@ -43,6 +43,8 @@ const PGPRApplication = () => {
     // let selectedPGP = useRef("");
     // let selectedSLQFLevel = useRef("");
 
+    document.title = "View PGPR Application";
+
     useEffect(() => {
         const handleGetPGPs = async () => {
           setLoading(true);
