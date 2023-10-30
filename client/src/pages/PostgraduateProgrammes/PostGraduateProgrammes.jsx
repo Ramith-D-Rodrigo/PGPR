@@ -207,7 +207,12 @@ const PostGraduateProgrammes = () => {
                                     }
                                     <TableCell>{pgp.commencementYear}</TableCell>
                                     <TableCell>{pgp.slqfLevel}</TableCell>
-                                    <TableCell>{pgp.programmeCoordinator?.academicStaff.universitySide.user.initials + " " + pgp.programmeCoordinator?.academicStaff.universitySide.user.surname}</TableCell>
+                                    <TableCell>{
+                                        pgp.programmeCoordinator  ?
+                                        pgp.programmeCoordinator?.academicStaff.universitySide.user.initials + " " + pgp.programmeCoordinator?.academicStaff.universitySide.user.surname
+                                        :
+                                        "No coordinator Assigned"
+                                    }</TableCell>
                                     <TableCell>
                                         <Button variant='contained'>
                                             View PGPRs
