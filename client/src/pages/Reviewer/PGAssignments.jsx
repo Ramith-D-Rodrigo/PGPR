@@ -51,7 +51,7 @@ const PGAssignments = () => {
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
     const [openDEDialog, setOpenDEDialog] = useState(false);
-    const [selectedFilterKeys, setSelectedFilterKeys] = useState([{ title: 'In-review' }]);
+    const [selectedFilterKeys, setSelectedFilterKeys] = useState([]);
     const [AcceptClicked, setAcceptClicked] = useState(false);
     const [acceptAssignment, setAcceptAssignment] = useState(false);
     const [selectedPGPRID, setSelectedPGPRID] = useState(null);
@@ -63,6 +63,8 @@ const PGAssignments = () => {
     const [assignedPGPRs, setAssignedPGPRs] = useState([]);
     const [DeEndDate, setDeEndDate] = useState('');
     const [DeStartDate, setDeStartDate] = useState('');
+    const [filteredRows,setFilteredRows] =  useState([]);
+    const [originalRows,setOriginalRows] = useState([]);
 
     const getPGPRAssignments = async () => {
         try {
@@ -71,6 +73,8 @@ const PGAssignments = () => {
             const response = await getAssignedPGPRs();
             console.log("PGPR Assignments : ",response?.data?.data);
             setAssignedPGPRs(response?.data?.data);
+            createRows(response?.data?.data);
+            setSelectedFilterKeys([{ title: 'In-review' }]);
             setLoading(false);
         } catch (err) {
             console.error(err);
@@ -87,6 +91,8 @@ const PGAssignments = () => {
         const response = await getAssignedPGPRs();
         console.log("PGPR Assignments : ", response?.data?.data);
         setAssignedPGPRs(response?.data?.data);
+        createRows(response?.data?.data);
+        setSelectedFilterKeys([{ title: 'In-review' }]);
         setLoading(false);
       } catch (err) {
         console.error(err);
@@ -95,6 +101,117 @@ const PGAssignments = () => {
     };
     getPGPRAssignments();
   }, []);
+
+  useEffect(()=>{
+    if(originalRows.length == 0 || selectedFilterKeys.length == 0) 
+    {
+      return;
+    }
+    else
+    {       
+      let newRows = [];
+      newRows = originalRows.filter((originalRow,index)=>{
+        let include = true;
+        selectedFilterKeys.forEach((selectedFilterKey)=>{
+          if(selectedFilterKey.title == "In-review")
+          {
+            include = !(originalRow.status=="PLANNING" || originalRow.status=="SUBMITTED")&& originalRow.reviewerConfirmation == "ACCEPTED"? include : false;
+          }
+          if(selectedFilterKey.title == "Accepted")
+          {
+            include = originalRow.reviewerConfirmation == "ACCEPTED"? include : false;
+          }
+          if(selectedFilterKey.title == "Rejected")
+          {
+            include = originalRow.reviewerConfirmation == "REJECTED"? include : false;
+          }
+          if(selectedFilterKey.title == "Pending")
+          {
+            include = originalRow.reviewerConfirmation == "PENDING"? include : false;
+          }
+        });
+        return include;
+      })
+      setFilteredRows(newRows);
+    }
+  },[selectedFilterKeys]);
+
+
+  const createRows = (assignedPGPRs) =>{
+    setOriginalRows(assignedPGPRs
+      ? assignedPGPRs?.map((pgpr) => {
+          const PGPRDetails = pgpr?.postGraduateReviewProgram;
+          const pgProgramme = PGPRDetails?.postGraduateProgramme;
+          const faculty = pgProgramme?.faculty;
+          const university = faculty?.university;
+          const DE = PGPRDetails?.deskEvaluation;
+          const reviewerConfirmation = pgpr?.reviewerConfirmation;
+  
+  
+          let actions = [];
+          if (
+            PGPRDetails?.statusOfPgpr === "SUBMITTED" 
+          ) {
+            actions = [
+              { action: "Accept", allow: true },
+              { action: "View", allow: false },
+              { action: "DE", allow: false },
+              { action: "PE", allow: false },
+            ];
+          } else if (PGPRDetails?.statusOfPgpr === "DE") {
+            actions = [
+              { action: "Accept", allow: false },
+              { action: "View", allow: true },
+              { action: "DE", allow: true },
+              { action: "PE", allow: false },
+            ];
+          } else if (
+            PGPRDetails?.statusOfPgpr === "PE1" ||
+            PGPRDetails?.statusOfPgpr === "PE2"
+          ) {
+            actions = [
+              { action: "Accept", allow: false },
+              { action: "View", allow: true },
+              { action: "DE", allow: false },
+              { action: "PE", allow: true },
+            ];
+          } else if (PGPRDetails?.statusOfPgpr === "FINAL") {
+            actions = [
+              { action: "Accept", allow: false },
+              { action: "View", allow: true },
+              { action: "DE", allow: false },
+              { action: "PE", allow: false },
+            ];
+          } else if (PGPRDetails?.statusOfPgpr === "COMPLETED") {
+            actions = [
+              { action: "Accept", allow: false },
+              { action: "View", allow: true },
+              { action: "DE", allow: false },
+              { action: "PE", allow: false },
+            ];
+          } else {
+            actions = [
+              { action: "Accept", allow: false },
+              { action: "View", allow: false },
+              { action: "DE", allow: false },
+              { action: "PE", allow: false },
+            ];
+          }
+  
+          return createData(
+            PGPRDetails,
+            university?.name,
+            faculty?.name,
+            pgProgramme?.title,
+            pgpr?.role,
+            PGPRDetails?.statusOfPgpr,
+            actions,
+            DE,
+            reviewerConfirmation
+          );
+        })
+      : []);
+  };
 
   async function handleSubmitAssignment() {
     console.log("Accept Clicked : ", selectedPGPRID);
@@ -250,7 +367,7 @@ const PGAssignments = () => {
     }
     
 
-    function createData(PGPRDetails,University_Name, faculty_Name, pgp, Role, status, Actions,DE) {
+    function createData(PGPRDetails,University_Name, faculty_Name, pgp, Role, status, Actions,DE,reviewerConfirmation) {
         if(!PGPRDetails) return;
 
         const dates = {id:PGPRDetails.id,startDate:DE?.startDate ?? "Not Set Yet",endDate:DE?.endDate?? "Not Set yet", deId: DE?.id}
@@ -288,80 +405,9 @@ const PGAssignments = () => {
             }
             
         });
-        return {pgprID:`PGPR-${PGPRDetails.id}`, University_Name, faculty_Name, pgp, Role, status, Actions };
+        return {pgprID:`PGPR-${PGPRDetails.id}`, University_Name, faculty_Name, pgp, Role, status, Actions,reviewerConfirmation };
     }
 
-  const rows = assignedPGPRs
-    ? assignedPGPRs?.map((pgpr) => {
-        const PGPRDetails = pgpr?.postGraduateReviewProgram;
-        const pgProgramme = PGPRDetails?.postGraduateProgramme;
-        const faculty = pgProgramme?.faculty;
-        const university = faculty?.university;
-        const DE = PGPRDetails?.deskEvaluation;
-
-
-        let actions = [];
-        if (
-          PGPRDetails?.statusOfPgpr === "SUBMITTED" 
-        ) {
-          actions = [
-            { action: "Accept", allow: true },
-            { action: "View", allow: false },
-            { action: "DE", allow: false },
-            { action: "PE", allow: false },
-          ];
-        } else if (PGPRDetails?.statusOfPgpr === "DE") {
-          actions = [
-            { action: "Accept", allow: false },
-            { action: "View", allow: true },
-            { action: "DE", allow: true },
-            { action: "PE", allow: false },
-          ];
-        } else if (
-          PGPRDetails?.statusOfPgpr === "PE1" ||
-          PGPRDetails?.statusOfPgpr === "PE2"
-        ) {
-          actions = [
-            { action: "Accept", allow: false },
-            { action: "View", allow: true },
-            { action: "DE", allow: false },
-            { action: "PE", allow: true },
-          ];
-        } else if (PGPRDetails?.statusOfPgpr === "FINAL") {
-          actions = [
-            { action: "Accept", allow: false },
-            { action: "View", allow: true },
-            { action: "DE", allow: false },
-            { action: "PE", allow: false },
-          ];
-        } else if (PGPRDetails?.statusOfPgpr === "COMPLETED") {
-          actions = [
-            { action: "Accept", allow: false },
-            { action: "View", allow: true },
-            { action: "DE", allow: false },
-            { action: "PE", allow: false },
-          ];
-        } else {
-          actions = [
-            { action: "Accept", allow: false },
-            { action: "View", allow: false },
-            { action: "DE", allow: false },
-            { action: "PE", allow: false },
-          ];
-        }
-
-        return createData(
-          PGPRDetails,
-          university?.name,
-          faculty?.name,
-          pgProgramme?.title,
-          pgpr?.role,
-          PGPRDetails?.statusOfPgpr,
-          actions,
-          DE
-        );
-      })
-    : [];
 
   // const rows = [
   //     createData("Uoc-11",'University of Colombo', "UCSC","MCS","Chairman", 'In-review', [{action:'Accept',allow:false},{action:'View',allow:true}, {action:'DE',allow:false}, {action:'PE',allow:false}]),
@@ -442,7 +488,7 @@ const PGAssignments = () => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {rows.map((row) => (
+                            {filteredRows.map((row) => (
                                 <TableRow
                                 key={row.pgprID}
                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
