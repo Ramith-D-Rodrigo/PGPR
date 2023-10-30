@@ -34,13 +34,23 @@ class ShowReviewTeamProperEvaluationProgressRequest extends FormRequest
     {
         $this->merge(
             [
-                'pgpr_id.required' => 'The post graduate program review id is required',
-                'pgpr_id.exists' => 'The post graduate program review does not exist',
-                'proper_evaluation_id.required' => 'The proper evaluation id is required',
-                'proper_evaluation_id.exists' => 'The proper evaluation does not exist',
-                'review_team_id.required' => 'The review team id is required',
-                'review_team_id.exists' => 'The review team does not exist',
+                'pgpr_id' => $this->pgpr,
+                'proper_evaluation_id' => $this->reviewTeam,
+                'review_team_id' => $this->properEvaluation,
             ]
         );
+    }
+
+    public function messages() : array
+    {
+        return
+        [
+            'pgpr_id.required' => 'The post graduate program review id is required',
+            'pgpr_id.exists' => 'The post graduate program review does not exist',
+            'proper_evaluation_id.required' => 'The proper evaluation id is required',
+            'proper_evaluation_id.exists' => 'The proper evaluation does not exist',
+            'review_team_id.required' => 'The review team id is required',
+            'review_team_id.exists' => 'The review team does not exist',
+        ];
     }
 }

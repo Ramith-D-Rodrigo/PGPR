@@ -182,24 +182,23 @@ function UpdateABC() {
 
   return (
     <>
+    {
+      loading? 
+      <div style={{display:"flex",justifyContent:"center",alignItems:"center",height:"100%"}}>
+        <CircularProgress
+        style={{ margin: "0 0 0 20px", color: "darkblue" }}
+        thickness={5}
+        size={32}
+        />
+      </div>
+      :
+      <>
       <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={() => setSnackbar({ ...snackbar, open: false })} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
         <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: '100%' }}>
           {snackbar.message}
         </Alert>
       </Snackbar>
       <DiscriptiveDiv description="Desk Evaluation" width='100%' height="auto" backgroundColor="#D8E6FC" >
-        {
-          loading && 
-          <div style={{position:'absolute',left:0,margin:"0 auto",display:"flex",justifyContent:"center",alignItems:"center"}}> 
-            <Typography variant="h6" style={{ margin: "0 0 0 20px" }}>
-                Loading ...
-            </Typography>
-            <CircularProgress
-            style={{ margin: "0 0 0 20px", color: "darkblue" }}
-            thickness={5}
-            size={24}
-            />
-        </div>}
         <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', maxHeight: '100%', height: '100%', alignItems: 'center', margin: '10px' }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', width: "100%", alignItems: "center", margin: '2rem' }}>
             <Typography variant="h6" component="h2" gutterBottom>
@@ -248,6 +247,8 @@ function UpdateABC() {
         </Box>
 
       </DiscriptiveDiv>
+      </>
+    }
     </>
 
 

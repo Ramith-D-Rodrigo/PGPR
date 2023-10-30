@@ -18,6 +18,7 @@ import { SERVER_URL, SERVER_API_VERSION } from '../../assets/constants';
 import getSpecificPGPR from '../../api/Reviewer/getSpecificPGPR';
 import getDeEvaluationResults from '../../api/Reviewer/getDeEvaluationResults';
 import conductDeskEvaluation from '../../api/Reviewer/conductDeskEvaluation';
+import ReplayIcon from '@mui/icons-material/Replay';
 
 const EvaluateDE = () => {
     const {pgprId,criteriaId} = useParams();
@@ -216,6 +217,11 @@ const EvaluateDE = () => {
         
     };
 
+    const handleClickRestore = (event)=>{
+        setobservations(previousObservations);
+        setscore(previousScore);
+    };
+
     useSetUserNavigations(
         [
             {
@@ -340,6 +346,9 @@ const EvaluateDE = () => {
         <Button {...{disabled:loading}} {...prevButtonState} onClick={handleClickPrev} variant="contained" color="primary" style={{width:"200px"}}>Previous Standard</Button>
         <Button {...{disabled:loading}} onClick={handleClickSave} variant="contained" color="secondary" style={{width:"100px"}}>Save</Button>
         <Button {...{disabled:loading}} onClick={handleClickCancel} variant="contained" color="secondary" style={{width:"100px"}}>Cancel</Button>
+        {
+           observations != previousObservations? <Button {...{disabled:loading}} onClick={handleClickRestore} variant="outlined" color="secondary" style={{width:"100px"}}>Restore</Button> : ''
+        }
         <Button {...{disabled:loading}} {...nextButtonState} onClick={handleClickNext} variant="contained" color="primary" style={{width:"200px"}}>Next Standard</Button>
     </Box>
     </>
