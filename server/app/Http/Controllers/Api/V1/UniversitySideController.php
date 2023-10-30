@@ -125,7 +125,7 @@ class UniversitySideController extends Controller
                 if($universitySide -> academicStaff -> programmeCoordinator && $universitySide -> academicStaff -> programmeCoordinator -> current_status == 'ACTIVE'){
                     $validatedData['working_faculty'] = $universitySide -> academicStaff -> programmeCoordinator -> postGraduateProgram -> faculty -> id;
                 }
-                if($universitySide -> qualityAssuranceStaff -> internalQualityAssuranceUnitDirector &&
+                if($universitySide -> qualityAssuranceStaff &&
                 $universitySide
                 -> qualityAssuranceStaff
                 -> internalQualityAssuranceUnitDirector
