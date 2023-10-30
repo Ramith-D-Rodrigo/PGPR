@@ -26,7 +26,7 @@ class InformFacultyActionToAuthorities extends Mailable
         public $content
     )
     {
-        //
+        $this->view($this->content);
     }
 
     /**
@@ -35,7 +35,7 @@ class InformFacultyActionToAuthorities extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Inform Faculty Action To Authorities',
+            subject: $this->subject,
         );
     }
 
@@ -45,7 +45,7 @@ class InformFacultyActionToAuthorities extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'view.name',
+            view: $this->view,
         );
     }
 
