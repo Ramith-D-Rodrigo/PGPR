@@ -63,4 +63,17 @@ class UniversitySidePolicy
     {
         //
     }
+
+
+    public function assignReviewerRoleAuthorize(User $user, UniversitySide $universitySide) : Response {
+        //only qac officer and qac director is authorize
+
+        $currRole = request() -> session() -> get('authRole');
+
+        if($currRole == 'qac_officer' || $currRole == 'qac_director'){
+            return Response::allow();
+        }
+
+        return Response::deny("You are not allowed to perform this action");
+    }
 }

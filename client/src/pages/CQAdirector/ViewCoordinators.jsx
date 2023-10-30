@@ -454,15 +454,6 @@ const Coordinators = () => {
           </Button>
         </DialogActions>
       </Dialog>
-
-      <div className="flex justify-end mt-4">
-        {" "}
-        {/* Align buttons to the right */}
-        <NavigateBefore color="primary" fontSize="large" />
-        <SkipPrevious color="primary" fontSize="large" />
-        <SkipNext color="primary" fontSize="large" />
-        <NavigateNext color="primary" fontSize="large" />
-      </div>
       
     </>
   );

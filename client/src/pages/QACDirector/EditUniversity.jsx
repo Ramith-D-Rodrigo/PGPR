@@ -273,7 +273,7 @@ const EditUniversity = () => {
                   Contact Numbers
                 </Typography>
                 <Select defaultValue={university.centerForQualityAssurance.contactNo[0]} sx={{ minWidth: '50%' }}>
-                  {university.centerForQualityAssurance.contactNo.map((contactNo) => (
+                  {university.centerForQualityAssurance.contactNo.data.map((contactNo) => (
                     <MenuItem key={contactNo} value={contactNo}>{contactNo}</MenuItem>
                   ))}
                 </Select>
@@ -284,7 +284,7 @@ const EditUniversity = () => {
                   Fax Numbers
                 </Typography>
                 <Select defaultValue={university.centerForQualityAssurance.faxNo[0]} sx={{ minWidth: '50%' }}>
-                  {university.centerForQualityAssurance.faxNo.map((faxNo) => (
+                  {university.centerForQualityAssurance.faxNo.data.map((faxNo) => (
                     <MenuItem key={faxNo} value={faxNo}>{faxNo}</MenuItem>
                   ))}
                 </Select>
