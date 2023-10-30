@@ -138,9 +138,10 @@ class UniversitySideController extends Controller
 
             DB::beginTransaction();
 
+            array_push($roles, 'reviewer');
             //assign reviewer role
             $universitySide -> user -> update(
-                ['roles' => json_encode(array_push($roles, 'reviewer'))]
+                ['roles' => json_encode($roles)]
             );
 
             //if the user does not have a academic staff model, create one

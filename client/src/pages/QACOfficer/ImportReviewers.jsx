@@ -69,50 +69,52 @@ const ImportReviewers = () => {
     const [openDialog,setOpenDialog] = useState(false);
     const [assigningUserId, setAssigningUserId] = useState(null);
     const [submitDialogMenu,setSubmitDialogMenu] = useState(()=>{return ()=>setOpenDialog(false)});
-    const [loading,setLoading] = useState(false);
+    const [loading,setLoading] = useState(true);
+
+    const handleGetUniversitiesAndFaculties = async () => {
+        try {
+            getAllUniversities().then(async (response) => {
+                setLoading(true);
+                if (response.status === 200) {
+
+                    const universityWithFaculties = await Promise.all(
+                        //get faculties of each university
+                        response.data.data.map(async (university) => {
+                            //get faculties of each university
+                            const facultiesResult = await getUniversityFaculties(university.id);
+
+                            if (facultiesResult.status === 200) {
+                                return {
+                                    ...university,
+                                    faculties: facultiesResult.data.data
+                                };
+                            }
+
+                            return university;
+                        })
+                    )
+
+                    setUniversities(universityWithFaculties);
+                }
+            });
+
+            getAllUniversitySides().then((response) => {
+                if (response.status === 200) {
+                    console.log(response.data.data);
+                    setUserList(response.data.data);
+                }
+                setLoading(false);
+            });
+        }
+        catch (error) {
+            console.log(error);
+            setErrorMsg(error.response.data.message);
+            setLoading(false);
+        }
+    }
 
     useEffect(() => {
         document.title = "Import Reviewers";
-
-        const handleGetUniversitiesAndFaculties = async () => {
-            try {
-                getAllUniversities().then(async (response) => {
-                    if (response.status === 200) {
-
-                        const universityWithFaculties = await Promise.all(
-                            //get faculties of each university
-                            response.data.data.map(async (university) => {
-                                //get faculties of each university
-                                const facultiesResult = await getUniversityFaculties(university.id);
-
-                                if (facultiesResult.status === 200) {
-                                    return {
-                                        ...university,
-                                        faculties: facultiesResult.data.data
-                                    };
-                                }
-
-                                return university;
-                            })
-                        )
-
-                        setUniversities(universityWithFaculties);
-                    }
-                });
-
-                getAllUniversitySides().then((response) => {
-                    if (response.status === 200) {
-                        console.log(response.data.data);
-                        setUserList(response.data.data);
-                    }
-                });
-            }
-            catch (error) {
-                console.log(error);
-                setErrorMsg(error.response.data.message);
-            }
-        }
-
         handleGetUniversitiesAndFaculties();
     }, []);
 
@@ -173,6 +175,7 @@ const ImportReviewers = () => {
 
     const handleAddUser = async(evt,isUniversitySide,universitySideId)=>{
         try{
+            setLoading(true);
             console.log(universitySideId);
             if(isUniversitySide)
             {
@@ -184,9 +187,13 @@ const ImportReviewers = () => {
                 const response = await assignReviewerRole(universitySideId,formData);
                 console.log(response?.data?.data);
             }
+            handleGetUniversitiesAndFaculties();
+            setSuccessMsg("User Assigned Successfully !");
         }
         catch(err){
             console.log(err);
+            setLoading(false);
+            setErrorMsg(err?.response?.data?.message?? "Error Occured");
         }
     }
 
@@ -240,14 +247,11 @@ const ImportReviewers = () => {
     return (
         <>
         {loading?
-                    <div style={{position:'absolute',left:0,margin:"0 auto",display:"flex",justifyContent:"center",alignItems:"center"}}> 
-                        <Typography variant="h6" style={{ margin: "0 0 0 20px" }}>
-                            Loading ...
-                        </Typography>
+                    <div style={{display:"flex",justifyContent:"center",alignItems:"center",height:"100%"}}>
                         <CircularProgress
                         style={{ margin: "0 0 0 20px", color: "darkblue" }}
                         thickness={5}
-                        size={24}
+                        size={40}
                         />
                     </div>
         :
@@ -620,7 +624,7 @@ const ImportReviewers = () => {
                     </TableBody>
                 </Table>
             </TableContainer>
-            </>
+        </>
         }
         </>
     );
