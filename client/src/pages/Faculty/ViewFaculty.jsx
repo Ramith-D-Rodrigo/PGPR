@@ -63,17 +63,27 @@ const ViewFaculty = () => {
                 if (facultyResponse?.status === 200) {
                     const facultyData = facultyResponse?.data?.data;
 
-                    //get faculty current dean
+                    try {
+                        //get faculty current dean
 
-                    const queryParams1 = {
-                        includeUser: true,
-                        includeAcademicStaff: true,
-                        includeUniversitySide: true
+                        const queryParams1 = {
+                            includeUser: true,
+                            includeAcademicStaff: true,
+                            includeUniversitySide: true
+                        }
+                        const deanResponse = await getCurrentDean(facultyId, queryParams1);
+
+                        if (deanResponse?.status === 200) {
+                            facultyData.dean = deanResponse?.data?.data;
+                        }
                     }
-                    const deanResponse = await getCurrentDean(facultyId, queryParams1);
+                    catch (error) {
+                        if (error.response.status === 404) {
+                            facultyData.dean = null;
+                        }
+                    }
 
-                    if (deanResponse?.status === 200) {
-                        facultyData.dean = deanResponse?.data?.data;
+                    try {
 
                         //get faculty current IQAU director
                         const queryParams2 = {
@@ -87,6 +97,11 @@ const ViewFaculty = () => {
 
                         if (iqauDirectorResponse?.status === 200) {
                             facultyData.iqauDirector = iqauDirectorResponse?.data?.data;
+                        }
+                    }
+                    catch (error) {
+                        if (error.response.status === 404) {
+                            facultyData.iqauDirector = null;
                         }
                     }
 
@@ -185,7 +200,12 @@ const ViewFaculty = () => {
                                 Current Dean
                             </Typography>
                             <Typography sx={{ width: '50%' }}>
-                                {faculty.dean.academicStaff.universitySide.user.initials + " " + faculty.dean.academicStaff.universitySide.user.surname}
+                                {
+                                    faculty.dean ?
+                                    faculty.dean.academicStaff.universitySide.user.initials + " " + faculty.dean.academicStaff.universitySide.user.surname
+                                    :
+                                    "No Dean Assigned"
+                                }
                             </Typography>
                         </Box>
 
@@ -241,6 +261,20 @@ const ViewFaculty = () => {
                             </Typography>
                             <Typography sx={{ width: '50%' }}>
                                 {faculty.internalQualityAssuranceUnit.address}
+                            </Typography>
+                        </Box>
+
+                        <Box sx={styled}>
+                            <Typography sx={{ width: '50%' }}>
+                                Current IQAU Director
+                            </Typography>
+                            <Typography sx={{ width: '50%' }}>
+                                {
+                                    faculty.iqauDirector ?
+                                    faculty.iqauDirector.qualityAssuranceStaff.universitySide.user.initials + " " + faculty.iqauDirector.qualityAssuranceStaff.universitySide.user.surname
+                                    :
+                                    "No IQAU Director Assigned"
+                                }
                             </Typography>
                         </Box>
                         {
