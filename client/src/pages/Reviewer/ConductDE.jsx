@@ -18,7 +18,7 @@ const ConductDE = () => {
     const {pgprId} = useParams();
     const open = useDrawerState().drawerState.open;
     const [SERDetails,setSERDetails] = useState([]);
-    const [loading,SetLoading] = useState(false);
+    const [loading,SetLoading] = useState(true);
     const {reviewerRole, setReviewerRole} = useReviewerRole();
     // const [SERId,setSERId] = useState([]);
     const [pgprDetails,setPGPRDetails] = useState([]);
