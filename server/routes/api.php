@@ -77,7 +77,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::delete('programmeCoordinators/{programmeCoordinator}/removeRole', 'ProgrammeCoordinatorController@removeRole')->middleware('auth');
 
     Route::apiResource('postGraduateProgramReviews', 'PostGraduateProgramReviewController');
-    Route::post('groupWithAnotherPGPR/{postGraduateProgramReviewOne}/group/{postGraduateProgramReviewTwo}', 'PostGraduateProgramReviewController@groupWithAnotherPGPR')->middleware('auth');
+    Route::post('postGraduateProgramReviews/{postGraduateProgramReviewOne}/group/{postGraduateProgramReviewTwo}', 'PostGraduateProgramReviewController@groupWithAnotherPGPR')->middleware('auth');
 
     Route::apiResource('pgprApplications', 'PostGraduateProgramReviewApplicationController')->middleware('auth');
     Route::apiResource('iqauDirectors', 'InternalQualityAssuranceUnitDirectorController')->middleware('auth');

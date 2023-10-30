@@ -165,7 +165,6 @@ class FacultyController extends Controller
         }
         catch(\Exception $e){
             DB::rollBack();
-            throw $e;
             return response()->json([
                 'message' => 'Something went wrong',
                 'error' => $e->getMessage()

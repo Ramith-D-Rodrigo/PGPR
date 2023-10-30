@@ -88,7 +88,7 @@ class ReviewTeamController extends Controller
             $postGraduateProgram = $postGraduateReviewProgram->postGraduateProgram; // find the postgraduate program
             $faculty = $postGraduateProgram->faculty; // find the faculty
             $university = $faculty->university; // find the university
-            $dean = $faculty->deans[0]->user; // find the dean of the faculty
+            $dean = $faculty->currentDean->user; // find the dean of the faculty
 
             DB::beginTransaction();
 

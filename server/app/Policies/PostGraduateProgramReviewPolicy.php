@@ -139,4 +139,20 @@ class PostGraduateProgramReviewPolicy
         //
     }
 
+    public function groupWithAnotherPGPRAuthorize(User $user,  PostGraduateProgramReview $postGraduateProgramReviewOne, PostGraduateProgramReview $postGraduateProgramReviewTwo) : Response {
+        //only qac officer and qac director can group two postgraduate program reviews
+
+        $currRole = request() -> session() -> get('authRole');
+
+        switch($currRole){
+            case 'qac_officer':
+            case 'qac_director':
+                return Response::allow();
+                break;
+            default:
+                return Response::deny('You are not authorized to group two postgraduate program reviews');
+        }
+        
+    }
+
 }

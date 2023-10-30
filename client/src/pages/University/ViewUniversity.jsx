@@ -160,7 +160,7 @@ const ViewUniversity = () => {
                             <Typography sx={{ width: '50%' }}>
                                 {university.viceChancellor ?
                                     <>
-                                        {university.viceChancellor.viceChancellor.universitySide.user.initials + " " + university.viceChancellor.viceChancellor.universitySide.user.surname}
+                                        {university.viceChancellor.universitySide.user.initials + " " + university.viceChancellor.universitySide.user.surname}
                                     </>
                                     :
                                     <>

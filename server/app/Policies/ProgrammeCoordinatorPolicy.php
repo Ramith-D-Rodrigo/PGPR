@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Http\Requests\V1\StoreProgrammeCoordinatorRequest;
 use App\Models\PostGraduateProgram;
 use App\Models\ProgrammeCoordinator;
 use App\Models\User;

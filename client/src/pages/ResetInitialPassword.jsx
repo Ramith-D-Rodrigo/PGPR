@@ -196,7 +196,7 @@ const InitialPasswordRest = () => {
     }, [password, confirmPassword]);
 
     const logoutDisable = loading? {disabled:true} : {disabled:false};
-    const paperStyle = {padding:70,height:'70vh',width:'40%',margin:"30px auto",borderRadius:"20px"}
+    const paperStyle = {padding:70,height:'80%',width:'50%',margin:"30px auto",borderRadius:"20px"}
 
     return (
         <>

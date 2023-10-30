@@ -1,5 +1,5 @@
 import { SERVER_API_VERSION, SERVER_URL } from '../../assets/constants';
-import { TextField, Button, Checkbox, CircularProgress, FormControl, FormControlLabel, FormGroup, IconButton, Input, InputAdornment, InputLabel, MenuItem, Select,Snackbar,Alert, Box, Typography } from '@mui/material'
+import { TextField, Button, Checkbox, CircularProgress, FormControl, FormControlLabel, FormGroup, IconButton, Input, InputAdornment, InputLabel, MenuItem, Select,Snackbar,Alert, Box, Typography, Divider, Chip } from '@mui/material'
 import FormHelperText from '@mui/material/FormHelperText';
 import axios from '../../api/api.js';
 import { useState, useEffect, useRef } from 'react';
@@ -156,10 +156,9 @@ function EditPGPRApplication() {
 
   return (
     <>
-
-        <Typography align='center' margin={2}  variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          Edit PGPR Application
-        </Typography>
+        <Divider textAlign='left'>
+          <Chip label='Edit Postgraduate Programme Review Application'/>
+        </Divider>
         <form onSubmit={handleSubmitApplication} style={{display:"flex",flexDirection:"column",flexWrap:'wrap',width:'100%',justifyContent:'center',alignItems:'center'}}>
 
             <Box sx={{display:'flex',flexWrap:"wrap",justifyContent:'flex-start',alignItems:'center',width:'100%'}}>

@@ -217,7 +217,7 @@ class DeanController extends Controller
 
             $faculty = $postGraduateProgram->faculty;
 
-            $dean = $faculty->deans[0];
+            $dean = $faculty->currentDean;
             $dean = $dean->user;
 
             $university = $faculty->university;
@@ -305,7 +305,7 @@ class DeanController extends Controller
 
             $faculty = $postGraduateProgram->faculty;
 
-            $dean = $faculty->deans[0];
+            $dean = $faculty->currentDean;
             $dean = $dean->user;
 
             $university = $faculty->university;
