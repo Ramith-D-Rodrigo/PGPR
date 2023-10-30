@@ -15,6 +15,8 @@ const PostGraduateProgramReviewApplications = () => {
     const [clickedApplicationId, setClickedApplicationId] = useState(null);
     const [openDialog, setOpenDialog] = useState([false, false, null]);   // [ submit , cancel, id ]
 
+    document.title = "PGPR Applications";
+
     useSetUserNavigations(
         [{
           name: "Dashboard",

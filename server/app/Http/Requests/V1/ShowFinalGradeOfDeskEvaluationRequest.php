@@ -31,7 +31,7 @@ class ShowFinalGradeOfDeskEvaluationRequest extends FormRequest
     {
         return [
             'pgpr_id' => ['required', Rule::exists('post_graduate_program_reviews', 'id')->where(function ($query) {
-                $query->whereNotIn('status_of_pgpr', ['PLANNING', 'SUBMITTED', 'SUSPENDED', 'DE', 'PE']);
+                $query->whereNotIn('status_of_pgpr', ['PLANNING', 'SUBMITTED', 'SUSPENDED']);
             })]
         ];
     }

@@ -240,57 +240,20 @@ const PGAssignments = () => {
     getPGPRAssignments();
   }
 
-    
 
-    function createData(PGPRDetails,University_Name, faculty_Name, pgp, Role, status, Actions,DE) {
-        if(!PGPRDetails) return;
 
-        const dates = {id:PGPRDetails.id,startDate:DE?.startDate ?? "Not Set Yet",endDate:DE?.endDate?? "Not Set yet", deId: DE?.id}
-        Actions = Actions.map((action,index) => {
-            
-            let allow = action.allow? {disabled:false} : {disabled:true};
-            allow = loading? {disabled:true} : allow;
-            if(action.action === 'View')
-            {
-                return <Link key={index} to={action.allow? PGPRDetails.id+'/ser/' +PGPRDetails?.selfEvaluationReport?.id:''}><Button {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button></Link>
-            }
-            else if(action.action === 'Accept')
-            {
-                return <Button key={index} onClick={()=>{handleClickAccept(PGPRDetails.id)}} {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button>
-            }
-            else if(action.action === 'DE')
-            {   
-                let onClickDate = null;
-                console.log("DE : ",DE);
-                if (DE?.endDate == null && Role == "CHAIR")
-                    {
-                        action.allow = false;
-                        onClickDate = () => setDate(dates);
-                    }
-                else if (DE?.endDate == null && Role == "MEMBER")
-                {
-                    action.allow = false;
-                    onClickDate = () => setErrorMsg("Chairman should set the Desk Evaluation Date first");
-                }
-                return <Link key={index} to={action.allow? 'Conduct_DE/'+PGPRDetails.id : ''}><Button onClick={() => onClickDate()} {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button></Link>
-            }
-            else if(action.action === 'PE')
-            {
-                return <Link key={index} to={action.allow? 'Conduct_PE/'+PGPRDetails.id : ''}><Button {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button></Link>
-            }
-          >
-            <Button
-              {...allow}
-              style={{ margin: "0 8px" }}
-              variant="contained"
-              color="primary"
-              size="small"
-            >
-              {action.action}
-            </Button>
-          </Link>
-        );
-      } else if (action.action === "Accept") {
+  function createData(PGPRDetails, University_Name, faculty_Name, pgp, Role, status, Actions, DE) {
+    if (!PGPRDetails) return;
+
+    const dates = { id: PGPRDetails.id, startDate: DE?.startDate ?? "Not Set Yet", endDate: DE?.endDate ?? "Not Set yet", deId: DE?.id }
+    Actions = Actions.map((action, index) => {
+
+      let allow = action.allow ? { disabled: false } : { disabled: true };
+      allow = loading ? { disabled: true } : allow;
+      if (action.action === 'View') {
+        return <Link key={index} to={action.allow ? PGPRDetails.id + '/ser/' + PGPRDetails?.selfEvaluationReport?.id : ''}><Button {...allow} style={{ margin: "0 8px" }} variant="contained" color="primary" size="small">{action.action}</Button></Link>
+      }
+      else if (action.action === "Accept") {
         return (
           <Button
             key={index}
@@ -365,74 +328,74 @@ const PGAssignments = () => {
 
   const rows = assignedPGPRs
     ? assignedPGPRs?.map((pgpr) => {
-        const PGPRDetails = pgpr?.postGraduateReviewProgram;
-        const pgProgramme = PGPRDetails?.postGraduateProgramme;
-        const faculty = pgProgramme?.faculty;
-        const university = faculty?.university;
-        const DE = PGPRDetails?.deskEvaluation;
+      const PGPRDetails = pgpr?.postGraduateReviewProgram;
+      const pgProgramme = PGPRDetails?.postGraduateProgramme;
+      const faculty = pgProgramme?.faculty;
+      const university = faculty?.university;
+      const DE = PGPRDetails?.deskEvaluation;
 
-        let actions = [];
-        if (
-          PGPRDetails?.statusOfPgpr === "SUBMITTED" ||
-          PGPRDetails?.statusOfPgpr === "PLANNING"
-        ) {
-          actions = [
-            { action: "Accept", allow: true },
-            { action: "View", allow: false },
-            { action: "DE", allow: false },
-            { action: "PE", allow: false },
-          ];
-        } else if (PGPRDetails?.statusOfPgpr === "DE") {
-          actions = [
-            { action: "Accept", allow: false },
-            { action: "View", allow: true },
-            { action: "DE", allow: true },
-            { action: "PE", allow: false },
-          ];
-        } else if (
-          PGPRDetails?.statusOfPgpr === "PE1" ||
-          PGPRDetails?.statusOfPgpr === "PE2"
-        ) {
-          actions = [
-            { action: "Accept", allow: false },
-            { action: "View", allow: true },
-            { action: "DE", allow: false },
-            { action: "PE", allow: true },
-          ];
-        } else if (PGPRDetails?.statusOfPgpr === "FINAL") {
-          actions = [
-            { action: "Accept", allow: false },
-            { action: "View", allow: true },
-            { action: "DE", allow: false },
-            { action: "PE", allow: false },
-          ];
-        } else if (PGPRDetails?.statusOfPgpr === "COMPLETED") {
-          actions = [
-            { action: "Accept", allow: false },
-            { action: "View", allow: true },
-            { action: "DE", allow: false },
-            { action: "PE", allow: false },
-          ];
-        } else {
-          actions = [
-            { action: "Accept", allow: false },
-            { action: "View", allow: false },
-            { action: "DE", allow: false },
-            { action: "PE", allow: false },
-          ];
-        }
+      let actions = [];
+      if (
+        PGPRDetails?.statusOfPgpr === "SUBMITTED" ||
+        PGPRDetails?.statusOfPgpr === "PLANNING"
+      ) {
+        actions = [
+          { action: "Accept", allow: true },
+          { action: "View", allow: false },
+          { action: "DE", allow: false },
+          { action: "PE", allow: false },
+        ];
+      } else if (PGPRDetails?.statusOfPgpr === "DE") {
+        actions = [
+          { action: "Accept", allow: false },
+          { action: "View", allow: true },
+          { action: "DE", allow: true },
+          { action: "PE", allow: false },
+        ];
+      } else if (
+        PGPRDetails?.statusOfPgpr === "PE1" ||
+        PGPRDetails?.statusOfPgpr === "PE2"
+      ) {
+        actions = [
+          { action: "Accept", allow: false },
+          { action: "View", allow: true },
+          { action: "DE", allow: false },
+          { action: "PE", allow: true },
+        ];
+      } else if (PGPRDetails?.statusOfPgpr === "FINAL") {
+        actions = [
+          { action: "Accept", allow: false },
+          { action: "View", allow: true },
+          { action: "DE", allow: false },
+          { action: "PE", allow: false },
+        ];
+      } else if (PGPRDetails?.statusOfPgpr === "COMPLETED") {
+        actions = [
+          { action: "Accept", allow: false },
+          { action: "View", allow: true },
+          { action: "DE", allow: false },
+          { action: "PE", allow: false },
+        ];
+      } else {
+        actions = [
+          { action: "Accept", allow: false },
+          { action: "View", allow: false },
+          { action: "DE", allow: false },
+          { action: "PE", allow: false },
+        ];
+      }
 
-        return createData(
-          PGPRDetails,
-          university?.name,
-          faculty?.name,
-          pgProgramme?.title,
-          pgpr?.role,
-          PGPRDetails?.statusOfPgpr,
-          actions,
-          DE
-        );
-      })
+      return createData(
+        PGPRDetails,
+        university?.name,
+        faculty?.name,
+        pgProgramme?.title,
+        pgpr?.role,
+        PGPRDetails?.statusOfPgpr,
+        actions,
+        DE
+      );
+    })
     : [];
 
   // const rows = [

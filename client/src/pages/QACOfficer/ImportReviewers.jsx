@@ -1,17 +1,19 @@
 import { useState, useEffect } from 'react';
 import downloadExcelFile from '../../api/Reviewer/downloadExcelFile';
-import { Button, Input, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Box } from '@mui/material';
+import { Button, Input, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Box, Typography } from '@mui/material';
 import getAllUniversities from '../../api/University/getAllUniversities';
 import getUniversityFaculties from '../../api/University/getUniversityFaculties';
 import importReviewers from '../../api/Reviewer/importReviewers';
-import blobToHash from 'blob-to-hash';
 import Chip from '@mui/material/Chip';
 import { Divider } from '@mui/material';
 import useSetUserNavigations from '../../hooks/useSetUserNavigations';
+import Paper from '@mui/material/Paper';
+import tableStyle from '../../assets/tableStyle';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
+
 
 const ImportReviewers = () => {
-
-    const [excelHash, setExcelHash] = useState(null); //to store the hash of the downloaded excel file and compare it with the uploaded excel file (to check whether the user has modified the downloaded excel file)
 
     useSetUserNavigations(
         [{
@@ -45,9 +47,6 @@ const ImportReviewers = () => {
                 link.remove();
                 window.URL.revokeObjectURL(url);
 
-                //set the hash
-                const hash = await blobToHash('sha256', downloadResult.data);
-                setExcelHash(hash);
             }
         }
         catch (error) {
@@ -57,8 +56,12 @@ const ImportReviewers = () => {
     }
 
     const [universities, setUniversities] = useState([]);
+    const [excelFile, setExcelFile] = useState(null);
+    const [searchTerm, setSearchTerm] = useState("");
 
     useEffect(() => {
+        document.title = "Import Reviewers";
+
         const handleGetUniversitiesAndFaculties = async () => {
             try {
                 const universitiesResult = await getAllUniversities();
@@ -87,126 +90,183 @@ const ImportReviewers = () => {
             }
             catch (error) {
                 console.log(error);
-                alert(error.response.data.message);
+                setErrorMsg(error.response.data.message);
             }
         }
 
         handleGetUniversitiesAndFaculties();
     }, []);
 
-    const [excelFile, setExcelFile] = useState(null);
-
 
     const handleExcelUpload = async (e) => {
         e.preventDefault();
-
+        
         if (!excelFile) {
-            alert("Please select an excel file");
+            setErrorMsg("Please upload the excel file");
             return;
         }
 
-        if (!excelHash) {
-            alert("Please download the excel template first");
+        //check file extension
+        const fileExtension = excelFile.name.split('.').pop();
+
+        if (fileExtension !== "xlsx") {
+            setErrorMsg("Please upload a valid excel file");
             return;
         }
-
-        const fileHash = await blobToHash('sha256', excelFile);
-
-        if (fileHash === excelHash) { //uploaded the same file (not modified)
-            alert("Please fill the excel file with reviewer details");
-            return;
-        }
+        
+        setWait(true);
 
         try {
             const uploadResult = await importReviewers(excelFile);
 
             if (uploadResult.status) {
-                alert(uploadResult.data.message);
+                setSuccessMsg(uploadResult.data.message);
             }
 
         }
         catch (error) {
             console.log(error);
-            alert(error.response.data.message);
+            setErrorMsg(error.response.data.message);
         }
 
+        setWait(false);
+    }
+
+    const handleSearch = (event) => {
+        setSearchTerm(event.target.value);
     }
 
 
+    const [errorMsg, setErrorMsg] = useState("");
+    const [successMsg, setSuccessMsg] = useState("");
+    const [wait, setWait] = useState(false);
+
     return (
         <>
+            <Snackbar
+                open={errorMsg == "" ? false : true}
+                anchorOrigin={{ vertical: "top", horizontal: "center" }}
+                onClose={() => setErrorMsg("")}
+            >
+                <Alert onClose={() => setErrorMsg("")} severity="error">
+                    {errorMsg}
+                </Alert>
+            </Snackbar>
+
+            <Snackbar
+                open={successMsg == "" ? false : true}
+                autoHideDuration={1500}
+                onClose={() => setSuccessMsg("")}
+                anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            >
+                <Alert onClose={() => setSuccessMsg("")} severity="success">
+                    {successMsg}
+                </Alert>
+            </Snackbar>
+
+            <Snackbar
+                open={wait}
+                anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            >
+                <Alert severity="info">
+                    Please wait...
+                </Alert>
+            </Snackbar>
+
+
             <Divider textAlign='left'>
                 <Chip label="Import Reviewers" />
             </Divider>
 
-            <Box sx={{ display: 'flex', my: 3, justifyContent:'center' }}>
+            <Box sx={{ display: 'flex', my: 3, justifyContent: 'center' }}>
                 <Button onClick={handleExcelDownload} variant='contained'>Download Excel Template</Button>
             </Box>
 
-            <Box sx={{display:'flex', flexDirection:'row', justifyContent:'center'}}>
-                <Box sx={{m:1}}>
+            <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+                <Box sx={{ m: 1 }}>
                     Upload the Excel File Here
                 </Box>
-                <Box sx={{m:1}}>
+                <Box sx={{ m: 1 }}>
                     <form onSubmit={handleExcelUpload}>
                         <Input type="file" inputProps={{ accept: '.xlsx' }} onChange={
                             (e) => {
                                 setExcelFile(e.target.files[0]);
                             }
                         } />
-                        <Button type="submit">Upload</Button>
+                        <Button type="submit" disabled={wait}>Upload</Button>
                     </form>
                 </Box>
             </Box>
 
 
-            <div>
-                <h1>Use the Following Data for adding University and Faculty of each Reviewer</h1>
-                <br />
-                <TableContainer>
-                    <Table>
-                        <TableHead>
-                            <TableRow style={{backgroundColor:"#D8E6FC",}}>
-                                <TableCell align='center'><strong>University Name</strong></TableCell>
-                                <TableCell align='center'><strong>University ID</strong></TableCell>
-                                <TableCell align='center'><strong>Faculties</strong></TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {
-                                universities.map((university) => (
-                                    <TableRow key={university.id}>
-                                        <TableCell align='center'>{university.name}</TableCell>
-                                        <TableCell align='center'>{university.id}</TableCell>
-                                        <TableCell align='center'>
-                                            <Table>
-                                                <TableHead>
-                                                    <TableRow>
-                                                        <TableCell>Faculty Name</TableCell>
-                                                        <TableCell>Faculty ID</TableCell>
-                                                    </TableRow>
-                                                </TableHead>
-                                                <TableBody>
-                                                    {
-                                                        university.faculties.map((faculty) => (
-                                                            <TableRow key={faculty.id}>
-                                                                <TableCell>{faculty.name}</TableCell>
-                                                                <TableCell>{faculty.id}</TableCell>
-                                                            </TableRow>
-                                                        ))}
-                                                </TableBody>
-                                            </Table>
-                                        </TableCell>
-                                    </TableRow>
-                                ))
-                            }
-                        </TableBody>
-                    </Table>
+            <Typography sx={{margin: '3rem 0'}}>
+                Use the following information regarding the faculties of each university to fill the excel file.
+            </Typography>
 
-                </TableContainer>
-            </div>
+            <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+                <Box sx={{ m: 1 }}>
+                    Search University
+                </Box>
+                <Box sx={{ m: 1 }}>
+                    <Input type="text" placeholder="Search" onChange={handleSearch} />
+                </Box>
+            </Box>
+
+
+
+            <TableContainer>
+                <Table sx={tableStyle}>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell align="center">University Name</TableCell>
+                            <TableCell align="center">University ID</TableCell>
+                            <TableCell align="center">Faculties</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {universities.filter((university) => {
+                            if (searchTerm === "") {
+                                return university;
+                            } else if (university.name.toLowerCase().includes(searchTerm.toLowerCase())) {
+                                return university;
+                            }
+                        }).map((university) => (
+                            <TableRow
+                                key={university.id}
+                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                            >
+                                <TableCell align="center">
+                                    {university.name}
+                                </TableCell>
+                                <TableCell align="center">{university.id}</TableCell>
+                                <TableCell align="center">
+                                    <TableContainer>
+                                        <Table sx={tableStyle}>
+                                            <TableHead>
+                                                <TableRow>
+                                                    <TableCell align="center">Faculty Name</TableCell>
+                                                    <TableCell align="center">Faculty ID</TableCell>
+                                                </TableRow>
+                                            </TableHead>
+                                            <TableBody>
+                                                {
+                                                    university.faculties.map((faculty) => (
+                                                        <TableRow key={faculty.id}>
+                                                            <TableCell>{faculty.name}</TableCell>
+                                                            <TableCell>{faculty.id}</TableCell>
+                                                        </TableRow>
+                                                    ))}
+                                            </TableBody>
+                                        </Table>
+                                    </TableContainer>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
         </>
-    )
+    );
 }
 
-export default ImportReviewers
+export default ImportReviewers;

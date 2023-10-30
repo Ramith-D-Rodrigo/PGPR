@@ -11,7 +11,7 @@ class ScoreCalculationService
     public static function gradeObtainedByTheProgramOfStudy(string|int $pgprId, string $stage): array
     {
         $performanceScores = self::calculateOverallStudyProgramScores($pgprId, $stage);
-        if (!$performanceScores || $performanceScores['scores']) {
+        if (!$performanceScores || !$performanceScores['scores']) {
             return [];
         }
 
@@ -76,7 +76,7 @@ class ScoreCalculationService
     {
         $postGraduateReviewProgram = PostGraduateProgramReview::find($pgprId);
         $pgp = $postGraduateReviewProgram->postGraduateProgram;
-        $deskEvaluation = $postGraduateReviewProgram->deskEvaluation;
+        $deskEvaluation = $postGraduateReviewProgram->deskEvaluations;
 
         // if there is no desk evaluation, then there cannot be a proper evaluation
         if (!$deskEvaluation) {
@@ -86,9 +86,10 @@ class ScoreCalculationService
         $properEvaluation = $postGraduateReviewProgram->properEvaluation;
         $reviewerId = DB::table('reviewer_review_teams')
             ->select('reviewer_id')
-            ->where('id', $postGraduateReviewProgram->reviewTeam->id)
+            ->where('review_team_id', $postGraduateReviewProgram->reviewTeam->id)
             ->where('role', 'CHAIR')
-            ->first();
+            ->first() -> reviewer_id;
+
         $data = [];
         $data['scores'] = [];
 
@@ -132,15 +133,16 @@ class ScoreCalculationService
             }
 
             $maximumCriterionScore = count($standards) * 3;
-            $minimumCriterionScore = $maximumCriterionScore / 2;
+            $minimumCriterionScore = $criterion->weightage_on_thousand / 2;
             $actualCriterionWiseScore = ($totalScore / $maximumCriterionScore) * $criterion->weightage_on_thousand;
 
             // Add to data
             $data['scores'][] = [
-                'criteriaId' => $criteria->id,
-                'criteriaName' => $criteria->name,
+                'criteriaId' => $criterion->id,
+                'criteriaName' => $criterion->name,
                 'maximumCriterionScore' => $maximumCriterionScore,
                 'minimumCriterionScore' => $minimumCriterionScore,
+                'weightageOnThousand' => $criterion->weightage_on_thousand,
                 'rawScore' => $totalScore,
                 'actualScore' => $actualCriterionWiseScore,
                 'isActualCriterionWiseScoreIsLessThanMinCriterionScore' => $actualCriterionWiseScore < $minimumCriterionScore,

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   Table,
@@ -17,10 +17,12 @@ import {
   Select,
 } from "@mui/material";
 import useSetUserNavigations from "../../hooks/useSetUserNavigations";
+import axios from "../../api/api";
+import { SERVER_API_VERSION, SERVER_URL } from "../../assets/constants";
 
 function Summary_details() {
   const { pgprId } = useParams();
-  const [reviewerId, setReviewerId] = useState("All");
+  //const [reviewerId, setReviewerId] = useState("All");
 
   useSetUserNavigations([
     {
@@ -41,67 +43,98 @@ function Summary_details() {
     }
   ]);
 
-  const rows = [
-    {
-      id: 1,
-      criterianWiseScore: 89,
-      maxRowScore: 100,
-      weightageOn1000Scale: 889,
-      weightageOnMinScore: 89,
-      actualCriteriaStore: 89,
-      condition: "Yes",
-      reviewer: "Reviewer 1",
-    },
-    {
-      id: 2,
-      criterianWiseScore: 89,
-      maxRowScore: 100,
-      weightageOn1000Scale: 889,
-      weightageOnMinScore: 89,
-      actualCriteriaStore: 89,
-      condition: "Yes",
-      reviewer: "Reviewer 2",
-    },
-    {
-      id: 3,
-      criterianWiseScore: 89,
-      maxRowScore: 100,
-      weightageOn1000Scale: 889,
-      weightageOnMinScore: 89,
-      actualCriteriaStore: 89,
-      condition: "Yes",
-      reviewer: "Reviewer 3",
-    },
-    {
-      id: 4,
-      criterianWiseScore: 89,
-      maxRowScore: 100,
-      weightageOn1000Scale: 889,
-      weightageOnMinScore: 89,
-      actualCriteriaStore: 89,
-      condition: "Yes",
-      reviewer: "Reviewer 1",
-    },
-    {
-      id: 5,
-      criterianWiseScore: 89,
-      maxRowScore: 100,
-      weightageOn1000Scale: 889,
-      weightageOnMinScore: 89,
-      actualCriteriaStore: 89,
-      condition: "Yes",
-      reviewer: "Reviewer 2",
-    },
-  ];
+  // const rows = [
+  //   {
+  //     id: 1,
+  //     criterianWiseScore: 89,
+  //     maxRowScore: 100,
+  //     weightageOn1000Scale: 889,
+  //     weightageOnMinScore: 89,
+  //     actualCriteriaStore: 89,
+  //     condition: "Yes",
+  //     reviewer: "Reviewer 1",
+  //   },
+  //   {
+  //     id: 2,
+  //     criterianWiseScore: 89,
+  //     maxRowScore: 100,
+  //     weightageOn1000Scale: 889,
+  //     weightageOnMinScore: 89,
+  //     actualCriteriaStore: 89,
+  //     condition: "Yes",
+  //     reviewer: "Reviewer 2",
+  //   },
+  //   {
+  //     id: 3,
+  //     criterianWiseScore: 89,
+  //     maxRowScore: 100,
+  //     weightageOn1000Scale: 889,
+  //     weightageOnMinScore: 89,
+  //     actualCriteriaStore: 89,
+  //     condition: "Yes",
+  //     reviewer: "Reviewer 3",
+  //   },
+  //   {
+  //     id: 4,
+  //     criterianWiseScore: 89,
+  //     maxRowScore: 100,
+  //     weightageOn1000Scale: 889,
+  //     weightageOnMinScore: 89,
+  //     actualCriteriaStore: 89,
+  //     condition: "Yes",
+  //     reviewer: "Reviewer 1",
+  //   },
+  //   {
+  //     id: 5,
+  //     criterianWiseScore: 89,
+  //     maxRowScore: 100,
+  //     weightageOn1000Scale: 889,
+  //     weightageOnMinScore: 89,
+  //     actualCriteriaStore: 89,
+  //     condition: "Yes",
+  //     reviewer: "Reviewer 2",
+  //   },
+  // ];
 
-  const ReviewerList = ["Reviewer 1", "Reviewer 2", "Reviewer 3"];
+  //const ReviewerList = ["Reviewer 1", "Reviewer 2", "Reviewer 3"];
 
-  const filteredRows = () => {
-    if (reviewerId === "All") {
-      return rows; // Show all criteria when "All" is selected
+  // const filteredRows = () => {
+  //   if (reviewerId === "All") {
+  //     return rows; // Show all criteria when "All" is selected
+  //   }
+  //   return rows.filter((row) => row.reviewer === reviewerId);
+  // };
+
+  const [scoreDetails, setScoreDetails] = useState([]);
+  const [criteriaDetails, setCriteriaDetails] = useState([]);
+  const [grade, setGrade] = useState(""); 
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+
+  useEffect(() => {
+    async function getScoreDetails() {
+      setLoading(true);
+      setErrorMsg("");
+      try {
+        const scoreResponse = await axios.get(
+          `${SERVER_URL}${SERVER_API_VERSION}review-team/proper-evaluation/view-final-grades/${pgprId}`
+        );
+        //console.log(scoreResponse?.data?.data);
+        setScoreDetails(scoreResponse?.data?.data);
+        if (scoreResponse?.data?.data){
+          setCriteriaDetails(scoreResponse?.data?.data?.['scores']);
+          setGrade(
+            scoreResponse?.data?.data?.["overallPerformanceOfStudyScore"]
+          );
+        }
+      } catch (error) {
+        setErrorMsg(error.response.data.error);
+      } finally {
+        setLoading(false);
+      }
     }
-    return rows.filter((row) => row.reviewer === reviewerId);
-  };
+    getScoreDetails();
+  }, [pgprId]);
 
   return (
     <>
@@ -137,7 +170,7 @@ function Summary_details() {
           <Typography variant="body2" component="h2" gutterBottom>
             Proper Evaluation
           </Typography>
-          <FormControl
+          {/* <FormControl
             style={{ margin: "3rem", width: "70%" }}
             variant="standard"
             sx={{ m: 1, minWidth: 120 }}
@@ -159,7 +192,7 @@ function Summary_details() {
                 </MenuItem>
               ))}
             </Select>
-          </FormControl>
+          </FormControl> */}
         </Box>
 
         <TableContainer component={Paper} style={{ maxHeight: "500%" }}>
@@ -167,19 +200,13 @@ function Summary_details() {
             <TableHead>
               <TableRow>
                 <TableCell style={{ backgroundColor: "#D8E6FC" }} align="left">
-                  <b>Criteria No</b>
+                  <b>Criteria ID</b>
                 </TableCell>
                 <TableCell
                   style={{ backgroundColor: "#D8E6FC" }}
                   align="center"
                 >
-                  <b>Row Criterian Wise-Score</b>
-                </TableCell>
-                <TableCell
-                  style={{ backgroundColor: "#D8E6FC" }}
-                  align="center"
-                >
-                  <b>Max Row Score</b>
+                  <b>Criteria Name</b>
                 </TableCell>
                 <TableCell
                   style={{ backgroundColor: "#D8E6FC" }}
@@ -191,43 +218,77 @@ function Summary_details() {
                   style={{ backgroundColor: "#D8E6FC" }}
                   align="center"
                 >
-                  <b>Weightage on Minimum Score</b>
+                  <b>Minimum Score</b>
                 </TableCell>
                 <TableCell
                   style={{ backgroundColor: "#D8E6FC" }}
                   align="center"
                 >
-                  <b>Actual Criteria Wise Score</b>
+                  <b>Actual Score</b>
                 </TableCell>
                 <TableCell
                   style={{ backgroundColor: "#D8E6FC" }}
                   align="center"
                 >
-                  <b>Condition (Yes/No)</b>
+                  <b>Maximum Score</b>
+                </TableCell>
+                <TableCell
+                  style={{ backgroundColor: "#D8E6FC" }}
+                  align="center"
+                >
+                  <b>Pass/Fail</b>
                 </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredRows().map((row) => (
+              {criteriaDetails && criteriaDetails.length > 0 ? (
+                criteriaDetails.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
+                    <TableCell align="left">{row.criteriaId}</TableCell>
+                    <TableCell align="center">{row.criteriaName}</TableCell>
+                    <TableCell align="center">
+                      {row.maximumCriterionScore}
+                    </TableCell>
+                    <TableCell align="center">
+                      {row.minimumCriterionScore}
+                    </TableCell>
+                    <TableCell align="center">{row.rawScore}</TableCell>
+                    <TableCell align="center">{row.actualScore}</TableCell>
+                    <TableCell align="center">
+                      <span
+                        style={{
+                          color:
+                            row.isActualCriterionWiseScoreIsLessThanMinCriterionScore
+                              ? "red"
+                              : "green",
+                        }}
+                      >
+                        {row.isActualCriterionWiseScoreIsLessThanMinCriterionScore
+                          ? "Fail"
+                          : "Pass"}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
                 <TableRow
-                  key={row.id}
+                  textalign="center"
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
-                  <TableCell align="left">{row.id}</TableCell>
-                  <TableCell align="center">{row.criterianWiseScore}</TableCell>
-                  <TableCell align="center">{row.maxRowScore}</TableCell>
-                  <TableCell align="center">
-                    {row.weightageOn1000Scale}
+                  <TableCell colSpan={7}>
+                    <Typography
+                      variant="h6"
+                      align="center"
+                      sx={{ mt: 5, mb: 5 }}
+                    >
+                      No Data Found
+                    </Typography>
                   </TableCell>
-                  <TableCell align="center">
-                    {row.weightageOnMinScore}
-                  </TableCell>
-                  <TableCell align="center">
-                    {row.actualCriteriaStore}
-                  </TableCell>
-                  <TableCell align="center">{row.condition}</TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </TableContainer>
@@ -240,9 +301,11 @@ function Summary_details() {
             width: "100%",
           }}
         >
-          <Typography variant="h6" component="h2" gutterBottom>
-            Proper Evaluation Score : D
-          </Typography>
+          <Box backgroundColor="#D8E6FC" padding="0.25rem 1rem" borderRadius="0.5rem">
+            <Typography variant="h6" component="h2" gutterBottom>
+              Proper Evaluation Score : {grade}
+            </Typography>
+          </Box>
           <Button
             variant="contained"
             color="primary"

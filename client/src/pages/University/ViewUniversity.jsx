@@ -12,7 +12,7 @@ import useSetUserNavigations from '../../hooks/useSetUserNavigations';
 
 const ViewUniversity = () => {
     const { id } = useParams();
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     const [university, setUniversity] = useState(null);
 

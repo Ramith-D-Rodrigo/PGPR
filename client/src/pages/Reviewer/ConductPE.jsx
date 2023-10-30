@@ -23,6 +23,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
 import TextField from "@mui/material/TextField";
+import InputLabel from "@mui/material/InputLabel";
 
 import axios from "../../api/api";
 import { SERVER_API_VERSION, SERVER_URL } from "../../assets/constants";
@@ -32,17 +33,27 @@ import useAuth from "../../hooks/useAuth";
 const ConductPE = () => {
   const { auth } = useAuth();
   const theme = useTheme();
+
+  //Set up dates for start date and end date
+  const currentDate = new Date().toISOString().split("T")[0];
+  const date = new Date(currentDate);
+  date.setDate(date.getDate()+1);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const minDate = `${year}-${month}-${day}`;
+
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
   const [openDateDialog, setOpenDateDialog] = useState(false);
   const [openCriteriaDialog, setOpenCriteriaDialog] = useState(false);
-  const [PEStartDate, setPEStartDate] = useState("");
+
   const [PEEndDate, setPEEndDate] = useState("");
+  const [PEMeetingDate, setPEMeetingDate] = useState("");
   const { pgprId } = useParams();
 
   const [criteriaList, setCriteriaList] = useState([]);
-  //const [selectedCriteriaList, setSelectedCriteriaList] = useState([]);
   const [reviewerCreitriaList, setReviewerCreitriaList] = useState([]);
-  //const [allSelectedCriteriaList, setAllSelectedCriteriaList] = useState([]);
+  const [allSelectedCriteriaList, setAllSelectedCriteriaList] = useState([]);
   const [allTemporary, setAllTemporary] = useState([]); 
   const [selectedReviewer, setSelectedReviewer] = useState("");
 
@@ -84,11 +95,11 @@ const ConductPE = () => {
 
       try {
         const pgprResponse = await getPGPR(pgprId);
-        console.log("PGPR : ", pgprResponse?.data?.data);
+        //console.log("PGPR : ", pgprResponse?.data?.data);
         setPgpr(pgprResponse?.data?.data);
 
         if (pgprResponse?.data?.data) {
-          const team = pgpr.acceptedReviewTeam;
+          const team = pgprResponse?.data?.data?.acceptedReviewTeam;
           setReviewTeam(team);
 
           const reviewerDetails = team?.reviewers;
@@ -158,10 +169,37 @@ const ConductPE = () => {
     fetchData();
   }, [pgprId, auth?.id, chairId]);
 
-  console.log("PE : ", PEData);
+  useEffect(() => {
+    const allSelectedCriteria = mergeAndDeDuplicate(PEData);
+    setAllSelectedCriteriaList(allSelectedCriteria);
+    setAllTemporary(allSelectedCriteria);
+    //console.log("All Selected Criteria : ", allSelectedCriteria);
+  }, [PEData]);
 
-  const handleSetDate = (openDateDialog) => {
-    console.log(openDateDialog);
+  //console.log("PE : ", PEData);
+
+  const handleSetDate = () => {
+    try {
+      setLoading(true);
+      setErrorMsg("");
+
+      const data = {
+        pgprId,
+        startDate: currentDate,
+        meetingDate: PEMeetingDate,
+        endDate: PEEndDate,
+      };
+
+      //console.log("Set Date data : ", data);
+
+      axios.get("/sanctum/csrf-cookie");
+      axios.post(
+        `${SERVER_URL}${SERVER_API_VERSION}review-team-chair/proper-evaluation/set-dates/phase-one`,
+        data
+      );
+    } catch (error) {
+      setErrorMsg(error?.response?.data?.message);
+    }
     setPEEndDate("");
     setOpenDateDialog(false);
   };
@@ -284,13 +322,6 @@ const ConductPE = () => {
     //console.log("All Selected Criteria : ", merged);
     return Object.values(merged);
   }
-
-  useEffect(() => {
-    const allSelectedCriteria = mergeAndDeDuplicate(PEData);
-    //setAllSelectedCriteriaList(allSelectedCriteria);
-    setAllTemporary(allSelectedCriteria);
-    console.log("All Selected Criteria : ", allSelectedCriteria);
-  }, [PEData]);
   
   //console.log("Rows : ", rows)
 
@@ -505,6 +536,9 @@ const ConductPE = () => {
         ))}
       </Grid>
 
+      {/*
+       *  Dialog Box for Set Date
+       */}
       <Dialog
         fullScreen={fullScreen}
         open={openDateDialog ? true : false}
@@ -512,19 +546,14 @@ const ConductPE = () => {
         aria-labelledby="Set-PE-Date"
       >
         <DialogTitle id="Set-PE-Date-ID">
-          {`Set the Proper Evaluation Date for ${openDateDialog.id} postgraduate programme review`}
+          {`Set the Date for Proper Evaluation #1`}
         </DialogTitle>
         <DialogContent>
-          <p>
-            Start Date : <strong>{openDateDialog.startDate}</strong>
-          </p>
-          <p>
-            End Date : <strong>{openDateDialog.endDate}</strong>
-          </p>
           <Box
             sx={{
               display: "flex",
               flexDirection: "column",
+              gap: "1rem",
               justifyContent: "space-around",
               alignItems: "center",
               width: "100%",
@@ -532,20 +561,34 @@ const ConductPE = () => {
               margin: "1rem 0",
             }}
           >
-            <TextField
-              id="setStartDate"
-              value={PEStartDate}
-              helperText="Please select the start date for the Proper Evaluation"
-              variant="standard"
-              onChange={(e) => setPEStartDate(e.target.value)}
-              type="date"
-            />
+            <Box
+              display="flex"
+              alignItems="center"
+              padding="0.5rem"
+              backgroundColor="#D8E6FC"
+              margin="0.5rem 0"
+            >
+              <InputLabel htmlFor="setStartDate">Start Date : </InputLabel>
+              <Typography id="setStartDate">{currentDate}</Typography>
+            </Box>
+            <InputLabel htmlFor="setEndDate">End Date</InputLabel>
             <TextField
               id="setEndDate"
               value={PEEndDate}
+              inputProps={{ min: minDate }}
               helperText="Please select the end date for the Proper Evaluation"
               variant="standard"
               onChange={(e) => setPEEndDate(e.target.value)}
+              type="date"
+            />
+            <InputLabel htmlFor="setMeetingDate">Meeting Date</InputLabel>
+            <TextField
+              id="setMeetingDate"
+              value={PEMeetingDate}
+              inputProps={{ min: currentDate, max: PEEndDate }}
+              helperText="Please select next meeting date for the Proper Evaluation"
+              variant="standard"
+              onChange={(e) => setPEMeetingDate(e.target.value)}
               type="date"
             />
           </Box>
@@ -560,6 +603,9 @@ const ConductPE = () => {
         </DialogActions>
       </Dialog>
 
+      {/*
+       *  Dialog Box for Set Criteria
+       */}
       <Dialog
         fullScreen={fullScreen}
         open={openCriteriaDialog}
