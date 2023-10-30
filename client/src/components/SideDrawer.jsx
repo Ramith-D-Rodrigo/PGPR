@@ -97,7 +97,7 @@ const SideDrawer = ({ drawerOpen, drawerCloseHandler, drawerWidthInput }) => {
       {route:"Postgraduate Programmes" ,link: "/cqa_director/ViewPGPrograms"},
       {route:"PGPR Applications" ,link: "/cqa_director/BrowsePGPRApplications"},
       {route:"Postgraduate Programme Reviews", link: "/cqa_director/pgprs"},
-      {route:"Accounts" ,link: "/cqa_director/ViewCoordinators"},
+      {route:"Dean, Programme Coordinator, IQAU Director Accounts" ,link: "/cqa_director/ViewCoordinators"},
       {route:"Faculties" ,link: "/cqa_director/faculties"},
     ]
 

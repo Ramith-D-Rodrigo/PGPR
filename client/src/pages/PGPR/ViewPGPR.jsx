@@ -382,7 +382,7 @@ const ViewPGPR = () => {
                                     </Box>
                                 </Box>
                                 {
-                                    (auth?.authRole[0] === 'qac_officer' || auth?.authRole[0] === 'qac_director')  &&
+                                    (auth?.authRole[0] === 'qac_officer' || auth?.authRole[0] === 'qac_director')  && (pgpr.statusOfPgpr === 'PLANNING' || pgpr.statusOfPgpr === 'SUBMITTED') &&
                                     <Box sx={itemBox}>
                                         <Typography variant="h6" align='left'>
                                             Edit Group
@@ -407,7 +407,7 @@ const ViewPGPR = () => {
                                         </Typography>
                                     </Box>
                                     {
-                                        (auth.authRole[0] === 'qac_officer' || auth.authRole[0] === 'qac_director') &&
+                                        (auth.authRole[0] === 'qac_officer' || auth.authRole[0] === 'qac_director') && (pgpr.statusOfPgpr === 'PLANNING' || pgpr.statusOfPgpr === 'SUBMITTED') &&
                                         <Box align='left' sx={{ display: 'flex', flexDirection: 'column' }}>
                                             <Button variant='outlined' size='small' sx={{ mb: 1 }} color="primary" disabled={status?.toLowerCase() === 'accepted' || snackbar.open} onClick={() => handleClickOpen()}>Select</Button>
                                             <Button variant='outlined' size='small' sx={{ mb: 1 }} color="primary" disabled={status?.toLowerCase() === 'accepted' || snackbar.open} onClick={() => handleClickOpen()}>Select</Button>
