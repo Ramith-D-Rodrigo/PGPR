@@ -9,8 +9,7 @@ const URL = SERVER_URL + SERVER_API_VERSION + '/reviewers/reviewer-proper-evalua
 
 const GetAllPeEvaluations = async () => {
 
-    await axios.get("/sanctum/csrf-cookie"); //csrf-cookie is required for post requests
-    return await axios.post(URL);
+    return await axios.get(URL);
 }
 
 export default GetAllPeEvaluations;
