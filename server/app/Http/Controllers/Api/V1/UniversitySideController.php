@@ -116,7 +116,6 @@ class UniversitySideController extends Controller
             $validatedData = $request -> validated();
             $validatedData['id'] = $universitySide -> id;
 
-            $validatedData['postgraduate_qualifications'] = AcademicStaffService::concatPostgraudateQualifications($validatedData);
 
             //check if the user is dean, programme coordinator or iqau director
             if(in_array('dean', $roles) || in_array('programme_coordinator', $roles) || in_array('iqau_director', $roles)){
@@ -135,7 +134,6 @@ class UniversitySideController extends Controller
                     $validatedData['working_faculty'] = $universitySide -> qualityAssuranceStaff -> internalQualityAssuranceUnitDirector -> internalQualityAssuranceUnit -> faculty -> id;
                 }
             }
-
             $academicStaff = $universitySide -> academicStaff;
 
             DB::beginTransaction();
@@ -147,6 +145,7 @@ class UniversitySideController extends Controller
 
             //if the user does not have a academic staff model, create one
             if(!$academicStaff){
+                $validatedData['postgraduate_qualifications'] = AcademicStaffService::concatPostgraudateQualifications($validatedData);
                 $academicStaff = AcademicStaff::create($validatedData);
 
                 //assign the academic staff model to the university side model
