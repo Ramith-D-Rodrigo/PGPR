@@ -200,7 +200,8 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::post('review-team-chair/proper-evaluation/set-dates/phase-one', 'ReviewTeamChairController@setDatesForPE1')->middleware('auth');
     //review team chair change the dates of the PE2
     Route::post('review-team-chair/proper-evaluation/set-dates/phase-two', 'ReviewTeamChairController@setDatesForPE2')->middleware('auth');
-
+     //reviewer display the criteria with scores and comments +> URL params pgpr=10&reviewer=12 or pgpr=10&reviewer=12&criteria=10 or pgpr=10&reviewer=12&criteria=10&standard=9
+    Route::get('reviewer/desk-evaluation/reviewer/display-remarks-scores', 'ReviewTeamChairController@viewDEScoresOfTeamMember')->middleware('auth');
     //REVIEW TEAM ENDPOINTS
     //reviewer view proper evaluation details of the review team (could be either review team head or a member)
     Route::get('review-team/proper-evaluation/view-details/{pgpr}/{reviewTeam}', 'ReviewTeamController@viewProperEvaluationDetails')->middleware('auth');
