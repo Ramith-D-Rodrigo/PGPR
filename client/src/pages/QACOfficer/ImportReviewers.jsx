@@ -163,7 +163,7 @@ const ImportReviewers = () => {
         evt.preventDefault();
         setSubmitDialogMenu(()=>{
             return ()=>{
-                handleAddUser(evt,false);
+                handleAddUser(evt,false,assigningUserId);
                 setOpenDialog(false);
                 setOpenModal(false);
             }
@@ -171,16 +171,17 @@ const ImportReviewers = () => {
         setOpenDialog(true);
     }
 
-    const handleAddUser = async(evt,isUniversitySide)=>{
+    const handleAddUser = async(evt,isUniversitySide,universitySideId)=>{
         try{
+            console.log(universitySideId);
             if(isUniversitySide)
             {
-                const response = await assignReviewerRole(assigningUserId);
+                const response = await assignReviewerRole(universitySideId);
                 console.log(response?.data?.data);
             }
             else{
                 const formData = new FormData(evt.target);
-                const response = await assignReviewerRole(assigningUserId,formData);
+                const response = await assignReviewerRole(universitySideId,formData);
                 console.log(response?.data?.data);
             }
         }
@@ -189,7 +190,7 @@ const ImportReviewers = () => {
         }
     }
 
-    const handleReviewerAssignRole = async (userRoles) => {
+    const handleReviewerAssignRole = (userRoles,universitySideId) => {
         console.log((userRoles));
         const isNonAcedamicUser = userRoles.some((userRole,index)=>{
             return (
@@ -206,7 +207,7 @@ const ImportReviewers = () => {
         else{
             setSubmitDialogMenu(()=>{
                 return ()=>{
-                    handleAddUser(null,true);
+                    handleAddUser(null,true,universitySideId);
                     setOpenDialog(false);
                     setOpenModal(false);
                 }
@@ -364,7 +365,7 @@ const ImportReviewers = () => {
                                             <ButtonGroup>
                                                 <Button variant="contained" color="success" onClick={() => {
                                                         setAssigningUserId(universitySide.user.id);
-                                                        handleReviewerAssignRole(JSON.parse(universitySide.user.roles));
+                                                        handleReviewerAssignRole(JSON.parse(universitySide.user.roles),universitySide.user.id);
                                                     }}
                                                     disabled={
                                                         JSON.parse(universitySide.user.roles).includes("reviewer") ? true : false || wait 
