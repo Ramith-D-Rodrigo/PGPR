@@ -373,7 +373,7 @@ const PGAssignments = () => {
                     action.allow = false;
                     onClickDate = () => setErrorMsg("Chairman should set the Desk Evaluation Date first");
                 }
-                return <Link key={index} to={action.allow? 'Conduct_DE/'+PGPRDetails.id : ''}><Button onClick={() => onClickDate()} {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button></Link>
+                return <Link key={index} to={action.allow? 'Conduct_DE/'+PGPRDetails.id : ''}><Button onClick={onClickDate} {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button></Link>
             }
             else if(action.action === 'PE')
             {
