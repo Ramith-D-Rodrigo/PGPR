@@ -116,7 +116,6 @@ class UniversitySideController extends Controller
             $validatedData = $request -> validated();
             $validatedData['id'] = $universitySide -> id;
 
-            $validatedData['postgraduate_qualifications'] = AcademicStaffService::concatPostgraudateQualifications($validatedData);
 
             //check if the user is dean, programme coordinator or iqau director
             if(in_array('dean', $roles) || in_array('programme_coordinator', $roles) || in_array('iqau_director', $roles)){
@@ -126,7 +125,7 @@ class UniversitySideController extends Controller
                 if($universitySide -> academicStaff -> programmeCoordinator && $universitySide -> academicStaff -> programmeCoordinator -> current_status == 'ACTIVE'){
                     $validatedData['working_faculty'] = $universitySide -> academicStaff -> programmeCoordinator -> postGraduateProgram -> faculty -> id;
                 }
-                if($universitySide -> qualityAssuranceStaff -> internalQualityAssuranceUnitDirector &&
+                if($universitySide -> qualityAssuranceStaff &&
                 $universitySide
                 -> qualityAssuranceStaff
                 -> internalQualityAssuranceUnitDirector
@@ -135,18 +134,19 @@ class UniversitySideController extends Controller
                     $validatedData['working_faculty'] = $universitySide -> qualityAssuranceStaff -> internalQualityAssuranceUnitDirector -> internalQualityAssuranceUnit -> faculty -> id;
                 }
             }
-
             $academicStaff = $universitySide -> academicStaff;
 
             DB::beginTransaction();
 
+            array_push($roles, 'reviewer');
             //assign reviewer role
             $universitySide -> user -> update(
-                ['roles' => json_encode(array_push($roles, 'reviewer'))]
+                ['roles' => json_encode($roles)]
             );
 
             //if the user does not have a academic staff model, create one
             if(!$academicStaff){
+                $validatedData['postgraduate_qualifications'] = AcademicStaffService::concatPostgraudateQualifications($validatedData);
                 $academicStaff = AcademicStaff::create($validatedData);
 
                 //assign the academic staff model to the university side model

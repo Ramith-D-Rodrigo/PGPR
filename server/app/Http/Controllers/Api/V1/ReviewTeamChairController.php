@@ -588,7 +588,7 @@ class ReviewTeamChairController extends Controller
         try {
             $validated = $request->validated();
             $postGraduateProgramReview = PostGraduateProgramReview::find($validated['pgpr_id']);
-            $deskEvaluation = $postGraduateProgramReview->deskEvaluation();
+            $deskEvaluation = $postGraduateProgramReview->deskEvaluations;
 
             if ($deskEvaluation) {
                 $data = [];
@@ -605,6 +605,7 @@ class ReviewTeamChairController extends Controller
                             ->select(
                                 'users.full_name as reviewerFullName',
                                 'desk_evaluation_score.reviewer_id as reviewerId',
+                                'standards.standard_no as standardNo',
                                 'standards.description as standardDescription',
                                 'desk_evaluation_score.de_score as deScore',
                                 'desk_evaluation_score.comment as comment',
@@ -622,6 +623,7 @@ class ReviewTeamChairController extends Controller
                             ->whereIn('desk_evaluation_score.standard_id', $standardIds)
                             ->select(
                                 'desk_evaluation_score.reviewer_id as reviewerId',
+                                'standards.standard_no as standardNo',
                                 'standards.description as standardDescription',
                                 'desk_evaluation_score.de_score as deScore',
                                 'desk_evaluation_score.comment as comment',
@@ -630,8 +632,7 @@ class ReviewTeamChairController extends Controller
                     }
                 }else {
                     $criteriaIds = DB::table('criterias')->pluck('id');
-                    $reviewerName = Reviewer::find($validated['reviewer_id'])->user->pluck('full_name');
-                    $data['reviewerName'] = $reviewerName;
+                    $reviewerName = Reviewer::find($validated['reviewer_id'])->user->full_name;
                     $data['scores'] =[];
                     foreach ($criteriaIds as $criteriaId) {
                         $standardIds = Criteria::find($criteriaId)->standards->pluck('id');
@@ -644,6 +645,7 @@ class ReviewTeamChairController extends Controller
                             ->whereIn('desk_evaluation_score.standard_id', $standardIds)
                             ->select(
                                 'desk_evaluation_score.reviewer_id as reviewerId',
+                                'standards.standard_no as standardNo',
                                 'standards.description as standardDescription',
                                 'desk_evaluation_score.de_score as deScore',
                                 'desk_evaluation_score.comment as comment',
@@ -660,7 +662,8 @@ class ReviewTeamChairController extends Controller
                 );
             }
         } catch (Exception $exception) {
-            return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+            // return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+            throw $exception;
         }
     }
 

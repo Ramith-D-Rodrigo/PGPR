@@ -25,13 +25,16 @@ import createSERRows from '../../assets/reviewer/createSERRows';
 import useReviewerRole from '../../hooks/useReviewerRole';
 import getAssignedPGPR from '../../api/Reviewer/getAssignedPGPR';
 import getAllCriteria from '../../api/Criteria/getAllCriteria';
+import getReviewedCriteriawithScoresofReviewer from '../../api/reviewChair/getReviewedCriteriawithScoresofReviewer';
 
 function DEProgress() {
-    const {pgprId,reviwerId} = useParams();
+    const {pgprId,reviewerId} = useParams();
     const [SERDetails,setSERDetails] = useState([]);
     const [loading,SetLoading] = useState(false);
     const [criteriaId, setCriteriaId] = useState(null);
     const [criteriaList, setCriteriaList] = useState([]);
+    const [standards,setStandards] = useState([]);
+    const [reviewer,setReviewer] = useState(null);
     const {reviewerRole, setReviewerRole} = useReviewerRole();
     const [pgprDetails,setPGPRDetails] = useState([]);
 
@@ -67,6 +70,7 @@ function DEProgress() {
               setSERDetails(response?.data?.data);
               setCriteriaList(response?.data?.data?.criterias?? []);
               setCriteriaId(response?.data?.data?.criterias[0]?.id?? "");
+              getCriteraWiseScores(response?.data?.data?.criterias[0]?.id);
               SetLoading(false);
           } catch (err) {
               console.error(err);
@@ -93,6 +97,23 @@ function DEProgress() {
         getPGPRDetails();
       }, []);
 
+      const getCriteraWiseScores = async (criteriaId) =>
+      {
+        try{
+          SetLoading(true);
+          const response = await getReviewedCriteriawithScoresofReviewer(pgprId,reviewerId,criteriaId);
+          console.log(response?.data?.data);
+          setStandards(response?.data?.data?.scores);
+          setReviewer(response?.data?.data?.reviewerName);
+          SetLoading(false);
+        }
+        catch(err)
+        {
+          console.log(err);
+          SetLoading(false);
+        }
+      }
+
       useEffect(()=>{
         if(!criteriaId)
         {
@@ -100,7 +121,8 @@ function DEProgress() {
         }
         //get standard details of selected reviewer for selected criteria
         console.log("selected criteria :",criteriaList[criteriaId-1]);
-        // criteriaId,reviwerId
+        getCriteraWiseScores(criteriaId);
+        // criteriaId,reviewerId
       },[criteriaId]);
     
       const pgProgrammeDetails = SERDetails?.postGraduateProgramReview?.postGraduateProgramme;
@@ -163,7 +185,7 @@ function DEProgress() {
                 </Grid>
             </DiscriptiveDiv>
         
-            <Divider style={{margin:"2rem 0 1rem"}} textAlign="center">Desk Evaluation Progress Overview</Divider>
+            <Divider style={{margin:"2rem 0 1rem"}} textAlign="center">Desk Evaluation Current Progress Overview</Divider>
 
             <Box sx={{ display: 'flex', justifyContent: 'space-between',margin:"1rem 0" }}>
               <Typography
@@ -171,7 +193,7 @@ function DEProgress() {
                   style={{ margin: "0 0 0 20px" }}
               >
                   <p>Desk Evaluation Period : <strong>{`${pgprDetails?.postGraduateReviewProgram?.deskEvaluation?.startDate} To ${pgprDetails?.postGraduateReviewProgram?.deskEvaluation?.endDate}`}</strong></p>
-                  <p>Reviewer Name : <strong>Reviewer 1</strong></p>
+                  <p>Reviewer Name : <strong>{reviewer}</strong></p>
               </Typography>
               <Typography
                   variant="button"
@@ -202,7 +224,7 @@ function DEProgress() {
             </Box>
     
             <TableContainer component={Paper} style={{height:"auto"}}>
-              <Table sx={{ height: 200 }} stickyHeader aria-label="sticky table">
+              <Table stickyHeader aria-label="sticky table">
                   <TableHead>
                       <TableRow>
                           <TableCell style={{backgroundColor:"#D8E6FC",}} align="left"><b>Standard</b></TableCell>
@@ -234,16 +256,25 @@ function DEProgress() {
                         <TableCell align="center"></TableCell>
                       </TableRow>
                         :
-                      rows.map((row) => (
+                      standards.length==0?
+                        <TableRow
+                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                        >
+                            <TableCell component="th" scope="row"></TableCell>
+                            <TableCell align="center">Not yet desk evaluation started</TableCell>
+                            <TableCell align="center"></TableCell>
+                        </TableRow>
+                      :
+                      standards.map((row,index) => (
                           <TableRow
-                          key={row.id}
+                          key={index}
                           sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                           >
                               <TableCell component="th" scope="row">
-                                  {row.id}
+                                  {row.standardNo}
                               </TableCell>
-                              <TableCell align="center">{row.details}</TableCell>
-                              <TableCell align="center">{row.score?? "Not Evaluated Yet"}</TableCell>
+                              <TableCell align="center">{row.standardDescription}</TableCell>
+                              <TableCell align="center">{row.deScore?? "Not Evaluated Yet"}</TableCell>
                               <TableCell align="center">{row.comment?? "Not Submitted Yet"}</TableCell>
                           </TableRow>
                       ))}

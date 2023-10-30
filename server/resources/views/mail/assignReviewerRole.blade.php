@@ -6,7 +6,10 @@ Please note that you have other roles in the system as well.<br>
 You have currently have access to following roles.<br>
 
 <ul>
-    @foreach($user['roles'] as $role)
+    @php
+        $roles = json_decode($user['roles'], true);
+    @endphp
+    @foreach($roles as $role)
         <li>{{$role}}</li>
     @endforeach
 </ul>
