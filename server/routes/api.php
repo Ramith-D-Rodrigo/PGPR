@@ -54,6 +54,8 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
 
     Route::apiResource('users', 'UserController');
     Route::apiResource('universitySides', 'UniversitySideController');
+    Route::post('assignReviewerRole/{universitySide}', 'UniversitySideController@assignReviewerRole')->middleware('auth');
+    
     Route::apiResource('universities', 'UniversityController')->middleware('auth');
     //other routes of the universities
     //get the current vice chancellor of a university
@@ -75,6 +77,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::delete('programmeCoordinators/{programmeCoordinator}/removeRole', 'ProgrammeCoordinatorController@removeRole')->middleware('auth');
 
     Route::apiResource('postGraduateProgramReviews', 'PostGraduateProgramReviewController');
+    Route::post('postGraduateProgramReviews/{postGraduateProgramReviewOne}/group/{postGraduateProgramReviewTwo}', 'PostGraduateProgramReviewController@groupWithAnotherPGPR')->middleware('auth');
 
     Route::apiResource('pgprApplications', 'PostGraduateProgramReviewApplicationController')->middleware('auth');
     Route::apiResource('iqauDirectors', 'InternalQualityAssuranceUnitDirectorController')->middleware('auth');
@@ -183,7 +186,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     //review team chair update review team proper evaluation scores
     Route::post('review-team-chair/proper-evaluation/update-scores', 'ReviewTeamChairController@updatePEScoresOfEachStandard')->middleware('auth');
     //review team chair submit desk evaluation
-    Route::post('review-team-chair/proper-evaluation/submit', 'ReviewTeamChairController@submitDeskEvaluation')->middleware('auth');
+    Route::post('review-team-chair/desk-evaluation/submit', 'ReviewTeamChairController@submitDeskEvaluation')->middleware('auth');
     //review team chair submit proper evaluation
     Route::post('review-team-chair/proper-evaluation/submit', 'ReviewTeamChairController@submitProperEvaluation')->middleware('auth');
     //review team chair upload preliminary report
@@ -196,6 +199,12 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::post('review-team-chair/submit/preliminary-report', 'ReviewTeamChairController@submitFinalReport')->middleware('auth');
     //review team chair submit final report
     Route::post('review-team-chair/submit/final-report', 'ReviewTeamChairController@submitFinalReport')->middleware('auth');
+    //review team chair change the dates of the PE1
+    Route::post('review-team-chair/proper-evaluation/set-dates/phase-one', 'ReviewTeamChairController@setDatesForPE1')->middleware('auth');
+    //review team chair change the dates of the PE2
+    Route::post('review-team-chair/proper-evaluation/set-dates/phase-two', 'ReviewTeamChairController@setDatesForPE2')->middleware('auth');
+     //reviewer display the criteria with scores and comments +> URL params pgpr=10&reviewer=12 or pgpr=10&reviewer=12&criteria=10 or pgpr=10&reviewer=12&criteria=10&standard=9
+    Route::get('review-team-chair/desk-evaluation/reviewer/display-remarks-scores', 'ReviewTeamChairController@viewDEScoresOfTeamMember')->middleware('auth');
 
     //REVIEW TEAM ENDPOINTS
     //reviewer view proper evaluation details of the review team (could be either review team head or a member)

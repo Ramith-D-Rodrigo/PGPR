@@ -178,11 +178,11 @@ class ReviewTeamPolicy
      */
     public function forceDelete(User $user, ReviewTeam $reviewTeam): Response
     {
-        //only quality assurance officers and directors can delete review teams
+        //only quality assurance directors can delete review teams
         $currRole = request() -> session() -> get('authRole');
 
-        //check if the user is a quality assurance officer or quality assurance director
-        if($currRole === 'qac_director' || $currRole === 'qac_officer'){
+        //check if the user is a quality assurance director
+        if($currRole === 'qac_director'){
             return Response::allow();
         }
 

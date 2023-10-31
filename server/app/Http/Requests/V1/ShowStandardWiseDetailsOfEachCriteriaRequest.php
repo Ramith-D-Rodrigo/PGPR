@@ -45,7 +45,7 @@ class ShowStandardWiseDetailsOfEachCriteriaRequest extends FormRequest
     {
         $this->merge([
             'desk_evaluation_id' => $this->deskEvaluation,
-            'criteria_id' => $this->criteria_id,
+            'criteria_id' => $this->criteria,
         ]);
     }
 }

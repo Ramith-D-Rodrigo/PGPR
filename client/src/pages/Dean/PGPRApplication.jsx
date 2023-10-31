@@ -8,12 +8,17 @@ import getDeanFaculty from '../../api/Dean/getDeanFaculty';
 import getFacultyPostGraduatePrograms from '../../api/Faculty/getFacultyPostGraduatePrograms';
 import createPGPRApplication from '../../api/PostGraduateProgramApplication/createPGPRApplication';
 import useAuth from '../../hooks/useAuth';
+import { Chip, Divider } from '@mui/material';
 
 const PGPRApplication = () => {
   const { auth } = useAuth();
 
   useSetUserNavigations(
     [
+        {
+          name: "Dashboard",
+          link: "/"
+        },
         {
           name: "PGPR Applications",
           link: "/PGPRApplications"
@@ -42,6 +47,8 @@ const PGPRApplication = () => {
 
     // let selectedPGP = useRef("");
     // let selectedSLQFLevel = useRef("");
+
+    document.title = "Create PGPR Application";
 
     useEffect(() => {
         const handleGetPGPs = async () => {
@@ -148,12 +155,9 @@ const PGPRApplication = () => {
   return (
     <>
 
-        {/* <Typography align='center' margin={2}  variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          Request for Postgraduate Programme Review
-        </Typography> */}
-        <Typography align='center' margin="1rem 0 2rem" fontWeight={600} variant="h5" gutterBottom component="div" style={{marginRight:'20px'}}>
-          Request for Postgraduate Programme Review
-        </Typography>
+        <Divider textAlign='left' sx={{mb:'2rem'}}>
+          <Chip label='Create Postgraduate Programme Review Application'/>
+        </Divider>
         <form onSubmit={handleSubmitApplication} style={{display:"flex",flexDirection:"column",flexWrap:'wrap',width:'100%',justifyContent:'center',alignItems:'center'}}>
             <FormControl sx={{ m: 1, width:"50%" ,minWidth: 120 }}>
               <InputLabel id="pg_programme">Postgraduate Programme</InputLabel>

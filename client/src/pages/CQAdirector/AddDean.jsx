@@ -36,22 +36,15 @@ const AddDean = ({onSubmit,isLoading,faculties}) => {
         </Divider>
         <Box style={{display:"flex",flexWrap:"wrap",alignItems:"start",justifyContent:"space-between",width:"100%",padding:"0 2rem",margin:"3rem 0"}}>
 
-            <FormControl style={TextFieldStyle} fullWidth>
-                <InputLabel id="designationId">Designation*</InputLabel>
-                <Select
-                    disabled={isLoading}
-                    labelId="designationLabel"
-                    id="designationSelect"
-                    label="designation*"
-                    value = {destination}
+                <TextField
+                    style={TextFieldStyle}
+                    id= "desginationID"
                     name="designation"
-                    onChange={(e)=>setDestination(e.target.value)}
+                    label="Designation"
+                    disabled={isLoading}
                     required
-                >
-                <MenuItem value={"Director"}>Director</MenuItem>
-                <MenuItem value={"Dean"}>Dean</MenuItem>
-                </Select>
-            </FormControl>
+                    onChange={(e)=>setDestination(e.target.value)}
+                />
 
             <FormControl style={TextFieldStyle} fullWidth>
                 <InputLabel id="FaultyId">Faculty*</InputLabel>

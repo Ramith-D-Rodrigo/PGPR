@@ -22,8 +22,10 @@ use App\Models\ReviewTeam;
 use App\Models\Standard;
 use App\Models\University;
 use App\Models\ViceChancellor;
+use App\Policies\ReviewTeamChairPolicy;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Gate;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -74,5 +76,22 @@ class AuthServiceProvider extends ServiceProvider
         });
 
         //
+
+        //define gates for review team chair using the review team chair policy class
+
+        //define a gate for assignReviewTeamMembersCriteriaForProperEvaluationAuthorize
+        Gate::define('assignReviewTeamMembersCriteriaForProperEvaluationAuthorize', [ReviewTeamChairPolicy::class, 'assignReviewTeamMembersCriteriaForProperEvaluationAuthorize']);
+
+        //define a gate for submitDeskEvaluationAuthorize
+        Gate::define('submitDeskEvaluationAuthorize', [ReviewTeamChairPolicy::class, 'submitDeskEvaluationAuthorize']);
+
+        //define a gate for submitProperEvaluationAuthorize
+        Gate::define('submitProperEvaluationAuthorize', [ReviewTeamChairPolicy::class, 'submitProperEvaluationAuthorize']);
+
+        //define a gate for updatePEScoresOfEachStandardAuthorize
+        Gate::define('updatePEScoresOfEachStandardAuthorize', [ReviewTeamChairPolicy::class, 'updatePEScoresOfEachStandardAuthorize']);
+
+        //define a gate for updateDEScoresOfEachStandardAuthorize
+        Gate::define('updateDEScoresOfEachStandardAuthorize', [ReviewTeamChairPolicy::class, 'updateDEScoresOfEachStandardAuthorize']);
     }
 }

@@ -75,12 +75,27 @@ class ViceChancellorPolicy
 
     public function removeRole(User $user, ViceChancellor $viceChancellor): Response
     {
-        //only qac_officer can remove the role of vice chancellor
-        //since qac_director is also a qac_officer, both roles are authorized
+        //only qac_director can remove the role of vice chancellor
 
         $authRole = request() -> session() -> get('authRole');
 
-        if($authRole == 'qac_officer' || $authRole == 'qac_director'){
+        if($authRole == 'qac_director'){
+            //check if there is a pgpr that is currently being conducted in the university of the vice chancellor
+            $pgprs = $viceChancellor -> university -> faculties -> map(function($faculty){
+                return $faculty -> postGraduatePrograms -> map(function($pgp){
+                    return $pgp -> postGraduateProgramReviews;
+                });
+            }) -> flatten();
+
+
+            $pgprs = $pgprs -> filter(function($pgpr){
+                return $pgpr -> status_of_pgpr != 'COMPLETED' && $pgpr -> status_of_pgpr != 'SUSPENDED';
+            });
+
+            if($pgprs -> count() > 0){
+                return Response::deny('You cannot remove the role of vice chancellor because there is currently a review being conducted in the university');
+            }
+
             return Response::allow();
         }
 

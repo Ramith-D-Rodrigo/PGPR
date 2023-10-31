@@ -3,12 +3,13 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\CanResetPassword;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+class User extends Authenticatable implements CanResetPassword
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -107,5 +108,28 @@ class User extends Authenticatable
 
     public function accountCreatedBy(){
         return $this -> belongsTo(User::class, 'created_by', 'id');
+    }
+
+    public function getEmailForPasswordReset()
+    {
+        return $this->official_email;
+    }
+
+    public function routeNotificationFor($driver)
+    {
+        if (method_exists($this, $method = 'routeNotificationFor' . Str::studly($driver))) {
+            return $this->{$method}();
+        }
+
+        switch ($driver) {
+            case 'database':
+                return $this->notifications();
+            case 'mail':
+                return $this->official_email;
+            case 'nexmo':
+                return $this->phone_number;
+            default:
+                return $this->official_email;
+        }
     }
 }

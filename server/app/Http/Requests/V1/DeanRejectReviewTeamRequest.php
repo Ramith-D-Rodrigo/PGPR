@@ -35,7 +35,7 @@ class DeanRejectReviewTeamRequest extends FormRequest
             [
                 'id' => $this->reviewTeamId,
                 'dean_decision' => 'REJECTED',
-                'remark' => $this->remarks,
+                'remark' => $this->remark,
             ]
         );
     }

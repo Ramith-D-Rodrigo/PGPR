@@ -139,9 +139,6 @@ function AddPostGraduateProgram() {
       console.log(creationResult.data);
       showSnackbar("Program added successfully!", "success");
       setLoading(false);
-      setTimeout(() => {
-        navigate("../", { replace: true });
-      }, 1000);
     } catch (err) {
       console.log("message: ", err?.response?.data?.message);
       console.log("errors: ", err?.response?.data?.errors);
@@ -381,7 +378,7 @@ function AddPostGraduateProgram() {
         </form>
       </Box>
       {/* SnackbarContainer for displaying messages */}
-      <SnackbarContainer
+      <SnackbarContainer 
         open={snackbarOpen}
         onClose={() => setSnackbarOpen(false)}
         message={snackbarMessage}

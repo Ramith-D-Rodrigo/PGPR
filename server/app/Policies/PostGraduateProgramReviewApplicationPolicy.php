@@ -245,6 +245,7 @@ class PostGraduateProgramReviewApplicationPolicy
 
         //cqa director can only recommend applications that have status of 'submitted'
         if ($postGraduateProgramReviewApplication -> status != 'submitted') {
+            echo $postGraduateProgramReviewApplication -> status;
             return Response::deny('You are not allowed to recommend this application');
         }
 

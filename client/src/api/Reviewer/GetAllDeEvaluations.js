@@ -5,12 +5,11 @@ import axios from "../api.js";
 
 //url is : SERVER_URL + SERVER_API_VERSION + '/reviewers/reviewer-desk-evaluations'
 
-const URL = SERVER_URL + SERVER_API_VERSION + '/reviewers/reviewer-desk-evaluations';
+const URL = SERVER_URL + SERVER_API_VERSION + 'reviewers/reviewer-desk-evaluations';
 
 const GetAllDeEvaluations = async () => {
 
-    await axios.get("/sanctum/csrf-cookie"); //csrf-cookie is required for post requests
-    return await axios.post(URL);
+    return await axios.get(URL);
 }
 
 export default GetAllDeEvaluations;

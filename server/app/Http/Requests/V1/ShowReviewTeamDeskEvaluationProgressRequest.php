@@ -29,15 +29,23 @@ class ShowReviewTeamDeskEvaluationProgressRequest extends FormRequest
         ];
     }
 
-    protected function prepareForValidation(): void
+    public function prepareForValidation(): void
     {
         $this->merge(
             [
-                'desk_evaluation_id.required' => 'The desk evaluation id is required',
-                'desk_evaluation_id.exists' => 'The desk evaluation does not exist',
-                'review_team_id.required' => 'The review team id is required',
-                'review_team_id.exists' => 'The review team does not exist',
+                'desk_evaluation_id' => $this->deskEvaluation,
+                'review_team_id' => $this->reviewTeam,
             ]
         );
+    }
+
+    public function messages(): array
+    {
+        return [
+            'desk_evaluation_id.required' => 'The desk evaluation id is required',
+            'desk_evaluation_id.exists' => 'The desk evaluation does not exist',
+            'review_team_id.required' => 'The review team id is required',
+            'review_team_id.exists' => 'The review team does not exist',
+        ];
     }
 }

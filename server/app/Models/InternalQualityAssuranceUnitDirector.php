@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class InternalQualityAssuranceUnitDirector extends Model
 {
@@ -13,6 +14,11 @@ class InternalQualityAssuranceUnitDirector extends Model
         'id',
         'iqau_id',
     ];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'id', 'id');
+    }
 
     //internal quality assurance unit director is a quality assurance staff
     public function qualityAssuranceStaff(){

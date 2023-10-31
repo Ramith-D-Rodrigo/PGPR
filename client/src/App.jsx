@@ -5,7 +5,7 @@ import MainLayout from "./components/MainLayout";
 import Authenticate from "./components/Authenticate";
 import Unauthorized from "./components/Unauthorized";
 import LoginPersist from "./components/LoginPersist.jsx";
-import ResetInitialPassword from "./components/ResetInitialPassword.jsx";
+import ResetInitialPassword from "./pages/ResetInitialPassword"
 import View from './components/View';
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
@@ -79,6 +79,8 @@ import "./App.css";
 import BrowsePGPR from './pages/CQAdirector/BrowsePGPR';
 import ReviewerProfile from "./pages/QACOfficer/ReviewerProfile";
 import CQADashboard from "./pages/CQAdirector/CQADashboard";
+import QACDirectorDashboard from "./pages/QACDirector/QACDirectorDashboard";
+import QACOfficerDashboard from "./pages/QACOfficer/QACOfficerDashboard";
 
 
 /* 
@@ -118,8 +120,8 @@ function App() {
 
             <Route element={<Authenticate allowedRoles={["qac_officer"]} />}>
               <Route path="qac_officer/">
-                <Route path="" element={<Dashboard />} />
-                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="" element={<QACOfficerDashboard />} />
+                <Route path="dashboard" element={<QACOfficerDashboard />} />
                 <Route path="universities/">
                   <Route path="" element={<ViewUniversities />} />
                   <Route path="view/:id" element={<ViewUniversity />} />
@@ -143,8 +145,8 @@ function App() {
 
             <Route element={<Authenticate allowedRoles={["qac_director"]} />}>
               <Route path="qac_director/">
-                <Route path="" element={<Dashboard />} />
-                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="" element={<QACDirectorDashboard />} />
+                <Route path="dashboard" element={<QACDirectorDashboard />} />
                 <Route path="universities/">
                   <Route path="" element={<ViewUniversities />} />
                   <Route path="view/:id" element={<ViewUniversity />} />

@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 //use App\Http\Controllers\Auth\AuthorizeController;
 
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
+use App\Http\Controllers\auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
@@ -27,13 +28,15 @@ Route::post('/initial-password-reset', [ResetPasswordController::class, 'store']
     ->middleware('auth')
     ->name('initial.password.reset');
 
+Route::post('/forgot-password', [ForgotPasswordController::class, 'emailVerification'])
+    ->name('forgot.password.email.verification');
+
+Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'])
+    ->name('forgot.password.reset');
+
 /*Route::post('/register', [RegisteredUserController::class, 'store'])
                 // ->middleware('guest')
                 ->name('register');
-
-Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])
-                // ->middleware('guest')
-                ->name('password.email');
 
 Route::post('/initial-password-reset', [ResetPasswordController::class, 'store'])
     // ->middleware('guest')
