@@ -31,7 +31,8 @@ class ViceChancellorService extends UniversitySideService {
             $vc -> update(['vc_status' => 'INACTIVE', 'term_date' => $termDate]);
         }
 
-        //remove the vice_chanellor_id from the university table (ignore this step)
+        //remove the vice_chanellor_id from the university table
+        $vc -> university -> update(['vice_chancellor_id' => null]);
 
         //remove the vice_chancellor role from the user table
         $user = $vc -> universitySide -> user;

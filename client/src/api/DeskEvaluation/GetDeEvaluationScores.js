@@ -6,12 +6,11 @@ import axios from "../api.js";
 
 //url is : SERVER_URL + SERVER_API_VERSION + '/reviewer/desk-evaluation/criteria/display-remarks-scores'
 
-const URL = SERVER_URL + SERVER_API_VERSION + '/reviewer/desk-evaluation/criteria/display-remarks-scores';
 
-const GetDeEvaluationScores = async () => {
-
-    await axios.get("/sanctum/csrf-cookie"); //csrf-cookie is required for post requests
-    return await axios.post(URL);
+const GetDeEvaluationScores = async (deId,criteriaId) => {
+    
+    const URL = SERVER_URL + SERVER_API_VERSION + 'reviewer/desk-evaluation/criteria/display-remarks-scores'+`?deskEvaluation=${deId}&criteria=${criteriaId}`;
+    
+    return await axios.get(URL);
 }
-
 export default GetDeEvaluationScores;

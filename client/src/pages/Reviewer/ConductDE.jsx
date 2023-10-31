@@ -18,7 +18,7 @@ const ConductDE = () => {
     const {pgprId} = useParams();
     const open = useDrawerState().drawerState.open;
     const [SERDetails,setSERDetails] = useState([]);
-    const [loading,SetLoading] = useState(false);
+    const [loading,SetLoading] = useState(true);
     const {reviewerRole, setReviewerRole} = useReviewerRole();
     // const [SERId,setSERId] = useState([]);
     const [pgprDetails,setPGPRDetails] = useState([]);
@@ -223,7 +223,9 @@ const ConductDE = () => {
                             <Link to = {`../Standardwise_details/${pgprId}`}><Button variant="contained" size="small" style={{width:"250px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>View Standards Wise Details of Desk Review</Button></Link>
                             <Link to = {new Date(DE?.endDate) < new Date() || DE?.status == "COMPLETED"? '' : `../Submit_DE/${pgprId}`}><Button disabled={new Date(DE?.endDate) < new Date() || DE?.status == "COMPLETED"? true : false} variant="contained" size="small" style={{width:"250px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>Submit The Self Evaluated Results</Button></Link>
                             {/* only for chair */}
-                            <Link to = {DE?.status == "COMPLETED"?  "" : `../Finalize_DE/${pgprId}`}><Button disabled={DE?.status == "COMPLETED"? true: false} variant="contained" size="small" style={{width:"250px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>Finalize The Desk Evaluation</Button></Link>
+                            {
+                                reviewerRole == "CHAIR"? <Link to = {DE?.status == "COMPLETED"?  "" : `../Finalize_DE/${pgprId}`}><Button disabled={DE?.status == "COMPLETED"? true: false} variant="contained" size="small" style={{width:"250px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>Finalize The Desk Evaluation</Button></Link> : ''
+                            }
                     </Box>
                 </>
             }

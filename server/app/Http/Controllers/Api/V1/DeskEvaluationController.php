@@ -144,7 +144,7 @@ class DeskEvaluationController extends Controller
     public function viewStandardWiseDetailsOfEachCriteriaInDE(ShowStandardWiseDetailsOfEachCriteriaRequest $request): JsonResponse
     {
         try {
-            $this -> authorize('viewStandardWiseDetailsOfEachCriteriaInDE', $request);
+            $this -> authorize('viewStandardWiseDetailsOfEachCriteriaInDE', [DeskEvaluation::class, $request]);
 
             $validated = $request->validated();
             $data = DB::table('desk_evaluation_score')
@@ -156,7 +156,7 @@ class DeskEvaluationController extends Controller
                     [
                         'desk_evaluation_score.desk_evaluation_id as deskEvaluationId',
                         'desk_evaluation_score.standard_id as standardId',
-                        'standard.standard_no as standardNo',
+                        'standards.standard_no as standardNo',
                         'desk_evaluation_score.comment as comment',
                         'desk_evaluation_score.de_score as score'
                     ]
@@ -180,7 +180,8 @@ class DeskEvaluationController extends Controller
 
 
         } catch (Exception $exception) {
-            return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+            // return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+            throw $exception;
         }
     }
 
@@ -194,7 +195,7 @@ class DeskEvaluationController extends Controller
     public function getDeskEvaluationRemarkAndScoreForStandard(ShowDeskEvaluationRemarksRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
-            $this -> authorize('getDeskEvaluationRemarkAndScoreForStandard', $request);
+            $this -> authorize('getDeskEvaluationRemarkAndScoreForStandard',[DeskEvaluation::class, $request]);
 
             $validated = $request->validated();
             $data = DB::table('desk_evaluation_score')->select([

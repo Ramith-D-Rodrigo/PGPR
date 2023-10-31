@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import getAllPGPRApplications from '../../api/PostGraduateProgramApplication/getAllPGPRApplications';
-import {Chip, CircularProgress, Divider, Typography} from '@mui/material';
+import { Chip, CircularProgress, Divider, Typography } from '@mui/material';
 import Paper from '@mui/material/Paper';
 import { Link } from 'react-router-dom';
 import DialogMenu from '../../components/DialogMenu';
@@ -14,34 +14,49 @@ const PostGraduateProgramReviewApplications = () => {
     const [pgprs, setPgprs] = useState([]);
     const [clickedApplicationId, setClickedApplicationId] = useState(null);
     const [openDialog, setOpenDialog] = useState([false, false, null]);   // [ submit , cancel, id ]
+    const [errorMsg, setErrorMsg] = useState("");
+    const [successMsg, setSuccessMsg] = useState("");
+    const [wait, setWait] = useState(false);
+
+    document.title = "PGPR Applications";
 
     useSetUserNavigations(
         [{
-          name: "Dashboard",
-          link: "/"
+            name: "Dashboard",
+            link: "/"
         },
         {
-          name: "Post Graduate Program Review Applications",
-          link: "/PGPRApplications"
+            name: "Post Graduate Program Review Applications",
+            link: "/PGPRApplications"
         },
         ]
-      );
+    );
 
     const handleApprove = async () => {
         const pgprApplicationID = openDialog[2];
         setClickedApplicationId(pgprApplicationID);
 
-        try{
+        try {
+            setWait(true);
+
             const approveResult = await approvePGPRApplicationByQAC(pgprApplicationID, 'approved');
 
-            if(approveResult.status === 200){
-                alert(approveResult.data.message);
+            setWait(false);
+            if (approveResult.status === 200) {
+                setSuccessMsg(approveResult.data.message);
+
+                //modify the pgpr application status
+                const newPgprs = [...pgprs];
+                const index = newPgprs.findIndex((pgpr) => pgpr.id === pgprApplicationID);
+                newPgprs[index].status = 'approved';
+                setPgprs(newPgprs);
                 setClickedApplicationId(null);
             }
         }
-        catch(error){
+        catch (error) {
             console.log(error);
-            alert(error.response.data.message);
+            setWait(false);
+            setErrorMsg(error.response.data.message);
             setClickedApplicationId(null);
         }
     }
@@ -50,19 +65,30 @@ const PostGraduateProgramReviewApplications = () => {
         const pgprApplicationID = openDialog[2];
         setClickedApplicationId(pgprApplicationID);
 
-        try{
-            const rejectResult = await approvePGPRApplicationByQAC(pgprApplicationID, 'rejected');
+        try {
+            setWait(true);
 
-            if(rejectResult.status === 200){
-                alert(rejectResult.data.message);
+            const rejectResult = await approvePGPRApplicationByQAC(pgprApplicationID, 'rejected');
+            setWait(false);
+            if (rejectResult.status === 200) {
+                setSuccessMsg(rejectResult.data.message);
+
+                //modify the pgpr application status
+                const newPgprs = [...pgprs];
+                const index = newPgprs.findIndex((pgpr) => pgpr.id === pgprApplicationID);
+                newPgprs[index].status = 'rejected';
+                setPgprs(newPgprs);
+
                 setClickedApplicationId(null);
             }
         }
-        catch(error){
-            console.log(error);
-            alert(error.response.data.message);
+        catch (error) {
+            setWait(false);
+            setErrorMsg(error.response.data.message);
             setClickedApplicationId(null);
         }
+
+
     }
 
     const handleClickReject = (id) => {
@@ -90,17 +116,17 @@ const PostGraduateProgramReviewApplications = () => {
 
     useEffect(() => {
         const getPGPRs = async () => {
-            try{
-                const pgprResult = await getAllPGPRApplications({includeUniversity: true, includeFaculty: true, includePostGraduateProgram: true});
+            try {
+                const pgprResult = await getAllPGPRApplications({ includeUniversity: true, includeFaculty: true, includePostGraduateProgram: true });
                 setPgprs(pgprResult.data.data);
                 console.log(pgprResult.data.data);
             }
-            catch(error){
+            catch (error) {
                 console.log(error);
             }
         }
         getPGPRs();
-    }, []);    
+    }, []);
 
     const handleLetterDownload = (e) => {
         console.log(e.target.value);
@@ -110,13 +136,43 @@ const PostGraduateProgramReviewApplications = () => {
 
     return (
         <>
-            <Divider textAlign='left' sx={{mb:2}}>
-                <Chip label="Post Graduate Program Review Applications"/>
+            <Snackbar
+                open={errorMsg == "" ? false : true}
+                anchorOrigin={{ vertical: "top", horizontal: "center" }}
+                onClose={() => setErrorMsg("")}
+            >
+                <Alert onClose={() => setErrorMsg("")} severity="error">
+                    {errorMsg}
+                </Alert>
+            </Snackbar>
+
+            <Snackbar
+                open={successMsg == "" ? false : true}
+                autoHideDuration={1500}
+                onClose={() => setSuccessMsg("")}
+                anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            >
+                <Alert onClose={() => setSuccessMsg("")} severity="success">
+                    {successMsg}
+                </Alert>
+            </Snackbar>
+
+            <Snackbar
+                open={wait}
+                anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            >
+                <Alert severity="info">
+                    Please wait...
+                </Alert>
+            </Snackbar>
+
+            <Divider textAlign='left' sx={{ mb: 2 }}>
+                <Chip label="Post Graduate Program Review Applications" />
             </Divider>
 
             <TableContainer component={Paper}>
                 <Table>
-                    <TableHead style={{backgroundColor:"#D8E6FC",}}>
+                    <TableHead style={{ backgroundColor: "#D8E6FC", }}>
                         <TableRow>
                             {columnHeaders.map((header) => (
                                 <TableCell key={header} align="center"><strong>{header}</strong></TableCell>
@@ -143,8 +199,8 @@ const PostGraduateProgramReviewApplications = () => {
                                 <TableCell align='center'>{row.status.toUpperCase()}</TableCell>
                                 <TableCell align='center'>
                                     <ButtonGroup>
-                                        <Button sx={{margin:"0 0.5rem"}} variant="contained" color="primary" disabled={row.status === 'approved' || row.status === 'rejected'} value={row.id} onClick={() => handleClickApprove(row.id)}>Approve</Button>
-                                        <Button sx={{margin:"0 0.5rem"}} variant="contained" color="primary" disabled={row.status === 'approved' || row.status === 'rejected'} value={row.id} onClick={() => handleClickReject(row.id)}>Reject</Button>
+                                        <Button sx={{ margin: "0 0.5rem" }} variant="contained" color="primary" disabled={row.status === 'approved' || row.status === 'rejected' || wait} value={row.id} onClick={() => handleClickApprove(row.id)}>Approve</Button>
+                                        <Button sx={{ margin: "0 0.5rem" }} variant="contained" color="primary" disabled={row.status === 'approved' || row.status === 'rejected' || wait} value={row.id} onClick={() => handleClickReject(row.id)}>Reject</Button>
                                     </ButtonGroup>
                                 </TableCell>
                             </TableRow>
@@ -154,12 +210,12 @@ const PostGraduateProgramReviewApplications = () => {
             </TableContainer>
 
             <DialogMenu
-                Message={`Are you sure that you want to ${openDialog[0]? "Approve" : "Reject"} this PostGraduate Program Review application?`}
-                Warning={`Once you ${openDialog[0]? "Approved" : "Rejected"} this application, you will not be able to Change this action again.`}
-                Actions={{cancel:"cancel", submit:openDialog[0]? "Approve" : "Reject"}}
-                Open={(openDialog[0] || openDialog[1])?? false}
-                onClose={()=>setOpenDialog(false, false, null)}
-                onSubmit={()=>{openDialog[0]? handleApprove() : handleReject(); setOpenDialog(false, false, null)}}
+                Message={`Are you sure that you want to ${openDialog[0] ? "Approve" : "Reject"} this PostGraduate Program Review application?`}
+                Warning={`Once you ${openDialog[0] ? "Approved" : "Rejected"} this application, you will not be able to Change this action again.`}
+                Actions={{ cancel: "cancel", submit: openDialog[0] ? "Approve" : "Reject" }}
+                Open={(openDialog[0] || openDialog[1]) ?? false}
+                onClose={() => setOpenDialog(false, false, null)}
+                onSubmit={() => { openDialog[0] ? handleApprove() : handleReject(); setOpenDialog(false, false, null) }}
             />
 
         </>

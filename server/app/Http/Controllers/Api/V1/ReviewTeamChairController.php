@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\V1\SetDatesForPE1Request;
 use App\Http\Requests\V1\SetDatesForPE2Request;
 use App\Http\Requests\V1\ShowDEScoresOfReviewTeamRequest;
+use App\Http\Requests\V1\ShowDEScoresOfTeamMemberRequest;
 use App\Http\Requests\V1\ShowFinalReportRequest;
 use App\Http\Requests\V1\ShowPEScoresOfReviewTeamRequest;
 use App\Http\Requests\V1\ShowPreliminaryReportRequest;
@@ -21,21 +22,25 @@ use App\Http\Requests\V1\UploadPreliminaryReportRequest;
 use App\Http\Resources\V1\ReviewTeamResource;
 use App\Mail\InformEvaluationSubmissionToOfficials;
 use App\Mail\InformReportUploadsToOfficials;
+use App\Models\Criteria;
 use App\Models\DeskEvaluation;
 use App\Models\PostGraduateProgramReview;
 use App\Models\ProperEvaluation;
 use App\Models\ProperEvaluation1;
+use App\Models\Reviewer;
 use App\Models\ReviewTeam;
 use App\Models\User;
 use App\Services\V1\ScoreCalculationService;
 use App\Services\V1\StandardService;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -67,6 +72,8 @@ class ReviewTeamChairController extends Controller
     {
 
         try {
+            Gate::authorize('assignReviewTeamMembersCriteriaForProperEvaluationAuthorize', [$request]);
+
             $validated = $request->validated();
             $reviewTeam = ReviewTeam::findOrFail($validated['review_team_id']);
 
@@ -77,6 +84,7 @@ class ReviewTeamChairController extends Controller
             }
 
             DB::beginTransaction();
+
             foreach ($validated['reviewers'] as $reviewer) {
                 //first remove all the previous assignments
                 DB::table('review_team_set_criterias')
@@ -98,8 +106,10 @@ class ReviewTeamChairController extends Controller
 
             DB::commit();
             return response()->json(['message' => 'Criteria were successfully assigned.']);
-        } catch (ModelNotFoundException $exception) {
-            return response()->json(['message' => 'The review team that you requested is not amongst our record, please check and retry'], 500);
+        }
+        catch(AuthorizationException $e){
+            return response()->json(['message' => $e->getMessage()], 403);
+
         } catch (Exception $exception) {
             DB::rollBack();
             return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
@@ -119,13 +129,12 @@ class ReviewTeamChairController extends Controller
             // Get all reviewer ids in your team
             $reviewer_ids = DB::table('reviewer_review_teams')
                 ->where([
-                    'review_team_id' => $validated['review_team_id'],
-                    'role' => 'MEMBER',
+                    'review_team_id' => $validated['review_team_id']
                 ])
                 ->pluck('reviewer_id');
 
             $reviewTeam = ReviewTeam::find($validated['review_team_id']);
-            $pgp = $reviewTeam->postGraduateProgramReview->postGraduateProgram;
+            $pgp = $reviewTeam->postGraduateReviewProgram->postGraduateProgram;
             $data = [];
 
             foreach ($reviewer_ids as $reviewer_id) {
@@ -146,12 +155,12 @@ class ReviewTeamChairController extends Controller
                     ));
 
                     // Count the number of evaluated standards for this criteria
-                    $evaluated_standards = DB::table('desk_evaluation_scores')
-                        ->join('standards', 'desk_evaluation_scores.standard_id', '=', 'standards.id')
+                    $evaluated_standards = DB::table('desk_evaluation_score')
+                        ->join('standards', 'desk_evaluation_score.standard_id', '=', 'standards.id')
                         ->where([
                             'standards.criteria_id' => $criteria_id,
-                            'desk_evaluation_scores.desk_evaluation_id' => $validated['desk_evaluation_id'],
-                            'desk_evaluation_scores.reviewer_id' => $reviewer_id
+                            'desk_evaluation_score.desk_evaluation_id' => $validated['desk_evaluation_id'],
+                            'desk_evaluation_score.reviewer_id' => $reviewer_id
                         ])
                         ->count();
 
@@ -194,7 +203,7 @@ class ReviewTeamChairController extends Controller
                 ->pluck('reviewer_id');
 
             $reviewTeam = ReviewTeam::find($validated['review_team_id']);
-            $pgp = $reviewTeam->postGraduateProgramReview->postGraduateProgram;
+            $pgp = $reviewTeam->postGraduateReviewProgram->postGraduateProgram;
             $data = [];
 
             foreach ($reviewer_ids as $reviewer_id) {
@@ -262,6 +271,9 @@ class ReviewTeamChairController extends Controller
     public function submitDeskEvaluation(UpdateReviewChairSubmitDERequest $request): \Illuminate\Http\JsonResponse
     {
         try {
+            Gate::authorize('submitDeskEvaluationAuthorize', [$request]);
+
+
             $validated = $request->validated();
             if (self::canSubmitDeskEvaluation($validated['pgpr_id'])) {
                 // the desk evaluation can be submitted
@@ -296,7 +308,7 @@ class ReviewTeamChairController extends Controller
                 $programCoordinator = User::find($pgp->programme_coordinator_id);
                 $faculty = $pgp->faculty;
                 $university = $faculty->university;
-                $dean = User::find($faculty->dean->id);
+                $dean = User::find($faculty->currentDean->id);
 
                 // qac dir
                 Mail::to(
@@ -350,6 +362,9 @@ class ReviewTeamChairController extends Controller
                 'message' => 'The desk evaluation cannot be submitted yet, there are some inconsistencies with the scores provided by the review team, please check the progress.',
                 'data' => []
             ]);
+
+        } catch (AuthorizationException $e) {
+            return response()->json(['message' => $e->getMessage()], 403);
         } catch (Exception $exception) {
             DB::rollBack();
             return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
@@ -406,6 +421,8 @@ class ReviewTeamChairController extends Controller
     public function submitProperEvaluation(UpdateReviewChairSubmitPERequest $request): \Illuminate\Http\JsonResponse
     {
         try {
+            Gate::authorize('submitProperEvaluationAuthorize', [$request]);
+
             $validated = $request->validated();
             if (self::canSubmitProperEvaluation($validated['pgpr_id'])) {
                 // the proper evaluation can be submitted
@@ -419,7 +436,7 @@ class ReviewTeamChairController extends Controller
                 $programCoordinator = User::find($pgp->programme_coordinator_id);
                 $faculty = $pgp->faculty;
                 $university = $faculty->university;
-                $dean = User::find($faculty->dean->id);
+                $dean = User::find($faculty->currentDean->id);
 
                 DB::beginTransaction();
 
@@ -480,6 +497,9 @@ class ReviewTeamChairController extends Controller
                 'message' => 'The proper evaluation cannot be submitted yet, there are some inconsistencies with the scores provided by the review team, please check the progress.',
                 'data' => []
             ]);
+        } catch (AuthorizationException $e) {
+            return response()->json(['message' => $e->getMessage()], 403);
+
         } catch (Exception $exception) {
             DB::rollBack();
             return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
@@ -525,7 +545,7 @@ class ReviewTeamChairController extends Controller
 
     /**
      *
-     * review chair can view summary of proper evaluation grades of each member of the team(including himself)
+     * review chair can view summary of desk evaluation grades of each member of the team(including himself)
      * /{pgpr}/{criteria}/{standard}
      *
      */
@@ -554,10 +574,103 @@ class ReviewTeamChairController extends Controller
         }
     }
 
-
     /**
      *
      * review chair can view summary of desk evaluation grades of each member of the team(including himself)
+     *  /{pgpr}/{reviewer}/{criteria}/{standard}
+     *               or
+     *  /{pgpr}/{reviewer}
+     *              or
+     *   /{pgpr}/{reviewer}/{criteria}
+     */
+    public function viewDEScoresOfTeamMember(ShowDEScoresOfTeamMemberRequest $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $validated = $request->validated();
+            $postGraduateProgramReview = PostGraduateProgramReview::find($validated['pgpr_id']);
+            $deskEvaluation = $postGraduateProgramReview->deskEvaluations;
+
+            if ($deskEvaluation) {
+                $data = [];
+                if (array_key_exists('criteria_id', $validated)) {
+                    if (array_key_exists('standard_id', $validated)) {
+                        $data = DB::table('desk_evaluation_score')
+                            ->join('standards', 'desk_evaluation_score.standard_id', '=', 'standards.id')
+                            ->join('criterias', 'standards.criteria_id', '=', 'criterias.id')
+                            ->join('users', 'users.id', '=', 'desk_evaluation_scores.reviewer_id')
+                            ->where('desk_evaluation_score.desk_evaluation_id', $deskEvaluation->id)
+                            ->where('desk_evaluation_score.reviewer_id', $validated['reviewer_id'])
+                            ->where('desk_evaluation_score.standard_id', $validated['standard_id'])
+                            ->where('criterias.id', $validated['criteria_id'])
+                            ->select(
+                                'users.full_name as reviewerFullName',
+                                'desk_evaluation_score.reviewer_id as reviewerId',
+                                'standards.standard_no as standardNo',
+                                'standards.description as standardDescription',
+                                'desk_evaluation_score.de_score as deScore',
+                                'desk_evaluation_score.comment as comment',
+                            )
+                            ->get();
+                    } else {
+                        $standardIds = Criteria::find($validated['criteria_id'])->standards->pluck('id');
+                        $reviewerName = Reviewer::find($validated['reviewer_id'])->user->full_name;
+                        $data['reviewerName'] = $reviewerName;
+                        $data['scores'] = DB::table('desk_evaluation_score')
+                            ->join('standards', 'desk_evaluation_score.standard_id', '=', 'standards.id')
+                            ->join('criterias', 'standards.criteria_id', '=', 'criterias.id')
+                            ->where('desk_evaluation_score.desk_evaluation_id', $deskEvaluation->id)
+                            ->where('desk_evaluation_score.reviewer_id', $validated['reviewer_id'])
+                            ->whereIn('desk_evaluation_score.standard_id', $standardIds)
+                            ->select(
+                                'desk_evaluation_score.reviewer_id as reviewerId',
+                                'standards.standard_no as standardNo',
+                                'standards.description as standardDescription',
+                                'desk_evaluation_score.de_score as deScore',
+                                'desk_evaluation_score.comment as comment',
+                            )
+                            ->get();
+                    }
+                }else {
+                    $criteriaIds = DB::table('criterias')->pluck('id');
+                    $reviewerName = Reviewer::find($validated['reviewer_id'])->user->full_name;
+                    $data['scores'] =[];
+                    foreach ($criteriaIds as $criteriaId) {
+                        $standardIds = Criteria::find($criteriaId)->standards->pluck('id');
+
+                        $data['scores'][] = DB::table('desk_evaluation_score')
+                            ->join('standards', 'criterias.id', '=', 'standards.criteria_id')
+                            ->join('criterias', 'standards.criteria_id', '=', 'criterias.id')
+                            ->where('desk_evaluation_score.desk_evaluation_id', $deskEvaluation->id)
+                            ->where('desk_evaluation_score.reviewer_id', $validated['reviewer_id'])
+                            ->whereIn('desk_evaluation_score.standard_id', $standardIds)
+                            ->select(
+                                'desk_evaluation_score.reviewer_id as reviewerId',
+                                'standards.standard_no as standardNo',
+                                'standards.description as standardDescription',
+                                'desk_evaluation_score.de_score as deScore',
+                                'desk_evaluation_score.comment as comment',
+                            )
+                            ->get();
+                    }
+
+                }
+                return response()->json(['message' => 'Successful', 'data' => $data]);
+            } else {
+                return response()->json(
+                    ['message' => 'Desk evaluation for this postgraduate program is not scheduled yet, will be informed when scheduled'],
+                    422
+                );
+            }
+        } catch (Exception $exception) {
+            // return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+            throw $exception;
+        }
+    }
+
+
+    /**
+     *
+     * review chair can view summary of proper evaluation grades of each member of the team(including himself)
      * /{pgpr}/{criteria}/{standard}
      *
      */
@@ -596,9 +709,11 @@ class ReviewTeamChairController extends Controller
      *           score: 0 <= x <= 3
      *       }
      */
-    public function updateDEScoresOfEachStandard(StoreConductDeskEvaluationRequest $request): \Illuminate\Http\JsonResponse
+    public function updatePEScoresOfEachStandard(StoreConductProperEvaluationRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
+            Gate::authorize('updatePEScoresOfEachStandardAuthorize', [$request]);
+
             $validated = $request->validated();
             $postGraduateReviewProgram = PostGraduateProgramReview::findOrFail($validated['pgpr_id']);
             $properEvaluation = $postGraduateReviewProgram->properEvaluation;
@@ -616,6 +731,10 @@ class ReviewTeamChairController extends Controller
                     422
                 );
             }
+        }
+        catch(AuthorizationException $e){
+            return response()->json(['message' => $e->getMessage()], 403);
+
         } catch (ModelNotFoundException $exception) {
             return response()->json(
                 ['message' => 'We could find the requested post graduate review program, please check and retry'],
@@ -636,9 +755,11 @@ class ReviewTeamChairController extends Controller
      *           score: 0 <= x <= 3
      *       }
      */
-    public function updatePEScoresOfEachStandard(StoreConductProperEvaluationRequest $request): \Illuminate\Http\JsonResponse
+    public function updateDEScoresOfEachStandard(StoreConductDeskEvaluationRequest $request): \Illuminate\Http\JsonResponse
     {
         try {
+            Gate::authorize('updateDEScoresOfEachStandardAuthorize', [$request]);
+
             $validated = $request->validated();
             $postGraduateReviewProgram = PostGraduateProgramReview::findOrFail($validated['pgpr_id']);
             $deskEvaluation = $postGraduateReviewProgram->deskEvaluation;
@@ -656,6 +777,9 @@ class ReviewTeamChairController extends Controller
                     422
                 );
             }
+        }catch(AuthorizationException $e){
+            return response()->json(['message' => $e->getMessage()], 403);
+
         } catch (ModelNotFoundException $exception) {
             return response()->json(
                 ['message' => 'We could find the requested post graduate review program, please check and retry'],
@@ -705,7 +829,7 @@ class ReviewTeamChairController extends Controller
             $programCoordinator = User::find($pgp->programme_coordinator_id);
             $faculty = $pgp->faculty;
             $university = $faculty->university;
-            $dean = User::find($faculty->dean->id);
+            $dean = User::find($faculty->currentDean->id);
 
             // qac director
             Mail::to($qacDir->official_email)->send(
@@ -793,7 +917,7 @@ class ReviewTeamChairController extends Controller
             $programCoordinator = User::find($pgp->programme_coordinator_id);
             $faculty = $pgp->faculty;
             $university = $faculty->university;
-            $dean = User::find($faculty->dean->id);
+            $dean = User::find($faculty->currentDean->id);
 
             // qac director
             Mail::to($qacDir->official_email)->send(
@@ -893,7 +1017,7 @@ class ReviewTeamChairController extends Controller
             $programCoordinator = User::find($pgp->programme_coordinator_id);
             $faculty = $pgp->faculty;
             $university = $faculty->university;
-            $dean = User::find($faculty->dean->id);
+            $dean = User::find($faculty->currentDean->id);
 
             // qac director
             Mail::to($qacDir->official_email)->send(
@@ -996,7 +1120,7 @@ class ReviewTeamChairController extends Controller
             $programCoordinator = User::find($pgp->programme_coordinator_id);
             $faculty = $pgp->faculty;
             $university = $faculty->university;
-            $dean = User::find($faculty->dean->id);
+            $dean = User::find($faculty->currentDean->id);
 
             // qac director
             Mail::to($qacDir->official_email)->send(
@@ -1063,6 +1187,7 @@ class ReviewTeamChairController extends Controller
         try {
             $validated = $request->validated();
             $properEvaluation1 = PostGraduateProgramReview::find($validated['pgpr_id'])->properEvaluations->properEvaluation1;
+            unset($validated['pgpr_id']);
             $properEvaluation1->update($validated);
             return response()->json(['message' => 'The update operation was successful']);
         } catch (Exception $exception) {
@@ -1083,6 +1208,7 @@ class ReviewTeamChairController extends Controller
         try {
             $validated = $request->validated();
             $properEvaluation2 = PostGraduateProgramReview::find($validated['pgpr_id'])->properEvaluations->properEvaluation2;
+            unset($validated['pgpr_id']);
             $properEvaluation2->update($validated);
             return response()->json(['message' => 'The update operation was successful']);
         } catch (Exception $exception) {

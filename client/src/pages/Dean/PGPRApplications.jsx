@@ -1,5 +1,5 @@
 import useSetUserNavigations from '../../hooks/useSetUserNavigations';
-import {CircularProgress, Typography} from '@mui/material';
+import {Chip, CircularProgress, Divider, Typography} from '@mui/material';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell, { tableCellClasses } from '@mui/material/TableCell';
@@ -35,9 +35,14 @@ function PGPRApplications() {
     useSetUserNavigations(
         [
             {
+                name: "Dashboard",
+                link: "/"
+            },
+            {
               name: "PGPR Applications",
               link: "/PGPRApplications"
             },
+            
           
         ]
     );
@@ -62,7 +67,7 @@ function PGPRApplications() {
         
         try{
             await axios.get("/sanctum/csrf-cookie");
-            const pgprResult = await getAllPGPRApplications();
+            const pgprResult = await getAllPGPRApplications({includePostGraduateProgram:true});
             console.log(pgprResult.data.data);
             setPGPRApplications(pgprResult?.data?.data);
         }
@@ -125,12 +130,18 @@ function PGPRApplications() {
             disableViewBTN = {disabled:false}
         }
         return {
-            id: "PGPRApplic..."+pgprApplication.id,
+            id: pgprApplication.id,
             applicationDate: pgprApplication.applicationDate,
             status: pgprApplication.status,
             intentLetter: pgprApplication.intentLetter==null? "Not Uploaded Yet" : "Uploaded",
+            postGraduateProgram: pgprApplication.postGraduateProgram,
+            year1: pgprApplication.year1,
+            year2: pgprApplication.year2,
+            year3: pgprApplication.year3,
+            year4: pgprApplication.year4,
+            year5: pgprApplication.year5,
+            year5EndDate: pgprApplication.yEnd,
             Actions: [
-                <Link key={1} to={`view/${pgprApplication.id}`}><Button variant="contained" style={{margin:"0 0 0 1rem",boxShadow:'2px 3px 8px 1px #888888'}}>View</Button></Link>,
                 <Link key={2} to={disableBTNs.disabled? '':`edit/${pgprApplication.id}`}><Button {...disableBTNs} variant="contained" style={{margin:"0 0 0 1rem",boxShadow:'2px 3px 8px 1px #888888'}}>Edit</Button></Link>,
                 <Button key={3} {...disableBTNs} {...disableViewBTN} variant="contained" style={{margin:"0 0 0 1rem",boxShadow:'2px 3px 8px 1px #888888'}} onClick={()=>handleClickOpen(pgprApplication)}>Submit</Button>
             ],
@@ -139,6 +150,11 @@ function PGPRApplications() {
 
     return (
         <>
+
+            <Divider textAlign='left' sx={{mb: '1rem'}}>
+                <Chip label="Postgraduate Programme Review Applications"/>
+            </Divider>
+
             {loading &&
                 <div style={{position:'absolute',left:0,margin:"0 auto",display:"flex",justifyContent:"center",alignItems:"center"}}> 
                     <Typography variant="h6" style={{ margin: "0 0 0 20px" }}>
@@ -151,9 +167,7 @@ function PGPRApplications() {
                     />
                 </div>
             }
-            <Typography align='center' fontWeight={600} variant="h5" gutterBottom component="div" style={{marginRight:'20px'}}>
-                Postgraduate programme review Applications
-            </Typography>
+
             <Box sx={{
                 display:'flex',alignItems:'center',justifyContent:'flex-end',
             }}>
@@ -167,7 +181,14 @@ function PGPRApplications() {
                     <TableHead style={{backgroundColor:"#D8E6FC",}}>
                         <TableRow>
                         <TableCell><b>PGPR Application ID</b></TableCell>
+                        <TableCell><b>Postgraduate Programme</b></TableCell>
                         <TableCell align="center"><b>Intent Letter</b></TableCell>
+                        <TableCell align="center"><b>Year 1</b></TableCell>
+                        <TableCell align="center"><b>Year 2</b></TableCell>
+                        <TableCell align="center"><b>Year 3</b></TableCell>
+                        <TableCell align="center"><b>Year 4</b></TableCell>
+                        <TableCell align="center"><b>Year 5</b></TableCell>
+                        <TableCell align="center"><b>Year 5 End Date</b></TableCell>
                         <TableCell align="center"><b>Status</b></TableCell>
                         <TableCell align="center"><b>Actions</b></TableCell>
                         </TableRow>
@@ -178,11 +199,20 @@ function PGPRApplications() {
                             key={index}
                             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                             >
-                                <TableCell component="th" scope="row">
+                                <TableCell>
                                     {row.id}
                                 </TableCell>
+                                <TableCell>
+                                    {row.postGraduateProgram.title}
+                                </TableCell>
                                 <TableCell align="center">{row.intentLetter}</TableCell>
-                                <TableCell align="center">{row.status}</TableCell>
+                                <TableCell align="center">{row.year1}</TableCell>
+                                <TableCell align="center">{row.year2}</TableCell>
+                                <TableCell align="center">{row.year3}</TableCell>
+                                <TableCell align="center">{row.year4}</TableCell>
+                                <TableCell align="center">{row.year5}</TableCell>
+                                <TableCell align="center">{row.year5EndDate}</TableCell>
+                                <TableCell align="center">{row.status.toUpperCase()}</TableCell>
                                 <TableCell align="center">{row.Actions}</TableCell>
                             </TableRow>
                         ))}

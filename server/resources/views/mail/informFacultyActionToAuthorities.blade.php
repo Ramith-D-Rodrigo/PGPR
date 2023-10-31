@@ -8,10 +8,15 @@ Sir/Madam,<br>
 @endif
 
 Faculty details:<br>
-    Faculty name: {{$faculty->name}}<br>
+    Faculty name: {{$facultyInfo->name}}<br>
     University name: {{$university->name}}<br>
-    Faculty address: {{$faculty->address}}<br>
-    Faculty contact information: {{json_decode($faculty->contact_no)}}<br>
+    Faculty address: {{$facultyInfo->address}}<br>
+    Faculty contact information:
+        @foreach (json_decode($facultyInfo -> contact_no, true)['data'] as $contactInfo)
+            {{$contactInfo}}<br>
+        @endforeach
+
+    <br>
 
 You can find more details regarding this on our platform. <br>
 Thank you.<br>

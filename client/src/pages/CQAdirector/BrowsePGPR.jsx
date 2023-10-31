@@ -28,6 +28,9 @@ import getDean from "../../api/Dean/getDean";
 import recommendPGPRApplicationByCQADirector from "../../api/PostGraduateProgramApplication/recommendPGPRApplicationByCQA";
 import useSetUserNavigations from "../../hooks/useSetUserNavigations";
 import { SERVER_URL } from "../../assets/constants";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
+
 
 // Sample data (you can replace this with your actual data)
 
@@ -36,7 +39,6 @@ const CustomTable = ({
   openDetailsDialog,
   handleRecommendClick,
   isRecommendButtonDisabledArray, // Add this prop
-  recommendationMessage,
 }) => {
   return (
     <div className="mt-6">
@@ -90,28 +92,18 @@ const CustomTable = ({
                       View Details
                     </Button>
                     {
-                      row.status === "submitted" &&
+                      
                       <Button
                         style={{ margin: "0 8px" }}
                         variant="contained"
                         color="primary"
                         size="small"
                         onClick={() => handleRecommendClick(row, index)} // Pass the index
-                        disabled={isRecommendButtonDisabledArray[index]} // Use the array value
+                        disabled={row.status !== "submitted"} // Use the array value
                       >
                         Recommend
                       </Button>
                     }
-                    {recommendationMessage === "Recommended" && (
-                      <div
-                        style={{
-                          marginTop: "8px",
-                          color: "green",
-                        }}
-                      >
-                        Recommended
-                      </div>
-                    )}
                   </TableCell>
                 </TableRow>
               ))}
@@ -130,8 +122,11 @@ const BrowsePGPR = () => {
   const [selectedPGPR, setSelectedPGPR] = useState(null); // State to store selected PGPR application
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false); // State to manage dialog open/close
   const [isRecommendButtonDisabledArray, setIsRecommendButtonDisabledArray] = useState(Array(tableData.length).fill(false));
-  const [recommendationMessage, setRecommendationMessage] = useState("");
   const { auth } = useAuth();
+  const [errorMsg, setErrorMsg] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
+  const [wait, setWait] = useState(false);
+
 
   useSetUserNavigations([
     {
@@ -153,22 +148,23 @@ const BrowsePGPR = () => {
     });
 
     try {
+      setWait(true);
 
       const response = await recommendPGPRApplicationByCQADirector(pgpr.id);
 
       if (response.status === 200) {
         // Recommendation was successful
-        setRecommendationMessage("Recommended");
+        setSuccessMsg(response.data.message);
       } else {
         // Recommendation failed
-        setRecommendationMessage("Recommendation Failed");
+        setErrorMsg(response.data.message);
       }
     } catch (error) {
-
-      console.error("Recommendation Error:", error);
-      setRecommendationMessage("Recommendation Failed");
+      console.error("Error recommending PGPR application:", error);
+      setErrorMsg(error.response.data.message);
     } finally {
 
+      setWait(false);
       setIsRecommendButtonDisabledArray((prevArray) => {
         const newArray = [...prevArray];
         newArray[rowIndex] = false;
@@ -239,8 +235,42 @@ const BrowsePGPR = () => {
     fetchData();
   }, []);
 
+  const downloadIntentLetter = () => {
+    window.open(SERVER_URL.slice(0, -1) + selectedPGPR.intentLetter);
+  };
+
   return (
     <>
+      <Snackbar
+        open={errorMsg == "" ? false : true}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        onClose={() => setErrorMsg("")}
+      >
+        <Alert onClose={() => setErrorMsg("")} severity="error">
+          {errorMsg}
+        </Alert>
+      </Snackbar>
+
+      <Snackbar
+        open={successMsg == "" ? false : true}
+        autoHideDuration={1500}
+        onClose={() => setSuccessMsg("")}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert onClose={() => setSuccessMsg("")} severity="success">
+          {successMsg}
+        </Alert>
+      </Snackbar>
+
+      <Snackbar
+        open={wait}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert severity="info">
+          Please wait...
+        </Alert>
+      </Snackbar>
+
       <Divider textAlign="left">
         <Chip label="Browse PGPR Applications" />
       </Divider>
@@ -267,7 +297,6 @@ const BrowsePGPR = () => {
             openDetailsDialog={openDetailsDialog}
             handleRecommendClick={handleRecommendClick}
             isRecommendButtonDisabledArray={isRecommendButtonDisabledArray} // Pass the array as a prop
-            recommendationMessage={recommendationMessage}
           />
         )}
       </>
@@ -277,7 +306,7 @@ const BrowsePGPR = () => {
         open={isDetailsDialogOpen}
         onClose={() => setIsDetailsDialogOpen(false)}
         fullWidth
-         // You can adjust the width as needed
+      // You can adjust the width as needed
       >
         {selectedPGPR && (
           <>
@@ -396,15 +425,9 @@ const BrowsePGPR = () => {
               </div>
               {/* Add a button to download intent letter */}
               <div style={{ textAlign: "center" }}>
-                <a
-                  href={SERVER_URL.slice(0, -1) + selectedPGPR.intentLetter}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Button variant="contained" color="primary">
-                    Download Intent Letter
-                  </Button>
-                </a>
+                <Button variant="contained" color="primary" onClick={downloadIntentLetter}>
+                  Download Intent Letter
+                </Button>
               </div>
             </DialogContent>
           </>

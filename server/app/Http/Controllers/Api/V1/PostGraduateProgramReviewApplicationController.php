@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Filters\V1\PostGraduateProgramReviewApplicationFilter;
 use App\Http\Resources\V1\PostGraduateProgramReviewApplicationCollection;
+use App\Mail\InformPostGraduateProgramActionToAuthorities;
+use App\Mail\InformPostGraduateProgramReviewActionToAuthorities;
 use App\Models\PostGraduateProgramReview;
 use App\Models\PostGraduateProgramReviewApplication;
 use App\Http\Requests\V1\StorePostGraduateProgramReviewApplicationRequest;
@@ -11,11 +13,13 @@ use App\Http\Requests\V1\UpdatePostGraduateProgramReviewApplicationRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\V1\PostGraduateProgramReviewApplicationResource;
 use App\Models\SelfEvaluationReport;
+use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 class PostGraduateProgramReviewApplicationController extends Controller
 {
@@ -91,16 +95,75 @@ class PostGraduateProgramReviewApplicationController extends Controller
             //authorize the action
             $this -> authorize('create', [PostGraduateProgramReviewApplication::class, $request]);
 
-            // TODO: inform the dean, vice chancellor, iqau, cqa director, program coordinator.
+            DB::beginTransaction();
+            $postGraduateProgramReviewApplication = PostGraduateProgramReviewApplication::create($request->validated());
 
-            return new PostGraduateProgramReviewApplicationResource(
-                PostGraduateProgramReviewApplication::create($request->validated())
+            $postGraduateProgram = $postGraduateProgramReviewApplication->postGraduateProgram;
+            $faculty = $postGraduateProgram->faculty;
+            $university = $faculty->university;
+
+            $dean = User::find($postGraduateProgramReviewApplication->deans->id);
+            $viceChancellor = User::find($university->viceChancellor->id);
+            $iqauDirector = User::find($faculty->internalQualityAssuranceUnit->internalQualityAssuranceUnitDirector->id);
+            $cqaDirector = User::find($university->centerForQualityAssurance->currentQualityAssuranceDirector->id);
+
+            Mail::to($dean->official_email)->send(
+                new InformPostGraduateProgramReviewActionToAuthorities(
+                    user: $dean,
+                    action: 'CREATED',
+                    faculty: $faculty,
+                    university: $university,
+                    postGraduateProgram: $postGraduateProgram,
+                    subject: 'A New Postgraduate Program Review Application Created',
+                    content: 'mail.informPostGraduateProgramReviewApplicationActionToAuthorities'
+                )
             );
+
+            Mail::to($iqauDirector->official_email)->send(
+                new InformPostGraduateProgramReviewActionToAuthorities(
+                    user: $iqauDirector,
+                    action: 'CREATED',
+                    faculty: $faculty,
+                    university: $university,
+                    postGraduateProgram: $postGraduateProgram,
+                    subject: 'A New Postgraduate Program Review Application Created',
+                    content: 'mail.informPostGraduateProgramReviewApplicationActionToAuthorities'
+                )
+            );
+
+            Mail::to($cqaDirector->official_email)->send(
+                new InformPostGraduateProgramReviewActionToAuthorities(
+                    user: $cqaDirector,
+                    action: 'CREATED',
+                    faculty: $faculty,
+                    university: $university,
+                    postGraduateProgram: $postGraduateProgram,
+                    subject: 'A New Postgraduate Program Review Application Created',
+                    content: 'mail.informPostGraduateProgramReviewApplicationActionToAuthorities'
+                )
+            );
+
+            Mail::to($viceChancellor->official_email)->send(
+                new InformPostGraduateProgramReviewActionToAuthorities(
+                    user: $viceChancellor,
+                    action: 'CREATED',
+                    faculty: $faculty,
+                    university: $university,
+                    postGraduateProgram: $postGraduateProgram,
+                    subject: 'A New Postgraduate Program Review Application Created',
+                    content: 'mail.informPostGraduateProgramReviewApplicationActionToAuthorities'
+                )
+            );
+
+            DB::commit();
+
+            return new PostGraduateProgramReviewApplicationResource($postGraduateProgramReviewApplication);
         }
         catch(AuthorizationException $e){
             return response() -> json(['message' => $e -> getMessage()], 403);
         }
         catch(\Exception $e){
+            DB::rollBack();
             return response() -> json(['message' => $e -> getMessage()], 500);
         }
     }
@@ -190,7 +253,67 @@ class PostGraduateProgramReviewApplicationController extends Controller
             }
 
             //update the model
+            DB::beginTransaction();
             $pgprApplication -> update($validatedData);
+
+            $postGraduateProgram = $pgprApplication->postGraduateProgram;
+            $faculty = $postGraduateProgram->faculty;
+            $university = $faculty->university;
+
+            $dean = User::find($faculty->currentDean->id);
+            $viceChancellor = User::find($university->viceChancellor->id);
+            $iqauDirector = User::find($faculty->internalQualityAssuranceUnit->internalQualityAssuranceUnitDirector->id);
+            $cqaDirector = User::find($university->centerForQualityAssurance->currentQualityAssuranceDirector->id);
+
+            Mail::to($dean->official_email)->send(
+                new InformPostGraduateProgramReviewActionToAuthorities(
+                    user: $dean,
+                    action: 'UPDATED',
+                    faculty: $faculty,
+                    university: $university,
+                    postGraduateProgram: $postGraduateProgram,
+                    subject: 'An Existing Postgraduate Program Review Application was updated',
+                    content: 'mail.informPostGraduateProgramReviewApplicationActionToAuthorities'
+                )
+            );
+
+            Mail::to($iqauDirector->official_email)->send(
+                new InformPostGraduateProgramReviewActionToAuthorities(
+                    user: $iqauDirector,
+                    action: 'UPDATED',
+                    faculty: $faculty,
+                    university: $university,
+                    postGraduateProgram: $postGraduateProgram,
+                    subject: 'An Existing Postgraduate Program Review Application was updated',
+                    content: 'mail.informPostGraduateProgramReviewApplicationActionToAuthorities'
+                )
+            );
+
+            Mail::to($cqaDirector->official_email)->send(
+                new InformPostGraduateProgramReviewActionToAuthorities(
+                    user: $cqaDirector,
+                    action: 'UPDATED',
+                    faculty: $faculty,
+                    university: $university,
+                    postGraduateProgram: $postGraduateProgram,
+                    subject: 'An Existing Postgraduate Program Review Application was updated',
+                    content: 'mail.informPostGraduateProgramReviewApplicationActionToAuthorities'
+                )
+            );
+
+            Mail::to($viceChancellor->official_email)->send(
+                new InformPostGraduateProgramReviewActionToAuthorities(
+                    user: $viceChancellor,
+                    action: 'UPDATED',
+                    faculty: $faculty,
+                    university: $university,
+                    postGraduateProgram: $postGraduateProgram,
+                    subject: 'An Existing Postgraduate Program Review Application was updated',
+                    content: 'mail.informPostGraduateProgramReviewApplicationActionToAuthorities'
+                )
+            );
+
+            DB::commit();
 
             return response()->json(['message' => 'Post graduate program review application updated successfully.'], 200);
         }
@@ -198,6 +321,7 @@ class PostGraduateProgramReviewApplicationController extends Controller
             return response()->json(['message' => $e -> getMessage()], 403);
         }
         catch(\Exception $e){
+            DB::rollBack();
             return response()->json(['message' => 'Error updating post graduate program review application.',
                 'error' => $e->getMessage()]
             , 400);
@@ -217,6 +341,26 @@ class PostGraduateProgramReviewApplicationController extends Controller
 
             $pgprApplication -> update(['request_date' => today() -> toDateString(), 'status' => 'submitted']);
 
+            // TODO: Inform CQA DIR
+            $postGraduateProgram = $pgprApplication->postGraduateProgram;
+            $faculty = $postGraduateProgram->faculty;
+            $university = $faculty->university;
+
+            $cqaDirector = User::find($university->centerForQualityAssurance->currentQualityAssuranceDirector->id);
+
+            Mail::to($cqaDirector->official_email)->send(
+                new InformPostGraduateProgramReviewActionToAuthorities(
+                    user: $cqaDirector,
+                    action: 'SUBMITTED_FOR_CQA_DIR_APPROVAL',
+                    faculty: $faculty,
+                    university: $university,
+                    postGraduateProgram: $postGraduateProgram,
+                    subject: 'A Postgraduate Program Review Application was submitted for approval',
+                    content: 'mail.informPostGraduateProgramReviewApplicationActionToAuthorities'
+                )
+            );
+
+
             return response()->json(['message' => 'Post graduate program review application submitted successfully.'], 200);
         }
         catch(AuthorizationException $e){
@@ -235,7 +379,32 @@ class PostGraduateProgramReviewApplicationController extends Controller
             //authorize the cqa director
             $this -> authorize('cqaDirectorRecommendationAuthorize', $pgprApplication);
 
+            DB::beginTransaction();
+
             $pgprApplication -> update(['application_date' => today() -> toDateString(), 'status' => 'applied']);
+            // TODO: Inform QAC DIR AND ALL QAC OFFICERS
+
+            $postGraduateProgram = $pgprApplication->postGraduateProgram;
+            $faculty = $postGraduateProgram->faculty;
+            $university = $faculty->university;
+
+            $qacEmployees = User::whereJsonContains('roles', 'qac_officer')->whereJsonContains('roles', 'qac_director')->get();
+
+            foreach ($qacEmployees as $qacEmployee) {
+                Mail::to($qacEmployee->official_email)->send(
+                    new InformPostGraduateProgramReviewActionToAuthorities(
+                        user: $qacEmployee,
+                        action: 'SUBMITTED_TO_QAC',
+                        faculty: $faculty,
+                        university: $university,
+                        postGraduateProgram: $postGraduateProgram,
+                        subject: 'A Postgraduate Program Review Application was submitted.',
+                        content: 'mail.informPostGraduateProgramReviewApplicationActionToAuthorities'
+                    )
+                );
+            }
+
+            DB::commit();
 
             return response()->json(['message' => 'Post graduate program review application recommended successfully.'], 200);
         }
@@ -243,6 +412,7 @@ class PostGraduateProgramReviewApplicationController extends Controller
             return response()->json(['message' => $e -> getMessage()], 403);
         }
         catch(\Exception $e){
+            DB::rollBack();
             return response()->json(['message' => 'Error recommending post graduate program review application.',
                 'error' => $e->getMessage()]
             , 400);
@@ -269,14 +439,70 @@ class PostGraduateProgramReviewApplicationController extends Controller
                 $pgpr = PostGraduateProgramReview::create([
                     'post_graduate_program_id' => $pgprApplication -> post_graduate_program_id,
                     'pgpr_application_id' => $pgprApplication -> id
-                ]);
-
-                //now create self evaluation report for the pgpr
-                $ser = SelfEvaluationReport::create([
-                    'post_graduate_program_review_id' => $pgpr -> id,
-                    'pgp_coordinator_id' => $pgpr -> postGraduateProgram -> currentProgrammeCoordinator -> id //get the current pgp coordinator
+                ])->selfEvaluationReport()->create([
+                    'pgp_coordinator_id' => $pgprApplication -> postGraduateProgram -> currentProgrammeCoordinator -> id, //get the current pgp coordinator
+                    'iqau_dir_id' => $pgprApplication -> postGraduateProgram -> faculty -> internalQualityAssuranceUnit -> internalQualityAssuranceUnitDirector -> id ?? null//get the current iqau director
                 ]);
             }
+
+            // TODO: Inform QAC DIR, VICE, DEAN, AND IQAU DIR OF APPROVAL
+            $postGraduateProgram = $pgprApplication->postGraduateProgram;
+            $faculty = $postGraduateProgram->faculty;
+            $university = $faculty->university;
+
+            $dean = User::find($faculty->currentDean->id);
+            $viceChancellor = User::find($university->viceChancellor->id);
+            $iqauDirector = User::find($faculty->internalQualityAssuranceUnit->internalQualityAssuranceUnitDirector->id);
+            $cqaDirector = User::find($university->centerForQualityAssurance->currentQualityAssuranceDirector->id);
+
+            Mail::to($dean->official_email)->send(
+                new InformPostGraduateProgramReviewActionToAuthorities(
+                    user: $dean,
+                    action: 'APPROVED_BY_QAC_OFFICER',
+                    faculty: $faculty,
+                    university: $university,
+                    postGraduateProgram: $postGraduateProgram,
+                    subject: 'Post graduate program review application approved by quality assurance council officer',
+                    content: 'mail.informPostGraduateProgramReviewApplicationActionToAuthorities'
+                )
+            );
+
+            Mail::to($iqauDirector->official_email)->send(
+                new InformPostGraduateProgramReviewActionToAuthorities(
+                    user: $iqauDirector,
+                    action: 'APPROVED_BY_QAC_OFFICER',
+                    faculty: $faculty,
+                    university: $university,
+                    postGraduateProgram: $postGraduateProgram,
+                    subject: 'Post graduate program review application approved by quality assurance council officer',
+                    content: 'mail.informPostGraduateProgramReviewApplicationActionToAuthorities'
+                )
+            );
+
+            Mail::to($cqaDirector->official_email)->send(
+                new InformPostGraduateProgramReviewActionToAuthorities(
+                    user: $cqaDirector,
+                    action: 'APPROVED_BY_QAC_OFFICER',
+                    faculty: $faculty,
+                    university: $university,
+                    postGraduateProgram: $postGraduateProgram,
+                    subject: 'Post graduate program review application approved by quality assurance council officer',
+                    content: 'mail.informPostGraduateProgramReviewApplicationActionToAuthorities'
+                )
+            );
+
+            Mail::to($viceChancellor->official_email)->send(
+                new InformPostGraduateProgramReviewActionToAuthorities(
+                    user: $viceChancellor,
+                    action: 'APPROVED_BY_QAC_OFFICER',
+                    faculty: $faculty,
+                    university: $university,
+                    postGraduateProgram: $postGraduateProgram,
+                    subject: 'Post graduate program review application approved by quality assurance council officer',
+                    content: 'mail.informPostGraduateProgramReviewApplicationActionToAuthorities'
+                )
+            );
+
             DB::commit();
 
             return response()->json(['message' => 'Post graduate program review application approved/rejected successfully.'], 200);

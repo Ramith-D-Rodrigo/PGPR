@@ -45,6 +45,8 @@ const SelfEvaluationReport = () => {
 
     const { auth } = useAuth();
 
+    document.title = "Self Evaluation Report";
+
     useEffect(() => {
         const getPGPRData = async () => {
             try {
@@ -84,20 +86,35 @@ const SelfEvaluationReport = () => {
 
     }, [serId]);
 
-    useSetUserNavigations([
-        {
-            name: "Dashboard",
-            link: "/dashboard",
-        },
-        {
-            name: "Postgraduate Programme Reviews",
-            link: "/pgprs",
-        },
-        {
-            name: "Self Evaluation Report",
-            link: window.location.pathname,
-        },
-    ]);
+    if(auth.authRole[0] === 'reviewer')
+    {
+        useSetUserNavigations([
+            {
+                name: "PG Assignments",
+                link: "/PG_Assignments"
+            },
+            {
+                name: "View SER",
+                link: "/PG_Assignments/"+serId+"/ser/"+pgprId
+            },
+        ]);
+    }
+    else{
+        useSetUserNavigations([
+            {
+                name: "Dashboard",
+                link: "/dashboard",
+            },
+            {
+                name: "Postgraduate Programme Reviews",
+                link: "/pgprs",
+            },
+            {
+                name: "Self Evaluation Report",
+                link: window.location.pathname,
+            },
+        ]);
+    }
 
     const columns = [
         {

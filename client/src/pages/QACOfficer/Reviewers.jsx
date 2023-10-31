@@ -25,6 +25,7 @@ const Reviewers = () => {
   );
 
   useEffect(() => {
+    document.title = "Reviewers";
     const handleGetReviewers = async () => {
       try {
         const response = await getAllReviewers();

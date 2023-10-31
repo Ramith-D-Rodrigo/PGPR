@@ -38,7 +38,7 @@ class DeanPolicy
         //only cqa director can create dean
         $currentRole = request() -> session() -> get('authRole');
 
-        if($currentRole != 'cqa director'){
+        if($currentRole != 'cqa_director'){
             return Response::deny('You are not allowed to create a dean account');
         }
 

@@ -15,6 +15,7 @@ use App\Http\Resources\V1\ReviewTeamResource;
 use App\Http\Resources\V1\UserResource;
 use App\Mail\InformDeanOfReviewTeamAssignment;
 use App\Mail\InformReviewerOfReviewAssignment;
+use App\Mail\InformReviewTeamActionToAuthorities;
 use App\Models\Criteria;
 use App\Models\PostGraduateProgramReview;
 use App\Models\Reviewer;
@@ -80,21 +81,23 @@ class ReviewTeamController extends Controller
             $qac = Auth::user(); // since the auth user must be a qac
             $postGraduateReviewProgram = PostGraduateProgramReview::findOrFail($request->validated('pgpr_id')); // find the PGPR
 
-            if ($postGraduateReviewProgram->reviewTeam && $postGraduateReviewProgram->reviewTeam->whereIn('status', ['PENDING', 'APPROVED'])) {
-                return response()->json(['message' => 'This review already contains a review team you cannot add another review team'], 422);
+            if ($postGraduateReviewProgram->reviewTeam && $postGraduateReviewProgram->reviewTeam->whereIn('status', ['PENDING', 'APPROVED'])->exists()) {
+                return response()->json(['message' => 'This review already contains a review team. You cannot add another review team'], 422);
             }
+
+
+
 
             $postGraduateProgram = $postGraduateReviewProgram->postGraduateProgram; // find the postgraduate program
             $faculty = $postGraduateProgram->faculty; // find the faculty
             $university = $faculty->university; // find the university
-            $postGraduateProgramReviewApplication = $postGraduateReviewProgram->postGraduateProgramReviewApplications; // find the PGPR application of the PGPR
-            $dean = $faculty->deans[0]->user; // find the dean of the faculty
+            $dean = $faculty->currentDean->user; // find the dean of the faculty
 
             DB::beginTransaction();
 
             $reviewTeam = new ReviewTeam();
             $reviewTeam->quality_assurance_council_officer_id = $qac->id;
-            $reviewTeam->pgpr_id = $postGraduateProgramReviewApplication->id;
+            $reviewTeam->pgpr_id = $postGraduateReviewProgram->id;
             $reviewTeam->dean_id = $dean->id;
             $reviewTeam->status = "PENDING";
             $reviewTeam->dean_decision = "N/A";
@@ -118,7 +121,7 @@ class ReviewTeamController extends Controller
                     ]
                 );
                 $user = User::find($reviewer['reviewer_id']);
-                $user->position = $reviewer['position'];
+                $user->position = $reviewer['position'];    //to send the mail
                 $reviewers[] = $user;
             }
 
@@ -196,16 +199,66 @@ class ReviewTeamController extends Controller
     public function destroy(string $id): JsonResponse
     {
         try {
-            $this->authorize('forceDelete', ReviewTeam::class);
-
             // find the reviewer team
             $reviewTeam = ReviewTeam::findOrFail($id)->load('reviewers');
+
+            $this->authorize('forceDelete', [ReviewTeam::class, $reviewTeam]);
 
             if ($reviewTeam->status == 'ACCEPTED') {
                 return response()->json(["message" => "This review team cannot be deleted."]);
             }
 
             DB::beginTransaction();
+
+            $qacOfficer = $reviewTeam->qualityAssuranceCouncilOfficer->user;
+            $postGraduateProgram = $reviewTeam->postGraduateReviewProgram->postGraduateProgram;
+            $faculty = $postGraduateProgram->faculty;
+            $university = $faculty->university;
+            $dean = $faculty->currentDean->user;
+            $reviewers = $reviewTeam->reviewers;
+
+            // TODO: INFORM DEAN, AND THE REVIEW TEAM
+            Mail::to($dean->official_email)->send(
+                new InformReviewTeamActionToAuthorities(
+                    user: $dean,
+                    action: 'REMOVED',
+                    faculty: $faculty,
+                    university: $university,
+                    postGraduateProgram: $postGraduateProgram,
+                    reviewTeamInfo: $reviewers,
+                    subject: 'Review team assigned to the a postgraduate program was removed',
+                    content: 'mail.informReviewTeamActionToAuthorities',
+                )
+            );
+
+            Mail::to($qacOfficer->official_email)->send(
+                new InformReviewTeamActionToAuthorities(
+                    user: $qacOfficer,
+                    action: 'REMOVED',
+                    faculty: $faculty,
+                    university: $university,
+                    postGraduateProgram: $postGraduateProgram,
+                    reviewTeamInfo: $reviewers,
+                    subject: 'Review team assigned to the a postgraduate program was removed',
+                    content: 'mail.informReviewTeamActionToAuthorities',
+                )
+            );
+
+            foreach ($reviewers as $reviewer) {
+                Mail::to($reviewer->user->official_email)->send(
+                    new InformReviewTeamActionToAuthorities(
+                        user: $reviewer->user,
+                        action: 'REMOVED',
+                        faculty: $faculty,
+                        university: $university,
+                        postGraduateProgram: $postGraduateProgram,
+                        reviewTeamInfo: $reviewers,
+                        subject: 'Review team assigned to the a postgraduate program was removed',
+                        content: 'mail.informReviewTeamActionToAuthorities',
+                    )
+                );
+            }
+
             $reviewTeam->reviewers()->detach(); // remove the reviewers first
             $reviewTeam->delete(); // delete the review team
             DB::commit();
@@ -216,7 +269,7 @@ class ReviewTeamController extends Controller
             DB::rollBack();
             return response()->json(["message" => "There is not such review team in our databases."], 400);
         } catch (Exception $exception) {
-            return response()->json(["message" => "Something bad happened!, We are working on it."], 500);
+            return response()->json(["message" => "Something bad happened!, We are working on it.", 'error' => $exception -> getMessage()], 500);
         }
     }
 
