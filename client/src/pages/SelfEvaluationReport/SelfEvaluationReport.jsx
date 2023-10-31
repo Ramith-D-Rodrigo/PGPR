@@ -219,7 +219,12 @@ const SelfEvaluationReport = () => {
     const handleEvaulationSubmit = () => {
         const submittedEvidenceCount = ser.evidenceGivenStandards.flatMap(standard => standard.evidences).length;
         if (submittedEvidenceCount === 0) {
-            alert("No evidences submitted");
+            setSnackbar({
+                open: true,
+                message: 'No evidences submitted',
+                severity: 'error'
+            });
+            
         } else {
             const submittedStandardCount = ser.evidenceGivenStandards.length;
             const totalStandardCount = ser.criterias.flatMap(criteria => criteria.standards).length;
@@ -235,7 +240,11 @@ const SelfEvaluationReport = () => {
     const handleReportRecommendation = async () => {
         const submittedEvidenceCount = ser.evidenceGivenStandards.flatMap(standard => standard.evidences).length;
         if (submittedEvidenceCount === 0) {
-            alert("No evidences submitted");
+            setSnackbar({
+                open: true,
+                message: 'No evidences submitted',
+                severity: 'error'
+            });
         }
         else {
             const submittedStandardCount = ser.evidenceGivenStandards.length;

@@ -184,34 +184,39 @@ class EvidenceController extends Controller
 
             //get the file id from the url
             $driveManager = new DriveManager();
-            $fileId = $driveManager -> getFileId($validatedData['url']);
 
-            if($fileId == ""){  //probably a folder
-                $fileId = $driveManager -> getFolderId($validatedData['url']);
-            }
+            if(isset($validatedData['url'])){
+                $fileId = $driveManager -> getFileId($validatedData['url']);
+
+                if($fileId == ""){  //probably a folder
+                    $fileId = $driveManager -> getFolderId($validatedData['url']);
+                }
 
 
-            //get the permissions of the file
-            $permissions = $driveManager -> getPermissions($fileId);
+                //get the permissions of the file
+                $permissions = $driveManager -> getPermissions($fileId);
 
-            //check if the user has permission to access the file
-            $hasPermission = false;
-            foreach($permissions as $permission){
-                if($permission -> type == "anyone" && $permission -> role == "writer"){
-                    $hasPermission = true;
-                    break;
+                //check if the user has permission to access the file
+                $hasPermission = false;
+                foreach($permissions as $permission){
+                    if($permission -> type == "anyone" && $permission -> role == "writer"){
+                        $hasPermission = true;
+                        break;
+                    }
+                }
+
+                if(!$hasPermission){
+                    throw new \Exception("Error while processing the evidence url. Please make sure that the file is shared with anyone with the link and has edit permission");
                 }
             }
 
-            if(!$hasPermission){
-                throw new \Exception("Error while processing the evidence url. Please make sure that the file is shared with anyone with the link and has edit permission");
-            }
+            DB::beginTransaction();
 
             $evidence -> update($validatedData);
 
             // IQAU DIR, PROGRAM COORDINATOR
             // get the user data from the SER
-            $selfEvaluationReport = $evidence->selfEvaluationReport();
+            $selfEvaluationReport = $evidence->selfEvaluationReport[0];
             $postGraduateProgram = $selfEvaluationReport->postGraduateProgramReview->postGraduateProgram;
             $programCoordinator = User::find($selfEvaluationReport->programmeCoordinator->id);
             $iqauDirector = User::find($selfEvaluationReport->internalQualityAssuranceUnitDirector->id);
@@ -238,6 +243,8 @@ class EvidenceController extends Controller
                     content: 'mail.informEvidenceActionToAuthorities'
                 )
             );
+
+            DB::commit();
 
             return response()->json([
                 'success' => true,
@@ -263,7 +270,7 @@ class EvidenceController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Unable to update evidence',
-                'error' => $e->getMessage()
+                'error' => $e->getTrace()
             ], 500);
         }
     }
@@ -277,6 +284,8 @@ class EvidenceController extends Controller
             //authorize the action
             $this->authorize('forceDelete', $evidence);
 
+            DB::beginTransaction();
+
             //remove the pivot record from ser_evidence_standard table
             $evidence -> standards() -> detach();
 
@@ -284,7 +293,7 @@ class EvidenceController extends Controller
 
             // IQAU DIR, PROGRAM COORDINATOR
             // get the user data from the SER
-            $selfEvaluationReport = $evidence->selfEvaluationReport();
+            $selfEvaluationReport = $evidence->selfEvaluationReport[0];
             $postGraduateProgram = $selfEvaluationReport->postGraduateProgramReview->postGraduateProgram;
             $programCoordinator = User::find($selfEvaluationReport->programmeCoordinator->id);
             $iqauDirector = User::find($selfEvaluationReport->internalQualityAssuranceUnitDirector->id);
@@ -312,6 +321,8 @@ class EvidenceController extends Controller
                 )
             );
 
+            DB::commit();
+
 
             return response()->json([
                 'success' => true,
@@ -326,6 +337,7 @@ class EvidenceController extends Controller
             ], 403);
         }
         catch(\Exception $e){
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => 'Unable to delete evidence',
