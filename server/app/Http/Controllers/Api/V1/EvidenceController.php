@@ -94,7 +94,7 @@ class EvidenceController extends Controller
 
             // IQAU DIR, PROGRAM COORDINATOR
             // get the user data from the SER
-            $selfEvaluationReport = SelfEvaluationReport::find($validatedData['self_evaluation_report_id']);
+/*             $selfEvaluationReport = SelfEvaluationReport::find($validatedData['self_evaluation_report_id']);
             $postGraduateProgram = $selfEvaluationReport->postGraduateProgramReview->postGraduateProgram;
             $programCoordinator = User::find($selfEvaluationReport->programmeCoordinator->id);
             $iqauDirector = User::find($selfEvaluationReport->internalQualityAssuranceUnitDirector->id);
@@ -120,7 +120,7 @@ class EvidenceController extends Controller
                     subject: 'New Evidence Uploaded',
                     content: 'mail.informEvidenceActionToAuthorities'
                 )
-            );
+            ); */
 
             DB::commit();
 
@@ -215,7 +215,7 @@ class EvidenceController extends Controller
             $evidence -> update($validatedData);
 
             // IQAU DIR, PROGRAM COORDINATOR
-            // get the user data from the SER
+/*             // get the user data from the SER
             $selfEvaluationReport = $evidence->selfEvaluationReport[0];
             $postGraduateProgram = $selfEvaluationReport->postGraduateProgramReview->postGraduateProgram;
             $programCoordinator = User::find($selfEvaluationReport->programmeCoordinator->id);
@@ -243,7 +243,7 @@ class EvidenceController extends Controller
                     content: 'mail.informEvidenceActionToAuthorities'
                 )
             );
-
+ */
             DB::commit();
 
             return response()->json([
