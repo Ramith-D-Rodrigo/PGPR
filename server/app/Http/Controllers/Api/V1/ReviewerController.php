@@ -914,12 +914,12 @@ class ReviewerController extends Controller
                     $criteria_id
                 ));
                 // Count number of evaluated standards for this criteria
-                $evaluated_standards = DB::table('desk_evaluation_scores')
-                    ->join('standards', 'desk_evaluation_scores.standard_id', '=', 'standards.id')
+                $evaluated_standards = DB::table('desk_evaluation_score')
+                    ->join('standards', 'desk_evaluation_score.standard_id', '=', 'standards.id')
                     ->where([
                         'standards.criteria_id' => $criteria_id,
-                        'desk_evaluation_scores.desk_evaluation_id' => $validated['desk_evaluation_id'],
-                        'desk_evaluation_scores.reviewer_id' => Auth::id()
+                        'desk_evaluation_score.desk_evaluation_id' => $validated['desk_evaluation_id'],
+                        'desk_evaluation_score.reviewer_id' => Auth::id()
                     ])
                     ->count();
 
@@ -969,12 +969,12 @@ class ReviewerController extends Controller
                         content: 'mail.reviewerSubmitDeskEvaluation'
                     )
                 );
-                return response()->json(['message' => 'You have successful submitted the desk review']);
+                return response()->json(['message' => 'You have successful submitted the desk review'], 200);
             } else {
                 return response()->json([
                     'message' => 'You have standards that you have not evaluated in this desk evaluation yet, please complete them before submitting them',
                     'data' => $data
-                ]);
+                ], 422);
             }
         }
         catch(AuthorizationException $e){
@@ -982,7 +982,7 @@ class ReviewerController extends Controller
                 'message' => $e->getMessage(),
             ], 403);
         } catch (Exception $exception) {
-            return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+            return response()->json(['message' => 'We have encountered an error, try again in a few moments please', 'error' => $exception -> getMessage()], 500);
         }
     }
 
