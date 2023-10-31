@@ -486,7 +486,6 @@ class SelfEvaluationReportController extends Controller
                     'updated_at' => now(),
                 ]);
                 // TODO: INFORM CQA DIR
-                $cqaDirector = $selfEvaluationReport->centerForQualityAssuranceDirector->user;
                 Mail::to($cqaDirector->official_email)->send(
                 new InformSelfEvaluationReportActionToAuthorities(
                     user:$cqaDirector,
