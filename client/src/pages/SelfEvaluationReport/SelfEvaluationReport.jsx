@@ -13,7 +13,8 @@ import {
     Box,
     Divider,
     Chip,
-    Button
+    Button,
+    ButtonGroup
 } from "@mui/material";
 
 import { useParams } from "react-router-dom";
@@ -47,47 +48,48 @@ const SelfEvaluationReport = () => {
 
     document.title = "Self Evaluation Report";
 
-    useEffect(() => {
-        const getPGPRData = async () => {
-            try {
-                const response = await getSelfEvaluationReport(serId);
-                if (response && response.status === 200) {
-                    setSer(response.data.data);
-                    const ser = response.data.data;
-                    console.log(response.data.data);
+    const getPGPRData = async () => {
+        try {
+            const response = await getSelfEvaluationReport(serId);
+            if (response && response.status === 200) {
+                setSer(response.data.data);
+                const ser = response.data.data;
+                console.log(response.data.data);
 
-                    setHeaderInfo(
-                        [
-                            { label: "University:", value: ser.postGraduateProgramReview.postGraduateProgramme.faculty.university.name },
-                            {
-                                label: "Faculty/Institute:",
-                                value: ser.postGraduateProgramReview.postGraduateProgramme.faculty.name,
-                            },
-                            { label: "PGPR ID:", value: "PGPR-" + ser.postGraduateProgramReview.id },
-                            { label: "PGPR Name:", value: ser.postGraduateProgramReview.postGraduateProgramme.title },
-                            { label: "Application Start Date:", value: ser.postGraduateProgramReview.postGraduateProgramReviewApplication.applicationDate },
-                            { label: "Requested Date:", value: ser.postGraduateProgramReview.postGraduateProgramReviewApplication.requestDate },
-                            {
-                                label: "Program Coordinator:", value:
-                                    ser.programmeCoordinator.academicStaff.universitySide.user.surname
-                                    + " " +
-                                    ser.programmeCoordinator.academicStaff.universitySide.user.initials
-                            },
-                        ]);
+                setHeaderInfo(
+                    [
+                        { label: "University:", value: ser.postGraduateProgramReview.postGraduateProgramme.faculty.university.name },
+                        {
+                            label: "Faculty/Institute:",
+                            value: ser.postGraduateProgramReview.postGraduateProgramme.faculty.name,
+                        },
+                        { label: "PGPR ID:", value: "PGPR-" + ser.postGraduateProgramReview.id },
+                        { label: "PGPR Name:", value: ser.postGraduateProgramReview.postGraduateProgramme.title },
+                        { label: "Application Start Date:", value: ser.postGraduateProgramReview.postGraduateProgramReviewApplication.applicationDate },
+                        { label: "Requested Date:", value: ser.postGraduateProgramReview.postGraduateProgramReviewApplication.requestDate },
+                        {
+                            label: "Program Coordinator:", value:
+                                ser.programmeCoordinator.academicStaff.universitySide.user.surname
+                                + " " +
+                                ser.programmeCoordinator.academicStaff.universitySide.user.initials
+                        },
+                    ]);
 
-                    setIsLoaded(true);
-                }
-
-            } catch (error) {
-                console.log(error);
+                setIsLoaded(true);
             }
+
+        } catch (error) {
+            console.log(error);
         }
+    }
+
+    useEffect(() => {
+
         getPGPRData();
 
     }, [serId]);
 
-    if(auth.authRole[0] === 'reviewer')
-    {
+    if (auth.authRole[0] === 'reviewer') {
         useSetUserNavigations([
             {
                 name: "PG Assignments",
@@ -95,11 +97,11 @@ const SelfEvaluationReport = () => {
             },
             {
                 name: "View SER",
-                link: "/PG_Assignments/"+serId+"/ser/"+pgprId
+                link: "/PG_Assignments/" + serId + "/ser/" + pgprId
             },
         ]);
     }
-    else{
+    else {
         useSetUserNavigations([
             {
                 name: "Dashboard",
@@ -153,8 +155,8 @@ const SelfEvaluationReport = () => {
         transform: 'translate(-50%, -50%)',
         width: 400,
         bgcolor: 'background.paper',
-        border: '2px solid #000',
         boxShadow: 24,
+        borderRadius: '0.5rem',
         p: 4,
     };
 
@@ -171,35 +173,54 @@ const SelfEvaluationReport = () => {
                 aria-describedby="modal-modal-description"
             >
                 <Box sx={style}>
-                    <Typography id="modal-modal-title" variant="h6" component="h2">
+                    <Box sx={{ width: '100%', fontSize: '2rem', textAlign: 'center', mb: '2rem'}}>
                         Not all the standards are submitted!
-                    </Typography>
-                    <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                        <>
-                            {
-                                warningType === 'submit' ?
-                                    <>
-                                        Not all the standards are submitted! Do you want to proceed to evaluation submission?
-                                        <Button variant="contained" color="success" component={Link} to={'/programme_coordinator/pgprs/' + pgprId + '/ser/' + serId + '/submitSER'}>
-                                            Proceed
-                                        </Button>
-                                    </>
-                                    :
+                    </Box>
+                    {
+                        warningType === 'submit' ?
+                            <>
+                                <Box sx={{my: '1rem'}}>
+                                    Not all the standards are submitted! Do you want to proceed to evaluation submission?
+                                </Box>
+                                <ButtonGroup sx={{
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    width: '100%',
+                                    my: '1rem'
+                                
+                                }}>
+                                    <Button variant="contained" color="primary" component={Link} to={'/programme_coordinator/pgprs/' + pgprId + '/ser/' + serId + '/submitSER'}>
+                                        Proceed
+                                    </Button>
+                                    <Button variant="contained" color="error" onClick={() => { setWarningOpen(false) }}>
+                                        Cancel
+                                    </Button>
+                                </ButtonGroup>
+                            </>
+                            :
 
-                                    <>
-                                        Not all the standards are submitted! Do you want to recommend the report?
-                                        <Button variant="contained" color="success" onClick={handleReportRecommendationConfirm}>
-                                            Recommend
-                                        </Button>
-                                    </>
-                            }
-                            <Button variant="contained" color="error" onClick={() => { setWarningOpen(false) }}>
-                                Cancel
-                            </Button>
-                        </>
-                    </Typography>
+                            <>
+                                Not all the standards are submitted! Do you want to recommend the report?
+                                <ButtonGroup sx={{
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    width: '100%',
+                                    my: '1rem'
+                                }}>
+                                    <Button variant="contained" color="success" onClick={handleReportRecommendationConfirm}>
+                                        Recommend
+                                    </Button>
+                                    <Button variant="contained" color="error" onClick={() => { setWarningOpen(false) }}>
+                                        Cancel
+                                    </Button>
+                                </ButtonGroup>
+                            </>
+                    }
+
                 </Box>
-            </Modal>
+            </Modal >
         );
     };
 
@@ -219,7 +240,12 @@ const SelfEvaluationReport = () => {
     const handleEvaulationSubmit = () => {
         const submittedEvidenceCount = ser.evidenceGivenStandards.flatMap(standard => standard.evidences).length;
         if (submittedEvidenceCount === 0) {
-            alert("No evidences submitted");
+            setSnackbar({
+                open: true,
+                message: 'No evidences submitted',
+                severity: 'error'
+            });
+
         } else {
             const submittedStandardCount = ser.evidenceGivenStandards.length;
             const totalStandardCount = ser.criterias.flatMap(criteria => criteria.standards).length;
@@ -235,7 +261,11 @@ const SelfEvaluationReport = () => {
     const handleReportRecommendation = async () => {
         const submittedEvidenceCount = ser.evidenceGivenStandards.flatMap(standard => standard.evidences).length;
         if (submittedEvidenceCount === 0) {
-            alert("No evidences submitted");
+            setSnackbar({
+                open: true,
+                message: 'No evidences submitted',
+                severity: 'error'
+            });
         }
         else {
             const submittedStandardCount = ser.evidenceGivenStandards.length;
@@ -250,10 +280,15 @@ const SelfEvaluationReport = () => {
     }
 
     const handleReportRecommendationConfirm = async () => {
-        setWarningOpen(false);
-        setWarningType('');
-
         try {
+            setSnackbar({
+                open: true,
+                message: 'Recommending report...',
+                severity: 'info'
+            });
+
+
+
             const response = await recommendSelfEvaluationReport(serId);
 
             if (response && response.status === 200) {
@@ -262,6 +297,8 @@ const SelfEvaluationReport = () => {
                     message: 'Report recommended successfully',
                     severity: 'success'
                 });
+
+                getPGPRData();
             }
         }
         catch (error) {
@@ -272,6 +309,9 @@ const SelfEvaluationReport = () => {
                 severity: 'error'
             });
         }
+
+        setWarningOpen(false);
+        setWarningType('');
     }
 
     return (

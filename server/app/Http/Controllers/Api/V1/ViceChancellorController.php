@@ -72,6 +72,8 @@ class ViceChancellorController extends Controller
 
             //update the vice chancellor id in the university table
             $university->update(['vice_chancellor_id' => $viceChancellor -> id]);
+            //update the university id in the vice chancellor table
+            $viceChancellor->update(['university_id' => $university -> id]);
 
             //send mail
             ViceChancellorService::sendAccountCreateMail($validatedData, $password);

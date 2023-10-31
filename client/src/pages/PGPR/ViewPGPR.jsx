@@ -19,6 +19,7 @@ import tableStyle from '../../assets/tableStyle';
 import TextField from '@mui/material/TextField';
 import acceptReviewTeam from '../../api/ReviewTeam/acceptReviewTeam';
 import rejectReviewTeam from '../../api/ReviewTeam/rejectReviewTeam';
+import useSetUserNavigations from '../../hooks/useSetUserNavigations';
 
 const ViewPGPR = () => {
     const { pgprId, serId } = useParams();
@@ -26,6 +27,21 @@ const ViewPGPR = () => {
     const [pgpr, setPgpr] = useState(null);
     const [loading, setLoading] = useState(true);
     const { auth } = useAuth();
+
+    useSetUserNavigations([
+        {
+            name: "Dashboard",
+            link: "/dashboard",
+        },
+        {
+            name: "Postgraduate Programme Reviews",
+            link: "/pgprs",
+        },
+        {
+            name: "Current Postgraduate Programme Review",
+            link: `/pgprs/${pgprId}`,
+        }
+    ]);
 
     const pgprResults = async (pgprId) => {
         try {
@@ -328,7 +344,7 @@ const ViewPGPR = () => {
     const handleSubmitDeanDecision = async () => {
         try {
 
-            if(deanDecision === ''){
+            if (deanDecision === '') {
                 setSnackbar({
                     open: true,
                     message: 'Please Select a Decision',
@@ -353,19 +369,19 @@ const ViewPGPR = () => {
 
             let response = null;
 
-            if(deanDecision === 'accept'){
+            if (deanDecision.toLowerCase() === 'accepted') {
                 response = await acceptReviewTeam(formData);
             }
-            else{
+            else {
                 response = await rejectReviewTeam(formData);
             }
-            
+
             if (response && response.status === 200) {
                 await pgprResults(pgprId);
 
                 setSnackbar({
                     open: true,
-                    message: deanDecision === 'accept' ? 'Review Team Accepted Successfully' : 'Review Team Rejected Successfully',
+                    message: deanDecision.toLowerCase() === 'accepted' ? 'Review Team Accepted Successfully' : 'Review Team Rejected Successfully',
                     severity: 'success',
                     time: 10000
                 });
@@ -388,7 +404,7 @@ const ViewPGPR = () => {
 
     const secondaryBoxStyle = { display: 'flex', justifyContent: 'flex-start', alignItems: 'center', flexDirection: 'column', width: '50%', mt: 2, minHeight: '60vh' };
     const detailedBox = { display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', width: '100%', margin: "1rem" };
-    const itemBox = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row', width: '90%', margin: "0.2rem 0" };
+    const itemBox = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row', width: '90%', margin: "0.5rem 0" };
 
     return (
         <>
@@ -506,7 +522,7 @@ const ViewPGPR = () => {
                                 }
                             </Box>
 
-                            <Divider><strong>Review Team & Their Universities</strong></Divider>
+                            <Divider><strong>Review Team</strong></Divider>
                             <Box sx={detailedBox}>
                                 <Box sx={itemBox}>
                                     <Box align='left'>
@@ -560,6 +576,21 @@ const ViewPGPR = () => {
                                         </Typography>
                                     </Box>
 
+                                    {
+                                        reviewTeam?.reviewers?.length > 0 &&
+                                        <Box align='left' sx={{ display: 'flex', flexDirection: 'column' }}>
+                                            <Button key={reviewerChair?.userData?.id + 'selectedChairProfile'} variant='contained' component={Link} to={`/${auth.authRole[0]}/reviewers/${reviewerChair?.userData?.id}`}>
+                                                View Profile
+                                            </Button>
+                                            <Button key={reviewer1?.userData?.id + 'selectedMember1Profile'} variant='contained' component={Link} to={`/${auth.authRole[0]}/reviewers/${reviewer1?.userData?.id}`}>
+                                                View Profile
+                                            </Button>
+                                            <Button key={reviewer2?.userData?.id + 'selectedMember2Profile'} variant='contained' component={Link} to={`/${auth.authRole[0]}/reviewers/${reviewer2?.userData?.id}`}>
+                                                View Profile
+                                            </Button>
+                                        </Box>
+                                    }
+
                                     <Box align='left'>
                                         <Typography key={reviewerChair?.userData?.id + 'selectedChair'} variant="h6" sx={{ mb: 1 }} align='left'>
                                             {reviewerChair?.reviewerConfirmation ?? 'Not Confirmed'}
@@ -605,11 +636,16 @@ const ViewPGPR = () => {
                                         defaultValue={status === 'ACCEPTED' ? 'ACCEPTED' : ''}
                                         sx={{ width: '50%', my: '1rem' }}
                                         onChange={(e) => setDeanDecision(e.target.value)}
-                                        value={status}
+                                        value={
+                                            pgpr.statusOfPgpr !== 'PLANNING' && pgpr.statusOfPgpr !== 'SUBMITTED' ?
+                                                'ACCEPTED'
+                                                :
+                                                deanDecision
+                                        }
                                         disabled={snackbar.open || auth.authRole[0] !== 'dean' || (pgpr.statusOfPgpr !== 'PLANNING' && pgpr.statusOfPgpr !== 'SUBMITTED') || status?.toLowerCase() !== 'pending'}
                                     >
-                                        <MenuItem value={'ACCEPTED'}>Accept</MenuItem>
-                                        <MenuItem value={'REJECTED'}>Reject</MenuItem>
+                                        <MenuItem value={'ACCEPTED'}>ACCEPT</MenuItem>
+                                        <MenuItem value={'REJECTED'}>REJECT</MenuItem>
                                     </TextField>
 
                                     <TextField
@@ -621,7 +657,7 @@ const ViewPGPR = () => {
                                         value={deanRemarks}
                                         onChange={(e) => setDeanRemarks(e.target.value)}
                                         disabled={snackbar.open || auth.authRole[0] !== 'dean' || (pgpr.statusOfPgpr !== 'PLANNING' && pgpr.statusOfPgpr !== 'SUBMITTED') || status?.toLowerCase() !== 'pending'}
-                                        
+
                                     />
 
                                     {
@@ -634,41 +670,41 @@ const ViewPGPR = () => {
 
                             </Box>
 
-                            
+
 
                         </Box>
                         <Divider><strong>Evaluations</strong></Divider>
-                            <Box sx={detailedBox}>
-                                <Box sx={{ ...itemBox, flexWrap: 'wrap' }}>
+                        <Box sx={detailedBox}>
+                            <Box sx={{ ...itemBox, flexWrap: 'wrap' }}>
 
-                                    <Typography variant="h6" align='left'>
-                                        Desk Evaluation
-                                    </Typography>
-                                    <Typography variant="body" align='left'>
-                                        {deskEvaluation ? deskEvaluation?.status : "Not Started"}
-                                    </Typography>
-                                    <Typography variant="body" align='left'>
-                                        {deskEvaluation ? deskEvaluation?.startDate ? `from ${deskEvaluation?.startDate}` : "" : ""}
-                                    </Typography>
-                                    <Typography variant="body" align='left'>
-                                        {deskEvaluation ? deskEvaluation?.endDate ? `to ${deskEvaluation?.endDate}` : "" : ""}
-                                    </Typography>
-                                </Box>
-                                <Box sx={{ ...itemBox, flexWrap: 'wrap' }}>
-                                    <Typography variant="h6" align='left'>
-                                        Proper Evaluation
-                                    </Typography>
-                                    <Typography variant="body" align='left'>
-                                        {properEvaluation ? properEvaluation?.status : "Not Started"}
-                                    </Typography>
-                                    <Typography variant="body" align='left'>
-                                        {properEvaluation ? properEvaluation.startDate ? `from ${properEvaluation?.startDate}` : "" : ""}
-                                    </Typography>
-                                    <Typography variant="body" align='left'>
-                                        {properEvaluation ? properEvaluation?.endDate ? `to ${properEvaluation?.endDate}` : "" : ""}
-                                    </Typography>
-                                </Box>
+                                <Typography variant="h6" align='left'>
+                                    Desk Evaluation
+                                </Typography>
+                                <Typography variant="body" align='left'>
+                                    {deskEvaluation ? deskEvaluation?.status : "Not Started"}
+                                </Typography>
+                                <Typography variant="body" align='left'>
+                                    {deskEvaluation ? deskEvaluation?.startDate ? `from ${deskEvaluation?.startDate}` : "" : ""}
+                                </Typography>
+                                <Typography variant="body" align='left'>
+                                    {deskEvaluation ? deskEvaluation?.endDate ? `to ${deskEvaluation?.endDate}` : "" : ""}
+                                </Typography>
                             </Box>
+                            <Box sx={{ ...itemBox, flexWrap: 'wrap' }}>
+                                <Typography variant="h6" align='left'>
+                                    Proper Evaluation
+                                </Typography>
+                                <Typography variant="body" align='left'>
+                                    {properEvaluation ? properEvaluation?.status : "Not Started"}
+                                </Typography>
+                                <Typography variant="body" align='left'>
+                                    {properEvaluation ? properEvaluation.startDate ? `from ${properEvaluation?.startDate}` : "" : ""}
+                                </Typography>
+                                <Typography variant="body" align='left'>
+                                    {properEvaluation ? properEvaluation?.endDate ? `to ${properEvaluation?.endDate}` : "" : ""}
+                                </Typography>
+                            </Box>
+                        </Box>
                         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around', width: '100%', mt: 2 }}>
                             {
                                 (auth?.authRole[0] === 'qac_officer' || auth?.authRole[0] === 'qac_director' || auth?.authRole[0] === 'reviewer') && pgpr?.statusOfPgpr !== 'PLANNING' ?

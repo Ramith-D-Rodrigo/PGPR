@@ -258,12 +258,15 @@ const PGAssignments = () => {
           comment: `Rejected PGPR ${selectedPGPRID} by ${auth.fullName}`,
         }
       );
-      console.log("Response : ", response);
-      setSuccessMsg(response.data.message);
-      
-      await getPGPRAssignments();
-      setLoading(false);
 
+      if(response){
+        console.log("Response : ", response);
+        setSuccessMsg(response.data.message);
+
+        await getPGPRAssignments();
+        setLoading(false);
+      }
+      
     } catch (error) {
       if (error.response.status === 401) {
         setErrorMsg(error.response.data.message);
