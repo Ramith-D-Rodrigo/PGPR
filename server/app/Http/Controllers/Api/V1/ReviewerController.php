@@ -951,7 +951,7 @@ class ReviewerController extends Controller
                 // Get the post graduate program review and the review team
                 $faculty = $pgp->faculty;
                 $university = $faculty->university;
-                $reviewTeam = $pgp->reviewTeam;
+                $reviewTeam = $deskEvaluation->postGraduateProgramReview->reviewTeam;
                 $reviewers = $reviewTeam->reviewers;
 
                 $reviewChair = User::find($reviewers->first(function ($reviewer) {
