@@ -104,4 +104,22 @@ class PostGraduateProgramReview extends Model
     {
         return $this->hasOne(ReviewTeam::class, 'pgpr_id')->latest();
     }
+
+    public function hasAllReviewersAccepted() : bool {
+        if($this -> acceptedReviewTeam){ //dean has accepted the team
+            //need to check if all reviewers have accepted
+            $reviewers = $this -> acceptedReviewTeam -> reviewers;
+
+            foreach ($reviewers as $reviewer){
+                if($reviewer -> pivot -> reviewer_confirmation != 'ACCEPTED'){
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        return false;
+
+    }
 }

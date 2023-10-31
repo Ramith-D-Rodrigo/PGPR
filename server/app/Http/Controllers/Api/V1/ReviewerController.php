@@ -34,6 +34,7 @@ use App\Http\Requests\V1\UpdateReviewerRequest;
 use App\Http\Controllers\Controller;
 use App\Models\SelfEvaluationReport;
 use App\Models\User;
+use App\Services\V1\PostGraduateProgramReviewService;
 use App\Services\V1\StandardService;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -297,7 +298,6 @@ class ReviewerController extends Controller
     public function acceptPGPRAssignment(UpdateAcceptPGPRRequest $request): Response|JsonResponse
     {
         try {
-
             $this->authorize('acceptRejectPGPRAssignmentAuthorize', [Reviewer::class, $request]);
             //get the declaration.
             $file = $request->file('file');
@@ -336,6 +336,24 @@ class ReviewerController extends Controller
             $review_team->pivot->declaration_letter = Storage::disk('public')->url($path); //add the file url here
             $review_team->pivot->save(); //save the data to the pivot table
 
+            if($review_team -> postGraduateReviewProgram -> acceptedReviewTeam && $review_team -> postGraduateReviewProgram -> hasAllReviewersAccepted()){
+                //then we have to store the evidences in the google drive
+                PostGraduateProgramReviewService::StoreEvidencesInSystemDriveAggregateJob($review_team -> postGraduateReviewProgram);
+
+                //after storing, we can create the desk evaluation
+                $deskEvaluation = new DeskEvaluation();
+                $deskEvaluation->pgpr_id = $review_team->pgpr_id;
+                $deskEvaluation->start_date = NULL; // or to set this is current time use => Carbon::now()
+                $deskEvaluation->end_date = NULL;
+                $deskEvaluation->save();
+
+                //change the status of the pgpr to desk evaluation
+                $review_team -> postGraduateReviewProgram->status_of_pgpr = 'DE';
+                $review_team -> postGraduateReviewProgram->save();
+
+                return response()->json(['message' => 'Your declaration was successfully uploaded.'], 201);
+            }
+
             // TODO: INFORM REVIEW TEAM CREATOR
 
             return response()->json(['message' => 'Your declaration was successfully uploaded.'], 201);
@@ -364,13 +382,13 @@ class ReviewerController extends Controller
 
             //get the review team based on he PGPR id
             $review_team = $reviewer->reviewTeams
-                ->whereIn('status', ['PENDING', 'APPROVED'])
+                ->whereIn('status', ['PENDING', 'ACCEPTED'])
                 ->where('pgpr_id', $request->pgpr_id)
                 ->first(); //get the only review team
 
             $post_grad_program = $review_team->postGraduateReviewProgram->postGraduateProgram;
 
-            $creatorOfReviewTeam = User::find($review_team->quality_assurance_council_officer_id)->get();
+            $creatorOfReviewTeam = User::find($review_team->quality_assurance_council_officer_id)->first();
 
             if (!$creatorOfReviewTeam) {
                 throw new Exception("There is something wrong with this entry please check"); // needs better error logging
@@ -396,11 +414,11 @@ class ReviewerController extends Controller
                     ->send(
                         new ReviewerRejectReviewAssignment(
                             $creatorOfReviewTeam,
-                            $reviewer,
+                            $reviewer -> user,
                             $post_grad_program,
                             $request->validated('comment'),
                             'Reviewer Rejected Postgraduate Program Review',
-                            'mail.reviewerRejectedReviewAssignment'
+                            'mail.reviewerRejectedPostrgaduateProgramReview'
                         )
                     );
 
@@ -417,7 +435,7 @@ class ReviewerController extends Controller
             return response()->json(["message" => "Your credentials are wrong, cannot be authorized for this action.", "data" => []], 401);
         } catch (Exception $exception) {
             DB::rollBack();
-            return response()->json(["message" => "An internal server error occurred, user request cannot be full filled."], 500);
+            return response()->json(["message" => "An internal server error occurred, user request cannot be full filled.", 'error' => $exception -> getMessage()], 500);
         }
     }
 
