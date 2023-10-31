@@ -331,6 +331,8 @@ class ReviewerController extends Controller
             $fileName = Str::random(10) . "_" . $candidateID . "." . $file->getClientOriginalExtension();
             $path = $file->storeAs('reviewer_pgpr_assignment_declaration_letters', $fileName, 'public');
 
+            DB::beginTransaction();
+
             //change the status to ACCEPTED in the reviewer_review_team table
             $review_team->pivot->reviewer_confirmation = 'ACCEPTED';
             $review_team->pivot->declaration_letter = Storage::disk('public')->url($path); //add the file url here
@@ -351,10 +353,13 @@ class ReviewerController extends Controller
                 $review_team -> postGraduateReviewProgram->status_of_pgpr = 'DE';
                 $review_team -> postGraduateReviewProgram->save();
 
+                DB::commit();
+
                 return response()->json(['message' => 'Your declaration was successfully uploaded.'], 201);
             }
 
             // TODO: INFORM REVIEW TEAM CREATOR
+            DB::commit();
 
             return response()->json(['message' => 'Your declaration was successfully uploaded.'], 201);
         } catch (AuthorizationException $e) {
@@ -362,9 +367,11 @@ class ReviewerController extends Controller
                 'message' => $e->getMessage(),
             ], 403);
         } catch (ModelNotFoundException $exception) {
+            DB::rollBack();
             return response()->json(["message" => "Your credentials are wrong, cannot be authorized for this action.", "data" => []], 401);
         } catch (Exception $exception) {
-            return response()->json(["message" => "An internal server error occurred, user request cannot be full filled."], 500);
+            DB::rollBack();
+            return response()->json(["message" => "An internal server error occurred, user request cannot be full filled.", 'error' => $exception -> getMessage()], 500);
         }
     }
 

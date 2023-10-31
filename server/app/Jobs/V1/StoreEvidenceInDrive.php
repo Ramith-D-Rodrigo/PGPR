@@ -2,6 +2,7 @@
 
 namespace App\Jobs\V1;
 
+use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -12,9 +13,10 @@ use App\Models\PostGraduateProgramReview;
 use App\Services\V1\PostGraduateProgramReviewService;
 use App\Models\Evidence;
 
+
 class StoreEvidenceInDrive implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, Batchable;
 
     protected $evidence;
     protected $pgprFolder;
