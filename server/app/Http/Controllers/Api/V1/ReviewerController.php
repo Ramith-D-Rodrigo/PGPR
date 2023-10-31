@@ -338,7 +338,7 @@ class ReviewerController extends Controller
             $review_team->pivot->declaration_letter = Storage::disk('public')->url($path); //add the file url here
             $review_team->pivot->save(); //save the data to the pivot table
 
-            if($review_team -> postGraduateReviewProgram -> acceptedReviewTeam && $review_team -> postGraduateReviewProgram -> hasAllReviewersAccepted()){
+            if($review_team -> postGraduateReviewProgram -> acceptedReviewTeam && $review_team -> postGraduateReviewProgram -> hasAllReviewersAccepted() && $review_team -> postGraduateReviewProgram -> status_of_pgpr === 'SUBMITTED'){
                 //then we have to store the evidences in the google drive
                 PostGraduateProgramReviewService::StoreEvidencesInSystemDriveAggregateJob($review_team -> postGraduateReviewProgram);
 
