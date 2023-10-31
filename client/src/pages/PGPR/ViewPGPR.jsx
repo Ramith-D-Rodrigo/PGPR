@@ -403,7 +403,7 @@ const ViewPGPR = () => {
     //we have to get the final report separately
 
     const secondaryBoxStyle = { display: 'flex', justifyContent: 'flex-start', alignItems: 'center', flexDirection: 'column', width: '50%', mt: 2, minHeight: '60vh' };
-    const detailedBox = { display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', width: '100%', margin: "1rem" };
+    const detailedBox = { display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', width: '95%', padding: "1rem", margin: "1rem", borderRadius: '1rem', backgroundColor: '#D8E6FC' };
     const itemBox = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row', width: '90%', margin: "0.5rem 0" };
 
     return (
@@ -579,6 +579,7 @@ const ViewPGPR = () => {
                                     {
                                         reviewTeam?.reviewers?.length > 0 &&
                                         <Box align='left' sx={{ display: 'flex', flexDirection: 'column' }}>
+                                            <ButtonGroup orientation='vertical'>
                                             <Button key={reviewerChair?.userData?.id + 'selectedChairProfile'} variant='contained' component={Link} to={`/${auth.authRole[0]}/reviewers/${reviewerChair?.userData?.id}`}>
                                                 View Profile
                                             </Button>
@@ -588,6 +589,7 @@ const ViewPGPR = () => {
                                             <Button key={reviewer2?.userData?.id + 'selectedMember2Profile'} variant='contained' component={Link} to={`/${auth.authRole[0]}/reviewers/${reviewer2?.userData?.id}`}>
                                                 View Profile
                                             </Button>
+                                            </ButtonGroup>
                                         </Box>
                                     }
 
@@ -634,7 +636,7 @@ const ViewPGPR = () => {
                                         select
                                         label="Decision"
                                         defaultValue={status === 'ACCEPTED' ? 'ACCEPTED' : ''}
-                                        sx={{ width: '50%', my: '1rem' }}
+                                        sx={{ width: '50%', my: '1rem', backgroundColor: '#fff' }}
                                         onChange={(e) => setDeanDecision(e.target.value)}
                                         value={
                                             pgpr.statusOfPgpr !== 'PLANNING' && pgpr.statusOfPgpr !== 'SUBMITTED' ?
@@ -653,7 +655,7 @@ const ViewPGPR = () => {
                                         multiline
                                         rows={4}
                                         defaultValue={''}
-                                        sx={{ width: '80%' }}
+                                        sx={{ width: '80%', backgroundColor: '#fff' }}
                                         value={deanRemarks}
                                         onChange={(e) => setDeanRemarks(e.target.value)}
                                         disabled={snackbar.open || auth.authRole[0] !== 'dean' || (pgpr.statusOfPgpr !== 'PLANNING' && pgpr.statusOfPgpr !== 'SUBMITTED') || status?.toLowerCase() !== 'pending'}
