@@ -44,6 +44,7 @@ const ConductDE = () => {
                 const response1 = await getSpecificPGPR(pgprId);
                 console.log("PGPR Details : ",response1?.data);
                 setPGPRDetails(response1?.data);
+                console.log("Reviewer Role : ",response1?.data?.data?.role);
                 setReviewerRole(response1?.data?.data?.role);
                 // setSERId(response1?.data?.data?.postGraduateReviewProgram?.selfEvaluationReport?.id);
                 const response2 = await getSelfEvaluationReport(response1?.data?.data?.postGraduateReviewProgram?.selfEvaluationReport?.id);
@@ -116,9 +117,9 @@ const ConductDE = () => {
         },
         { label: "PGPR ID:", value: `PGPR-${pgprId?? ""}` },
         { label: "PGPR Name:", value: pgProgrammeDetails?.title?? "" },
-        { label: "Application Start Date:", value: DE?.startDate?? "", color: new Date(DE?.startDate) <= new Date()? "blue" : "red" },
-        { label: "Submission Date:", value: DE?.endDate?? "", color: new Date(DE?.endDate) <= new Date()? "red" : "blue" },
-        { label: "Program Coordinator:", value: `${pgCoordinatorDetails?.initials?? ""} ${pgCoordinatorDetails?.surname?? ""}` },
+        { label: "Desk Evaluation Start Date:", value: DE?.startDate?? "", color: new Date(DE?.startDate) <= new Date()? "blue" : "red" },
+        { label: "Desk Evaluation End Date:", value: DE?.endDate?? "", color: new Date(DE?.endDate) <= new Date()? "red" : "blue" },
+        { label: "Programme Coordinator:", value: `${pgCoordinatorDetails?.initials?? ""} ${pgCoordinatorDetails?.surname?? ""}` },
       ];
 
       const Criterias = SERDetails?.criterias;

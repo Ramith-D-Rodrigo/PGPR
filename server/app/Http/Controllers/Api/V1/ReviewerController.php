@@ -468,7 +468,7 @@ class ReviewerController extends Controller
                 $validated = $validator->validated();
                 $reviewer = Reviewer::findOrFail(Auth::id());
 
-                $reviewTeam = $reviewer->reviewTeams->where('pgpr_id', $validated['pgprId'])->first()->load(['postGraduateReviewProgram' => ['selfEvaluationReport']]);
+                $reviewTeam = $reviewer->reviewTeams->where('pgpr_id', $validated['pgprId'])->where('status', 'ACCEPTED')->first()->load(['postGraduateReviewProgram' => ['selfEvaluationReport']]);
 
                 if (!$reviewTeam) {
                     return response()->json(['message' => 'Hmm, seems this reviewer is not a member of the review team of the given pgpr'], 403);
