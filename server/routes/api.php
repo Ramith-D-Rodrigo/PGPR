@@ -165,7 +165,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     //reviewer reject pgpr in de if the evidences aren't up to the standards
     Route::post('reviewer/reject-pgpr-in-evaluation', 'ReviewerController@rejectPGPRInEvaluation')->middleware('auth');
     //reviewer display the standards of a criteria with scores and comments +> URL params properEvaluation=10
-    Route::get('reviewer/proper-evaluation/display-remarks-scores', 'DeskEvaluationController@viewOwnProperEvaluationCommentsAndScores')->middleware('auth');
+    Route::get('reviewer/proper-evaluation/display-remarks-scores', 'ReviewerController@viewOwnProperEvaluationCommentsAndScores')->middleware('auth');
 
     //REVIEW TEAM CHAIR ENDPOINTS
     //review team chair assign criteria to team members (including himself)
@@ -218,6 +218,10 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::get('reviewer/desk-evaluation/view-standard-wise-evaluation/{deskEvaluation}/{criteria}/{standard}', 'DeskEvaluationController@getDeskEvaluationRemarkAndScoreForStandard')->middleware('auth');
     //api resource of the desk evaluation
     Route::apiResource('desk-evaluation', 'DeskEvaluationController');
+
+    //PROPER EVALUATION ENDPOINTS
+    //api resource of the desk evaluation
+    Route::apiResource('proper-evaluation', 'ProperEvaluationController');
     // api resource => this must come here otherwise the declaration doc will have problems
     Route::apiResource('reviewers', 'ReviewerController')->middleware('auth');
 
