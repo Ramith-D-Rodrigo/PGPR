@@ -140,7 +140,13 @@ function UpdateABC() {
 
   const updateRemark = async (remarkRequest) => {
     try {
-      SetLoading(true);
+      setSnackbar({
+        open: true,
+        message: "Wait while we update the remarks",
+        severity: "info"
+      });
+
+
       const response = await updateRemarksOfSERSections(remarkRequest);
 
       if(response && response.status === 200){
@@ -157,7 +163,6 @@ function UpdateABC() {
           severity: "error"
         });
       }
-      SetLoading(false);
 
     }
     catch (error) {
@@ -167,8 +172,6 @@ function UpdateABC() {
         message: error.response.data.message,
         severity: "error"
       });
-      SetLoading(false);
-
     }
   }
 
@@ -193,7 +196,7 @@ function UpdateABC() {
       </div>
       :
       <>
-      <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={() => setSnackbar({ ...snackbar, open: false })} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
+      <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={() => setSnackbar({ ...snackbar, open: false })} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
         <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: '100%' }}>
           {snackbar.message}
         </Alert>
@@ -214,7 +217,7 @@ function UpdateABC() {
             </Box>
             <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', alignItems: "flex-end", width: '100%' }}>
               <textarea onChange={(e) => setSectionARemark(e.target.value)} value={sectionARemark} placeholder='Enter Remarks here' style={{ width: "70%", height: "100px", margin: '0 0 0.5rem' }}></textarea>
-              <Button{...{disabled:loading}} variant="contained" color="primary" onClick={() => updateRemarkForA()}>Update</Button>
+              <Button{...{disabled:snackbar.open}} variant="contained" color="primary" onClick={() => updateRemarkForA()}>Update</Button>
             </Box>
 
           </Box>
@@ -227,7 +230,7 @@ function UpdateABC() {
             </Box>
             <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', alignItems: "flex-end", width: '100%' }}>
               <textarea onChange={(e) => setSectionBRemark(e.target.value)} value={sectionBRemark} placeholder='Enter Remarks here' style={{ width: "70%", height: "100px", margin: '0 0 0.5rem' }}></textarea>
-              <Button{...{disabled:loading}} variant="contained" color="primary" onClick={() => updateRemarkForB()}>Update</Button>
+              <Button{...{disabled:snackbar.open}} variant="contained" color="primary" onClick={() => updateRemarkForB()}>Update</Button>
             </Box>
 
           </Box>
@@ -240,7 +243,7 @@ function UpdateABC() {
             </Box>
             <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', alignItems: "flex-end", width: '100%' }}>
               <textarea onChange={(e) => setSectionDRemark(e.target.value)} value={sectionDRemark} placeholder='Enter Remarks here' style={{ width: "70%", height: "100px", margin: '0 0 0.5rem' }}></textarea>
-              <Button{...{disabled:loading}} variant="contained" color="primary" onClick={() => updateRemarkForD()}>Update</Button>
+              <Button{...{disabled:snackbar.open}} variant="contained" color="primary" onClick={() => updateRemarkForD()}>Update</Button>
             </Box>
 
           </Box>

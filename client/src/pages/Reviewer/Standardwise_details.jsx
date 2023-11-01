@@ -3,7 +3,7 @@ import useSetUserNavigations from '../../hooks/useSetUserNavigations';
 import { useParams } from 'react-router-dom';
 import { useState } from 'react';
 import Button from '@mui/material/Button';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box, Typography, CircularProgress } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box, Typography, CircularProgress, Divider, Chip } from '@mui/material';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
@@ -119,10 +119,11 @@ function Standardwise_details() {
             </div>
             :
             <Box sx={{display:'flex',flexDirection:'column',justifyContent:'space-between',maxHeight:'100%',height:'100%',alignItems:'center',margin:'10px'}}>
+                <Divider textAlign='left' sx={{width: '100%'}}>
+                    <Chip label="Standard Wise Details of the Desk Evaluation" style={{margin:'10px'}}/>
+                </Divider>
+
                 <Box sx={{display:'flex',flexDirection:'column',justifyContent:'center',width:"100%",alignItems:"center",margin:'10px'}}>
-                    <Typography align='center' fontWeight={600} variant="h6" gutterBottom component="div" style={{marginRight:'20px'}}>
-                        Standard Wise Details of Postgraduate programme review
-                    </Typography>
                     <FormControl style={{margin:"3rem 0 2rem",width:"50%"}} variant="standard" sx={{ m: 1, minWidth: 120 }}>
                     <InputLabel id="select-criteria">Criteria</InputLabel>
                     <Select

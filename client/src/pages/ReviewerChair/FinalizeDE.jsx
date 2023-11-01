@@ -131,8 +131,8 @@ function FinalizeDE() {
         },
         { label: "PGPR ID:", value: `PGPR-${pgprId?? ""}` },
         { label: "PGPR Name:", value: pgProgrammeDetails?.title?? "" },
-        { label: "Application Start Date:", value: "12/12/2020" },
-        { label: "Submission Date:", value: "01/01/2021" },
+        { label: "Desk Evaluation Start Date:", value: pgprDetails?.postGraduateReviewProgram?.deskEvaluation?.startDate },
+        { label: "Desk Evaluation End Date:", value: pgprDetails?.postGraduateReviewProgram?.deskEvaluation?.endDate },
         { label: "Program Coordinator:", value: `${pgCoordinatorDetails?.initials?? ""} ${pgCoordinatorDetails?.surname?? ""}` },
       ];
 
