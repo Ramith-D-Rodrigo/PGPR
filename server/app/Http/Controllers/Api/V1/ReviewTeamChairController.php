@@ -207,7 +207,7 @@ class ReviewTeamChairController extends Controller
             $data = [];
 
             foreach ($reviewer_ids as $reviewer_id) {
-                $criteria_ids = DB::table('reviewer_team_set_criteria')
+                $criteria_ids = DB::table('review_team_set_criterias')
                     ->where([
                         'assigned_to_reviewer_id' => $reviewer_id,
                         'pgpr_id' => $validated['pgpr_id'],
@@ -489,6 +489,7 @@ class ReviewTeamChairController extends Controller
                 $pgpr->properEvaluations->save();
 
                 $pgpr->status_of_pgpr = 'FINAL';
+
                 $pgpr->save();
 
                 DB::commit();
@@ -498,7 +499,7 @@ class ReviewTeamChairController extends Controller
             return response()->json([
                 'message' => 'The proper evaluation cannot be submitted yet, there are some inconsistencies with the scores provided by the review team, please check the progress.',
                 'data' => []
-            ]);
+            ], 400);
         } catch (AuthorizationException $e) {
             return response()->json(['message' => $e->getMessage()], 403);
 
@@ -520,14 +521,14 @@ class ReviewTeamChairController extends Controller
             return false;
         }
 
-        $assignedCriteria = DB::table('review_team_set_criterias')->where('review_team_id', $reviewTeam->id)->get();
+        $assignedCriteria = Criteria::all()->pluck('id');
 
         foreach ($assignedCriteria as $assignedCriterion) {
             // Get all standards for this criteria
             $standards = StandardService::getApplicableStandards(
                 $pgp->slqf_level,
                 $pgp->is_professional_pg_programme,
-                $assignedCriterion->id
+                $assignedCriterion
             );
 
             foreach ($standards as $standard) {
@@ -664,8 +665,7 @@ class ReviewTeamChairController extends Controller
                 );
             }
         } catch (Exception $exception) {
-            // return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
-            throw $exception;
+            return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
         }
     }
 

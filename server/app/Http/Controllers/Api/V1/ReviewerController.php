@@ -838,7 +838,7 @@ class ReviewerController extends Controller
                     'evaluatedStandards' => $evaluated_standards,
                 ];
             } else {
-                $criteria_ids = DB::table('reviewer_team_set_criteria')
+                $criteria_ids = DB::table('review_team_set_criterias')
                     ->where([
                         'assigned_to_reviewer_id' => Auth::id(),
                         'pgpr_id' => $validated['pgpr_id'],
@@ -1327,7 +1327,7 @@ class ReviewerController extends Controller
 
             $records = [];
 
-            $criteria_ids = DB::table('reviewer_team_set_criteria')
+            $criteria_ids = DB::table('review_team_set_criterias')
                 ->where([
                     'assigned_to_reviewer_id' => Auth::id(),
                     'pgpr_id' => $validated['pgpr_id'],
@@ -1354,11 +1354,11 @@ class ReviewerController extends Controller
                         'proper_evaluation_score.reviewer_id' => Auth::id()
                     ])
                     ->select(
-                        'proper_evaluation_scores.proper_evaluation_id AS properEvaluationId',
-                        'proper_evaluation_scores.reviewer_id AS reviewerId',
-                        'proper_evaluation_scores.standard_id AS standardId',
-                        'proper_evaluation_scores.pe_score AS peScore',
-                        'proper_evaluation_scores.comment'
+                        'proper_evaluation_score.proper_evaluation_id AS properEvaluationId',
+                        'proper_evaluation_score.reviewer_id AS reviewerId',
+                        'proper_evaluation_score.standard_id AS standardId',
+                        'proper_evaluation_score.pe_score AS peScore',
+                        'proper_evaluation_score.comment'
                     )
                     ->get();
 
