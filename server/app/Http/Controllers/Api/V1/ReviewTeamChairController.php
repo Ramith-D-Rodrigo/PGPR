@@ -282,7 +282,7 @@ class ReviewTeamChairController extends Controller
 
                 DB::beginTransaction();
                 $pgpr = PostGraduateProgramReview::find($validated['pgpr_id']);
-                $deskEvaluation = $pgpr->deskEvaluation;
+                $deskEvaluation = $pgpr->deskEvaluations;
 
                 $properEvaluation = new ProperEvaluation();
                 $properEvaluation->pgpr_id = $validated['pgpr_id'];
@@ -367,7 +367,7 @@ class ReviewTeamChairController extends Controller
         } catch (AuthorizationException $e) {
             return response()->json(['message' => $e->getMessage()], 403);
         } catch (Exception $exception) {
-            DB::rollBack();
+            throw $exception;
             return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
         }
     }
@@ -377,7 +377,7 @@ class ReviewTeamChairController extends Controller
         $reviewTeam = DB::table('review_teams')->where('pgpr_id', $pgprId)->first();
         $pgpr = PostGraduateProgramReview::find($pgprId);
         $pgp = $pgpr->postGraduateProgram;
-        $deskEvaluation = $pgpr->deskEvaluation;
+        $deskEvaluation = $pgpr->deskEvaluations;
 
         if (!$reviewTeam) {
             return false;
