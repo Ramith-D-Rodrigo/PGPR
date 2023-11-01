@@ -61,7 +61,9 @@ function ReviewerDashboard() {
             {
                 title: 'No of Applications currently reviewing',
                 content: '',
-                message: `${pgprs.length} PGPRs`
+                message: `${pgprs.filter((pgpr)=>{
+                    return pgpr?.reviewerConfirmation == "ACCEPTED";
+                }).length} PGPRs`
             },
             {
                 title: 'On Going Desk Evaluations',
@@ -76,7 +78,9 @@ function ReviewerDashboard() {
             {
                 title: 'New Assignments',
                 content: '',
-                message: 'Ends in 4 Days / End point coudnt found'
+                message: `${pgprs.filter((pgpr)=>{
+                    return pgpr?.reviewerConfirmation != "ACCEPTED";
+                }).length} PGPRs`
             },
         ];
         setContents(data);
