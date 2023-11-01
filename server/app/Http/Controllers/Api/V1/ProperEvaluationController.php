@@ -86,10 +86,11 @@ class ProperEvaluationController extends Controller
             $properEvaluation = ProperEvaluation::findOrFail($id);
 
             if (array_key_exists('status', $validated)) {
-                if ($validated['status'] == '2' && ($properEvaluation->status != '1' || $properEvaluation->status != '2')) {
+                if ($validated['status'] == '2' && $properEvaluation->status != 'COMPLETED') {
                     return response()->json(['message' => 'The proper evaluation is not in an updatable state.'], 422);
                 }
 
+                // switching from PE1 to PE2
                 if ($validated['status'] == '2' && $properEvaluation->status == '1') {
                     $properEvaluation2 = new ProperEvaluation2([
                         'start_date' => Carbon::today(),
