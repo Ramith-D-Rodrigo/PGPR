@@ -644,7 +644,7 @@ class ReviewerController extends Controller
 
             $validated = $request->validated();
             $postGraduateReviewProgram = PostGraduateProgramReview::findOrFail($validated['pgpr_id']);
-            $properEvaluation = $postGraduateReviewProgram->properEvaluation;
+            $properEvaluation = $postGraduateReviewProgram->properEvaluations;
 
             if ($properEvaluation) {
                 $attributes = [
