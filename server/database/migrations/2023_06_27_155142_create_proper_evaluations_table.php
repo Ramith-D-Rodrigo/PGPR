@@ -15,7 +15,7 @@ return new class extends Migration
           $table->id();
           $table->foreignId('pgpr_id');
           $table->date('start_date');
-          $table->date('end_date');
+          $table->date('end_date')->nullable();
           $table->enum("stage", ['1', '2', 'COMPLETED'])->default('1');
           $table->timestamps();
 
