@@ -23,4 +23,23 @@ class PostGraduateProgramFactory extends Factory
             'commencement_year' => fake()->year(),
         ];
     }
+
+    public function master_of_science_in_biomedical_informatics(): static
+    {
+        return $this->state(fn(array $attributes) => [
+            'title' => 'MSc in Biomedical Informatics',
+            'slqf_level' => 9,
+            'commencement_year' => 2019,
+        ]);
+    }
+
+
+    public function master_of_science_in_computer_engineering(): static
+    {
+        return $this->state(fn(array $attributes) => [
+            'title' => 'MSc in Computer Engineering',
+            'slqf_level' => 9,
+            'commencement_year' => 2019,
+        ]);
+    }
 }
