@@ -85,9 +85,6 @@ class ReviewTeamController extends Controller
                 return response()->json(['message' => 'This review already contains a review team. You cannot add another review team'], 422);
             }
 
-
-
-
             $postGraduateProgram = $postGraduateReviewProgram->postGraduateProgram; // find the postgraduate program
             $faculty = $postGraduateProgram->faculty; // find the faculty
             $university = $faculty->university; // find the university
@@ -359,7 +356,7 @@ class ReviewTeamController extends Controller
             $reviewTeam = $pgpr->reviewTeam;
 
             $data = DB::table('final_reports')
-                ->select('preliminary_report as preliminaryReport', 'created_at as createdAt', 'updated_at as updatedAt')
+                ->select('preliminary_report as preliminaryReport', 'type AS reportStatusType', 'created_at as createdAt', 'updated_at as updatedAt')
                 ->where('pgpr_id', $pgpr->id)
                 ->where('review_team_id', $reviewTeam->id)
                 ->first();
@@ -388,7 +385,7 @@ class ReviewTeamController extends Controller
             $reviewTeam = $pgpr->reviewTeam;
 
             $data = DB::table('final_reports')
-                ->select('final_report as finalReport', 'created_at as createdAt', 'updated_at as updatedAt')
+                ->select('final_report as finalReport', 'type AS reportStatusType', 'created_at as createdAt', 'updated_at as updatedAt')
                 ->where('pgpr_id', $pgpr->id)
                 ->where('review_team_id', $reviewTeam->id)
                 ->first();
