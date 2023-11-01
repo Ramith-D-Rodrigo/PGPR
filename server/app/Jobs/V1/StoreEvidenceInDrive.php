@@ -30,6 +30,7 @@ class StoreEvidenceInDrive implements ShouldQueue
         $this -> pgprFolder = $pgprFolder;
     }
 
+    public $tries = 5;
     /**
      * Execute the job.
      */

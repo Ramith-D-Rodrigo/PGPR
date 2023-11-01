@@ -19,26 +19,20 @@ use App\Models\Reviewer;
 use App\Models\ReviewTeam;
 use App\Models\University;
 use App\Models\UniversitySide;
-use App\Models\ViceChancellor;
-use Database\Factories\PostGraduateProgramReviewApplicationFactory;
-use Illuminate\Database\Seeder;
 use App\Models\User;
+use App\Models\ViceChancellor;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
 
-class DatabaseSeeder extends Seeder
+class DevelopmentSeeder extends Seeder
 {
     /**
-     * Seed the application's database.
+     * Run the database seeds.
      */
     public function run(): void
     {
-        //User::factory()->programme_coordinator()->hasUniversitySide()->create();
-        //User::factory()->cqa_director()->hasUniversitySide()->create();
-        //User::factory()->iqau_director()->hasUniversitySide()->create();
-        //User::factory()->vice_chancellor()->hasUniversitySide()->create();
-
         $officer = User::factory()->qac_officer()->hasQualityAssuranceCouncilOfficer()->create();
         $director = QualityAssuranceCouncilOfficer::factory()->for(User::factory()->qac_director())->hasQualityAssuranceCouncilDirector()->create();
-
 
         $university = University::factory()->colombo_uni()->for(CenterForQualityAssurance::factory()->create())->create(); //model
         $university2 = University::factory()->moratuwa_uni()->for(CenterForQualityAssurance::factory()->create())->create(); //model
@@ -119,11 +113,6 @@ class DatabaseSeeder extends Seeder
         $post_graduate_program = PostGraduateProgram::factory()->master_of_science_in_biomedical_informatics()->create(); //model
         $post_graduate_program2 = PostGraduateProgram::factory()->master_of_science_in_computer_engineering()->create(); //model
 
-        $pgpr_applcation = PostGraduateProgramReviewApplication::factory()->for($post_graduate_program)->create(); //model
-
-        $pgpr = PostGraduateProgramReview::factory()->create(); //model
-
-        $review_team = ReviewTeam::factory()->create(); //model
 
         $faculty = Faculty::factory()->faculty_of_medicine_colombo()->has(InternalQualityAssuranceUnit::factory())->create(); //model
         $faculty2 = Faculty::factory()->faculty_of_engineering_moratuwa()->has(InternalQualityAssuranceUnit::factory())->create(); //model
@@ -226,35 +215,6 @@ class DatabaseSeeder extends Seeder
         $dean2->save();
 
 
-        //filling the gaps for prpr application
-
-        //first submission by dean and applied by cqa director
-        $pgpr_applcation->dean_id = $dean->id; //created by dean
-        $pgpr_applcation->status = 'applied';
-        $pgpr_applcation->application_date = now();
-        $pgpr_applcation->save();
-
-        //secondly, approved by qac officer
-        $pgpr_applcation->status = 'approved';
-        $pgpr_applcation->quality_assurance_council_officer_id = $officer->id;
-        $pgpr_applcation->save();
-
-        // filling the gaps for pgpr
-        $pgpr->post_graduate_program_id = $post_graduate_program->id;
-        $pgpr->pgpr_application_id = $pgpr_applcation->id;
-        $pgpr->save();
-
-        //create self evaluation report for pgpr
-        $pgpr->selfEvaluationReport()->create([
-            'pgp_coordinator_id' => $program_coordinator->id,
-            'iqau_dir_id' => $iqauDir->id]);
-
-        // filling the gaps for review team
-        $review_team->pgpr_id = $pgpr->id;
-        $review_team->dean_id = $dean->id;
-        $review_team->qualityAssuranceCouncilOfficer()->associate($officer);    //created by qac officer
-        $review_team->save();
-
 
         // filling the gaps for reviewer
         $reviewer->working_faculty = $faculty2->id;
@@ -265,17 +225,6 @@ class DatabaseSeeder extends Seeder
 
         $reviewer3->working_faculty = $faculty2->id;
         $reviewer3->save();
-
-        //attaching reviewers to the review team
-        $review_team->reviewers()->attach($reviewer, ['role' => 'MEMBER', 'reviewer_confirmation' => 'ACCEPTED']);
-        $review_team->reviewers()->attach($reviewer2, ['role' => 'MEMBER', 'reviewer_confirmation' => 'ACCEPTED']);
-        $review_team->reviewers()->attach($reviewer3, ['role' => 'CHAIR', 'reviewer_confirmation' => 'ACCEPTED']);
-
-        //dean accepts the review team
-        $review_team->status = 'ACCEPTED';
-        $review_team->dean_decision= 'ACCEPTED';
-        $review_team->dean()->associate($dean);
-        $review_team->save();
 
         /*//run reviewer seeder
         $this->call([ReviewerSeeder::class]);

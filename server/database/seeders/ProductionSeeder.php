@@ -21,7 +21,7 @@ class ProductionSeeder extends Seeder
         $this->call([StandardSeeder::class]);
 
 
-        $officer = User::factory()->qac_officer()->hasQualityAssuranceCouncilOfficer()->create();
-        $director = QualityAssuranceCouncilOfficer::factory()->for(User::factory()->qac_director())->hasQualityAssuranceCouncilDirector()->create();
+        $officer = User::factory()->qac_officer()->production()->hasQualityAssuranceCouncilOfficer()->create();
+        $director = QualityAssuranceCouncilOfficer::factory()->for(User::factory()->qac_director()->production())->hasQualityAssuranceCouncilDirector()->create();
     }
 }
