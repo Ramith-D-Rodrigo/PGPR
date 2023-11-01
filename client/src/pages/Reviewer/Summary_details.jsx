@@ -21,6 +21,7 @@ import {
 import useSetUserNavigations from "../../hooks/useSetUserNavigations";
 import axios from "../../api/api";
 import { SERVER_API_VERSION, SERVER_URL } from "../../assets/constants";
+import { useNavigate } from "react-router-dom";
 
 function Summary_details() {
   const { pgprId } = useParams();
@@ -72,6 +73,8 @@ function Summary_details() {
     }
     getScoreDetails();
   }, [pgprId]);
+
+  const navigate = useNavigate();
 
   return (
     <>
@@ -250,6 +253,9 @@ function Summary_details() {
             variant="contained"
             color="primary"
             style={{ margin: "0 10px" }}
+            onClick={()=> 
+              navigate(`/reviewer/PG_Assignments/Conduct_DE/Submit_DE/${pgprId}`)
+            }
           >
             Submit the Desk Evaluation
           </Button>
