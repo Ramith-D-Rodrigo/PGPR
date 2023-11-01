@@ -370,7 +370,7 @@ class ReviewerController extends Controller
                         $creatorOfReviewTeam,
                         $reviewer -> user,
                         $post_grad_program,
-                        $request->validated('comment'),
+                        'I accept this assignment',
                         'Reviewer Rejected Postgraduate Program Review',
                         'mail.reviewerAcceptedPostrgaduateProgramReview'
                     )

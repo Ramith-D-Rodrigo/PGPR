@@ -110,7 +110,12 @@ const ForgotPasswordPasswordReset = () => {
             let response = await axios.post('/reset-password', formData);
             console.log(response?.data);
             setSuccess(true);
-            navigate('/login', { replace: false });
+            setTimeout(
+                () => {
+                    navigate('/login', { replace: false });
+                },
+                2400
+            );
         } catch (error) {
             setErrorMsg(error?.response?.data?.message);
             console.error(error);
