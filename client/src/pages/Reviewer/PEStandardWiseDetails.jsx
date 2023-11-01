@@ -12,6 +12,9 @@ import {
   Paper,
   Box,
   Typography,
+  Snackbar,
+  Alert,
+  CircularProgress,
 } from "@mui/material";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
@@ -29,6 +32,7 @@ function PEStandardwiseDetails() {
   const [criteriaStandards, setCriteriaStandards] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [success, setSuccess] = useState(false);
 
   useSetUserNavigations([
     {
@@ -57,7 +61,7 @@ function PEStandardwiseDetails() {
         const PEResponse = await axios.get(
           `${SERVER_URL}${SERVER_API_VERSION}proper-evaluation/${pgprId}`
         );
-        // console.log(PEResponse?.data?.data);
+        console.log("PE : ",PEResponse?.data?.data);
         if (PEResponse?.data?.data) {
           const response = await axios.get(
             `${SERVER_URL}${SERVER_API_VERSION}reviewer/proper-evaluation/display-remarks-scores?pgpr=${pgprId}&properEvaluation=${PEResponse?.data?.data?.id}`,
@@ -65,7 +69,7 @@ function PEStandardwiseDetails() {
           setAssignedCriterias(response?.data);
           setSelectedCriteriaId(response?.data[0]?.criteriaId);
           setCriteriaStandards(response?.data[0]?.evaluatedStandards);
-          //console.log(response?.data);
+          //console.log("scores : ",response?.data);
         }
       } catch (error) {
         setErrorMsg(error?.response?.data?.message);
@@ -76,162 +80,205 @@ function PEStandardwiseDetails() {
     getCriteriaDetails();
   }, [pgprId]);
 
-  //console.log(assignedCriterias);
-  // console.log(PEData);
-  // console.log(selectedCriteriaId);
-  //console.log(criteriaStandards);
+  console.log("Assign : ",assignedCriterias);
+  //console.log(PEData);
+  console.log("Select : ", selectedCriteriaId);
+  console.log("stan : ", criteriaStandards);
 
   return (
-    <>
+    <Box>
       {loading ? (
-        <Typography variant="h5" align="center" sx={{ mt: 5 }}>
-          Loading...
-        </Typography>
-      ) : errorMsg ? (
-        <Typography variant="h5" align="center" sx={{ mt: 5 }}>
-          {errorMsg}
-        </Typography>
-      ) : (
         <Box
           sx={{
             display: "flex",
             flexDirection: "column",
-            maxHeight: "100%",
             alignItems: "center",
-            margin: "10px",
+            justifyContent: "center",
+            height: "100vh",
+            marginTop: "-10vh",
           }}
         >
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              width: "100%",
-              alignItems: "center",
-              margin: "10px",
-            }}
-          >
-            <Typography
-              align="center"
-              fontWeight={600}
-              variant="h6"
-              gutterBottom
-              component="div"
-              style={{ marginRight: "20px" }}
+          <Typography variant="h5" color="primary">
+            Loading...
+          </Typography>
+          <CircularProgress size={50} thickness={3} />
+        </Box>
+      ) : (
+        <>
+        
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                maxHeight: "100%",
+                alignItems: "center",
+                margin: "10px",
+              }}
             >
-              Standard Wise Details of Postgraduate programme review
-            </Typography>
-            <FormControl
-              style={{ margin: "3rem 0 2rem", width: "50%" }}
-              variant="standard"
-              sx={{ m: 1, minWidth: 120 }}
-            >
-              <InputLabel id="select-criteria">Criteria</InputLabel>
-              <Select
-                labelId="select-criteria"
-                id="criteria-select"
-                value={
-                  assignedCriterias
-                    ? assignedCriterias?.findIndex(
-                        (item) => item.criteriaId === selectedCriteriaId
-                      )
-                    : 0
-                }
-                onChange={(e) => {
-                  setSelectedCriteriaId(
-                    assignedCriterias?.[e.target.value]?.criteriaId
-                  );
-                  setCriteriaStandards(
-                    assignedCriterias?.[e.target.value]?.evaluatedStandards
-                  );
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  width: "100%",
+                  alignItems: "center",
+                  margin: "10px",
                 }}
-                label="criteria"
               >
-                {assignedCriterias.map((criteria, index) => (
-                  <MenuItem key={index} value={index}>
-                    {criteria?.criteriaName}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Box>
-          <TableContainer component={Paper}>
-            <Table
-              sx={{ minWidth: 650 }}
-              stickyHeader
-              aria-label="sticky table"
-            >
-              <TableHead>
-                <TableRow>
-                  <TableCell
-                    style={{ backgroundColor: "#D8E6FC" }}
-                    align="left"
+                <Typography
+                  align="center"
+                  fontWeight={600}
+                  variant="h6"
+                  gutterBottom
+                  component="div"
+                  style={{ marginRight: "20px" }}
+                >
+                  Standard Wise Details of Postgraduate programme review
+                </Typography>
+                <FormControl
+                  style={{ margin: "3rem 0 2rem", width: "50%" }}
+                  variant="standard"
+                  sx={{ m: 1, minWidth: 120 }}
+                >
+                  <InputLabel id="select-criteria">Criteria</InputLabel>
+                  <Select
+                    labelId="select-criteria"
+                    id="criteria-select"
+                    value={
+                      assignedCriterias
+                        ? assignedCriterias?.findIndex(
+                            (item) => item.criteriaId === selectedCriteriaId
+                          )
+                        : 0
+                    }
+                    onChange={(e) => {
+                      setSelectedCriteriaId(
+                        assignedCriterias?.[e.target.value]?.criteriaId
+                      );
+                      setCriteriaStandards(
+                        assignedCriterias?.[e.target.value]?.evaluatedStandards
+                      );
+                    }}
+                    label="criteria"
                   >
-                    <b>Standard No</b>
-                  </TableCell>
-                  <TableCell
-                    style={{ backgroundColor: "#D8E6FC" }}
-                    align="center"
-                  >
-                    <b>Score</b>
-                  </TableCell>
-                  <TableCell
-                    style={{ backgroundColor: "#D8E6FC" }}
-                    align="center"
-                  >
-                    <b>Review Comments</b>
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {criteriaStandards.length === 0 ? (
-                  <TableRow
-                    textalign="center"
-                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                  >
-                    <TableCell colSpan={3}>
-                      <Typography
-                        variant="h6"
-                        align="center"
-                        sx={{ mt: 5, mb: 5 }}
+                    {assignedCriterias.map((criteria, index) => (
+                      <MenuItem key={index} value={index}>
+                        {criteria?.criteriaName}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Box>
+              <TableContainer component={Paper}>
+                <Table
+                  sx={{ minWidth: 650 }}
+                  stickyHeader
+                  aria-label="sticky table"
+                >
+                  <TableHead>
+                    <TableRow>
+                      <TableCell
+                        style={{ backgroundColor: "#D8E6FC" }}
+                        align="left"
                       >
-                        No Data Found
-                      </Typography>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  criteriaStandards.map((standard, index) => (
-                    <TableRow
-                      key={index}
-                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                    >
-                      <TableCell align="left">{standard.no}</TableCell>
-                      <TableCell align="center">{standard.score}</TableCell>
-                      <TableCell align="center">
-                        {standard.review_comments}
+                        <b>Standard No</b>
+                      </TableCell>
+                      <TableCell
+                        style={{ backgroundColor: "#D8E6FC" }}
+                        align="center"
+                      >
+                        <b>Score</b>
+                      </TableCell>
+                      <TableCell
+                        style={{ backgroundColor: "#D8E6FC" }}
+                        align="center"
+                      >
+                        <b>Review Comments</b>
                       </TableCell>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <Box
-            sx={{ display: "flex", justifyContent: "center", margin: "2rem" }}
-          >
-            <Link to={`../Summary_details/${pgprId}`}>
-              <Button
-                variant="contained"
-                color="primary"
-                style={{ margin: "0 2px" }}
+                  </TableHead>
+                  <TableBody>
+                    {criteriaStandards.length === 0 ? (
+                      <TableRow
+                        textalign="center"
+                        sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                      >
+                        <TableCell colSpan={3}>
+                          <Typography
+                            variant="h6"
+                            align="center"
+                            sx={{ mt: 5, mb: 5 }}
+                          >
+                            No Data Found
+                          </Typography>
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      criteriaStandards.map((standard, index) => (
+                        <TableRow
+                          key={index}
+                          sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                        >
+                          <TableCell align="left">{standard.standardId}</TableCell>
+                          <TableCell align="center">{standard.peScore ?? "Score missing"}</TableCell>
+                          <TableCell align="center">
+                            {standard.comment ?? "No comments"}
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              <Box
+                sx={{ display: "flex", justifyContent: "center", margin: "2rem" }}
               >
-                View Summary Details of Criteria Wise
-              </Button>
-            </Link>
-          </Box>
-        </Box>
+                <Link to={`../Summary_details/${pgprId}`}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    style={{ margin: "0 2px" }}
+                  >
+                    View Summary Details of Criteria Wise
+                  </Button>
+                </Link>
+              </Box>
+            </Box>
+          
+          <Snackbar
+            open={errorMsg !== "" && !success}
+            anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            onClose={() => setErrorMsg("")}
+          >
+            <Alert onClose={() => setErrorMsg("")} severity="error">
+              {errorMsg}
+            </Alert>
+          </Snackbar>
+
+          <Snackbar
+            open={success}
+            autoHideDuration={5000}
+            anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            onClose={() => {
+              setSuccess(false);
+              setErrorMsg("");
+            }}
+          >
+            <Alert
+              autoHideDuration={5000}
+              onClose={() => {
+                setSuccess(false);
+                setErrorMsg("");
+              }}
+              severity="success"
+            >
+              {errorMsg}
+              {/* on success */}
+            </Alert>
+          </Snackbar>
+        </>
       )}
-    </>
+    </Box>
   );
 }
 
