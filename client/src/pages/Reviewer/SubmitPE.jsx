@@ -1,239 +1,396 @@
-import React from 'react'
-import { useParams } from 'react-router-dom'
-import useSetUserNavigations from '../../hooks/useSetUserNavigations';
-import ScrollableDiv from '../../components/ScrollableDiv';
-import DiscriptiveDiv from '../../components/DiscriptiveDiv';
-import { useState, useEffect } from 'react';
-import Button from '@mui/material/Button';
-import { Grid,Typography,Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box, Divider, CircularProgress } from '@mui/material';
-import { Link } from 'react-router-dom';
-import CloseIcon from '@mui/icons-material/Close';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import { useTheme } from '@mui/material/styles';
-import useDrawerState from '../../hooks/useDrawerState';
-import getSelfEvaluationReport from '../../api/SelfEvaluationReport/getSelfEvaluationReport';
-import createSERRows from '../../assets/reviewer/createSERRows';
-import useReviewerRole from '../../hooks/useReviewerRole';
-import getAssignedPGPR from '../../api/Reviewer/getAssignedPGPR';
+import { useParams } from "react-router-dom";
+import useSetUserNavigations from "../../hooks/useSetUserNavigations";
+import DiscriptiveDiv from "../../components/DiscriptiveDiv";
+import { useState, useEffect } from "react";
+import Button from "@mui/material/Button";
+import {
+  Grid,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Box,
+  Divider,
+  Chip,
+  CircularProgress,
+  Snackbar,
+  Alert,
+} from "@mui/material";
+import { Link } from "react-router-dom";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { useTheme } from "@mui/material/styles";
+import getSelfEvaluationReport from "../../api/SelfEvaluationReport/getSelfEvaluationReport";
+import getAssignedPGPR from "../../api/Reviewer/getAssignedPGPR";
+import axios from "../../api/api";
+import { SERVER_API_VERSION, SERVER_URL } from "../../assets/constants";
 
 const SubmitPE = () => {
-    const theme = useTheme();
-    const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-    const {pgprId} = useParams();
-    const open = useDrawerState().drawerState.open;
-    const [SERDetails,setSERDetails] = useState([]);
-    const [loading,SetLoading] = useState(false);
-    const {reviewerRole, setReviewerRole} = useReviewerRole();
-    const [openDialog, setOpenDialog] = useState(false);
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
+  const { pgprId } = useParams();
+  const [SERDetails, setSERDetails] = useState([]);
+  const [criteriaList, setCriteriaList] = useState([]);
+  const [progressList, setProgressList] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [reviewerRole, setReviewerRole] = useState("");
+  const [properEvaluation, setProperEvaluation] = useState("");
+  const [openDialog, setOpenDialog] = useState(false);
+  const [serId, setSerId] = useState("");
+  const [success, setSuccess] = useState(false);
 
-    useSetUserNavigations(
-        [
-            {
-              name: "PG Assignments",
-              link: "/PG_Assignments"
-            },
-            {
-                name: "PE",
-                link: "/PG_Assignments/Conduct_PE/"+pgprId
-            },
-            {
-                name: "Submit PE",
-                link: "/PG_Assignments/Conduct_PE/Submit_PE/"+pgprId
-            }
-        ]
-    );
+  useSetUserNavigations([
+    {
+      name: "PG Assignments",
+      link: "/PG_Assignments",
+    },
+    {
+      name: "Proper Evaluation",
+      link: "/PG_Assignments/Conduct_PE/" + pgprId,
+    },
+    {
+      name: "Submit PE",
+      link: "/PG_Assignments/Conduct_PE/Submit_PE/" + pgprId,
+    },
+  ]);
 
-    useEffect(() => {
-        document.title = "Submit Proper Evaluation";
-        const getSERDetails = async () => {
-            SetLoading(true);
-            try {
-                const response = await getSelfEvaluationReport(pgprId);
-                console.log("SER Details : ",response?.data?.data);
-                setSERDetails(response?.data?.data);
-                SetLoading(false);
-            } catch (err) {
-                console.error(err);
-                SetLoading(false);
-            }
-        };
-        const getPGPRDetails = async () => {
-            SetLoading(true);
-            try {
-                const response = await getAssignedPGPR(pgprId);
-                console.log("PGPR Details : ",response?.data?.data);
-                setReviewerRole(response?.data?.data?.reviewerRole);
-                SetLoading(false);
-            } catch (err) {
-                console.error(err);
-                SetLoading(false);
-            }
-        };
-        getSERDetails();
-        // getPGPRDetails();
-    }, []);
+  useEffect(() => {
+    document.title = "Submit Proper Evaluation";
+    const getPGPRDetails = async () => {
+      setLoading(true);
+      setErrorMsg("");
+      try {
+        const response = await getAssignedPGPR(pgprId);
+        //console.log("PGPR Details : ", response?.data?.data);
+        setReviewerRole(response?.data?.data?.role);
+        setProperEvaluation(response?.data?.data?.postGraduateReviewProgram?.properEvaluation?.id);
+        setSerId(response?.data?.data?.postGraduateReviewProgram?.selfEvaluationReport?.id);
+        // console.log(
+        //   "Proper Evaluation : ",
+        //   response?.data?.data?.postGraduateReviewProgram?.properEvaluation?.id
+        // );
+        // console.log("Reviewer Role : ", response?.data?.data?.role);
+        if(response?.data?.data){
+          const response = await getSelfEvaluationReport(serId);
+          //console.log("SER Details : ", response?.data?.data);
+          setSERDetails(response?.data?.data);
+          setCriteriaList(response?.data?.data?.criterias);
+        }
+      } catch (err) {
+        setErrorMsg(err?.response?.data?.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    getPGPRDetails();
+  }, [pgprId, serId]);
 
-    function createData(criteriaData,PE_progress) {
-        const Actions = [<Link key={1} to={`../${pgprId}/${criteriaData.id}`}><Button style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{"Update"}</Button></Link>]
-        return {criteria:criteriaData.name, PE_progress, Actions };
+  useEffect(() => {
+    async function getProgressDetails() {
+      setLoading(true);
+      setErrorMsg("");
+      try {
+        if (properEvaluation === "") return;
+        const response = await axios.get(
+          `${SERVER_URL}${SERVER_API_VERSION}reviewer/proper-evaluation/view-progress?pgpr=${pgprId}&properEvaluation=${properEvaluation}`
+        );
+        setProgressList(response?.data?.data);
+        //console.log("PGPR : ", response?.data?.data);
+      } catch (err) {
+        setErrorMsg(err?.response?.data?.message);
+      } finally {
+        setLoading(false);
+      }
     }
+    getProgressDetails();
+  }, [pgprId, properEvaluation]);
 
-    const handleSubmitPE_results = () => {
-        // API call to submit the PE results
-        setOpenDialog(false);
+  const handleSubmitPE_results = () => {
+    // API call to submit the PE results
+    setOpenDialog(false);
+  };
+
+  const pgProgrammeDetails =
+    SERDetails?.postGraduateProgramReview?.postGraduateProgramme;
+  const facultyDetails = pgProgrammeDetails?.faculty;
+  const universityDetails = facultyDetails?.university;
+  const pgCoordinatorDetails =
+    pgProgrammeDetails?.programmeCoordinator?.academicStaff?.universitySide
+      ?.user;
+  const headerInfo = [
+    { label: "PGPR ID:", value: `PGPR-${pgprId ?? ""}` },
+    { label: "PG Program Name:", value: pgProgrammeDetails?.title ?? "" },
+    { label: "University:", value: universityDetails?.name ?? "" },
+    {
+      label: "Faculty/Institute:",
+      value: facultyDetails?.name ?? "",
+    },
+    {
+      label: "Program Coordinator:",
+      value: `${pgCoordinatorDetails?.initials ?? ""} ${
+        pgCoordinatorDetails?.surname ?? ""
+      }`,
+    },
+    { label: "Application Start Date:", value: "12/12/2020" },
+    { label: "Submission Date:", value: "01/01/2021" },
+  ];
+
+  function createData (
+    criteriaName,
+    totalStandards,
+    evaluatedStandards,
+    actions
+  ) {
+    const progressValue = `${evaluatedStandards}/${totalStandards}`;
+    actions = actions.map((action, index) => {
+      let allow = action.allow ? { disabled: false } : { disabled: true };
+      allow = loading ? { disabled: true } : allow;
+      return (
+        <Link 
+          key={index} 
+          to={
+            action.allow
+              ? action.link
+              : ""
+            }
+        >
+          <Button
+            {...allow}
+            style={{ margin: "0 8px" }}
+            variant="contained"
+            color="primary"
+            size="small"
+          >
+            {action.action}
+          </Button>
+        </Link>
+      );
+    });
+
+    return { 
+      criteriaName,
+      progressValue,
+      actions 
     };
+  }
 
-    let descriptionWidth = 30;
+  const rows = progressList.length > 0 
+    ? progressList.map((progress) => {
+      const criteriaId = progress?.criteriaId;
+      const criteriaName = progress?.criteriaName;
+      const totalStandards = progress?.totalStandards;
+      const evaluatedStandards = progress?.evaluatedStandards;
+      const actions = [{
+        action: "Update",
+        allow: true,
+        link: `../${pgprId}/${criteriaId}`,
+      }];
+      return createData ( 
+        criteriaName,
+        totalStandards,
+        evaluatedStandards,
+        actions 
+      );
+    }) 
+  : [];
 
-    const [expand, setexpand] = useState(8);
-
-    let bodyHeight = open ==true? `${80-expand}%` : `calc( ${80-expand}% - 60px )`;
-    let tableHeight = expand ==8? {} : {height:'300px'};
-
-    let newHeight = open ==true? `${80-expand}%` : `calc( ${80-expand}% - 40px )`;
-    const handleClick = ()=>{
-        if(expand==8)
-        {
-        setexpand(descriptionWidth);
-        }
-        else{
-        setexpand(8);
-        }
-    };
-
-    const headerRowStyle = {
-        display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '70%', padding: '0 20px', fontSize: '16px',borderBottom: '1px solid #00000020'
-    };
-
-    const headerRowDivStyle = {width:'50%',textAlign:'left'};
-
-    const pgProgrammeDetails = SERDetails?.postGraduateProgramReview?.postGraduateProgramme;
-    const facultyDetails = pgProgrammeDetails?.faculty;
-    const universityDetails = facultyDetails?.university;
-    const pgCoordinatorDetails = pgProgrammeDetails?.programmeCoordinator?.academicStaff?.universitySide?.user;
-    const headerInfo = [
-        { label: "University:", value: universityDetails?.name?? "" },
-        {
-          label: "Faculty/Institute:",
-          value: facultyDetails?.name?? "",
-        },
-        { label: "PGPR ID:", value: `PGPR-${pgprId?? ""}` },
-        { label: "PGPR Name:", value: pgProgrammeDetails?.title?? "" },
-        { label: "Application Start Date:", value: "12/12/2020" },
-        { label: "Submission Date:", value: "01/01/2021" },
-        { label: "Program Coordinator:", value: `${pgCoordinatorDetails?.initials?? ""} ${pgCoordinatorDetails?.surname?? ""}` },
-      ];
-
-      const Criterias = SERDetails?.criterias;
-      const evidencesForGivenStandards = SERDetails?.evidenceGivenStandards;
-
-      console.log("Criterias : ",Criterias);
-        console.log("evidencesForGivenStandards : ",evidencesForGivenStandards);
-  
-    //   const rows = Criterias? createSERRows(SERDetails?.criterias,SERDetails?.evidenceGivenStandards,createData) : [];
-
-      const rows = [
-        createData({name:"Programme Management",id:1}, "20/23" , [{action:'Update',allow:true}]),
-        createData({name:"Student Assessment & Awards",id:1}, "20/23" , [{action:'Update',allow:true}]),
-        createData({name:"Innovative & Healthy Practices",id:1}, "20/23" , [{action:'Update',allow:true}]),
-      ];
-
-    return (
+  return (
+    <Box>
+      {loading ? (
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            height: "100vh",
+            marginTop: "-10vh",
+          }}
+        >
+          <Typography variant="h5" color="primary">
+            Loading...
+          </Typography>
+          <CircularProgress size={50} thickness={3} />
+        </Box>
+      ) : (
         <>
-            <DiscriptiveDiv
-                description={`${reviewerRole?? ""}`}
-                width="100%"
-                height="auto"
-                backgroundColor="#D8E6FC"
-            >
-                <Grid container spacing={2}>
-                {headerInfo.map((infoItem, index) => (
-                    <Grid item xs={6} sm={3} key={index}>
-                    <Typography align='left' variant="subtitle1">
-                        <b>{infoItem.label}</b>
-                    </Typography>
-                    <Typography align='left'>{infoItem.value}</Typography>
-                    </Grid>
-                ))}
+          <DiscriptiveDiv
+            description="PostGraduate Program Details"
+            width="100%"
+            height="auto"
+            backgroundColor="#D8E6FC"
+          >
+            <Grid container spacing={2}>
+              {headerInfo.map((infoItem, index) => (
+                <Grid item xs={6} sm={3} key={index}>
+                  <Typography align="left" variant="subtitle1">
+                    <b>{infoItem.label}</b>
+                  </Typography>
+                  <Typography align="left">{infoItem.value}</Typography>
                 </Grid>
-            </DiscriptiveDiv>
+              ))}
+            </Grid>
+          </DiscriptiveDiv>
 
-            <Divider style={{margin:"2rem 0 1rem"}} textAlign="center">Proper Evaluation</Divider>
-    
-            <TableContainer component={Paper} style={{height:"auto"}}>
-                <Table sx={{ minHeight: 300 }} stickyHeader aria-label="sticky table">
-                    <TableHead>
-                        <TableRow>
-                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="left"><b>Criteria</b></TableCell>
-                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Proper Evaluation Progress</b></TableCell>
-                            <TableCell style={{backgroundColor:"#D8E6FC",}} align="center"><b>Actions</b></TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {
-                        loading?
-                            <div style={{position:'absolute',left:50,right:50,margin:"0 auto",display:"flex",justifyContent:"center",alignItems:"center"}}> 
-                                <Typography variant="h6" style={{ margin: "0 0 0 20px" }}>
-                                    Loading ...
-                                </Typography>
-                                <CircularProgress
-                                style={{ margin: "0 0 0 20px", color: "darkblue" }}
-                                thickness={5}
-                                size={24}
-                                />
-                            </div>
-                            :
-                        rows.map((row) => (
-                            <TableRow
-                            key={row.criteria}
-                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                            >
-                                <TableCell component="th" scope="row">
-                                    {row.criteria}
-                                </TableCell>
-                                <TableCell align="center">{row.PE_progress}</TableCell>
-                                <TableCell align="center">{row.Actions}</TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
+          <Divider style={{ margin: "1rem 0 1rem" }} textAlign="left">
+            <Chip label="Proper Evaluation Progress" />
+          </Divider>
 
-            <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', width: '100%', padding: '20px 0',height:"auto" }}>
-                    <Button onClick={()=>setOpenDialog(true)} variant="contained" size="small" style={{width:"300px",height:'55px',backgroundColor:"#A2CBEA",color:'black'}}>Submit The Proper Evaluation Results</Button>
-            </Box>
-
-            <Dialog
-                fullScreen={fullScreen}
-                open={openDialog}
-                onClose={()=>setOpen(false)}
-                aria-labelledby="submit-PE_results"
+          <TableContainer component={Paper} style={{ height: "auto" }}>
+            <Table
+              sx={{ minHeight: 300 }}
+              stickyHeader
+              aria-label="sticky table"
             >
-                <DialogTitle id="submit-PE_results_ID">
-                {"Are you sure that you want to Submit the Proper Evaluation Results?"}
-                </DialogTitle>
-                <DialogContent>
-                <DialogContentText>
-                    Once you Submit the Proper Evaluation Results, you can't undo this action.
-                </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                <Button autoFocus onClick={()=>setOpenDialog(false)}>
-                    cancel
-                </Button>
-                <Button onClick={()=>handleSubmitPE_results()} autoFocus>
-                    Submit
-                </Button>
-                </DialogActions>
-            </Dialog>
+              <TableHead>
+                <TableRow sx={{ "&:last-child th": { border: 0 } }}>
+                  <TableCell
+                    style={{ backgroundColor: "#D8E6FC" }}
+                    align="left"
+                  >
+                    <b>Criteria Name</b>
+                  </TableCell>
+                  <TableCell
+                    style={{ backgroundColor: "#D8E6FC" }}
+                    align="center"
+                  >
+                    <b>Proper Evaluation Progress</b>
+                  </TableCell>
+                  <TableCell
+                    style={{ backgroundColor: "#D8E6FC" }}
+                    align="center"
+                  >
+                    <b>Actions</b>
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={3} align="center">
+                      <Typography variant="h6" style={{ margin: "0 0 0 20px" }}>
+                        Loading ...
+                      </Typography>
+                      <CircularProgress
+                        style={{ margin: "0 0 0 20px", color: "darkblue" }}
+                        thickness={5}
+                        size={24}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  rows.map((row, index) => (
+                    <TableRow
+                      key={index}
+                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                    >
+                      <TableCell>{row.criteriaName}</TableCell>
+                      <TableCell align="center">{row.progressValue}</TableCell>
+                      <TableCell align="center">{row.actions}</TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-around",
+              width: "100%",
+              padding: "20px 0",
+              height: "auto",
+            }}
+          >
+            <Button
+              onClick={() => setOpenDialog(true)}
+              variant="contained"
+              size="small"
+              style={{
+                width: "300px",
+                height: "55px",
+                backgroundColor: "#A2CBEA",
+                color: "black",
+              }}
+            >
+              Submit The Proper Evaluation Results
+            </Button>
+          </Box>
+
+          <Dialog
+            fullScreen={fullScreen}
+            open={openDialog}
+            onClose={() => setOpenDialog(false)}
+            aria-labelledby="submit-PE_results"
+          >
+            <DialogTitle id="submit-PE_results_ID">
+              {
+                "Are you sure that you want to Submit the Proper Evaluation Results?"
+              }
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                Once you Submit the Proper Evaluation Results, you can&apos;t
+                undo this action.
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button autoFocus onClick={() => setOpenDialog(false)}>
+                cancel
+              </Button>
+              <Button onClick={() => handleSubmitPE_results()} autoFocus>
+                Submit
+              </Button>
+            </DialogActions>
+          </Dialog>
+
+          <Snackbar
+            open={errorMsg !== "" && !success}
+            anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            onClose={() => setErrorMsg("")}
+          >
+            <Alert onClose={() => setErrorMsg("")} severity="error">
+              {errorMsg}
+            </Alert>
+          </Snackbar>
+
+          <Snackbar
+            open={success}
+            autoHideDuration={5000}
+            anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            onClose={() => {
+              setSuccess(false);
+              setErrorMsg("");
+            }}
+          >
+            <Alert
+              autoHideDuration={5000}
+              onClose={() => {
+                setSuccess(false);
+                setErrorMsg("");
+              }}
+              severity="success"
+            >
+              {errorMsg}
+              {/* on success */}
+            </Alert>
+          </Snackbar>
         </>
-    )
-}
+      )}
+    </Box>
+  );
+};
 
-export default SubmitPE
-
+export default SubmitPE;

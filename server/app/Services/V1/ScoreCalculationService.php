@@ -83,7 +83,7 @@ class ScoreCalculationService
             return [];
         }
 
-        $properEvaluation = $postGraduateReviewProgram->properEvaluation;
+        $properEvaluation = $postGraduateReviewProgram->properEvaluations;
         $reviewerId = DB::table('reviewer_review_teams')
             ->select('reviewer_id')
             ->where('review_team_id', $postGraduateReviewProgram->reviewTeam->id)

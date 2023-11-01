@@ -12,28 +12,37 @@ import {
   TableCell,
   Typography,
   Box,
+  Divider,
+  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  useMediaQuery,
+  useTheme,
+  TextField,
+  InputLabel,
+  CircularProgress,
+  Snackbar,
+  Alert
 } from "@mui/material";
 
 import DiscriptiveDiv from "../../components/DiscriptiveDiv";
 import useSetUserNavigations from "../../hooks/useSetUserNavigations";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogTitle from "@mui/material/DialogTitle";
-import useMediaQuery from "@mui/material/useMediaQuery";
-import { useTheme } from "@mui/material/styles";
-import TextField from "@mui/material/TextField";
-import InputLabel from "@mui/material/InputLabel";
 
 import axios from "../../api/api";
 import { SERVER_API_VERSION, SERVER_URL } from "../../assets/constants";
 import getPGPR from "../../api/PostGraduateProgramReview/getPGPR";
+import getSpecificPGPR from "../../api/Reviewer/getSpecificPGPR";
 import useAuth from "../../hooks/useAuth";
 
 const ConductPE = () => {
   const { auth } = useAuth();
+  const { pgprId } = useParams();
+  
   const theme = useTheme();
-
+  const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
+  
   //Set up dates for start date and end date
   const currentDate = new Date().toISOString().split("T")[0];
   const date = new Date(currentDate);
@@ -43,23 +52,20 @@ const ConductPE = () => {
   const day = String(date.getDate()).padStart(2, "0");
   const minDate = `${year}-${month}-${day}`;
 
-  const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
   const [openDateDialog, setOpenDateDialog] = useState(false);
   const [openCriteriaDialog, setOpenCriteriaDialog] = useState(false);
-
   const [PEEndDate, setPEEndDate] = useState("");
   const [PEMeetingDate, setPEMeetingDate] = useState("");
-  const { pgprId } = useParams();
-
   const [criteriaList, setCriteriaList] = useState([]);
   const [reviewerCreitriaList, setReviewerCreitriaList] = useState([]);
   const [allSelectedCriteriaList, setAllSelectedCriteriaList] = useState([]);
   const [allTemporary, setAllTemporary] = useState([]); 
   const [selectedReviewer, setSelectedReviewer] = useState("");
-
+  const [isDateSet, setIsDateSet] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
-  const [pgpr, setPgpr] = useState({});
+  const [success, setSuccess] = useState(false);
+  //const [pgpr, setPgpr] = useState({});
   const [programData, setProgramData] = useState({
     title: "",
     slqfLevel: "",
@@ -76,6 +82,8 @@ const ConductPE = () => {
   const [isChair, setIsChair] = useState(false);
   const [reviewTeam, setReviewTeam] = useState({});
   const [reviewers, setReviewers] = useState([]);
+  const [flag, setFlag] = useState(false);
+  const [properEvaluation, setProperEvaluation] = useState({});
 
   useSetUserNavigations([
     {
@@ -92,15 +100,23 @@ const ConductPE = () => {
     const fetchData = async () => {
       setLoading(true);
       setErrorMsg("");
-
       try {
         const pgprResponse = await getPGPR(pgprId);
         //console.log("PGPR : ", pgprResponse?.data?.data);
-        setPgpr(pgprResponse?.data?.data);
+
+        const newPgpr = await getSpecificPGPR(pgprId);
+        //setPgpr(pgprResponse?.data?.data);
 
         if (pgprResponse?.data?.data) {
           const team = pgprResponse?.data?.data?.acceptedReviewTeam;
           setReviewTeam(team);
+
+          setProperEvaluation(
+            newPgpr?.data?.data?.postGraduateReviewProgram
+              ?.properEvaluation
+          );
+
+          console.log("Proper Evaluation : ", properEvaluation);
 
           const reviewerDetails = team?.reviewers;
           //console.log("team : ", team);
@@ -159,6 +175,7 @@ const ConductPE = () => {
           );
           //console.log("PE Data : ", PEResponse?.data?.data);
           setPEData(PEResponse?.data?.data);
+          setupCriteria(PEResponse?.data?.data);
         }
       } catch (error) {
         setErrorMsg(error?.response?.data?.message);
@@ -167,47 +184,66 @@ const ConductPE = () => {
       }
     };
     fetchData();
-  }, [pgprId, auth?.id, chairId]);
+  }, [pgprId, auth?.id, chairId, flag]);
 
-  useEffect(() => {
+  async function setupCriteria(PEData) {
     const allSelectedCriteria = mergeAndDeDuplicate(PEData);
     setAllSelectedCriteriaList(allSelectedCriteria);
     setAllTemporary(allSelectedCriteria);
     //console.log("All Selected Criteria : ", allSelectedCriteria);
-  }, [PEData]);
+  }
+
+  const dateCheck = properEvaluation?.endDate ? true : false;
 
   //console.log("PE : ", PEData);
 
   const handleSetDate = () => {
-    try {
+    if (PEEndDate === "" || PEMeetingDate === "") {
+      setErrorMsg("Please select required dates");
+      return;
+    } else if (PEEndDate < currentDate) {
+      setErrorMsg("End date should be after the current date");
+      return;
+    } else if (PEMeetingDate < currentDate) {
+      setErrorMsg("Meeting date should be after the current date");
+      return;
+    } else if (PEMeetingDate > PEEndDate) {
+      setErrorMsg("Meeting date should be before the end date");
+      return;
+    } else {
       setLoading(true);
       setErrorMsg("");
+      try {
+        const data = {
+          pgprId,
+          startDate: currentDate,
+          meetingDate: PEMeetingDate,
+          endDate: PEEndDate,
+        };
 
-      const data = {
-        pgprId,
-        startDate: currentDate,
-        meetingDate: PEMeetingDate,
-        endDate: PEEndDate,
-      };
+        //console.log("Set Date data : ", data);
 
-      //console.log("Set Date data : ", data);
-
-      axios.get("/sanctum/csrf-cookie");
-      axios.post(
-        `${SERVER_URL}${SERVER_API_VERSION}review-team-chair/proper-evaluation/set-dates/phase-one`,
-        data
-      );
-    } catch (error) {
-      setErrorMsg(error?.response?.data?.message);
+        axios.get("/sanctum/csrf-cookie");
+        axios.post(
+          `${SERVER_URL}${SERVER_API_VERSION}review-team-chair/proper-evaluation/set-dates/phase-one`,
+          data
+        );
+        setErrorMsg("Dates are set successfully");
+        setSuccess(true);
+        setIsDateSet(true);
+      } catch (error) {
+        setErrorMsg(error?.response?.data?.message);
+      } finally {
+        setLoading(false);
+      }
     }
     setPEEndDate("");
+    setPEMeetingDate("");
     setOpenDateDialog(false);
   };
 
   const HandleselectCriteria = (e, id) => {
     //console.log("selected re : ", selectedReviewer);
-    e.target.style.backgroundColor = "black";
-    e.target.style.color = "white";
     //if already selected
     if (reviewerCreitriaList.some((criteria) => criteria.id === id)) {
       e.target.style.backgroundColor = "white";
@@ -215,15 +251,23 @@ const ConductPE = () => {
       setReviewerCreitriaList(
         reviewerCreitriaList.filter((criteria) => criteria.id !== id)
       );
-      return;
+      setAllTemporary(allTemporary.filter((criteria) => criteria.id !== id));
+    } else {
+      setReviewerCreitriaList([
+        ...reviewerCreitriaList,
+        {
+          name: criteriaList.find((criteria) => criteria.id === id).name,
+          id: id,
+        },
+      ]);
+      setAllTemporary([
+        ...allTemporary,
+        {
+          name: criteriaList.find((criteria) => criteria.id === id).name,
+          id: id,
+        },
+      ]);
     }
-    setReviewerCreitriaList([
-      ...reviewerCreitriaList,
-      {
-        name: criteriaList.find((criteria) => criteria.id === id).name,
-        id: id,
-      },
-    ]);
   };
 
   const HandleUnselectCriteria = (e, id) => {
@@ -237,9 +281,23 @@ const ConductPE = () => {
     setReviewerCreitriaList(updatedReviewerCreitriaList);
   }
 
+  const triggerFlag = () => {
+    setFlag(true);
+    setTimeout(() => {
+      setFlag(false);
+    }, 1000);
+  };
+
+  // console.log("Criteria List : ", criteriaList);
+  // console.log("All Selected : ", allSelectedCriteriaList);
+  // console.log("Temporary : ", allTemporary);
+  // console.log("Reviewer Selected : ", reviewerCreitriaList);
+
   const handlesetCriteria = () => {
     if (reviewerCreitriaList.length === 0) {
-      alert("Please select at least one criteria");
+      setErrorMsg("Please select at least one criteria");
+      setAllTemporary(allSelectedCriteriaList);
+      setOpenCriteriaDialog(false);
       return;
     }
     //console.log(reviewerCreitriaList);
@@ -270,7 +328,7 @@ const ConductPE = () => {
         ],
       };
 
-      console.log("Assign Criteria data : ", data);
+      //console.log("Assign Criteria data : ", data);
 
       await axios.get("/sanctum/csrf-cookie");
       await axios.post(
@@ -278,6 +336,10 @@ const ConductPE = () => {
         data  
       );
       setReviewerCreitriaList([]);
+      setErrorMsg("Criteria are assigned successfully");
+      setSuccess(true);
+      // console.log(errorMsg);
+      triggerFlag();
     } catch (error) {
       setErrorMsg(error?.response?.data?.message);
     } finally {
@@ -298,7 +360,6 @@ const ConductPE = () => {
       
       const listOfCriteria = reviewerCriterias 
       ? reviewerCriterias.map(reviewerCriteria => reviewerCriteria) : [];
-
       //console.log("List Criterias : ", listOfCriteria);
 
       return {
@@ -329,6 +390,7 @@ const ConductPE = () => {
     {
       title: "Proceed to Proper Evaluation",
       to: `../Assigned_criteria/${pgprId}`,
+      disabled: false,
     },
   ];
   //only for chair
@@ -336,205 +398,241 @@ const ConductPE = () => {
     finalButtons.push({
       title: "Set Dates for Proper Evaluation",
       to: "",
+      disabled: dateCheck,
     });
   }
 
-  return (
-    <>
-      <DiscriptiveDiv
-        description="PG Program"
-        width="100%"
-        height="auto"
-        backgroundColor="#D8E6FC"
-      >
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6}>
-            <Typography variant="subtitle1">
-              <b>PGPR ID</b>
-            </Typography>
-            <Typography>{pgprId}</Typography>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Typography variant="subtitle1">
-              <b>PG Program Title</b>
-            </Typography>
-            <Typography>{programData.title}</Typography>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Typography variant="subtitle1">
-              <b>SLQF Level</b>
-            </Typography>
-            <Typography>{programData.slqfLevel}</Typography>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Typography variant="subtitle1">
-              <b>Program Coordinator</b>
-            </Typography>
-            <Typography>{programData.coordinator}</Typography>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Typography variant="subtitle1">
-              <b>Faculty/Institute</b>
-            </Typography>
-            <Typography>{programData.faculty}</Typography>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Typography variant="subtitle1">
-              <b>University</b>
-            </Typography>
-            <Typography>{programData.university}</Typography>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Typography variant="subtitle1">
-              <b>Application Date</b>
-            </Typography>
-            <Typography>{programData.applicationDate}</Typography>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Typography variant="subtitle1">
-              <b>Request Date</b>
-            </Typography>
-            <Typography>{programData.requestDate}</Typography>
-          </Grid>
-        </Grid>
-      </DiscriptiveDiv>
+  const headerInfo = [
+    {
+      title: "PGPR ID",
+      value: `PGPR-${pgprId}`,
+    },
+    {
+      title: "PG Program Name",
+      value: programData.title,
+    },
+    {
+      title: "SLQF Level",
+      value: programData.slqfLevel,
+    },
+    {
+      title: "University",
+      value: programData.university,
+    },
+    {
+      title: "Faculty/Institute",
+      value: programData.faculty,
+    },
+    {
+      title: "Program Coordinator",
+      value: programData.coordinator,
+    },
+    {
+      title: "Application Date",
+      value: programData.applicationDate,
+    },
+    {
+      title: "Submission Date",
+      value: programData.requestDate,
+    },
+  ];
 
-      <DiscriptiveDiv
-        description="Proper Evaluation"
-        width="100%"
-        height="auto"
-        backgroundColor="white"
-      >
-        <TableContainer component={Paper}>
-          <Table sx={{ minWidth: 650 }} stickyHeader>
-            <TableHead>
-              <TableRow>
-                <TableCell style={{ backgroundColor: "#D8E6FC" }} align="left">
-                  <b>Name</b>
-                </TableCell>
-                <TableCell
-                  style={{ backgroundColor: "#D8E6FC" }}
-                  align="center"
-                >
-                  <b>Role</b>
-                </TableCell>
-                <TableCell
-                  style={{ backgroundColor: "#D8E6FC" }}
-                  align="center"
-                >
-                  <b>List of Criterian</b>
-                </TableCell>
-                {isChair ? (
+  console.log("date check : ", dateCheck)
+
+  return (
+    <Box>
+      {loading ? (
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            height: "100vh",
+            marginTop: "-10vh",
+          }}
+        >
+          <Typography variant="h5" color="primary">
+            Loading...
+          </Typography>
+          <CircularProgress size={50} thickness={3} />
+        </Box>
+      ) : (
+        <>
+          <DiscriptiveDiv
+            description="PostGraduate Program Details"
+            width="100%"
+            height="auto"
+            backgroundColor="#D8E6FC"
+          >
+            <Grid container spacing={2}>
+              {headerInfo.map((item, index) => (
+                <Grid item xs={6} sm={3} key={index}>
+                  <Typography align="left" variant="subtitle1">
+                    <b>{item.title}</b>
+                  </Typography>
+                  <Typography align="left">{item.value}</Typography>
+                </Grid>
+              ))}
+            </Grid>
+          </DiscriptiveDiv>
+
+          <Divider textAlign="left" sx={{ margin: "1rem 0 1rem" }}>
+            <Chip label="Criteria assigned to each member" />
+          </Divider>
+
+          <TableContainer component={Paper}>
+            <Table sx={{ minWidth: 650 }} stickyHeader>
+              <TableHead>
+                <TableRow>
+                  <TableCell
+                    style={{ backgroundColor: "#D8E6FC" }}
+                    align="left"
+                  >
+                    <b>Name</b>
+                  </TableCell>
                   <TableCell
                     style={{ backgroundColor: "#D8E6FC" }}
                     align="center"
                   >
-                    <b>Actions</b>
+                    <b>Role</b>
                   </TableCell>
-                ) : (
-                  ""
-                )}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {rows.map((row, index) => (
-                <TableRow
-                  key={index}
-                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                >
-                  <TableCell component="th" scope="row">
-                    {row.name}
-                  </TableCell>
-                  <TableCell align="center">{row.role}</TableCell>
-                  <TableCell align="center">
-                    {row.listOfCriteria.length === 0 ? (
-                      <Typography color="primary">
-                        No Criteria Selected
-                      </Typography>
-                    ) : (
-                      <ul
-                        style={{
-                          listStyleType: "disc",
-                          textAlign: "left",
-                          paddingLeft: "20%",
-                        }}
-                      >
-                        {row.listOfCriteria.map((criteriaItem, index) => (
-                          <li key={index}>
-                            <Typography>{criteriaItem.name}</Typography>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
+                  <TableCell
+                    style={{ backgroundColor: "#D8E6FC" }}
+                    align="center"
+                  >
+                    <b>List of Criterian</b>
                   </TableCell>
                   {isChair ? (
-                    <TableCell align="center">
-                      <Button
-                        onClick={() => {
-                          setOpenCriteriaDialog(true),
-                            setSelectedReviewer({
-                              id: row.id,
-                              name: row.name,
-                            });
-                          setReviewerCreitriaList(row.listOfCriteria);
-                        }}
-                        variant="contained"
-                        size="small"
-                        style={{
-                          backgroundColor: "#A2CBEA",
-                          color: "black",
-                          fontWeight: "bold",
-                          textAlign: "center",
-                        }}
-                      >
-                        Update
-                      </Button>
+                    <TableCell
+                      style={{ backgroundColor: "#D8E6FC" }}
+                      align="center"
+                    >
+                      <b>Actions</b>
                     </TableCell>
                   ) : (
                     ""
                   )}
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </DiscriptiveDiv>
+              </TableHead>
+              <TableBody>
+                {rows.map((row, index) => (
+                  <TableRow
+                    key={index}
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
+                    <TableCell component="th" scope="row">
+                      {row.name}
+                    </TableCell>
+                    <TableCell align="center">{row.role}</TableCell>
+                    <TableCell align="center">
+                      {row.listOfCriteria.length === 0 ? (
+                        <Typography color="primary">
+                          No Criteria Selected
+                        </Typography>
+                      ) : (
+                        <ul
+                          style={{
+                            listStyleType: "disc",
+                            textAlign: "left",
+                            paddingLeft: "20%",
+                          }}
+                        >
+                          {row.listOfCriteria.map((criteriaItem, index) => (
+                            <li key={index}>
+                              <Typography>{criteriaItem.name}</Typography>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </TableCell>
+                    {isChair ? (
+                      <TableCell align="center">
+                        <Button
+                          onClick={() => {
+                            setOpenCriteriaDialog(true),
+                              setSelectedReviewer({
+                                id: row.id,
+                                name: row.name,
+                              });
+                            setReviewerCreitriaList(row.listOfCriteria);
+                          }}
+                          variant="contained"
+                          disabled={dateCheck}
+                          size="small"
+                          color="primary"
+                          style={{
+                            color: "white",
+                            fontWeight: "bold",
+                            textAlign: "center",
+                          }}
+                        >
+                          Update
+                        </Button>
+                      </TableCell>
+                    ) : (
+                      ""
+                    )}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
 
-      <Grid
-        container
-        justifyContent="space-around"
-        alignItems="center"
-        spacing={2}
-        sx={{ padding: { xs: "10px 0", sm: "20px 0" } }}
-      >
-        {finalButtons.map((buttonItem, index) => (
-          <Grid item xs={12} sm={4} key={index}>
-            <Button
-              onClick={
-                index === 1
-                  ? () =>
-                      setOpenDateDialog({
-                        id: pgprId,
-                      })
-                  : null
-              }
-              variant="contained"
-              size="small"
-              fullWidth
-              style={{
-                backgroundColor: "#A2CBEA",
-                color: "black",
-                fontWeight: "bold",
-                textAlign: "center",
-              }}
-              component={Link}
-              to={buttonItem.to}
-            >
-              {buttonItem.title}
-            </Button>
+          <Grid
+            container
+            justifyContent="space-around"
+            alignItems="center"
+            spacing={2}
+            sx={{ padding: { xs: "10px 0", sm: "20px 0" } }}
+          >
+            {finalButtons.map((buttonItem, index) => (
+              <Grid item xs={12} sm={4} key={index}>
+                <Button
+                  onClick={(e) => {
+                    if (index === 1) {
+                      if (
+                        criteriaList.length !== allSelectedCriteriaList.length
+                      ) {
+                        setErrorMsg(
+                          "Please assign all the criteria to reviewers"
+                        );
+                        return;
+                      }
+                      setOpenDateDialog({ id: pgprId });
+                    } else if (index === 0 && !dateCheck && isChair) {
+                      buttonItem.to = "";
+                      e.preventDefault();
+                      setErrorMsg("Please set the dates for proper evaluation");
+                      return;
+                    } else if (index === 0 && !dateCheck && !isChair) {
+                      buttonItem.to = "";
+                      e.preventDefault();
+                      setErrorMsg("Please wait until the review chairperson set the dates");
+                      return;
+                    }
+                  }}
+                  disabled={buttonItem.disabled}
+                  variant="contained"
+                  size="medium"
+                  fullWidth
+                  style={{
+                    color: "white",
+                    fontWeight: "bold",
+                    textAlign: "center",
+                    marginTop: "1rem",
+                  }}
+                  color="primary"
+                  component={Link}
+                  to={buttonItem.to}
+                >
+                  {buttonItem.title}
+                </Button>
+              </Grid>
+            ))}
           </Grid>
-        ))}
-      </Grid>
+        </>
+      )}
 
       {/*
        *  Dialog Box for Set Date
@@ -699,7 +797,39 @@ const ConductPE = () => {
           </Button>
         </DialogActions>
       </Dialog>
-    </>
+
+      <Snackbar
+        open={errorMsg !== "" && !success}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        onClose={() => setErrorMsg("")}
+      >
+        <Alert onClose={() => setErrorMsg("")} severity="error">
+          {errorMsg}
+        </Alert>
+      </Snackbar>
+
+      <Snackbar
+        open={success}
+        autoHideDuration={5000}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        onClose={() => {
+          setSuccess(false);
+          setErrorMsg("");
+        }}
+      >
+        <Alert
+          autoHideDuration={5000}
+          onClose={() => {
+            setSuccess(false);
+            setErrorMsg("");
+          }}
+          severity="success"
+        >
+          {errorMsg}
+          {/* on success */}
+        </Alert>
+      </Snackbar>
+    </Box>
   );
 };
 
