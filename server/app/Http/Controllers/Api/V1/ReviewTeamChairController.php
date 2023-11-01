@@ -288,7 +288,7 @@ class ReviewTeamChairController extends Controller
                 $properEvaluation->pgpr_id = $validated['pgpr_id'];
                 $properEvaluation->start_date = Carbon::today();
                 $properEvaluation->end_date = NULL;
-                $properEvaluation->status = '1';
+                $properEvaluation->stage = '1';
 
                 $properEvaluation1 = new ProperEvaluation1([
                     'start_date' => Carbon::today(),
@@ -296,10 +296,11 @@ class ReviewTeamChairController extends Controller
                     'end_date' => NULL,
                     'remark' => 'None'
                 ]);
-                $properEvaluation->properEvaluation1()->save($properEvaluation1);
                 $properEvaluation->save();
+                $properEvaluation->properEvaluation1()->save($properEvaluation1);
                 $deskEvaluation->status = 'COMPLETED';
                 $deskEvaluation->save();
+                $pgpr -> status_of_pgpr = 'PE1';
 
                 // send the mails as well
                 // to the dean, program coordinator, qac officer
@@ -317,7 +318,7 @@ class ReviewTeamChairController extends Controller
                         ->send(new InformEvaluationSubmissionToOfficials(
                             recipient: $qacDirector,
                             subject: "The desk evaluation of the {$pgp->title} was concluded.",
-                            content: 'mail.EvaluationSubmissionToOfficial',
+                            content: 'mail.informEvaluationSubmissionToOfficials',
                             pgp: $pgp,
                             faculty: $faculty,
                             university: $university,
@@ -333,7 +334,7 @@ class ReviewTeamChairController extends Controller
                     new InformEvaluationSubmissionToOfficials(
                         recipient: $dean,
                         subject: "The desk evaluation of the {$pgp->title} was concluded.",
-                        content: 'mail.EvaluationSubmissionToOfficial',
+                        content: 'mail.informEvaluationSubmissionToOfficials',
                         pgp: $pgp,
                         faculty: $faculty,
                         university: $university,
@@ -348,7 +349,7 @@ class ReviewTeamChairController extends Controller
                     new InformEvaluationSubmissionToOfficials(
                         recipient: $programCoordinator,
                         subject: "The desk evaluation of the {$pgp->title} was concluded.",
-                        content: 'mail.EvaluationSubmissionToOfficial',
+                        content: 'mail.informEvaluationSubmissionToOfficials',
                         pgp: $pgp,
                         faculty: $faculty,
                         university: $university,
@@ -356,13 +357,13 @@ class ReviewTeamChairController extends Controller
                     )
                 );
                 DB::commit();
-                return response()->json(['message' => 'The desk evaluation was successfully submitted', 'data' => $grading]);
+                return response()->json(['message' => 'The desk evaluation was successfully submitted', 'data' => $grading], 200);
             }
             // the desk evaluation cannot be submitted
             return response()->json([
                 'message' => 'The desk evaluation cannot be submitted yet, there are some inconsistencies with the scores provided by the review team, please check the progress.',
                 'data' => []
-            ]);
+            ], 422);
 
         } catch (AuthorizationException $e) {
             return response()->json(['message' => $e->getMessage()], 403);
