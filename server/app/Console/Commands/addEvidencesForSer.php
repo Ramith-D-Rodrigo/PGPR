@@ -78,6 +78,10 @@ class addEvidencesForSer extends Command
                     }
                 }
 
+                if(count($applicableYears) == 0){
+                    $applicableYears[] = rand(1, 5);
+                }
+
                 $evidence = [
                     'evidence_code' => $standard -> standard_no . '.' . ($i+1),
                     'evidence_name' => Str::random(8),

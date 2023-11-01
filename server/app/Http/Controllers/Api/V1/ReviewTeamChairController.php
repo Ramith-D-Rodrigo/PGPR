@@ -356,18 +356,17 @@ class ReviewTeamChairController extends Controller
                     )
                 );
                 DB::commit();
-                return response()->json(['message' => 'The desk evaluation was successfully submitted', 'data' => $grading]);
+                return response()->json(['message' => 'The desk evaluation was successfully submitted', 'data' => $grading], 200);
             }
             // the desk evaluation cannot be submitted
             return response()->json([
                 'message' => 'The desk evaluation cannot be submitted yet, there are some inconsistencies with the scores provided by the review team, please check the progress.',
                 'data' => []
-            ]);
+            ], 422);
 
         } catch (AuthorizationException $e) {
             return response()->json(['message' => $e->getMessage()], 403);
         } catch (Exception $exception) {
-            throw $exception;
             return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
         }
     }
