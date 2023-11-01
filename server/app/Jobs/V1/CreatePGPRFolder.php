@@ -25,6 +25,7 @@ class CreatePGPRFolder implements ShouldQueue
         $this -> pgpr = $pgpr;
     }
 
+    public $tries = 5;
     /**
      * Execute the job.
      */

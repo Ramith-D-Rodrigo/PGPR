@@ -46,6 +46,9 @@ class PostGraduateProgramReviewService {
                 $storedUrl = $driveManager -> copyFile($driveManager -> getFileId($url), $evidenceFolder -> id) -> getWebViewLink();
             }
 
+            //remove the permission of the evidence folder
+            $driveManager -> removePermissionIdWise($evidenceFolder -> getId(), 'anyoneWithLink');
+
             //update the stored id of the evidence
             $evidence -> stored_url = $storedUrl;
             $evidence -> save();
