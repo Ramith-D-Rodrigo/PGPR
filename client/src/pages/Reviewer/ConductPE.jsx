@@ -33,6 +33,7 @@ import useSetUserNavigations from "../../hooks/useSetUserNavigations";
 import axios from "../../api/api";
 import { SERVER_API_VERSION, SERVER_URL } from "../../assets/constants";
 import getPGPR from "../../api/PostGraduateProgramReview/getPGPR";
+import getSpecificPGPR from "../../api/Reviewer/getSpecificPGPR";
 import useAuth from "../../hooks/useAuth";
 
 const ConductPE = () => {
@@ -82,6 +83,7 @@ const ConductPE = () => {
   const [reviewTeam, setReviewTeam] = useState({});
   const [reviewers, setReviewers] = useState([]);
   const [flag, setFlag] = useState(false);
+  const [properEvaluation, setProperEvaluation] = useState({});
 
   useSetUserNavigations([
     {
@@ -101,11 +103,20 @@ const ConductPE = () => {
       try {
         const pgprResponse = await getPGPR(pgprId);
         //console.log("PGPR : ", pgprResponse?.data?.data);
+
+        const newPgpr = await getSpecificPGPR(pgprId);
         //setPgpr(pgprResponse?.data?.data);
 
         if (pgprResponse?.data?.data) {
           const team = pgprResponse?.data?.data?.acceptedReviewTeam;
           setReviewTeam(team);
+
+          setProperEvaluation(
+            newPgpr?.data?.data?.postGraduateReviewProgram
+              ?.properEvaluation
+          );
+
+          console.log("Proper Evaluation : ", properEvaluation);
 
           const reviewerDetails = team?.reviewers;
           //console.log("team : ", team);
@@ -182,6 +193,8 @@ const ConductPE = () => {
     //console.log("All Selected Criteria : ", allSelectedCriteria);
   }
 
+  const dateCheck = properEvaluation?.endDate ? true : false;
+
   //console.log("PE : ", PEData);
 
   const handleSetDate = () => {
@@ -215,8 +228,8 @@ const ConductPE = () => {
           `${SERVER_URL}${SERVER_API_VERSION}review-team-chair/proper-evaluation/set-dates/phase-one`,
           data
         );
-        setSuccess(true);
         setErrorMsg("Dates are set successfully");
+        setSuccess(true);
         setIsDateSet(true);
       } catch (error) {
         setErrorMsg(error?.response?.data?.message);
@@ -324,8 +337,9 @@ const ConductPE = () => {
       );
       setReviewerCreitriaList([]);
       setErrorMsg("Criteria are assigned successfully");
-      triggerFlag();
       setSuccess(true);
+      // console.log(errorMsg);
+      triggerFlag();
     } catch (error) {
       setErrorMsg(error?.response?.data?.message);
     } finally {
@@ -376,6 +390,7 @@ const ConductPE = () => {
     {
       title: "Proceed to Proper Evaluation",
       to: `../Assigned_criteria/${pgprId}`,
+      disabled: false,
     },
   ];
   //only for chair
@@ -383,6 +398,7 @@ const ConductPE = () => {
     finalButtons.push({
       title: "Set Dates for Proper Evaluation",
       to: "",
+      disabled: dateCheck,
     });
   }
 
@@ -420,6 +436,8 @@ const ConductPE = () => {
       value: programData.requestDate,
     },
   ];
+
+  console.log("date check : ", dateCheck)
 
   return (
     <Box>
@@ -540,10 +558,11 @@ const ConductPE = () => {
                             setReviewerCreitriaList(row.listOfCriteria);
                           }}
                           variant="contained"
+                          disabled={dateCheck}
                           size="small"
+                          color="primary"
                           style={{
-                            backgroundColor: "#A2CBEA",
-                            color: "black",
+                            color: "white",
                             fontWeight: "bold",
                             textAlign: "center",
                           }}
@@ -580,23 +599,30 @@ const ConductPE = () => {
                         );
                         return;
                       }
-                      setOpenDateDialog({id: pgprId})
-                    } else if (index === 0 && !isDateSet) {
+                      setOpenDateDialog({ id: pgprId });
+                    } else if (index === 0 && !dateCheck && isChair) {
                       buttonItem.to = "";
                       e.preventDefault();
                       setErrorMsg("Please set the dates for proper evaluation");
                       return;
+                    } else if (index === 0 && !dateCheck && !isChair) {
+                      buttonItem.to = "";
+                      e.preventDefault();
+                      setErrorMsg("Please wait until the review chairperson set the dates");
+                      return;
                     }
                   }}
+                  disabled={buttonItem.disabled}
                   variant="contained"
-                  size="small"
+                  size="medium"
                   fullWidth
                   style={{
-                    backgroundColor: "#A2CBEA",
-                    color: "black",
+                    color: "white",
                     fontWeight: "bold",
                     textAlign: "center",
+                    marginTop: "1rem",
                   }}
+                  color="primary"
                   component={Link}
                   to={buttonItem.to}
                 >
@@ -773,7 +799,7 @@ const ConductPE = () => {
       </Dialog>
 
       <Snackbar
-        open={errorMsg == "" || success ? false : true}
+        open={errorMsg !== "" && !success}
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
         onClose={() => setErrorMsg("")}
       >
@@ -784,13 +810,21 @@ const ConductPE = () => {
 
       <Snackbar
         open={success}
-        autoHideDuration={1500}
-        onClose={() => 
-          setSuccess(false)
-        }
+        autoHideDuration={5000}
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        onClose={() => {
+          setSuccess(false);
+          setErrorMsg("");
+        }}
       >
-        <Alert onClose={() => setSuccess(false)} severity="success">
+        <Alert
+          autoHideDuration={5000}
+          onClose={() => {
+            setSuccess(false);
+            setErrorMsg("");
+          }}
+          severity="success"
+        >
           {errorMsg}
           {/* on success */}
         </Alert>
