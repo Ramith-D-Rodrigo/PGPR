@@ -55,7 +55,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::apiResource('users', 'UserController');
     Route::apiResource('universitySides', 'UniversitySideController');
     Route::post('assignReviewerRole/{universitySide}', 'UniversitySideController@assignReviewerRole')->middleware('auth');
-    
+
     Route::apiResource('universities', 'UniversityController')->middleware('auth');
     //other routes of the universities
     //get the current vice chancellor of a university
@@ -189,14 +189,12 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     Route::post('review-team-chair/desk-evaluation/submit', 'ReviewTeamChairController@submitDeskEvaluation')->middleware('auth');
     //review team chair submit proper evaluation
     Route::post('review-team-chair/proper-evaluation/submit', 'ReviewTeamChairController@submitProperEvaluation')->middleware('auth');
-    //review team chair upload preliminary report
-    Route::post('review-team-chair/upload/preliminary-report', 'ReviewTeamChairController@uploadPreliminaryReport')->middleware('auth');
     //review team chair upload final report
     Route::post('review-team-chair/upload/final-report', 'ReviewTeamChairController@uploadFinalReport')->middleware('auth');
     //review team chair submit preliminary report
     Route::post('review-team-chair/upload/preliminary-report', 'ReviewTeamChairController@uploadPreliminaryReport')->middleware('auth');
     //review team chair submit preliminary report
-    Route::post('review-team-chair/submit/preliminary-report', 'ReviewTeamChairController@submitFinalReport')->middleware('auth');
+    Route::post('review-team-chair/submit/preliminary-report', 'ReviewTeamChairController@submitPreliminaryReport')->middleware('auth');
     //review team chair submit final report
     Route::post('review-team-chair/submit/final-report', 'ReviewTeamChairController@submitFinalReport')->middleware('auth');
     //review team chair change the dates of the PE1
