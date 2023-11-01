@@ -297,7 +297,7 @@ class PostGraduateProgramController extends Controller
                 )
             );
 
-            Mail::to($dean->official_email)->send(
+            Mail::to($iqauDirector->official_email)->send(
                 new InformPostGraduateProgramActionToAuthorities(
                     user: $iqauDirector,
                     action: 'UPDATED',
@@ -309,7 +309,7 @@ class PostGraduateProgramController extends Controller
                 )
             );
 
-            Mail::to($dean->official_email)->send(
+            Mail::to($cqaDirector->official_email)->send(
                 new InformPostGraduateProgramActionToAuthorities(
                     user: $cqaDirector,
                     action: 'UPDATED',
@@ -321,7 +321,7 @@ class PostGraduateProgramController extends Controller
                 )
             );
 
-            Mail::to($dean->official_email)->send(
+            Mail::to($viceChancellor->official_email)->send(
                 new InformPostGraduateProgramActionToAuthorities(
                     user: $viceChancellor,
                     action: 'UPDATED',
