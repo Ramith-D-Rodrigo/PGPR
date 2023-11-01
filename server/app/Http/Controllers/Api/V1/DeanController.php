@@ -243,7 +243,7 @@ class DeanController extends Controller
             $reviewTeam->save();
 
             //check whether self evaluation is submitted or not
-            if($pgpr -> status_of_pgpr == 'SUBMITTED'){ //ser is submitted, and review team accepted
+            if($pgpr -> status_of_pgpr == 'SUBMITTED' && $pgpr -> hasAllReviewersAccepted()){ //ser is submitted, and review team accepted
                 //then we have to store the evidences in the google drive
                 PostGraduateProgramReviewService::StoreEvidencesInSystemDriveAggregateJob($pgpr);
 

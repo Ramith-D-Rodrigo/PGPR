@@ -487,6 +487,9 @@ class ReviewTeamChairController extends Controller
 
                 $pgpr->properEvaluations->stage = 'COMPLETED';
                 $pgpr->properEvaluations->save();
+
+                $pgpr->status_of_pgpr = 'FINAL';
+
                 $pgpr->save();
 
                 DB::commit();
@@ -678,7 +681,7 @@ class ReviewTeamChairController extends Controller
         try {
             $validated = $request->validated();
             $postGraduateProgramReview = PostGraduateProgramReview::find($validated['pgpr_id']);
-            $properEvaluation = $postGraduateProgramReview->properEvaluation();
+            $properEvaluation = $postGraduateProgramReview->properEvaluations;
 
             if ($properEvaluation) {
                 $data = DB::table('proper_evaluation_score')
@@ -715,7 +718,7 @@ class ReviewTeamChairController extends Controller
 
             $validated = $request->validated();
             $postGraduateReviewProgram = PostGraduateProgramReview::findOrFail($validated['pgpr_id']);
-            $properEvaluation = $postGraduateReviewProgram->properEvaluation;
+            $properEvaluation = $postGraduateReviewProgram->properEvaluations;
 
             if ($properEvaluation) {
                 DB::table('proper_evaluation_score')
