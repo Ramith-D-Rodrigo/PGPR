@@ -36,8 +36,13 @@ class addEvidencesForSer extends Command
 
         $criteria = Criteria::all();
 
-        foreach ($criteria as $criterion) {
-            $this->addEvidences($SER, $criterion);
+        try{
+            foreach ($criteria as $criterion) {
+                $this->addEvidences($SER, $criterion);
+            }
+        }
+        catch(\Exception $e){
+            throw $e;
         }
     }
 
@@ -76,7 +81,7 @@ class addEvidencesForSer extends Command
                 $evidence = [
                     'evidence_code' => $standard -> standard_no . '.' . ($i+1),
                     'evidence_name' => Str::random(8),
-                    'applicable_years' => $applicableYears,
+                    'applicable_years' => json_encode($applicableYears),
                     'self_evaluation_report_id' => $SER -> id,
                     'url' => rand(0, 10) % 2 == 0 ? $this -> folderURLs[rand(0, count($this -> folderURLs) - 1)] : $this -> fileURLs[rand(0, count($this -> fileURLs) - 1)],
                 ];
@@ -87,6 +92,23 @@ class addEvidencesForSer extends Command
                     'ser_id' => $SER -> id,
                     'created_at' => now(),
                     'updated_at' => now()
+                ]);
+            }
+
+            //add adherence to the standard
+            $foundStandard = $SER->adherenceToStandards()->where('standard_id', $standard -> id)->first();
+            if($foundStandard){
+                //then update the adherence
+                $SER -> adherenceToStandards() -> updateExistingPivot($standard -> id, [
+                    'adherence' => Str::random(20),
+                    'updated_at' => now(),
+                ]);
+            }
+            else{
+                $SER -> adherenceToStandards() -> attach($standard -> id, [
+                    'adherence' => Str::random(20),
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ]);
             }
         }
