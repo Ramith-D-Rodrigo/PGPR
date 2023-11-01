@@ -1,360 +1,305 @@
 import { Link } from "react-router-dom";
 import useSetUserNavigations from "../../hooks/useSetUserNavigations";
 import {
-  Grid,
-  Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Box,
-  Divider,
-  Chip,
-  Button,
+    Grid,
+    Typography,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Paper,
+    Box,
+    Divider,
+    Chip,
+    Button
 } from "@mui/material";
 
 import { useParams } from "react-router-dom";
-import React, { useEffect, useState } from "react";
+import React,{ useEffect, useState } from "react";
 import getSelfEvaluationReport from "../../api/SelfEvaluationReport/getSelfEvaluationReport";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
-import Modal from "@mui/material/Modal";
+import Modal from '@mui/material/Modal';
 
 import recommendSelfEvaluationReport from "../../api/SelfEvaluationReport/recommendSelfEvaluationReport";
 import getAssignedPGPRs from "../../api/Reviewer/getAssignedPGPR";
 
-import Snackbar from "@mui/material/Snackbar";
+import Snackbar from '@mui/material/Snackbar';
 import { Alert } from "@mui/material";
 import { PropTypes } from "prop-types";
 
+
 const SelfEvaluationReport = () => {
-  const { serId, pgprId } = useParams();
 
-  const [ser, setSer] = useState({});
+    const { serId, pgprId } = useParams();
 
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
-  const [success, setSuccess] = useState(false);
+    const [ser, setSer] = useState({});
 
-  const [headerInfo, setHeaderInfo] = useState([]);
-  const [pgProgram, setPgProgram] = useState({});
-  const { auth } = useAuth();
+    const [isLoaded, setIsLoaded] = useState(false);
 
-  document.title = "Self Evaluation Report";
+    const [headerInfo, setHeaderInfo] = useState([]);
+    const [pgProgram, setPgProgram] = useState({});
+    const { auth } = useAuth();
 
-  useEffect(() => {
-    const getPGPRData = async () => {
-      setLoading(true);
-      setErrorMsg("");
-      try {
-        const response = await getSelfEvaluationReport(serId);
-        if (response && response.status === 200) {
-          setSer(response.data.data);
-          const ser = response.data.data;
-          //console.log(response.data.data);
+    document.title = "Self Evaluation Report";
 
-          setHeaderInfo([
-            {
-              label: "University:",
-              value:
-                ser.postGraduateProgramReview.postGraduateProgramme.faculty
-                  .university.name,
-            },
-            {
-              label: "Faculty/Institute:",
-              value:
-                ser.postGraduateProgramReview.postGraduateProgramme.faculty
-                  .name,
-            },
-            {
-              label: "PGPR ID:",
-              value: "PGPR-" + ser.postGraduateProgramReview.id,
-            },
-            {
-              label: "PGPR Name:",
-              value: ser.postGraduateProgramReview.postGraduateProgramme.title,
-            },
-            {
-              label: "Application Start Date:",
-              value:
-                ser.postGraduateProgramReview
-                  .postGraduateProgramReviewApplication.applicationDate,
-            },
-            {
-              label: "Requested Date:",
-              value:
-                ser.postGraduateProgramReview
-                  .postGraduateProgramReviewApplication.requestDate,
-            },
-            {
-              label: "Program Coordinator:",
-              value:
-                ser.programmeCoordinator.academicStaff.universitySide.user
-                  .surname +
-                " " +
-                ser.programmeCoordinator.academicStaff.universitySide.user
-                  .initials,
-            },
-          ]);
+    useEffect(() => {
+        const getPGPRData = async () => {
+            try {
+                const response = await getSelfEvaluationReport(serId);
+                if (response && response.status === 200) {
+                    setSer(response.data.data);
+                    const ser = response.data.data;
+                    //console.log(response.data.data);
 
-          if (auth.authRole[0] === "reviewer") {
-            const assignedPg = await getAssignedPGPRs(pgprId);
-            setPgProgram(assignedPg?.data?.data?.postGraduateReviewProgram);
-          }
+                    setHeaderInfo(
+                        [
+                            { label: "University:", value: ser.postGraduateProgramReview.postGraduateProgramme.faculty.university.name },
+                            {
+                                label: "Faculty/Institute:",
+                                value: ser.postGraduateProgramReview.postGraduateProgramme.faculty.name,
+                            },
+                            { label: "PGPR ID:", value: "PGPR-" + ser.postGraduateProgramReview.id },
+                            { label: "PGPR Name:", value: ser.postGraduateProgramReview.postGraduateProgramme.title },
+                            { label: "Application Start Date:", value: ser.postGraduateProgramReview.postGraduateProgramReviewApplication.applicationDate },
+                            { label: "Requested Date:", value: ser.postGraduateProgramReview.postGraduateProgramReviewApplication.requestDate },
+                            {
+                                label: "Program Coordinator:", value:
+                                    ser.programmeCoordinator.academicStaff.universitySide.user.surname
+                                    + " " +
+                                    ser.programmeCoordinator.academicStaff.universitySide.user.initials
+                            },
+                        ]);
+
+                        if(auth.authRole[0] === 'reviewer'){
+                            const assignedPg = await getAssignedPGPRs(pgprId);
+                            setPgProgram(
+                              assignedPg?.data?.data?.postGraduateReviewProgram
+                            );
+                        }
+
+                    setIsLoaded(true);
+                }
+
+            } catch (error) {
+                console.log(error);
+            }
         }
-      } catch (error) {
-        setErrorMsg(error?.response?.data?.message);
-      } finally {
-        setLoading(false);
-      }
+        getPGPRData();
+
+    }, [serId]);
+
+    if(auth.authRole[0] === 'reviewer')
+    {
+        useSetUserNavigations([
+            {
+                name: "PG Assignments",
+                link: "/PG_Assignments"
+            },
+            {
+                name: "View SER",
+                link: "/PG_Assignments/"+serId+"/ser/"+pgprId
+            },
+        ]);
+    }
+    else{
+        useSetUserNavigations([
+            {
+                name: "Dashboard",
+                link: "/dashboard",
+            },
+            {
+                name: "Postgraduate Programme Reviews",
+                link: "/pgprs",
+            },
+            {
+                name: "Self Evaluation Report",
+                link: window.location.pathname,
+            },
+        ]);
+    }
+
+    const columns = [
+        {
+            column: "criteria",
+            label: "Criteria",
+            colspan: 1,
+        },
+        {
+            column: "submitted_standards",
+            label: "Submitted Standards",
+            colspan: 1,
+        },
+        {
+            column: "evidences",
+            label: "Evidences",
+            colspan: 5,
+        },
+    ];
+
+    const actions = [
+        {
+            action: "View More",
+            background: "#2196F3",
+            hover: "#1976D2",
+            to: `/${auth.authRole[0]}/pgprs/${pgprId}/ser/${serId}/EditSer/`,
+            onclick: () => {
+                console.log("Edit");
+            },
+        }
+    ];
+
+    const style = {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: 400,
+        bgcolor: 'background.paper',
+        border: '2px solid #000',
+        boxShadow: 24,
+        p: 4,
     };
-    getPGPRData();
-  }, [serId]);
 
-  if (auth.authRole[0] === "reviewer") {
-    useSetUserNavigations([
-      {
-        name: "PG Assignments",
-        link: "/PG_Assignments",
-      },
-      {
-        name: "View SER",
-        link: "/PG_Assignments/" + serId + "/ser/" + pgprId,
-      },
-    ]);
-  } else {
-    useSetUserNavigations([
-      {
-        name: "Dashboard",
-        link: "/dashboard",
-      },
-      {
-        name: "Postgraduate Programme Reviews",
-        link: "/pgprs",
-      },
-      {
-        name: "Self Evaluation Report",
-        link: window.location.pathname,
-      },
-    ]);
-  }
+    const [warningOpen, setWarningOpen] = useState(false);
 
-  const columns = [
-    {
-      column: "criteria",
-      label: "Criteria",
-      colspan: 1,
-    },
-    {
-      column: "submitted_standards",
-      label: "Submitted Standards",
-      colspan: 1,
-    },
-    {
-      column: "evidences",
-      label: "Evidences",
-      colspan: 5,
-    },
-  ];
+    const [warningType, setWarningType] = useState('');
 
-  const actions = [
-    {
-      action: "View More",
-      background: "#2196F3",
-      hover: "#1976D2",
-      to: `/${auth.authRole[0]}/pgprs/${pgprId}/ser/${serId}/EditSer/`,
-      onclick: () => {
-        console.log("Edit");
-      },
-    },
-  ];
+    const WarningMessage = ({ warningType }) => {
+      WarningMessage.propTypes = {
+        warningType: PropTypes.string.isRequired
+      };
+        return (
+            <Modal
+                open={warningOpen}
+                onClose={() => { setWarningOpen(false) }}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <Box sx={style}>
+                    <Typography id="modal-modal-title" variant="h6" component="h2">
+                        Not all the standards are submitted!
+                    </Typography>
+                    <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                        <>
+                            {
+                                warningType === 'submit' ?
+                                    <>
+                                        Not all the standards are submitted! Do you want to proceed to evaluation submission?
+                                        <Button variant="contained" color="success" component={Link} to={'/programme_coordinator/pgprs/' + pgprId + '/ser/' + serId + '/submitSER'}>
+                                            Proceed
+                                        </Button>
+                                    </>
+                                    :
 
-  const style = {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: 400,
-    bgcolor: "background.paper",
-    border: "2px solid #000",
-    boxShadow: 24,
-    p: 4,
-  };
-
-  const [warningOpen, setWarningOpen] = useState(false);
-
-  const [warningType, setWarningType] = useState("");
-
-  const WarningMessage = ({ warningType }) => {
-    WarningMessage.propTypes = {
-      warningType: PropTypes.string.isRequired,
-    };
-    return (
-      <Modal
-        open={warningOpen}
-        onClose={() => {
-          setWarningOpen(false);
-        }}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
-        <Box sx={style}>
-          <Typography id="modal-modal-title" variant="h6" component="h2">
-            Not all the standards are submitted!
-          </Typography>
-          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-            <>
-              {warningType === "submit" ? (
-                <>
-                  Not all the standards are submitted! Do you want to proceed to
-                  evaluation submission?
-                  <Button
-                    variant="contained"
-                    color="success"
-                    component={Link}
-                    to={
-                      "/programme_coordinator/pgprs/" +
-                      pgprId +
-                      "/ser/" +
-                      serId +
-                      "/submitSER"
-                    }
-                  >
-                    Proceed
-                  </Button>
-                </>
-              ) : (
-                <>
-                  Not all the standards are submitted! Do you want to recommend
-                  the report?
-                  <Button
-                    variant="contained"
-                    color="success"
-                    onClick={handleReportRecommendationConfirm}
-                  >
-                    Recommend
-                  </Button>
-                </>
-              )}
-              <Button
-                variant="contained"
-                color="error"
-                onClick={() => {
-                  setWarningOpen(false);
-                }}
-              >
-                Cancel
-              </Button>
-            </>
-          </Typography>
-        </Box>
-      </Modal>
-    );
-  };
-
-  const navigate = useNavigate();
-
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  });
-
-  //first checks submitted evidences count, if zero then do not proceed to evaluation submission
-  //if not zero, then check if all the standards are submitted, if not then gives a warning message
-  //if all the standards are submitted then proceed to evaluation submission
-  const handleEvaulationSubmit = () => {
-    const submittedEvidenceCount = ser.evidenceGivenStandards.flatMap(
-      (standard) => standard.evidences
-    ).length;
-    if (submittedEvidenceCount === 0) {
-      alert("No evidences submitted");
-    } else {
-      const submittedStandardCount = ser.evidenceGivenStandards.length;
-      const totalStandardCount = ser.criterias.flatMap(
-        (criteria) => criteria.standards
-      ).length;
-      if (submittedStandardCount !== totalStandardCount) {
-        setWarningType("submit");
-        setWarningOpen(true);
-      } else {
-        navigate(
-          "/programme_coordinator/pgprs/" +
-            pgprId +
-            "/ser/" +
-            serId +
-            "/submitSER"
+                                    <>
+                                        Not all the standards are submitted! Do you want to recommend the report?
+                                        <Button variant="contained" color="success" onClick={handleReportRecommendationConfirm}>
+                                            Recommend
+                                        </Button>
+                                    </>
+                            }
+                            <Button variant="contained" color="error" onClick={() => { setWarningOpen(false) }}>
+                                Cancel
+                            </Button>
+                        </>
+                    </Typography>
+                </Box>
+            </Modal>
         );
-      }
+    };
+
+
+    const navigate = useNavigate();
+
+    const [snackbar, setSnackbar] = useState({
+        open: false,
+        message: '',
+        severity: 'success'
+    });
+
+
+    //first checks submitted evidences count, if zero then do not proceed to evaluation submission
+    //if not zero, then check if all the standards are submitted, if not then gives a warning message
+    //if all the standards are submitted then proceed to evaluation submission
+    const handleEvaulationSubmit = () => {
+        const submittedEvidenceCount = ser.evidenceGivenStandards.flatMap(standard => standard.evidences).length;
+        if (submittedEvidenceCount === 0) {
+            alert("No evidences submitted");
+        } else {
+            const submittedStandardCount = ser.evidenceGivenStandards.length;
+            const totalStandardCount = ser.criterias.flatMap(criteria => criteria.standards).length;
+            if (submittedStandardCount !== totalStandardCount) {
+                setWarningType('submit');
+                setWarningOpen(true);
+            } else {
+                navigate('/programme_coordinator/pgprs/' + pgprId + '/ser/' + serId + '/submitSER');
+            }
+        }
     }
-  };
 
-  const handleReportRecommendation = async () => {
-    const submittedEvidenceCount = ser.evidenceGivenStandards.flatMap(
-      (standard) => standard.evidences
-    ).length;
-    if (submittedEvidenceCount === 0) {
-      alert("No evidences submitted");
-    } else {
-      const submittedStandardCount = ser.evidenceGivenStandards.length;
-      const totalStandardCount = ser.criterias.flatMap(
-        (criteria) => criteria.standards
-      ).length;
-      if (submittedStandardCount !== totalStandardCount) {
-        setWarningType("recommend");
-        setWarningOpen(true);
-      } else {
-        await handleReportRecommendationConfirm();
-      }
+    const handleReportRecommendation = async () => {
+        const submittedEvidenceCount = ser.evidenceGivenStandards.flatMap(standard => standard.evidences).length;
+        if (submittedEvidenceCount === 0) {
+            alert("No evidences submitted");
+        }
+        else {
+            const submittedStandardCount = ser.evidenceGivenStandards.length;
+            const totalStandardCount = ser.criterias.flatMap(criteria => criteria.standards).length;
+            if (submittedStandardCount !== totalStandardCount) {
+                setWarningType('recommend');
+                setWarningOpen(true);
+            } else {
+                await handleReportRecommendationConfirm();
+            }
+        }
     }
-  };
 
-  const handleReportRecommendationConfirm = async () => {
-    setWarningOpen(false);
-    setWarningType("");
+    const handleReportRecommendationConfirm = async () => {
+        setWarningOpen(false);
+        setWarningType('');
 
-    try {
-      const response = await recommendSelfEvaluationReport(serId);
+        try {
+            const response = await recommendSelfEvaluationReport(serId);
 
-      if (response && response.status === 200) {
-        setSnackbar({
-          open: true,
-          message: "Report recommended successfully",
-          severity: "success",
-        });
-      }
-    } catch (error) {
-      console.log(error);
-      setSnackbar({
-        open: true,
-        message: "Report recommendation failed",
-        severity: "error",
-      });
+            if (response && response.status === 200) {
+                setSnackbar({
+                    open: true,
+                    message: 'Report recommended successfully',
+                    severity: 'success'
+                });
+            }
+        }
+        catch (error) {
+            console.log(error);
+            setSnackbar({
+                open: true,
+                message: 'Report recommendation failed',
+                severity: 'error'
+            });
+        }
     }
-  };
 
-  return (
-    <>
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
+    return (
+      <>
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={6000}
           onClose={() => setSnackbar({ ...snackbar, open: false })}
-          severity={snackbar.severity}
-          sx={{ width: "100%" }}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
         >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+          <Alert
+            onClose={() => setSnackbar({ ...snackbar, open: false })}
+            severity={snackbar.severity}
+            sx={{ width: "100%" }}
+          >
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
 
-      <WarningMessage warningType={warningType} />
-      <Box>
+        <WarningMessage warningType={warningType} />
         <Divider textAlign="left">
           <Chip label="Postgraduate Programme Review" />
         </Divider>
@@ -449,7 +394,7 @@ const SelfEvaluationReport = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {!loading &&
+              {isLoaded &&
                 ser.criterias.map((row) => (
                   <TableRow
                     hover
@@ -704,9 +649,8 @@ const SelfEvaluationReport = () => {
           ) : (
             ""
           ))}
-      </Box>
-    </>
-  );
+      </>
+    );
 };
 
 export default SelfEvaluationReport;
