@@ -56,7 +56,7 @@ class ForgotPasswordController extends Controller
             $flag1 = Mail::to($officialEmail)->send(
                 new ForgotPasswordMail(
                     user: $user,
-                    url: env('FRONTEND_URL') . '/reset-password?token=' . $token,
+                    url: env('FRONTEND_URL') . '/forgot-password-reset-password?officialEmail=' . $validated['official_email'] . "&token=" . $token,
                     subject: 'Email verification for resetting the password',
                     content: 'mail.forgotPasswordMailTemplate'
                 )
@@ -67,11 +67,11 @@ class ForgotPasswordController extends Controller
                     'message' => 'The reset link has been sent to your official email, please check your email to proceed.'
                 ]);
             } else {
-                return response()->json(['message' => 'You password reset link cannot be sent, please check again later.']);
+                return response()->json(['message' => 'You password reset link cannot be sent, please check again later.'],400);
             }
         } else {
             var_dump($validated);
-            return response()->json(['message' => 'Unsuccessful', 'errors' => $validator->errors()]);
+            return response()->json(['message' => 'Unsuccessful', 'errors' => $validator->errors()], 422);
         }
     }
 
@@ -109,17 +109,23 @@ class ForgotPasswordController extends Controller
         if ($validator->passes()) {
             $validated = $validator->validated();
 
-            $user = User::where('official_email', $validated['official_email'])->first();
-            $user->password = Hash::make($validated['password']);
+            $tokenExists = DB::table('password_reset_tokens')->where('email', $validated['official_email'])->where('token', $validated['token'])->exists();
 
-            $flag = DB::table('password_reset_tokens')->where('email', $validated['official_email'])->delete();
+            if ($tokenExists) {
+                $flag = DB::table('password_reset_tokens')->where('email', $validated['official_email'])->delete();
 
-            $saved = $user->save();
+                $user = User::where('official_email', $validated['official_email'])->first();
+                $user->password = Hash::make($validated['password']);
 
-            if ($flag && $saved) {
-                return response()->json(['message' => 'The password was successfully changed.']);
+                $saved = $user->save();
+
+                if ($flag && $saved) {
+                    return response()->json(['message' => 'The password was successfully changed.']);
+                } else {
+                    return response()->json(['message' => 'Sorry your password cannot be changed, please try again later.'], 400);
+                }
             } else {
-                return response()->json(['message' => 'Sorry your password cannot be changed, please try again later.']);
+                return response()->json(['message' => 'The token you provided is not valid, please try again later.'], 422);
             }
         } else {
             return response()->json(['message' => 'Unsuccessful', 'errors' => $validator->errors()]);
