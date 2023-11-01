@@ -490,7 +490,10 @@ class ReviewTeamChairController extends Controller
                 $pgpr->properEvaluations->save();
 
                 $pgpr->status_of_pgpr = 'FINAL';
+<<<<<<< HEAD
 
+=======
+>>>>>>> 52a1d1d83f728c87cb581f09fa86b8d5dcde530f
                 $pgpr->save();
 
                 DB::commit();
