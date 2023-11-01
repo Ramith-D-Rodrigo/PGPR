@@ -81,6 +81,8 @@ import ReviewerProfile from "./pages/QACOfficer/ReviewerProfile";
 import CQADashboard from "./pages/CQAdirector/CQADashboard";
 import QACDirectorDashboard from "./pages/QACDirector/QACDirectorDashboard";
 import QACOfficerDashboard from "./pages/QACOfficer/QACOfficerDashboard";
+import ForgotPasswordEmailVerification from "./pages/ForgotPasswordEmailVerification.jsx";
+import ForgotPasswordPasswordReset from "./pages/ForgotPasswordPasswordReset.jsx";
 
 
 /* 
@@ -108,6 +110,8 @@ function App() {
           {/*note: note final*/}
           <Route path="login" element={<Login />} />
           <Route path="/" element={<Login />} />
+          <Route path="/forgot-password-email-verification" element={<ForgotPasswordEmailVerification />} />
+          <Route path="/forgot-password-reset-password" element={<ForgotPasswordPasswordReset />} />
 
           <Route
             element={
