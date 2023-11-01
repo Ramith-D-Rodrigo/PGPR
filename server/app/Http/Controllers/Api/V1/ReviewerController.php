@@ -359,6 +359,23 @@ class ReviewerController extends Controller
             }
 
             // TODO: INFORM REVIEW TEAM CREATOR
+            $post_grad_program = $review_team->postGraduateReviewProgram->postGraduateProgram;
+
+            $creatorOfReviewTeam = User::find($review_team->quality_assurance_council_officer_id)->first();
+
+            //inform the creator of the review team
+            Mail::to($creatorOfReviewTeam->official_email)
+                ->send(
+                    new ReviewerRejectReviewAssignment(
+                        $creatorOfReviewTeam,
+                        $reviewer -> user,
+                        $post_grad_program,
+                        $request->validated('comment'),
+                        'Reviewer Rejected Postgraduate Program Review',
+                        'mail.reviewerAcceptedPostrgaduateProgramReview'
+                    )
+                );
+
             DB::commit();
 
             return response()->json(['message' => 'Your declaration was successfully uploaded.'], 201);
@@ -1233,9 +1250,9 @@ class ReviewerController extends Controller
             $postGraduateProgram = $postGraduateProgramReview->postGraduateProgram;
 
             if ($rejections->count() >= 3) {
-                $qacDirector = User::find($postGraduateProgramReview->qac_dir_id);
                 $programCoodinator = User::find($postGraduateProgram->currentProgrammeCoordinator->id);
                 $dean = User::find($postGraduateProgram->faculty->currentDean->id);
+                $iqauDirector = $postGraduateProgram->faculty->internalQualityAssuranceUnit->internalQualityAssuranceUnitDirector->user;
 
                 $data = [];
                 $data['postGraduateProgram'] = $postGraduateProgram;
@@ -1263,16 +1280,27 @@ class ReviewerController extends Controller
                         subject: 'Review team rejected the post graduate program review',
                         content: 'mail.informToOfficialsAboutReviewTeamPGPRRejection',
                     ));
-                //sending the mail to the qac director
-                Mail::to($qacDirector->official_email)
+
+                Mail::to($iqauDirector->official_email)
                     ->send(new InformToOfficialsOfPGPRRejection(
-                        recipient: $qacDirector,
+                        recipient: $iqauDirector,
                         data: $data,
                         subject: 'Review team rejected the post graduate program review',
                         content: 'mail.informToOfficialsAboutReviewTeamPGPRRejection',
                     ));
 
-                // TODO: send the mail to the IQAU DIR
+                //sending the mail to the qac director
+                $qacDirectors = User::whereJsonContains('roles', 'qac_director')->get();
+
+                foreach ($qacDirectors as $qacDirector) {
+                    Mail::to($qacDirector->official_email)
+                        ->send(new InformToOfficialsOfPGPRRejection(
+                            recipient: $qacDirector,
+                            data: $data,
+                            subject: 'Review team rejected the post graduate program review',
+                            content: 'mail.informToOfficialsAboutReviewTeamPGPRRejection',
+                        ));
+                }
 
                 //set the pgpr status as rejected/suspended
                 $postGraduateProgramReview->status_of_pgpr = 'SUSPENDED';
