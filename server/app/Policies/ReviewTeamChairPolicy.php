@@ -10,7 +10,7 @@ use App\Http\Requests\V1\UpdateReviewChairSubmitPERequest;
 use App\Models\PostGraduateProgramReview;
 use App\Models\ReviewTeam;
 use App\Models\User;
-use Illuminate\Http\Response;
+use Illuminate\Auth\Access\Response;
 
 
 class ReviewTeamChairPolicy

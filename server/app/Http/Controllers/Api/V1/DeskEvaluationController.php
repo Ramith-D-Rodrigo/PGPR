@@ -180,8 +180,7 @@ class DeskEvaluationController extends Controller
 
 
         } catch (Exception $exception) {
-            // return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
-            throw $exception;
+            return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
         }
     }
 

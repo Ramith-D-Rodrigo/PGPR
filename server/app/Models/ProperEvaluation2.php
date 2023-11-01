@@ -9,7 +9,7 @@ class ProperEvaluation2 extends Model
 {
     use HasFactory;
 
-    protected $table = 'proper_evaluation_1s';
+    protected $table = 'proper_evaluation_2s';
 
     protected $fillable = [
         'id',

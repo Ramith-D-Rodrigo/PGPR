@@ -14,14 +14,16 @@ import {
   TextField,
   Divider,
   Chip,
-  Grid
+  Grid,
 } from "@mui/material";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import _ from "lodash";
 import useSetUserNavigations from "../../hooks/useSetUserNavigations";
 import useAuth from "../../hooks/useAuth";
 import getAllPostGraduatePrograms from "../../api/PostGraduateProgram/getAllPostGraduatePrograms";
 import getIQAUDirectorFaculty from "../../api/IQAUDirector/getIQAUDirectorFaculty";
+import getAUniversity from "../../api/University/getAUniversity";
 
 const ViewPGPs = () => {
   const { auth } = useAuth();
@@ -36,140 +38,99 @@ const ViewPGPs = () => {
     },
   ]);
 
+  const [allPrograms, setAllPrograms] = useState([]);
+  const [faculty, setFaculty] = useState({});
+  const [university, setUniversity] = useState({});
+  const [pgps, setPgps] = useState([]);
   const [selectedFilterKeys, setSelectedFilterKeys] = useState([]);
   const [searchKeyword, setSearchKeyword] = useState("");
-  const [allPrograms, setAllPrograms] = useState([]);
-  const [faculty, setFaculty] = useState([]);
-  const [pgp, setPgp] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchUniversity = async () => {
+      try {
+        setLoading(true);
+        const facultyData = await getIQAUDirectorFaculty(auth.id);
+        setFaculty(facultyData.data.data);
+
+        if (faculty.id) {
+          const universityData = await getAUniversity(
+            faculty.universityId
+          );
+          setUniversity(universityData.data.data);
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUniversity();
+  }, [auth.id, faculty.id, faculty.universityId]);
 
   useEffect(() => {
     const fetchPgPrograms = async () => {
       try {
+        setLoading(true);
         const allPgPrograms = await getAllPostGraduatePrograms({
           includeFaculty: true,
+          includeCurrentCoordinator: true,
+          includeAcademicStaff: true,
+          includeUniversitySide: true,
+          includeUser: true,
         });
-        setAllPrograms(allPgPrograms.data);
-        console.log("All", allPrograms);
-
-        const facultyData = await getIQAUDirectorFaculty(auth.id);
-        setFaculty(facultyData.data);
-        console.log("Faculty", faculty);
-
-        if (allPrograms.length !== 0) {
-          const facultyPrograms = allPrograms.filter((program) => {
-            return program.faculty.id === faculty.id;
-          });
-          setPgp(facultyPrograms);
-          console.log("PGP", pgp);
-        }
+        setAllPrograms(allPgPrograms.data.data);
       } catch (error) {
         console.log(error);
+      } finally {
+        setLoading(false);
       }
     };
-    fetchPgPrograms()
-  }, [ auth.id, allPrograms, faculty, pgp]);
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
+    fetchPgPrograms();
+  }, [auth.id]);
 
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(+event.target.value);
-    setPage(0);
-  };
-
-  // useEffect(() => {
-  //   axios
-  //     .get("/api/v1/postGraduatePrograms")
-  //     .then((response) => {
-  //       setPgps(response.data.data);
-  //     })
-  //     .catch((error) => {
-  //       console.log(error);
-  //     });
-  // }, []);
-
-  const pgps = [
-    {
-      title: "Computer Science",
-      slqf_level: "6",
-      commencement_year: "2020",
-      program_coordinator: "John Smith",
-      status: "In-review",
-    },
-    {
-      title: "Electrical Engineering",
-      slqf_level: "7",
-      commencement_year: "2018",
-      program_coordinator: "Emily Johnson",
-      status: "Accepted",
-    },
-    {
-      title: "Business Administration",
-      slqf_level: "6",
-      commencement_year: "2019",
-      program_coordinator: "Michael Brown",
-      status: "Rejected",
-    },
-    {
-      title: "Mechanical Engineering",
-      slqf_level: "7",
-      commencement_year: "2021",
-      program_coordinator: "Sophia Davis",
-      status: "Pending",
-    },
-    {
-      title: "Biology",
-      slqf_level: "5",
-      commencement_year: "2017",
-      program_coordinator: "David Lee",
-      status: "In-review",
-    },
-    {
-      title: "Psychology",
-      slqf_level: "6",
-      commencement_year: "2022",
-      program_coordinator: "Olivia Martinez",
-      status: "Accepted",
-    },
-    {
-      title: "Environmental Science",
-      slqf_level: "5",
-      commencement_year: "2016",
-      program_coordinator: "Emma Wilson",
-      status: "Rejected",
-    },
-    {
-      title: "Marketing",
-      slqf_level: "6",
-      commencement_year: "2020",
-      program_coordinator: "Daniel Johnson",
-      status: "Pending",
-    },
-    {
-      title: "Civil Engineering",
-      slqf_level: "7",
-      commencement_year: "2019",
-      program_coordinator: "Sophie Miller",
-      status: "In-review",
-    },
-    {
-      title: "Chemistry",
-      slqf_level: "5",
-      commencement_year: "2017",
-      program_coordinator: "Alexander Green",
-      status: "Accepted",
-    },
-  ];
+  useEffect(() => {
+    if (allPrograms.length !== 0 && faculty.id) {
+      const facultyPrograms = allPrograms.filter((program) => {
+        return program.facultyId === faculty.id;
+      });
+      setPgps(facultyPrograms);
+    }
+  }, [allPrograms, faculty]);
 
   const columns = {
     title: "Title",
-    slqf_level: "SLQF Level",
-    commencement_year: "Commencement Year",
-    program_coordinator: "Programme Coordinator",
-    status: "Status",
+    slqfLevel: "SLQF Level",
+    commencementYear: "Commencement Year",
+    programmeCoordinator: "Programme Coordinator",
+  };
+
+  const filterPGPs = () => {
+    const filteredData = pgps.map((pgp) => ({
+      title: pgp.title,
+      slqfLevel: pgp.slqfLevel,
+      commencementYear: pgp.commencementYear,
+      programmeCoordinator: pgp.programmeCoordinator,   
+    })).filter((filteredPgp) => {
+      const matchesKeyword = Object.values(filteredPgp).some((value) =>
+        value
+          ? value.toString().toLowerCase().includes(searchKeyword.toLowerCase())
+          : false
+      );
+
+      // const matchesFilters =
+      //   selectedFilterKeys.length === 0 ||
+      //   selectedFilterKeys.some(
+      //     (filter) => filter && filter.title === filteredPgp.status
+      //   );
+
+      // return matchesKeyword && matchesFilters;
+      return matchesKeyword;
+    });
+    return filteredData;
   };
 
   const actions = [
@@ -182,55 +143,64 @@ const ViewPGPs = () => {
         console.log("View");
       },
     },
-    {
-      action: "SER",
-      background: "#4CAF50",
-      hover: "#388E3C",
-      to: "/iqau_director/ser",
-      onclick: () => {
-        console.log("SER");
-      },
-    },
   ];
 
-  const status = [
-    { title: "In-review" },
-    { title: "Accepted" },
-    { title: "Rejected" },
-    { title: "Pending" },
-  ];
+  // const status = [
+  //   { title: "In-review" },
+  //   { title: "Accepted" },
+  //   { title: "Rejected" },
+  //   { title: "Pending" },
+  // ];
 
   const uniAndFaculty = [
-    { 
+    {
       title: "University: ",
-      value: "University of Colombo"
+      value: university.name ? university.name.toString() : "",
     },
     {
       title: "Faculty/Institute: ",
-      value: "Faculty of Science"
-    }
+      value: faculty.name ? faculty.name.toString() : "",
+    },
   ];
 
-  const filterPGPs = () => {
-    const filteredStatus = pgps.filter((pgp) => {
-      const matchesKeyword = Object.values(pgp).some((value) =>
-        value
-          ? value.toString().toLowerCase().includes(searchKeyword.toLowerCase())
-          : false
-      );
-
-      const matchesFilters =
-        selectedFilterKeys.length === 0 ||
-        selectedFilterKeys.some((filter) => filter.title === pgp.status);
-
-      return matchesKeyword && matchesFilters;
-    });
-
-    return filteredStatus;
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
   };
 
-  const customEqualityTest = (option, value) => {
-    return option.title === value.title;
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(+event.target.value);
+    setPage(0);
+  };
+
+  // const customEqualityTest = (option, value) => {
+  //   return option.title === value.title;
+  // };
+
+  const handleSearchInputChange = _.debounce((value) => {
+    setSearchKeyword(value);
+  }, 300);
+
+  const columnMappings = {
+    title: (value) => (
+      <TableCell sx={{ paddingY: "0.5rem" }} key="title">
+        {value}
+      </TableCell>
+    ),
+    slqfLevel: (value) => (
+      <TableCell sx={{ paddingY: "0.5rem" }} key="slqfLevel">
+        {value}
+      </TableCell>
+    ),
+    commencementYear: (value) => (
+      <TableCell sx={{ paddingY: "0.5rem" }} key="commencementYear">
+        {value}
+      </TableCell>
+    ),
+    programmeCoordinator: (value) => (
+      <TableCell sx={{ paddingY: "0.5rem" }} key="programmeCoordinator">
+        {String(value.academicStaff.universitySide.user.initials)}.{String(value.academicStaff.universitySide.user.surname)}
+      </TableCell>
+    ),
   };
 
   return (
@@ -249,18 +219,18 @@ const ViewPGPs = () => {
       >
         <Grid container spacing={1} columns={{ sm: 6, md: 12 }}>
           {uniAndFaculty.map((item, index) => (
-            <>
-              <Grid item sm={2} md={2} key={`${index}-${item.title}`}>
+            <React.Fragment key={`uni-faculty-${index}`}>
+              <Grid item sm={2} md={2} key={`${index}-1`}>
                 <Typography variant="body1" textAlign={"left"}>
                   <b>{item.title}</b>
                 </Typography>
               </Grid>
-              <Grid item sm={4} md={4} key={`${index}-${item.value}`}>
+              <Grid item sm={4} md={4} key={`${index}-2`}>
                 <Typography variant="body1" textAlign={"left"}>
                   {item.value}
                 </Typography>
               </Grid>
-            </>
+            </React.Fragment>
           ))}
         </Grid>
       </Box>
@@ -273,7 +243,7 @@ const ViewPGPs = () => {
           marginTop: "20px",
         }}
       >
-        <Autocomplete
+        {/* <Autocomplete
           sx={{ marginBottom: "20px", minWidth: "200px" }}
           multiple
           id="tags-outlined"
@@ -287,7 +257,7 @@ const ViewPGPs = () => {
           renderInput={(params) => (
             <TextField {...params} label="Filter by Status" size="small" />
           )}
-        />
+        /> */}
         <TextField
           id="outlined-basic"
           variant="outlined"
@@ -295,7 +265,7 @@ const ViewPGPs = () => {
           label="Search"
           size="small"
           value={searchKeyword}
-          onChange={(e) => setSearchKeyword(e.target.value)}
+          onChange={(e) => handleSearchInputChange(e.target.value)}
         />
       </Box>
       <TableContainer
@@ -316,7 +286,7 @@ const ViewPGPs = () => {
                   {column}
                 </TableCell>
               ))}
-              {actions.length != 0 && (
+              {actions.length !== 0 && (
                 <TableCell
                   key="Actions"
                   sx={{
@@ -331,59 +301,62 @@ const ViewPGPs = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {filterPGPs()
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row) => (
-                <TableRow
-                  hover
-                  key={row.title}
-                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                >
-                  {Object.values(row).map((col) => (
-                    <TableCell sx={{ paddingY: "0.5rem" }} key={col}>
-                      {col}
-                    </TableCell>
-                  ))}
-                  {actions.length != 0 && (
-                    <TableCell
-                      sx={{
-                        display: "flex",
-                        justifyContent: "center",
-                        paddingY: "0.5rem",
-                      }}
-                    >
-                      {actions.map((action, index) => (
-                        <Button
-                          component={Link}
-                          to={action.to}
-                          key={action.action + index}
-                          onClick={action.onclick}
-                          variant="contained"
-                          size="small"
-                          sx={{
-                            background: action.background,
-                            color: "#fff",
-                            "&:hover": {
-                              background: action.hover,
-                            },
-                            padding: "5px 10px",
-                            marginRight: "10px",
-                            border: "none",
-                            borderRadius: "5px",
-                            cursor: "pointer",
-                            "&:lastChild": {
-                              marginRight: "0",
-                            },
-                          }}
-                          disabled={index === 1 && row.status !== "In-review"}
-                        >
-                          {action.action}
-                        </Button>
-                      ))}
-                    </TableCell>
-                  )}
-                </TableRow>
-              ))}
+            {filterPGPs().length !== 0 &&
+              filterPGPs()
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((row, rowIndex) => (
+                  <TableRow
+                    hover
+                    key={`row-${rowIndex}`}
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
+                    {Object.keys(row).map((key) =>(
+                      columnMappings[key](row[key])
+                    )
+                    )}
+                    {actions.length !== 0 && (
+                      <TableCell
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          paddingY: "0.5rem",
+                        }}
+                        key={`actions-${rowIndex}`} // Use a unique key here as well
+                      >
+                        {actions.map((action, actionIndex) => (
+                          <Button
+                            component={Link}
+                            to={action.to}
+                            key={`action-button-${actionIndex}`} // Ensure each action has a unique key
+                            onClick={() => action.onclick()}
+                            variant="contained"
+                            size="small"
+                            sx={{
+                              background: action.background,
+                              color: "#fff",
+                              "&:hover": {
+                                background: action.hover,
+                              },
+                              padding: "5px 10px",
+                              marginRight: "10px",
+                              border: "none",
+                              borderRadius: "5px",
+                              cursor: "pointer",
+                              "&:lastChild": {
+                                marginRight: "0",
+                              },
+                            }}
+                            disabled={
+                              actionIndex === 1 && row.status !== "In-review"
+                            }
+                          >
+                            {action.action}
+                          </Button>
+                        ))}
+                      </TableCell>
+                    )}
+                  </TableRow>
+                ))}
           </TableBody>
         </Table>
       </TableContainer>
