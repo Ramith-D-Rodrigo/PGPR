@@ -8,6 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 class ProperEvaluation extends Model
 {
   use HasFactory;
+  protected $fillable = [
+        'start_date',
+        'end_date',
+        'pgpr_id',
+        'stage'
+    ];
 
   // Proper Evaluation belongs to a PostGraduateReviewProgram
   public function postGraduateProgramReview(): \Illuminate\Database\Eloquent\Relations\BelongsTo

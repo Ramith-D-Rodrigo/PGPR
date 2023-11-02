@@ -199,9 +199,9 @@ function FinalizePE() {
       })
     : [];
 
-  console.log("Rows : ", rows);
+  console.log("Rows : ", pgData?.postGraduateReviewProgram?.properEvaluation?.id);
 
-  const handleSetDate = () => {
+  const handleSetDate = async () => {
     if (
       visitStartDate === "" ||
       visitEndDate === "" ||
@@ -243,7 +243,7 @@ function FinalizePE() {
       setErrorMsg("");
       try {
         const data = {
-          pgpr:pgprId,
+          pgprId,
           startDate: evaluationStartDate,
           siteVisitStartDate: visitStartDate,
           siteVisitEndDate: visitEndDate,
@@ -253,15 +253,14 @@ function FinalizePE() {
 
         //console.log("Set Date data : ", data);
 
-        axios.get("/sanctum/csrf-cookie");
-        axios.post(
+        await axios.get("/sanctum/csrf-cookie");
+        await axios.post(
           `${SERVER_URL}${SERVER_API_VERSION}review-team-chair/proper-evaluation/set-dates/phase-two`,
           data
         );
         setErrorMsg("Dates are set successfully");
         setSuccess(true);
         setOpenDateDialog(false);
-        handleSureOpen();
       } catch (error) {
         setErrorMsg(error?.response?.data?.message);
       } finally {
@@ -309,16 +308,30 @@ function FinalizePE() {
     // setOpenSureDialog(false);
     setLoading(true);
     setErrorMsg("");
+    console.log(
+      "PG Data : ",
+      pgData?.postGraduateReviewProgram?.properEvaluation?.id
+    );
     try {
       await axios.get("/sanctum/csrf-cookie");
-      const data = { id: pgData?.properEvaluation?.id, startDate: visitStartDate, endDate: visitEndDate };
-      console.log("Data : ", data);
+      const data = {
+        properEvaluationId:
+          pgData?.postGraduateReviewProgram?.properEvaluation?.id,
+        startDate: visitStartDate,
+        endDate: visitEndDate,
+        status: 2,
+      };
+      console.log(
+        "Data : ",
+        pgData?.postGraduateReviewProgram?.properEvaluation?.id
+      );
       await axios.put(
-        `${SERVER_URL}${SERVER_API_VERSION}proper-evaluation/${pgprId}`,
+        `${SERVER_URL}${SERVER_API_VERSION}proper-evaluation/${pgData?.postGraduateReviewProgram?.properEvaluation?.id}`,
         data
       );
       setErrorMsg("Proper Evaluation is finalized successfully");
       setSuccess(true);
+      handleDateOpen();
     } catch (error) {
       setErrorMsg(error?.response?.data?.message);
     } finally {
@@ -434,7 +447,7 @@ function FinalizePE() {
                     marginTop: "1rem",
                   }}
                   component={Link}
-                  onClick={handleDateOpen}
+                  onClick={handleSureOpen}
                 >
                   End Proper Evaluation #1
                 </Button>
