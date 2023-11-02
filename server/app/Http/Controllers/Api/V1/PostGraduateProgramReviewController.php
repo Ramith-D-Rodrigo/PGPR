@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Requests\V1\ShowFinalReportRequest;
+use App\Http\Requests\V1\ShowPreliminaryReportRequest;
 use App\Http\Requests\V1\StorePostGraduateProgramReviewRequest;
 use App\Http\Requests\V1\UpdatePostGraduateProgramReviewRequest;
 use App\Http\Resources\V1\PostGraduateProgramReviewCollection;
@@ -12,7 +14,11 @@ use App\Models\PostGraduateProgramReview;
 use App\Http\Controllers\Controller;
 use App\Models\ReviewTeam;
 use App\Models\User;
+use App\Services\V1\ScoreCalculationService;
+use App\Services\V1\StandardService;
+use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -318,6 +324,149 @@ class PostGraduateProgramReviewController extends Controller
                 'message' => 'An error occurred while trying to group the post graduate program reviews',
                 'error' => $e -> getMessage()
             ], 500);
+        }
+    }
+
+    public function getDEScores(PostGraduateProgramReview $pgpr): JsonResponse
+    {
+
+        $validated = $pgpr->id;
+        $grading = ScoreCalculationService::gradeObtainedByTheProgramOfStudy(pgprId: $validated, stage: 'DE');
+
+        $pgpr = PostGraduateProgramReview::find($validated);
+        $pgp = $pgpr->postGraduateProgram;
+        $deskEvaluation = $pgpr->deskEvaluations;
+        $reviewTeam = DB::table('review_teams')->where('pgpr_id', $validated)->first();
+
+        $reviewers = DB::table('reviewer_review_teams')->where('review_team_id', $reviewTeam->id)->pluck('reviewer_id');
+
+        $criteria = DB::table('criterias')->get();
+
+        $data = [];
+
+        foreach ($criteria as $criterion) {
+            // Get all standards for this criteria
+            $standards = StandardService::getApplicableStandards(
+                $pgp->slqf_level,
+                $pgp->is_professional_pg_programme,
+                $criterion->id
+            );
+
+            foreach ($standards as $standard) {
+                // Get all scores for this standard
+                $scores = DB::table('desk_evaluation_score')
+                    ->whereIn('reviewer_id', $reviewers)
+                    ->where('desk_evaluation_id', $deskEvaluation->id)
+                    ->where('standard_id', $standard->id)
+                    ->select('de_score AS deScore', 'standard_id AS standardId')
+                    ->get();
+
+                $data[$criterion->id][] = ['scores' => $scores];
+            }
+        }
+
+        return response()->json(["finalGrades" => $grading, 'StandardScores' => $data]);
+    }
+
+    public function getPEScores(PostGraduateProgramReview $pgpr): JsonResponse
+    {
+        $validated = $pgpr->id;
+        $grading = ScoreCalculationService::gradeObtainedByTheProgramOfStudy(pgprId: $validated, stage: 'PE');
+
+        $pgpr = PostGraduateProgramReview::find($validated);
+        $pgp = $pgpr->postGraduateProgram;
+        $properEvaluation = $pgpr->properEvaluations;
+        $reviewTeam = DB::table('review_teams')->where('pgpr_id', $validated)->first();
+
+        $reviewers = DB::table('reviewer_review_teams')->where('review_team_id', $reviewTeam->id)->pluck('reviewer_id');
+
+        $criteria = DB::table('criterias')->get();
+
+        $data = [];
+
+        foreach ($criteria as $criterion) {
+            // Get all standards for this criteria
+            $standards = StandardService::getApplicableStandards(
+                $pgp->slqf_level,
+                $pgp->is_professional_pg_programme,
+                $criterion->id
+            );
+
+            foreach ($standards as $standard) {
+                // Get all scores for this standard
+                $scores = DB::table('proper_evaluation_score')
+                    ->whereIn('reviewer_id', $reviewers)
+                    ->where('proper_evaluation_id', $properEvaluation->id)
+                    ->where('standard_id', $standard->id)
+                    ->select('pe_score AS peScore', 'standard_id AS standardId')
+                    ->get();
+
+                $data[$criterion->id][] = ['scores' => $scores];
+            }
+        }
+
+        return response()->json(["finalGrades" => $grading, 'StandardScores' => $data]);
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * GET request +>
+     *              /{pgpr}
+     *
+     */
+    public function viewPreliminaryReport(ShowPreliminaryReportRequest $request): JsonResponse
+    {
+        try {
+            $validated = $request->validated();
+            $pgpr = PostGraduateProgramReview::find($validated['pgpr_id']);
+            $reviewTeam = $pgpr->reviewTeam;
+
+            $data = DB::table('final_reports')
+                ->select('preliminary_report as preliminaryReport', 'type AS reportStatusType', 'created_at as createdAt', 'updated_at as updatedAt')
+                ->where('pgpr_id', $pgpr->id)
+                ->where('review_team_id', $reviewTeam->id)
+                ->first();
+
+            if (!$data) {
+                return response()->json(['message' => 'The preliminary report is not yet uploaded.']);
+            }
+
+            return response()->json(['message' => 'Success', 'data' => $data]);
+
+        } catch (Exception $exception) {
+            return response()->json(['message' => 'Something bad happened!, We are working on it.'], 500);
+        }
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * GET request +>
+     *              /{pgpr}
+     *
+     */
+    public function viewFinalReport(ShowFinalReportRequest $request): JsonResponse
+    {
+        try {
+            $validated = $request->validated();
+            $pgpr = PostGraduateProgramReview::find($validated['pgpr_id']);
+            $reviewTeam = $pgpr->reviewTeam;
+
+            $data = DB::table('final_reports')
+                ->select('final_report as finalReport', 'type AS reportStatusType', 'created_at as createdAt', 'updated_at as updatedAt')
+                ->where('pgpr_id', $pgpr->id)
+                ->where('review_team_id', $reviewTeam->id)
+                ->first();
+
+            if (!$data) {
+                return response()->json(['message' => 'The final report is not yet uploaded.']);
+            }
+
+            return response()->json(['message' => 'Success', 'data' => $data]);
+
+        } catch (Exception $exception) {
+            return response()->json(['message' => 'Something bad happened!, We are working on it.'], 500);
         }
     }
 }
