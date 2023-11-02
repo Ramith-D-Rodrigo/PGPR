@@ -13,9 +13,14 @@ Postgraduate program details:<br>
     Postgraduate program name: {{$postgraduateProgram->title}}<br>
 
 Evidence details:<br>
-    Evidence name: {{$evidence->evidence_name}}<br>
-    Evidence code: {{$evidence->evidence_code}}<br>
-    Evidence applicable years: {{json_decode($evidence->applicable_years)}}<br>
+    Evidence name: {{$evidenceInfo->evidence_name}}<br>
+    Evidence code: {{$evidenceInfo->evidence_code}}<br>
+    Evidence applicable years: {
+        @foreach(json_decode($evidenceInfo->applicable_years) as $year)
+            {{$year}},
+        @endforeach
+    }<br>
+    <br>
 
 You can find more details regarding this on our platform. <br>
 Thank you.<br>

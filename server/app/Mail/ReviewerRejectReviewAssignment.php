@@ -22,7 +22,7 @@ class ReviewerRejectReviewAssignment extends Mailable
     public function __construct(
         public User                $recipient,
         public User                $reviewer,
-        public PostGraduateProgram $pgpr,
+        public PostGraduateProgram $post_grad_program,
         public string              $comment,
         public                     $subject,
         public                     $content

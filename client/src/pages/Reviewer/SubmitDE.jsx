@@ -111,12 +111,16 @@ const SubmitDE = () => {
     const handleSubmitDE_results = async() => {
         SetLoading(true);
         try{
-            const response = await SubmitDeskEvaluation(pgprDetails?.data?.postGraduateReviewProgram?.deskEvaluation);
+            const response = await SubmitDeskEvaluation(pgprDetails?.data?.postGraduateReviewProgram?.deskEvaluation.id);
             console.log("Submit DE Results : ",response);
             SetLoading(false);
             setError({status:response?.status, msg:response?.data?.message});
+
             if(response?.status==200){
-                navigate(`../${pgprId}`);
+                setError({status:response?.status, msg:response?.data?.message});
+                setTimeout(() => {
+                    navigate(`../${pgprId}`);
+                }, 2000);
             }
         }
         catch(err){

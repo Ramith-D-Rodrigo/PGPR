@@ -88,8 +88,8 @@ const PGPRs = () => {
                   console.log(pgprResponse.data.data);
 
                   const pgprData = pgprResponse.data.data;
-                  for (let i = 0; i < pgprData.length; i++) {
-                    pgprData[i].postGraduateProgramme = facultyPGPsResponse.data.data[i];
+                  for (let j = 0; j < pgprData.length; j++) {
+                    pgprData[j].postGraduateProgramme = facultyPGPsResponse.data.data[i];
                   }
 
                   pgprArr.push(...pgprData);

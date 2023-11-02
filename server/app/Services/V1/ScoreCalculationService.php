@@ -28,7 +28,7 @@ class ScoreCalculationService
             } else {
                 $performanceScores['overallPerformanceOfStudyScore'] = 'D';
             }
-        } else if ($numberOfCriteriaLessThanMinimumCriterionScore == 6) {
+        } else if ($numberOfCriteriaLessThanMinimumCriterionScore == 1) {
             if ($percentageOfActualCriterionWiseScores >= 70) {
                 $performanceScores['overallPerformanceOfStudyScore'] = 'B';
             } else if (60 <= $percentageOfActualCriterionWiseScores && $percentageOfActualCriterionWiseScores <= 69) {
@@ -36,7 +36,7 @@ class ScoreCalculationService
             } else {
                 $performanceScores['overallPerformanceOfStudyScore'] = 'D';
             }
-        } else if ($numberOfCriteriaLessThanMinimumCriterionScore == 5) {
+        } else if ($numberOfCriteriaLessThanMinimumCriterionScore == 2) {
             if ($percentageOfActualCriterionWiseScores >= 60) {
                 $performanceScores['overallPerformanceOfStudyScore'] = 'C';
             } else {
@@ -65,7 +65,7 @@ class ScoreCalculationService
                 $numberOfCriteriaLessThanMinimumCriterionScore += 1;
         }
 
-        $percentageOfActualCriterionWiseScores = $totalOfActualCriterionWiseScores / 100;
+        $percentageOfActualCriterionWiseScores = $totalOfActualCriterionWiseScores / 10; //because the total score is out of 1000, and to get the percentage, we need to divide by 10 (score/1000 * 100 = score/10)
         $criteriaScores['percentageOfActualCriterionWiseScores'] = $percentageOfActualCriterionWiseScores;
         $criteriaScores['numberOfCriteriaLessThanMinimumCriteriaScore'] = $numberOfCriteriaLessThanMinimumCriterionScore;
 

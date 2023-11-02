@@ -18,6 +18,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\V1\StandardResource;
 use App\Jobs\V1\SetPermissionsForPGPRFolder;
 use App\Models\Standard;
+use App\Models\User;
 use App\Services\V1\PostGraduateProgramReviewService;
 use App\Services\V1\StandardService;
 use Exception;
@@ -318,11 +319,11 @@ class SelfEvaluationReportController extends Controller
             ]);
 
             // TODO: VICE CHANCELLOR, CQA DIR
-            $viceChancellor = $selfEvaluationReport->viceChancellor->user;
-            $cqaDirector = $selfEvaluationReport->centerForQualityAssuranceDirector->user;
             $postGraduateProgramReview = $selfEvaluationReport->postGraduateProgramReview;
             $postGraduateProgram = $postGraduateProgramReview->postGraduateProgram;
-            $university = $viceChancellor->university;
+            $viceChancellor = $postGraduateProgram->faculty->university->viceChancellor->universitySide->user;
+            $cqaDirector = $postGraduateProgram->faculty->university->centerForQualityAssurance->currentQualityAssuranceDirector->qualityAssuranceStaff->universitySide->user;
+            $university = $postGraduateProgram->faculty->university;
             $faculty = $postGraduateProgram->faculty;
 
             Mail::to($viceChancellor->official_email)->send(
@@ -421,14 +422,15 @@ class SelfEvaluationReportController extends Controller
 
             //role should be either cqa_director or vice_chancellor
             DB::beginTransaction();
-            $iqauDirector = $selfEvaluationReport->internalQualityAssuranceUnitDirector->user;
-            $viceChancellor = $selfEvaluationReport->viceChancellor->user;
-            $programCoordinator = $selfEvaluationReport->programmeCoordinator->user;
             $postGraduateProgramReview = $selfEvaluationReport->postGraduateProgramReview;
-            $qacDirector = $postGraduateProgramReview->qualityAssuranceCouncilDirectors;
             $postGraduateProgram = $postGraduateProgramReview->postGraduateProgram;
-            $university = $viceChancellor->university;
+            $viceChancellor = $postGraduateProgram->faculty->university->viceChancellor->universitySide->user;
+            $cqaDirector = $postGraduateProgram->faculty->university->centerForQualityAssurance->currentQualityAssuranceDirector->qualityAssuranceStaff->universitySide->user;
+            $university = $postGraduateProgram->faculty->university;
             $faculty = $postGraduateProgram->faculty;
+            $iqauDirector = $faculty -> internalQualityAssuranceUnit -> internalQualityAssuranceUnitDirector -> qualityAssuranceStaff -> universitySide -> user;
+            $programCoordinator = $postGraduateProgram -> currentProgrammeCoordinator -> academicStaff -> universitySide -> user;
+            $qacDirector = User::whereJsonContains('roles', 'qac_director')->first();
 
             // TODO: INFORM PROGRAMME CO, IQAU
             Mail::to($iqauDirector->official_email)->send(
@@ -484,7 +486,6 @@ class SelfEvaluationReportController extends Controller
                     'updated_at' => now(),
                 ]);
                 // TODO: INFORM CQA DIR
-                $cqaDirector = $selfEvaluationReport->centerForQualityAssuranceDirector->user;
                 Mail::to($cqaDirector->official_email)->send(
                 new InformSelfEvaluationReportActionToAuthorities(
                     user:$cqaDirector,
@@ -529,7 +530,7 @@ class SelfEvaluationReportController extends Controller
                 $pgpr = $selfEvaluationReport -> postGraduateProgramReview;
                 $reviewTeam = $pgpr -> acceptedReviewTeam;
 
-                if($reviewTeam){   //has an accepted review team
+                if($reviewTeam && $pgpr -> hasAllReviewersAccepted()){   //has an accepted review team
                     //store the files in relevant folders by dispatching jobs
                     PostGraduateProgramReviewService::StoreEvidencesInSystemDriveAggregateJob($pgpr);
 

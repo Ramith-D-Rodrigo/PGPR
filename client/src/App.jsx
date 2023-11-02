@@ -178,6 +178,7 @@ function App() {
                 <Route path="AddPGProgramPage" element={<AddPGProgramPage />} />
                 <Route path="AddAccounts" element={<AddAccounts />} />
                 <Route path="BrowsePGPRApplications" element={<BrowsePGPR />} />
+                <Route path='reviewers/:reviewerId' element={<ReviewerProfile />}/>
                 <Route path="pgprs/">
 
                   <Route path="" element={<PGPRs />} />
@@ -291,6 +292,7 @@ function App() {
               <Route path="programme_coordinator/">
                 <Route path="" element={<Dashboard />} />
                 <Route path="dashboard" element={<Dashboard />} />
+                <Route path='reviewers/:reviewerId' element={<ReviewerProfile />}/>
                 <Route path="pgprs/">
                   <Route path="" element={<PGPRs />} />
                   <Route path=":pgprId" element={<ViewPGPR />} />
@@ -311,6 +313,7 @@ function App() {
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="SubmitConsent" element={<SubmitConsent />} />
                 <Route path="pgprApplication" element={<PGPRApplication />} />
+                <Route path='reviewers/:reviewerId' element={<ReviewerProfile />}/>
                 <Route path="pgprApplications">
                   <Route path="" element={<PGPRApplications />} />
                   <Route path="create" element={<PGPRApplication />} />
@@ -333,6 +336,7 @@ function App() {
               <Route path="vice_chancellor/">
                 <Route path="" element={<Dashboard />} />
                 <Route path="dashboard" element={<Dashboard />} />
+                <Route path='reviewers/:reviewerId' element={<ReviewerProfile />}/>
                 <Route path="selfevaluationreport" element={<SelfEvaluationReport />} />
                 <Route path="view" element={<View />} />
                 <Route path="postgraduateProgrammes" element={<PostGraduateProgrammes />} />
@@ -355,6 +359,7 @@ function App() {
               <Route path="iqau_director/">
                 <Route path="" element={<Dashboard />} />
                 <Route path="dashboard" element={<Dashboard />} />
+                <Route path='reviewers/:reviewerId' element={<ReviewerProfile />}/>
                 <Route path="pgPrograms" element={<ViewPGPs />} />
                 <Route path="ser" element={<IQAUSer />} />
                 <Route path="editSer" element={<IQAUEditSer />} />
