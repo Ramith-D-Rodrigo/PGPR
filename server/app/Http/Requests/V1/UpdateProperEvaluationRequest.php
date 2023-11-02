@@ -24,11 +24,8 @@ class UpdateProperEvaluationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id' => ['required', Rule::exists('proper_evaluations', 'id')->where(function ($query) {
-                $query->whereIn('status', ['1', '2']);
-            })],
-            'start_date' => 'sometimes|date|after_or_equal:today',
-            'end_date' => 'sometimes|date|after:start_date',
+            //'start_date' => 'sometimes|date|after_or_equal:today',
+            //'end_date' => 'sometimes|date|after:start_date',
             'status' => ['sometimes', Rule::in(['1', '2', 'COMPLETED'])]
         ];
     }
@@ -37,7 +34,6 @@ class UpdateProperEvaluationRequest extends FormRequest
     {
         $this->merge(
             [
-                'id' => $this->properEvaluationId,
                 'start_date' => $this->startDate,
                 'end_date' => $this->endDate,
             ]
