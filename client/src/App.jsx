@@ -84,6 +84,7 @@ import QACOfficerDashboard from "./pages/QACOfficer/QACOfficerDashboard";
 import ForgotPasswordEmailVerification from "./pages/ForgotPasswordEmailVerification.jsx";
 import ForgotPasswordPasswordReset from "./pages/ForgotPasswordPasswordReset.jsx";
 import AuthorizeRoute from "./components/AuthorizeRoute";
+import SubmitReports from "./pages/Reviewer/SubmitReports.jsx";
 
 
 /* 
@@ -251,7 +252,7 @@ function App() {
                       />
                     </Route>
                   </Route>
-                  <Route element={<AuthorizeRoute allowedStage={["PE1","PE2"]} />}>
+                  <Route element={<AuthorizeRoute allowedStage={["PE1","PE2","FINALIZE"]} />}>
                     <Route path="Conduct_PE/">
                       <Route path=":pgprId" element={<ConductPE />} />
                       <Route
@@ -288,6 +289,7 @@ function App() {
                       />
                     </Route>
                   </Route>
+                  <Route path="Submit_Reports/:pgprId" element={<SubmitReports />} />
                 </Route>
               </Route>
             </Route>

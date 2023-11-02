@@ -142,6 +142,7 @@ const PGAssignments = () => {
               { action: "View", allow: false },
               { action: "DE", allow: false },
               { action: "PE", allow: false },
+              { action: "Finalize", allow: false},
             ];
           } else if (PGPRDetails?.statusOfPgpr === "DE") {
             actions = [
@@ -149,6 +150,7 @@ const PGAssignments = () => {
               { action: "View", allow: true },
               { action: "DE", allow: true },
               { action: "PE", allow: false },
+              { action: "Finalize", allow: false},
             ];
           } else if (
             PGPRDetails?.statusOfPgpr === "PE1" ||
@@ -159,6 +161,7 @@ const PGAssignments = () => {
               { action: "View", allow: true },
               { action: "DE", allow: false },
               { action: "PE", allow: true },
+              { action: "Finalize", allow: false},
             ];
           } else if (PGPRDetails?.statusOfPgpr === "FINAL") {
             actions = [
@@ -166,6 +169,7 @@ const PGAssignments = () => {
               { action: "View", allow: true },
               { action: "DE", allow: false },
               { action: "PE", allow: false },
+              { action: "Finalize", allow: true},
             ];
           } else if (PGPRDetails?.statusOfPgpr === "COMPLETED") {
             actions = [
@@ -173,6 +177,7 @@ const PGAssignments = () => {
               { action: "View", allow: true },
               { action: "DE", allow: false },
               { action: "PE", allow: false },
+              { action: "Finalize", allow: false},
             ];
           } else {
             actions = [
@@ -180,6 +185,7 @@ const PGAssignments = () => {
               { action: "View", allow: false },
               { action: "DE", allow: false },
               { action: "PE", allow: false },
+              { action: "Finalize", allow: false},
             ];
           }
   
@@ -351,9 +357,10 @@ const PGAssignments = () => {
 
     function createData(PGPRDetails,University_Name, faculty_Name, pgp, Role, status, Actions,DE,reviewerConfirmation) {
         if(!PGPRDetails) return;
-
+        
         const dates = {id:PGPRDetails.id,startDate:DE?.startDate ?? "Not Set Yet",endDate:DE?.endDate?? "Not Set yet", deId: DE?.id}
         Actions = Actions.map((action,index) => {
+          // console.log("Finalize : ",action);
             
             let allow = action.allow? {disabled:false} : {disabled:true};
             allow = loading? {disabled:true} : allow;
@@ -384,6 +391,10 @@ const PGAssignments = () => {
             else if(action.action === 'PE')
             {
                 return <Link key={index} to={action.allow? 'Conduct_PE/'+PGPRDetails.id : ''}><Button {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button></Link>
+            }
+            else if(action.action === 'Finalize')
+            {
+                return <Link key={index} to={action.allow? 'Submit_Reports/'+PGPRDetails.id : ''}><Button {...allow} style={{margin:"0 8px"}} variant="contained" color="primary" size="small">{action.action}</Button></Link>
             }
             
         });
