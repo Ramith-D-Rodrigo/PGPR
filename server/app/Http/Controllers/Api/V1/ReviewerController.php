@@ -1118,7 +1118,8 @@ class ReviewerController extends Controller
             ], 403);
 
         } catch (Exception $exception) {
-            return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+            // return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+            throw $exception;
         }
     }
 

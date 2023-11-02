@@ -102,10 +102,8 @@ const ConductPE = () => {
       setErrorMsg("");
       try {
         const pgprResponse = await getPGPR(pgprId);
-        //console.log("PGPR : ", pgprResponse?.data?.data);
 
         const newPgpr = await getSpecificPGPR(pgprId);
-        //setPgpr(pgprResponse?.data?.data);
 
         if (pgprResponse?.data?.data) {
           const team = pgprResponse?.data?.data?.acceptedReviewTeam;
@@ -116,19 +114,14 @@ const ConductPE = () => {
               ?.properEvaluation
           );
 
-          console.log("Proper Evaluation : ", properEvaluation);
-
           const reviewerDetails = team?.reviewers;
-          //console.log("team : ", team);
           setReviewers(reviewerDetails);
-          //console.log("Reviewers : ", reviewers);
 
           const chair = reviewerDetails?.find(
             (reviewer) => reviewer?.role === "CHAIR"
           );
           const chairReviewer = chair?.userData;
           setChairId(chairReviewer?.id);
-          //console.log("Chair : ", chairReviewer?.id);
           if (chairId === auth?.id) {
             setIsChair(true);
           }
@@ -147,7 +140,6 @@ const ConductPE = () => {
           const university = universityData?.name;
 
           const ser = pgprResponse?.data?.data?.selfEvaluationReport;
-          //console.log("SER : ", ser);
           const coordinatorData = ser?.programmeCoordinator;
           const academic = coordinatorData?.academicStaff;
           const universitySideDetails = academic?.universitySide;
@@ -156,7 +148,6 @@ const ConductPE = () => {
           const criteria = ser?.criterias;
 
           setCriteriaList(criteria);
-          //console.log("Criteria List : ", criteriaList);
 
           setProgramData({
             title,
@@ -168,12 +159,9 @@ const ConductPE = () => {
             requestDate,
           });
 
-          //console.log("Program : ", programData);
-          //console.log("Team : ", team);
           const PEResponse = await axios.get(
             `${SERVER_URL}${SERVER_API_VERSION}review-team/proper-evaluation/view-details/${pgprId}/${team?.id}`
           );
-          //console.log("PE Data : ", PEResponse?.data?.data);
           setPEData(PEResponse?.data?.data);
           setupCriteria(PEResponse?.data?.data);
         }
@@ -190,12 +178,9 @@ const ConductPE = () => {
     const allSelectedCriteria = mergeAndDeDuplicate(PEData);
     setAllSelectedCriteriaList(allSelectedCriteria);
     setAllTemporary(allSelectedCriteria);
-    //console.log("All Selected Criteria : ", allSelectedCriteria);
   }
 
-  const dateCheck = properEvaluation?.endDate ? true : false;
-
-  //console.log("PE : ", PEData);
+  const dateCheck = properEvaluation?.properEvaluation1?.endDate ? true : false;
 
   const handleSetDate = () => {
     if (PEEndDate === "" || PEMeetingDate === "") {
@@ -220,8 +205,6 @@ const ConductPE = () => {
           meetingDate: PEMeetingDate,
           endDate: PEEndDate,
         };
-
-        //console.log("Set Date data : ", data);
 
         axios.get("/sanctum/csrf-cookie");
         axios.post(
@@ -288,11 +271,6 @@ const ConductPE = () => {
     }, 1000);
   };
 
-  // console.log("Criteria List : ", criteriaList);
-  // console.log("All Selected : ", allSelectedCriteriaList);
-  // console.log("Temporary : ", allTemporary);
-  // console.log("Reviewer Selected : ", reviewerCreitriaList);
-
   const handlesetCriteria = () => {
     if (reviewerCreitriaList.length === 0) {
       setErrorMsg("Please select at least one criteria");
@@ -300,7 +278,6 @@ const ConductPE = () => {
       setOpenCriteriaDialog(false);
       return;
     }
-    //console.log(reviewerCreitriaList);
     assignCriteria();
     setOpenCriteriaDialog(false);
     //get PGPR data again
@@ -311,13 +288,6 @@ const ConductPE = () => {
       setLoading(true);
       setErrorMsg("");
 
-      // console.log("Assign Criteria team id : ", reviewTeam?.id);
-      // console.log("Assign Criteria re id : ", selectedReviewer?.id);
-      // console.log(
-      //   "Assign Criteria cr list : ",
-      //   reviewerCreitriaList.map((criteria) => criteria.id)
-      // );
-
       const data = {
         reviewTeamId: reviewTeam?.id,
         reviewers: [
@@ -327,8 +297,6 @@ const ConductPE = () => {
           },
         ],
       };
-
-      //console.log("Assign Criteria data : ", data);
 
       await axios.get("/sanctum/csrf-cookie");
       await axios.post(
@@ -436,8 +404,6 @@ const ConductPE = () => {
       value: programData.requestDate,
     },
   ];
-
-  console.log("date check : ", dateCheck)
 
   return (
     <Box>

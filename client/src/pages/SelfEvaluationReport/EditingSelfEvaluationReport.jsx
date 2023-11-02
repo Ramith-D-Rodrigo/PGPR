@@ -38,6 +38,8 @@ import getPGPR from '../../api/PostGraduateProgramReview/getPGPR';
 
 import deleteEvidence from '../../api/Evidence/deleteEvidence';
 import updateEvidenceApi from '../../api/Evidence/updateEvidence';
+import getPGPRDEScores from "../../api/PostGraduateProgramReview/getPGPRDEScores";
+import getPGPRPEScores from "../../api/PostGraduateProgramReview/getPGPRPEScores";
 
 
 
@@ -89,6 +91,10 @@ const EditingSelfEvaluationReport = () => {
     const [isLoaded, setIsLoaded] = useState(false);
 
     const [pgprState, setPgprState] = useState(null);
+    
+    const [pgprDEScores, setPgprDEScores] = useState(null);
+
+    const [pgprPEScores, setPgprPEScores] = useState(null);
 
     const navigate = useNavigate();
 
@@ -114,13 +120,22 @@ const EditingSelfEvaluationReport = () => {
     }, [criteriaId, serId]);
 
     useEffect(() => {
-        const pgprState = async () => {
+        const pgprStateFunc = async () => {
             try {
                 const response = await getPGPR(pgprId);
 
                 if (response) {
                     console.log(response.data.data);
                     setPgprState(response.data.data.statusOfPgpr);
+
+
+                    if(response.data.data.statusOfPgpr === 'PE1' || response.data.data.statusOfPgpr === 'PE2'){
+                        await pgprDEScoresFunc();
+                    }
+            
+                    if(response.data.data.statusOfPgpr === 'FINAL' || response.data.data.statusOfPgpr === 'COMPLETED'){
+                        await pgprPEScoresFunc();
+                    }
                 }
             }
             catch (error) {
@@ -128,7 +143,39 @@ const EditingSelfEvaluationReport = () => {
             }
         }
 
-        pgprState();
+        const pgprDEScoresFunc = async () => {
+            try{
+                const response = await getPGPRDEScores(pgprId);
+                
+                if(response && response.status === 200){
+                    console.log('hello');
+                    console.log(response.data);
+                    setPgprDEScores(response.data.StandardScores);
+                }
+
+            }
+            catch(error){
+                console.log(error);
+            }
+        }
+
+
+        const pgprPEScoresFunc = async ()=> {
+            try {
+                const response = await getPGPRPEScores(pgprId);
+                
+                if(response && response.status === 200){
+                    console.log('hello');
+                    console.log(response.data);
+                    setPgprPEScores(response.data.StandardScores);
+                }
+            }
+            catch(error){
+                console.log(error);
+            }
+        }
+
+        pgprStateFunc();
     }, [pgprId]);
 
     const [selectedStandard, setSelectedStandard] = useState(null);
@@ -572,6 +619,67 @@ const EditingSelfEvaluationReport = () => {
                                             helperText="This is the adherence of the university to the standard"
                                             disabled={(auth.authRole[0] === 'programme_coordinator' || auth.authRole[0] === 'iqau_director') && pgprState == 'PLANNING' ? false : true}
                                         />
+                                        {
+                                            (pgprState === 'PE1' || pgprState === 'PE2' || pgprState === 'FINAL' || pgprState === 'COMPLETED') ?
+                                                <>
+                                                    <Divider sx={{ marginY: '1rem' }} textAlign="left">
+                                                        <Chip label="Evaluation Scores Given by the Review Team" />
+                                                    </Divider>
+                                                    <Box sx={{
+                                                        position: "relative",
+                                                        height: "10rem",
+                                                        border: "1px solid grey",
+                                                        borderRadius: "0.3rem",
+                                                        marginY: "1rem",
+                                                        overflowY: "scroll",
+                                                        display: 'flex',
+                                                        flexDirection: 'row',
+                                                    }}
+                                                        fullWidth>
+                                                        <Box sx={{
+                                                            width: '50%',
+                                                            margin: '1rem',
+                                                            textAlign: 'center'
+                                                        }}>
+                                                            Desk Evaluation Score
+                                                            <Box sx={{
+                                                                fontSize: '2rem',
+                                                                margin: '1rem'
+                                                            }}>
+                                                                {
+                                                                    pgprDEScores?.[criteriaId][selectedStandard.id][0].deScore ?
+                                                                        pgprDEScores?.[criteriaId][selectedStandard.id][0].deScore
+                                                                        :
+                                                                        'Not Evaluated'
+                                                                }
+                                                            </Box>
+                                                        </Box>
+
+                                                        <Box sx={{
+                                                            width: '50%',
+                                                            margin: '1rem',
+                                                            textAlign: 'center'
+                                                        }}>
+                                                            Proper Evaluation Score
+                                                            <Box sx={{
+                                                                fontSize: '2rem',
+                                                                margin: '1rem'
+                                                            }}>
+                                                                {
+                                                                    pgprPEScores?.[criteriaId][selectedStandard.id][0].peScore ?
+                                                                        pgprPEScores?.[criteriaId][selectedStandard.id][0].peScore
+                                                                        :
+                                                                        'Not Evaluated'
+                                                                }
+                                                            </Box>
+                                                        </Box>
+
+                                                    </Box>
+                                                </>
+                                                :
+                                                <></>
+
+                                        }
                                         <Divider sx={{ marginY: "1rem" }} textAlign="left">
                                             <Chip label="Documentary Evidences" />{" "}
                                         </Divider>

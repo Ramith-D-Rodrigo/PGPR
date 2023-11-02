@@ -73,7 +73,7 @@ const EvaluatePE = () => {
       link: "/PG_Assignments",
     },
     {
-      name: "PE",
+      name: "Proper Evaluation",
       link: `/PG_Assignments/Conduct_PE/${pgprId}`,
     },
     {
@@ -196,15 +196,15 @@ const EvaluatePE = () => {
       }
     );
 
-    //console.log("Criteria Data : ", criteriaData);
+    console.log("Criteria Data : ", criteriaData);
+    console.log("Standard ID : ", standardId);
 
     if (criteriaData) {
-
       const standardData = criteriaData?.evaluatedStandards?.find((standard) => {
         return standard?.standardId == standardId;
       });
 
-      //console.log("Standard Data : ", standardData);
+      console.log("Standard Data : ", standardData);
 
       if(standardData) {
         setPrevPEremarks(standardData?.comment ?? "");
@@ -319,9 +319,14 @@ const EvaluatePE = () => {
     save();
   };
 
+  console.log("PE Remarks : ", PEremarks);
+  console.log("Prev PE Remarks : ", prevPEremarks);
+  console.log("PE Score : ", PEScore);
+  console.log("Prev PE Score : ", prevPEScore);
+
   const handleClickCancel = () => {
     if (PEScore !== prevPEScore || PEremarks !== prevPEremarks) {
-      alert("Please save the changes before proceeding");
+      setErrorMsg("Please save the changes before proceeding");
       return;
     }
     history.back();
@@ -341,7 +346,7 @@ const EvaluatePE = () => {
           standardName: evidencesForStandard?.description,
           standardNo: evidencesForStandard?.standardNo,
           adhere:
-            evidencesForStandard?.standardAdherence,
+            evidencesForStandard?.standardAdherence?.adherence,
           evidences: evidencesForStandard?.evidences ?? [],
         };
 
@@ -771,7 +776,6 @@ const EvaluatePE = () => {
         }}
       >
         <Alert
-          autoHideDuration={5000}
           onClose={() => {
             setSuccess(false);
             setErrorMsg("");

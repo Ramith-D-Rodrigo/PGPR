@@ -1,7 +1,5 @@
-import React from "react";
 import { useParams } from "react-router-dom";
 import useSetUserNavigations from "../../hooks/useSetUserNavigations";
-import ScrollableDiv from "../../components/ScrollableDiv";
 import DiscriptiveDiv from "../../components/DiscriptiveDiv";
 import { useState, useEffect } from "react";
 import Button from "@mui/material/Button";
@@ -23,20 +21,16 @@ import {
   Chip,
   InputLabel,
   TextField,
-  Container
+  Container,
 } from "@mui/material";
 import { Link } from "react-router-dom";
-import CloseIcon from "@mui/icons-material/Close";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
-import useDrawerState from "../../hooks/useDrawerState";
 import getSelfEvaluationReport from "../../api/SelfEvaluationReport/getSelfEvaluationReport";
-import createSERRows from "../../assets/reviewer/createSERRows";
 import useReviewerRole from "../../hooks/useReviewerRole";
 import getAssignedPGPR from "../../api/Reviewer/getAssignedPGPR";
 import getPGPR from "../../api/PostGraduateProgramReview/getPGPR";
@@ -58,25 +52,25 @@ function FinalizePE() {
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
   const minDate = `${year}-${month}-${day}`;
-  
+
   const [SERDetails, setSERDetails] = useState([]);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const { reviewerRole, setReviewerRole } = useReviewerRole();
-  const [openDialog, setOpenDialog] = useState(false);
+  const [pgData, setPgData] = useState({});
+  const [reviewers, setReviewers] = useState([]);
+  const [PEData, setPEData] = useState([]);
+  const [progress, setProgress] = useState([]);
+  const [preliminaryData, setPreliminaryData] = useState([]);
+  const [finalData, setFinalData] = useState([]);
+  const [openSureDialog, setOpenSureDialog] = useState(false);
   const [openDateDialog, setOpenDateDialog] = useState(false);
   const [visitStartDate, setVisitStartDate] = useState("");
   const [visitEndDate, setVisitEndDate] = useState("");
   const [evaluationStartDate, setEvaluationStartDate] = useState("");
   const [evaluationEndDate, setEvaluationEndDate] = useState("");
   const [dateRemark, setDateRemark] = useState("");
-  const [pgData, setPgData] = useState({});
-  const [reviewers, setReviewers] = useState([]);
-  const [PEData, setPEData] = useState([]);
-  const [progress, setProgress] = useState([]);
-  const [selectedFiles, setSelectedFiles] = useState([]);
-  const [uploadStatus, setUploadStatus] = useState("");
 
   useSetUserNavigations([
     {
@@ -99,17 +93,6 @@ function FinalizePE() {
 
   useEffect(() => {
     document.title = "Finalize Proper Evaluation";
-    // const getSERDetails = async () => {
-    //   setLoading(true);
-    //   setErrorMsg("");
-    //   try {
-        
-    //   } catch (err) {
-    //     setErrorMsg(err?.response?.data?.message ?? "Something went wrong");
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
     const getPGPRDetails = async () => {
       setLoading(true);
       setErrorMsg("");
@@ -121,24 +104,24 @@ function FinalizePE() {
 
         const pgResponse = await getPGPR(pgprId);
         const team = pgResponse?.data?.data?.acceptedReviewTeam;
-        setReviewers(pgResponse?.data?.data?.acceptedReviewTeam?.reviewers)
-        //console.log("PGPR Details : ", pgResponse?.data?.data);
+        setReviewers(pgResponse?.data?.data?.acceptedReviewTeam?.reviewers);
+        console.log("PGPR Details : ", pgResponse?.data?.data);
 
         const PEResponse = await axios.get(
           `${SERVER_URL}${SERVER_API_VERSION}review-team/proper-evaluation/view-details/${pgprId}/${team?.id}`
         );
 
         setPEData(PEResponse?.data?.data);
+        console.log("PE Details : ", PEResponse?.data?.data);
+
+        const serResponse = await getSelfEvaluationReport(pgprId);
+        console.log("SER Details : ", serResponse?.data?.data);
+        setSERDetails(serResponse?.data?.data);
 
         const progressResponse = await axios.get(
           `${SERVER_URL}${SERVER_API_VERSION}review-team-chair/proper-evaluation/view-progress/${pgprId}/${pgResponse?.data?.data?.acceptedReviewTeam?.id}/${pgResponse?.data?.data?.properEvaluation?.id}`
         );
-        setProgress(progressResponse?.data)
-        console.log("Progress Details : ", progressResponse?.data?.data);
-
-        const serResponse = await getSelfEvaluationReport(pgprId);
-        //console.log("SER Details : ", serResponse?.data?.data);
-        setSERDetails(serResponse?.data?.data);
+        setProgress(progressResponse?.data);
       } catch (err) {
         setErrorMsg(err?.response?.data?.message ?? "Something went wrong");
       } finally {
@@ -206,21 +189,12 @@ function FinalizePE() {
         const reviewerCriterias =
           PEData?.find((peData) => peData?.reviewer?.id === id)?.criteria || [];
 
-        const actions = (
-          <Button variant="contained" color="primary">
-            <Link to={`../view_PE_progress/${pgprId}/${reviewer.id}`}>
-              View
-            </Link>
-          </Button>
-        );
-
         return {
           id,
           name,
           role,
           progressNow,
           listOfCriteria: reviewerCriterias,
-          actions
         };
       })
     : [];
@@ -269,7 +243,7 @@ function FinalizePE() {
       setErrorMsg("");
       try {
         const data = {
-          pgprId,
+          pgpr:pgprId,
           startDate: evaluationStartDate,
           siteVisitStartDate: visitStartDate,
           siteVisitEndDate: visitEndDate,
@@ -286,18 +260,14 @@ function FinalizePE() {
         );
         setErrorMsg("Dates are set successfully");
         setSuccess(true);
+        setOpenDateDialog(false);
+        handleSureOpen();
       } catch (error) {
         setErrorMsg(error?.response?.data?.message);
       } finally {
         setLoading(false);
       }
     }
-    setVisitStartDate("");
-    setVisitEndDate("");
-    setEvaluationStartDate("");
-    setEvaluationEndDate("");
-    setDateRemark("");
-    setOpenDateDialog(false);
   };
 
   const handleClickFinalizePE = async () => {
@@ -305,7 +275,7 @@ function FinalizePE() {
     setErrorMsg("");
     try {
       await axios.get("/sanctum/csrf-cookie");
-      const data = { pgpr : pgprId}
+      const data = { pgpr: pgprId };
       await axios.post(
         `${SERVER_URL}${SERVER_API_VERSION}review-team-chair/proper-evaluation/submit`,
         data
@@ -317,19 +287,45 @@ function FinalizePE() {
     } finally {
       setLoading(false);
     }
-  }
-
-  const handleFileChange = (event) => {
-    const files = Array.from(event.target.files);
-    setSelectedFiles(files);
   };
 
-  const handleSubmit = () => {
-    const fileNames = selectedFiles.map((file) => file.name);
-    setUploadStatus(`Selected Files: ${fileNames.join(", ")}`);
+  const handleDateOpen = () => {
+    setOpenDateDialog(true);
   };
 
+  const handleDateClose = () => {
+    setOpenDateDialog(false);
+  };
 
+  const handleSureOpen = () => {
+    setOpenSureDialog(true);
+  };
+
+  const handleSureClose = () => {
+    setOpenSureDialog(false);
+  };
+
+  const handleSure = async () => {
+    // setOpenSureDialog(false);
+    setLoading(true);
+    setErrorMsg("");
+    try {
+      await axios.get("/sanctum/csrf-cookie");
+      const data = { id: pgData?.properEvaluation?.id, startDate: visitStartDate, endDate: visitEndDate };
+      console.log("Data : ", data);
+      await axios.put(
+        `${SERVER_URL}${SERVER_API_VERSION}proper-evaluation/${pgprId}`,
+        data
+      );
+      setErrorMsg("Proper Evaluation is finalized successfully");
+      setSuccess(true);
+    } catch (error) {
+      setErrorMsg(error?.response?.data?.message);
+    } finally {
+      setLoading(false);
+      handleSureClose();
+    }
+  };
 
   return (
     <Box>
@@ -373,22 +369,6 @@ function FinalizePE() {
             <Chip label="Proper Evaluation Progress" />
           </Divider>
 
-          {/* <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              margin: "1rem 0",
-            }}
-          >
-            <Typography variant="button" style={{ margin: "0 0 0 20px" }}>
-              Proper Evaluation Period :{" "}
-              <strong>2023 AUG 12 To 2023 AUG 12</strong>
-            </Typography>
-            <Typography variant="button" style={{ margin: "0 0 0 20px" }}>
-              <strong>1 month and 12 days Remaining</strong>
-            </Typography>
-          </Box> */}
-
           <TableContainer component={Paper} style={{ height: "auto" }}>
             <Table sx={{ height: 200 }} stickyHeader aria-label="sticky table">
               <TableHead>
@@ -411,12 +391,6 @@ function FinalizePE() {
                   >
                     <b>Progress</b>
                   </TableCell>
-                  <TableCell
-                    style={{ backgroundColor: "#D8E6FC" }}
-                    align="center"
-                  >
-                    <b>Actions</b>
-                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -430,7 +404,6 @@ function FinalizePE() {
                     </TableCell>
                     <TableCell align="center">{row.role}</TableCell>
                     <TableCell align="center">{row.progressNow}</TableCell>
-                    <TableCell align="center">{row.actions}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -448,79 +421,87 @@ function FinalizePE() {
               height: "auto",
             }}
           >
-            {pgData?.postGraduateReviewProgram?.statusOfPgpr === "PE1" ? (
-              <Button
-                variant="contained"
-                size="medium"
-                color="primary"
-                style={{
-                  fontWeight: "bold",
-                  textAlign: "center",
-                  marginTop: "1rem",
-                }}
-                component={Link}
-                onClick={() => setOpenDateDialog(true)}
-              >
-                End Proper Evaluation #1
-              </Button>
-            ) : (
-              <Button
-                variant="contained"
-                size="medium"
-                color="primary"
-                style={{
-                  fontWeight: "bold",
-                  textAlign: "center",
-                  marginTop: "1rem",
-                }}
-                onClick={handleClickFinalizePE}
-              >
-                Finalize Proper Evaluation
-              </Button>
-            )}
+            {pgData?.postGraduateReviewProgram?.statusOfPgpr !== "FINAL" &&
+              pgData?.postGraduateReviewProgram?.statusOfPgpr !== "COMPLETED" &&
+              (pgData?.postGraduateReviewProgram?.statusOfPgpr === "PE1" ? (
+                <Button
+                  variant="contained"
+                  size="medium"
+                  color="primary"
+                  style={{
+                    fontWeight: "bold",
+                    textAlign: "center",
+                    marginTop: "1rem",
+                  }}
+                  component={Link}
+                  onClick={handleDateOpen}
+                >
+                  End Proper Evaluation #1
+                </Button>
+              ) : (
+                <Button
+                  variant="contained"
+                  size="medium"
+                  color="primary"
+                  style={{
+                    fontWeight: "bold",
+                    textAlign: "center",
+                    marginTop: "1rem",
+                  }}
+                  onClick={handleClickFinalizePE}
+                >
+                  Finalize Proper Evaluation
+                </Button>
+              ))}
           </Box>
-          <Container>
-            <input
-              type="file"
-              accept=".pdf, .doc, .docx"
-              multiple
-              onChange={handleFileChange}
-              style={{ display: "none" }}
-              id="file-input"
-            />
-            <label htmlFor="file-input">
-              <Button variant="contained" component="span">
-                Select Files
-              </Button>
-            </label>
-            <TextField
-              fullWidth
-              value={uploadStatus}
-              variant="outlined"
-              disabled
-              multiline
-              rows={3}
-              label="Selected Files"
-            />
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleSubmit}
-              disabled={selectedFiles.length === 0}
-            >
-              Submit Files
-            </Button>
-          </Container>
         </>
       )}
+
+      <Dialog
+        fullScreen={fullScreen}
+        open={openSureDialog}
+        onClose={handleSureClose}
+        aria-labelledby="Set-Sure"
+      >
+        <DialogTitle id="Set-Sure-ID">
+          {`Submit Proper Evaluation #1`}
+        </DialogTitle>
+        <DialogContent>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "1rem",
+              justifyContent: "space-around",
+              alignItems: "left",
+              width: "100%",
+              height: "100%",
+              margin: "1rem 0",
+            }}
+          >
+            <Typography variant="h6">
+              Are you sure you want to end Proper Evaluation #1 and start Proper
+              Evaluation #2?
+            </Typography>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button autoFocus onClick={handleSureClose}>
+            cancel
+          </Button>
+          <Button onClick={handleSure} autoFocus>
+            Submit
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/*
        *  Dialog Box for Set Date
        */}
       <Dialog
         fullScreen={fullScreen}
-        open={openDateDialog ? true : false}
-        onClose={() => setOpenDateDialog(false)}
+        open={openDateDialog}
+        onClose={handleDateClose}
         aria-labelledby="Set-Visit-Date"
       >
         <DialogTitle id="Set-Visit-Date-ID">
@@ -594,10 +575,10 @@ function FinalizePE() {
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button autoFocus onClick={() => setOpenDateDialog(false)}>
+          <Button autoFocus onClick={handleDateClose}>
             cancel
           </Button>
-          <Button onClick={() => handleSetDate(openDateDialog)} autoFocus>
+          <Button onClick={handleSetDate} autoFocus>
             Set Date
           </Button>
         </DialogActions>
