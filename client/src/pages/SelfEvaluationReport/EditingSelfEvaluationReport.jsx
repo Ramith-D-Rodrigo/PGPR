@@ -38,6 +38,7 @@ import getPGPR from '../../api/PostGraduateProgramReview/getPGPR';
 
 import deleteEvidence from '../../api/Evidence/deleteEvidence';
 import updateEvidenceApi from '../../api/Evidence/updateEvidence';
+import getPGPRDEScores from "../../api/PostGraduateProgramReview/getPGPRDEScores";
 
 
 
@@ -89,6 +90,10 @@ const EditingSelfEvaluationReport = () => {
     const [isLoaded, setIsLoaded] = useState(false);
 
     const [pgprState, setPgprState] = useState(null);
+    
+    const [pgprDEScores, setPgprDEScores] = useState(null);
+
+    const [pgprPEScores, setPgprPEScores] = useState(null);
 
     const navigate = useNavigate();
 
@@ -128,7 +133,37 @@ const EditingSelfEvaluationReport = () => {
             }
         }
 
+        const pgprDEScores = async () => {
+            try{
+                const response = await getPGPRDEScores(pgprId);
+
+            }
+            catch(error){
+                console.log(error);
+            }
+        }
+
+
+        const pgprPEScores = async ()=> {
+            try {
+                const response = await getPGPRPEScores(pgprId);
+            }
+            catch(error){
+                console.log(error);
+            }
+        }
+
         pgprState();
+
+        if(pgprState === 'PE1' || pgprState === 'PE2'){
+            pgprDEScores();
+        }
+
+        if(pgprState === 'FINAL' || pgprState === 'COMPLETED'){
+            pgprPEScores();
+        }
+
+
     }, [pgprId]);
 
     const [selectedStandard, setSelectedStandard] = useState(null);
@@ -572,6 +607,57 @@ const EditingSelfEvaluationReport = () => {
                                             helperText="This is the adherence of the university to the standard"
                                             disabled={(auth.authRole[0] === 'programme_coordinator' || auth.authRole[0] === 'iqau_director') && pgprState == 'PLANNING' ? false : true}
                                         />
+                                        {
+                                            (pgprState === 'PE1' || pgprState === 'PE2' || pgprState === 'FINAL' || pgprState === 'COMPLETED') ?
+                                                <>
+                                                    <Divider sx={{ marginY: '1rem' }} textAlign="left">
+                                                        <Chip label="Evaluation Scores Given by the Review Team" />
+                                                    </Divider>
+                                                    <Box sx={{
+                                                        position: "relative",
+                                                        height: "10rem",
+                                                        border: "1px solid grey",
+                                                        borderRadius: "0.3rem",
+                                                        marginY: "1rem",
+                                                        overflowY: "scroll",
+                                                        display: 'flex',
+                                                        flexDirection: 'row',
+                                                    }}
+                                                        fullWidth>
+                                                        <Box sx={{
+                                                            width: '50%',
+                                                            margin: '1rem',
+                                                            textAlign: 'center'
+                                                        }}>
+                                                            Desk Evaluation Score
+                                                            <Box sx={{
+                                                                fontSize: '2rem',
+                                                                margin: '1rem'
+                                                            }}>
+                                                                Score
+                                                            </Box>
+                                                        </Box>
+
+                                                        <Box sx={{
+                                                            width: '50%',
+                                                            margin: '1rem',
+                                                            textAlign: 'center'
+                                                        }}>
+                                                            Proper Evaluation Score
+                                                            <Box sx={{
+                                                                fontSize: '2rem',
+                                                                margin: '1rem'
+                                                            }}>
+                                                                Score
+                                                            </Box>
+                                                        </Box>
+
+                                                    </Box>
+                                                </>
+                                                :
+                                                <></>
+
+                                        }
                                         <Divider sx={{ marginY: "1rem" }} textAlign="left">
                                             <Chip label="Documentary Evidences" />{" "}
                                         </Divider>
