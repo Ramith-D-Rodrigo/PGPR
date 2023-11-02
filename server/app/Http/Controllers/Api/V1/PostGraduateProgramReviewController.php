@@ -338,7 +338,7 @@ class PostGraduateProgramReviewController extends Controller
         $deskEvaluation = $pgpr->deskEvaluations;
         $reviewTeam = DB::table('review_teams')->where('pgpr_id', $validated)->first();
 
-        $reviewers = DB::table('reviewer_review_teams')->where('review_team_id', $reviewTeam->id)->pluck('reviewer_id');
+        $reviewers = DB::table('reviewer_review_teams')->where('review_team_id', $reviewTeam->id)->where('role', 'CHAIR')->pluck('reviewer_id');
 
         $criteria = DB::table('criterias')->get();
 
@@ -361,7 +361,7 @@ class PostGraduateProgramReviewController extends Controller
                     ->select('de_score AS deScore', 'standard_id AS standardId')
                     ->get();
 
-                $data[$criterion->id][] = ['scores' => $scores];
+                $data[$criterion->id][$standard->id] = $scores;
             }
         }
 
@@ -401,7 +401,7 @@ class PostGraduateProgramReviewController extends Controller
                     ->select('pe_score AS peScore', 'standard_id AS standardId')
                     ->get();
 
-                $data[$criterion->id][] = ['scores' => $scores];
+                $data[$criterion->id][$standard->id] = $scores;
             }
         }
 
