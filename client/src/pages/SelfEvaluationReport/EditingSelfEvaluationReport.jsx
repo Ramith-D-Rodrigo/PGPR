@@ -127,6 +127,15 @@ const EditingSelfEvaluationReport = () => {
                 if (response) {
                     console.log(response.data.data);
                     setPgprState(response.data.data.statusOfPgpr);
+
+
+                    if(response.data.data.statusOfPgpr === 'PE1' || response.data.data.statusOfPgpr === 'PE2'){
+                        await pgprDEScoresFunc();
+                    }
+            
+                    if(response.data.data.statusOfPgpr === 'FINAL' || response.data.data.statusOfPgpr === 'COMPLETED'){
+                        await pgprPEScoresFunc();
+                    }
                 }
             }
             catch (error) {
@@ -134,14 +143,14 @@ const EditingSelfEvaluationReport = () => {
             }
         }
 
-        const pgprDEScores = async () => {
+        const pgprDEScoresFunc = async () => {
             try{
                 const response = await getPGPRDEScores(pgprId);
                 
                 if(response && response.status === 200){
                     console.log('hello');
                     console.log(response.data);
-                    setPgprDEScores(response.data.standardScores);
+                    setPgprDEScores(response.data.StandardScores);
                 }
 
             }
@@ -151,14 +160,14 @@ const EditingSelfEvaluationReport = () => {
         }
 
 
-        const pgprPEScores = async ()=> {
+        const pgprPEScoresFunc = async ()=> {
             try {
                 const response = await getPGPRPEScores(pgprId);
                 
                 if(response && response.status === 200){
                     console.log('hello');
                     console.log(response.data);
-                    setPgprPEScores(response.data.standardScores);
+                    setPgprPEScores(response.data.StandardScores);
                 }
             }
             catch(error){
@@ -167,18 +176,6 @@ const EditingSelfEvaluationReport = () => {
         }
 
         pgprStateFunc();
-
-        console.log('state', pgprState);
-
-        if(pgprState === 'PE1' || pgprState === 'PE2'){
-            pgprDEScores();
-        }
-
-        if(pgprState === 'FINAL' || pgprState === 'COMPLETED'){
-            pgprPEScores();
-        }
-
-
     }, [pgprId]);
 
     const [selectedStandard, setSelectedStandard] = useState(null);
@@ -649,7 +646,12 @@ const EditingSelfEvaluationReport = () => {
                                                                 fontSize: '2rem',
                                                                 margin: '1rem'
                                                             }}>
-                                                                Score
+                                                                {
+                                                                    pgprDEScores?.[criteriaId][selectedStandard.id][0].deScore ?
+                                                                        pgprDEScores?.[criteriaId][selectedStandard.id][0].deScore
+                                                                        :
+                                                                        'Not Evaluated'
+                                                                }
                                                             </Box>
                                                         </Box>
 
@@ -663,7 +665,12 @@ const EditingSelfEvaluationReport = () => {
                                                                 fontSize: '2rem',
                                                                 margin: '1rem'
                                                             }}>
-                                                                Score
+                                                                {
+                                                                    pgprPEScores?.[criteriaId][selectedStandard.id][0].peScore ?
+                                                                        pgprPEScores?.[criteriaId][selectedStandard.id][0].peScore
+                                                                        :
+                                                                        'Not Evaluated'
+                                                                }
                                                             </Box>
                                                         </Box>
 
