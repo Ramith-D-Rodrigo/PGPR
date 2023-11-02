@@ -632,7 +632,7 @@ const SelfEvaluationReport = () => {
                 height: "auto",
               }}
             >
-              <Link to={`../Conduct_PE/Assigned_criteria/${pgprId}`}>
+              <Link to={`../Conduct_PE/${pgprId}`}>
                 <Button
                   variant="contained"
                   size="small"

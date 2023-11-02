@@ -174,7 +174,7 @@ class ProperEvaluationController extends Controller
 
             $properEvaluation->save();
 
-            return new ProperEvaluation($properEvaluation);
+            return new ProperEvaluationResource($properEvaluation);
         } catch (ModelNotFoundException $exception) {
             return response()->json(['message' => 'The proper evaluation id you mentioned could not be found please try again after making amends'], 422);
         } catch (Exception $exception) {

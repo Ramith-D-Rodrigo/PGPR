@@ -37,7 +37,7 @@ class UpdateProperEvaluationRequest extends FormRequest
     {
         $this->merge(
             [
-                'id' => $this->deskEvaluationId,
+                'id' => $this->properEvaluationId,
                 'start_date' => $this->startDate,
                 'end_date' => $this->endDate,
             ]

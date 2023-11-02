@@ -35,8 +35,8 @@ class ShowReviewTeamProperEvaluationProgressRequest extends FormRequest
         $this->merge(
             [
                 'pgpr_id' => $this->pgpr,
-                'proper_evaluation_id' => $this->reviewTeam,
-                'review_team_id' => $this->properEvaluation,
+                'proper_evaluation_id' => $this->properEvaluation,
+                'review_team_id' => $this->reviewTeam,
             ]
         );
     }

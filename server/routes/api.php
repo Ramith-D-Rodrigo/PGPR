@@ -180,7 +180,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'App\Http\Controllers\Api\V1'], f
     //review team chair view review team desk evaluation scores
     Route::get('review-team-chair/desk-evaluation/view-scores/{pgpr}/{criteria}/{standard}', 'ReviewTeamChairController@viewDEScoresOfEachStandardOfEachProjectMember')->middleware('auth');
     //review team chair view review team proper evaluation scores
-    Route::get('review-team-chair/proper-evaluation/view-scores/{pgpr}/{criteria}/{standard}', 'ReviewTeamChairController@viewPEScoresOfEachStandardOfEachProjectMember')->middleware('auth');
+    Route::get('review-team-chair/proper-evaluation/view-scores/{pgpr}/{criteria}', 'ReviewTeamChairController@viewPEScoresOfEachStandardOfEachTeamMember')->middleware('auth');
     //review team chair update review team desk evaluation scores
     Route::post('review-team-chair/desk-evaluation/update-scores', 'ReviewTeamChairController@updateDEScoresOfEachStandard')->middleware('auth');
     //review team chair update review team proper evaluation scores

@@ -72,14 +72,19 @@ const SubmitPE = () => {
         const response = await getAssignedPGPR(pgprId);
         //console.log("PGPR Details : ", response?.data?.data);
         setReviewerRole(response?.data?.data?.role);
-        setProperEvaluation(response?.data?.data?.postGraduateReviewProgram?.properEvaluation?.id);
-        setSerId(response?.data?.data?.postGraduateReviewProgram?.selfEvaluationReport?.id);
+        setProperEvaluation(
+          response?.data?.data?.postGraduateReviewProgram?.properEvaluation?.id
+        );
+        setSerId(
+          response?.data?.data?.postGraduateReviewProgram?.selfEvaluationReport
+            ?.id
+        );
         // console.log(
         //   "Proper Evaluation : ",
         //   response?.data?.data?.postGraduateReviewProgram?.properEvaluation?.id
         // );
         // console.log("Reviewer Role : ", response?.data?.data?.role);
-        if(response?.data?.data){
+        if (response?.data?.data) {
           const response = await getSelfEvaluationReport(serId);
           //console.log("SER Details : ", response?.data?.data);
           setSERDetails(response?.data?.data);
@@ -114,8 +119,25 @@ const SubmitPE = () => {
     getProgressDetails();
   }, [pgprId, properEvaluation]);
 
-  const handleSubmitPE_results = () => {
-    // API call to submit the PE results
+  const handleSubmitPE_results = async () => {
+    setLoading(true);
+    setErrorMsg("");
+    try{
+      const data = {
+        properEvaluation: properEvaluation,
+      };
+      await axios.get("/sanctum/csrf-cookie");
+      await axios.post(
+        `${SERVER_URL}${SERVER_API_VERSION}reviewer/submit/proper-evaluation`,
+        data
+      );
+      setErrorMsg("Proper Evaluation Results Submitted Successfully");
+      setSuccess(true);
+    } catch (err) {
+      setErrorMsg(err?.response?.data?.message);
+    } finally {
+      setLoading(false);
+    }
     setOpenDialog(false);
   };
 
@@ -144,7 +166,7 @@ const SubmitPE = () => {
     { label: "Submission Date:", value: "01/01/2021" },
   ];
 
-  function createData (
+  function createData(
     criteriaName,
     totalStandards,
     evaluatedStandards,
@@ -155,14 +177,7 @@ const SubmitPE = () => {
       let allow = action.allow ? { disabled: false } : { disabled: true };
       allow = loading ? { disabled: true } : allow;
       return (
-        <Link 
-          key={index} 
-          to={
-            action.allow
-              ? action.link
-              : ""
-            }
-        >
+        <Link key={index} to={action.allow ? action.link : ""}>
           <Button
             {...allow}
             style={{ margin: "0 8px" }}
@@ -176,32 +191,35 @@ const SubmitPE = () => {
       );
     });
 
-    return { 
+    return {
       criteriaName,
       progressValue,
-      actions 
+      actions,
     };
   }
 
-  const rows = progressList.length > 0 
-    ? progressList.map((progress) => {
-      const criteriaId = progress?.criteriaId;
-      const criteriaName = progress?.criteriaName;
-      const totalStandards = progress?.totalStandards;
-      const evaluatedStandards = progress?.evaluatedStandards;
-      const actions = [{
-        action: "Update",
-        allow: true,
-        link: `../${pgprId}/${criteriaId}`,
-      }];
-      return createData ( 
-        criteriaName,
-        totalStandards,
-        evaluatedStandards,
-        actions 
-      );
-    }) 
-  : [];
+  const rows =
+    progressList.length > 0
+      ? progressList.map((progress) => {
+          const criteriaId = progress?.criteriaId;
+          const criteriaName = progress?.criteriaName;
+          const totalStandards = progress?.totalStandards;
+          const evaluatedStandards = progress?.evaluatedStandards;
+          const actions = [
+            {
+              action: "Update",
+              allow: true,
+              link: `../${pgprId}/${criteriaId}`,
+            },
+          ];
+          return createData(
+            criteriaName,
+            totalStandards,
+            evaluatedStandards,
+            actions
+          );
+        })
+      : [];
 
   return (
     <Box>
@@ -247,7 +265,6 @@ const SubmitPE = () => {
 
           <TableContainer component={Paper} style={{ height: "auto" }}>
             <Table
-              sx={{ minHeight: 300 }}
               stickyHeader
               aria-label="sticky table"
             >
@@ -274,21 +291,7 @@ const SubmitPE = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {loading ? (
-                  <TableRow>
-                    <TableCell colSpan={3} align="center">
-                      <Typography variant="h6" style={{ margin: "0 0 0 20px" }}>
-                        Loading ...
-                      </Typography>
-                      <CircularProgress
-                        style={{ margin: "0 0 0 20px", color: "darkblue" }}
-                        thickness={5}
-                        size={24}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  rows.map((row, index) => (
+                {rows.map((row, index) => (
                     <TableRow
                       key={index}
                       sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
@@ -298,7 +301,7 @@ const SubmitPE = () => {
                       <TableCell align="center">{row.actions}</TableCell>
                     </TableRow>
                   ))
-                )}
+                }
               </TableBody>
             </Table>
           </TableContainer>
@@ -317,13 +320,8 @@ const SubmitPE = () => {
             <Button
               onClick={() => setOpenDialog(true)}
               variant="contained"
-              size="small"
-              style={{
-                width: "300px",
-                height: "55px",
-                backgroundColor: "#A2CBEA",
-                color: "black",
-              }}
+              size="medium"
+              color="primary"
             >
               Submit The Proper Evaluation Results
             </Button>
