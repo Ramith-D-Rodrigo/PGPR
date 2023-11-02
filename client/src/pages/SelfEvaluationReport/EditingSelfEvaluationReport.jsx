@@ -39,6 +39,7 @@ import getPGPR from '../../api/PostGraduateProgramReview/getPGPR';
 import deleteEvidence from '../../api/Evidence/deleteEvidence';
 import updateEvidenceApi from '../../api/Evidence/updateEvidence';
 import getPGPRDEScores from "../../api/PostGraduateProgramReview/getPGPRDEScores";
+import getPGPRPEScores from "../../api/PostGraduateProgramReview/getPGPRPEScores";
 
 
 
@@ -119,7 +120,7 @@ const EditingSelfEvaluationReport = () => {
     }, [criteriaId, serId]);
 
     useEffect(() => {
-        const pgprState = async () => {
+        const pgprStateFunc = async () => {
             try {
                 const response = await getPGPR(pgprId);
 
@@ -136,6 +137,12 @@ const EditingSelfEvaluationReport = () => {
         const pgprDEScores = async () => {
             try{
                 const response = await getPGPRDEScores(pgprId);
+                
+                if(response && response.status === 200){
+                    console.log('hello');
+                    console.log(response.data);
+                    setPgprDEScores(response.data.standardScores);
+                }
 
             }
             catch(error){
@@ -147,13 +154,21 @@ const EditingSelfEvaluationReport = () => {
         const pgprPEScores = async ()=> {
             try {
                 const response = await getPGPRPEScores(pgprId);
+                
+                if(response && response.status === 200){
+                    console.log('hello');
+                    console.log(response.data);
+                    setPgprPEScores(response.data.standardScores);
+                }
             }
             catch(error){
                 console.log(error);
             }
         }
 
-        pgprState();
+        pgprStateFunc();
+
+        console.log('state', pgprState);
 
         if(pgprState === 'PE1' || pgprState === 'PE2'){
             pgprDEScores();
