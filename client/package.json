@@ -4,8 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "start": "vite --host 0.0.0.0 --port 3000",
-    "dev": "vite --port 3000",
+    "start": "vite --host localhost --port 3000",
+    "dev": "vite --host localhost --port 3000",
     "dev_default_port": "vite",
     "build": "vite build",
     "lint": "eslint src --ext js,jsx --report-unused-disable-directives --max-warnings 0",

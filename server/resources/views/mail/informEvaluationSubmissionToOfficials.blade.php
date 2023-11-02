@@ -27,11 +27,11 @@ Evaluation summary : <br>
     <tbody>
     @foreach ($data['scores'] as $score)
         <tr>
-            <td>{{ $score['criterionName'] }}</td>
-            <td>{{ $score['rawCriterionScore'] }}</td>
-            <td>{{ $score['actualCriterionScore'] }}</td>
-            <td>{{ $score['maximumCriterionScore'] }}</td>
-            <td>{{ $score['minimumCriterionScore'] }}</td>
+            <td>&#9;{{ $score['criteriaName'] }}</td>
+            <td>&#9;{{ $score['rawScore'] }}</td>
+            <td>&#9;{{ $score['actualScore'] }}</td>
+            <td>&#9;{{ $score['maximumCriterionScore'] }}</td>
+            <td>&#9;{{ $score['minimumCriterionScore'] }}</td>
         </tr>
     @endforeach
     </tbody>

@@ -3,7 +3,7 @@ import { ReviewerRoleProvider } from "./contexts/ReviewerRoleProvider";
 import Dashboard from "./components/Dashboard";
 import MainLayout from "./components/MainLayout";
 import Authenticate from "./components/Authenticate";
-import Unauthorized from "./components/Unauthorized";
+import Unauthorized from "./pages/Unauthorized";
 import LoginPersist from "./components/LoginPersist.jsx";
 import ResetInitialPassword from "./pages/ResetInitialPassword"
 import View from './components/View';
@@ -81,6 +81,9 @@ import ReviewerProfile from "./pages/QACOfficer/ReviewerProfile";
 import CQADashboard from "./pages/CQAdirector/CQADashboard";
 import QACDirectorDashboard from "./pages/QACDirector/QACDirectorDashboard";
 import QACOfficerDashboard from "./pages/QACOfficer/QACOfficerDashboard";
+import ForgotPasswordEmailVerification from "./pages/ForgotPasswordEmailVerification.jsx";
+import ForgotPasswordPasswordReset from "./pages/ForgotPasswordPasswordReset.jsx";
+import AuthorizeRoute from "./components/AuthorizeRoute";
 
 
 /* 
@@ -108,6 +111,8 @@ function App() {
           {/*note: note final*/}
           <Route path="login" element={<Login />} />
           <Route path="/" element={<Login />} />
+          <Route path="/forgot-password-email-verification" element={<ForgotPasswordEmailVerification />} />
+          <Route path="/forgot-password-reset-password" element={<ForgotPasswordPasswordReset />} />
 
           <Route
             element={
@@ -215,69 +220,73 @@ function App() {
                 <Route path="PG_Assignments/">
                   <Route path="" element={<PGAssignments />} />
                   <Route path=":pgprId/ser/:serId" element={<SelfEvaluationReport />} />
-                  <Route path="Conduct_DE/">
-                    <Route path=":pgprId" element={<ConductDE />} />
-                    <Route path=":pgprId/:criteriaId" element={<EvaluateDE />} />
-                    <Route path=":pgprId/UpdateABC/:serId" element={<UpdateABC />} />
-                    <Route
-                      path="Standardwise_details/:pgprId"
-                      element={<Standardwise_details />}
-                    />
-                    <Route
-                      path="Summary_details/:pgprId"
-                      element={<Summary_details />}
-                    />
-                    <Route
-                      path="Submit_DE/:pgprId"
-                      element={< SubmitDE />}
-                    />
-                    <Route
-                      path="Finalize_DE/:pgprId"
-                      element={< FinalizeDE />}
-                    />
-                    <Route
-                      path="view_DE_progress/:pgprId/:reviewerId"
-                      element={< DEProgress />}
-                    />
-                    <Route
-                      path="End_DE/:pgprId"
-                      element={< EndDE />}
-                    />
+                  <Route element={<AuthorizeRoute allowedStage={["DE"]} />}>
+                    <Route path="Conduct_DE/">
+                      <Route path=":pgprId" element={<ConductDE />} />
+                      <Route path=":pgprId/:criteriaId" element={<EvaluateDE />} />
+                      <Route path=":pgprId/UpdateABC/:serId" element={<UpdateABC />} />
+                      <Route
+                        path="Standardwise_details/:pgprId"
+                        element={<Standardwise_details />}
+                      />
+                      <Route
+                        path="Summary_details/:pgprId"
+                        element={<Summary_details />}
+                      />
+                      <Route
+                        path="Submit_DE/:pgprId"
+                        element={< SubmitDE />}
+                      />
+                      <Route
+                        path="Finalize_DE/:pgprId"
+                        element={< FinalizeDE />}
+                      />
+                      <Route
+                        path="view_DE_progress/:pgprId/:reviewerId"
+                        element={< DEProgress />}
+                      />
+                      <Route
+                        path="End_DE/:pgprId"
+                        element={< EndDE />}
+                      />
+                    </Route>
                   </Route>
-                  <Route path="Conduct_PE/">
-                    <Route path=":pgprId" element={<ConductPE />} />
-                    <Route
-                      path="Assigned_criteria/:pgprId"
-                      element={<ViewAssignedCriteria />}
-                    />
-                    <Route
-                      path=":pgprId/:criteriaId"
-                      element={<EvaluatePE />}
-                    />
-                    <Route
-                      path="Summary_details/:pgprId"
-                      element={<PESummaryDetails />}
-                    />
-                    <Route
-                      path="Standardwise_details/:pgprId"
-                      element={<PEStandardwiseDetails />}
-                    />
-                    <Route
-                      path="Submit_PE/:pgprId"
-                      element={< SubmitPE />}
-                    />
-                    <Route
-                      path="Finalize_PE/:pgprId"
-                      element={< FinalizePE />}
-                    />
-                    <Route
-                      path="view_PE_progress/:pgprId/:reviewerId"
-                      element={< PEProgress />}
-                    />
-                    <Route
-                      path="End_PE/:pgprId"
-                      element={< EndPE />}
-                    />
+                  <Route element={<AuthorizeRoute allowedStage={["PE1","PE2"]} />}>
+                    <Route path="Conduct_PE/">
+                      <Route path=":pgprId" element={<ConductPE />} />
+                      <Route
+                        path="Assigned_criteria/:pgprId"
+                        element={<ViewAssignedCriteria />}
+                      />
+                      <Route
+                        path=":pgprId/:criteriaId"
+                        element={<EvaluatePE />}
+                      />
+                      <Route
+                        path="Summary_details/:pgprId"
+                        element={<PESummaryDetails />}
+                      />
+                      <Route
+                        path="Standardwise_details/:pgprId"
+                        element={<PEStandardwiseDetails />}
+                      />
+                      <Route
+                        path="Submit_PE/:pgprId"
+                        element={< SubmitPE />}
+                      />
+                      <Route
+                        path="Finalize_PE/:pgprId"
+                        element={< FinalizePE />}
+                      />
+                      <Route
+                        path="view_PE_progress/:pgprId/:reviewerId"
+                        element={< PEProgress />}
+                      />
+                      <Route
+                        path="End_PE/:pgprId"
+                        element={< EndPE />}
+                      />
+                    </Route>
                   </Route>
                 </Route>
               </Route>
@@ -388,6 +397,7 @@ function App() {
           </Route>
         </Route>
         {/* 404 page & UnAuth ... */}
+        <Route path="/NotFound" element={<NotFound />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

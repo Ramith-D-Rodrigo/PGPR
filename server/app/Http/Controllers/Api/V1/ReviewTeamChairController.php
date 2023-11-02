@@ -282,13 +282,13 @@ class ReviewTeamChairController extends Controller
 
                 DB::beginTransaction();
                 $pgpr = PostGraduateProgramReview::find($validated['pgpr_id']);
-                $deskEvaluation = $pgpr->deskEvaluation;
+                $deskEvaluation = $pgpr->deskEvaluations;
 
                 $properEvaluation = new ProperEvaluation();
                 $properEvaluation->pgpr_id = $validated['pgpr_id'];
                 $properEvaluation->start_date = Carbon::today();
                 $properEvaluation->end_date = NULL;
-                $properEvaluation->status = '1';
+                $properEvaluation->stage = '1';
 
                 $properEvaluation1 = new ProperEvaluation1([
                     'start_date' => Carbon::today(),
@@ -296,34 +296,36 @@ class ReviewTeamChairController extends Controller
                     'end_date' => NULL,
                     'remark' => 'None'
                 ]);
-                $properEvaluation->properEvaluation1()->save($properEvaluation1);
                 $properEvaluation->save();
+                $properEvaluation->properEvaluation1()->save($properEvaluation1);
                 $deskEvaluation->status = 'COMPLETED';
                 $deskEvaluation->save();
+                $pgpr -> status_of_pgpr = 'PE1';
 
                 // send the mails as well
                 // to the dean, program coordinator, qac officer
-                $qacDir = User::find($pgpr->qac_dir_id);
                 $pgp = $pgpr->postGraduateProgram;
                 $programCoordinator = User::find($pgp->programme_coordinator_id);
                 $faculty = $pgp->faculty;
                 $university = $faculty->university;
                 $dean = User::find($faculty->currentDean->id);
 
-                // qac dir
-                Mail::to(
-                    $qacDir->official_email
-                )->send(
-                    new InformEvaluationSubmissionToOfficials(
-                        recipient: $qacDir,
-                        subject: "The desk evaluation of the {$pgp->title} was concluded.",
-                        content: 'mail.informDeskEvaluationToOfficials',
-                        pgp: $pgp,
-                        faculty: $faculty,
-                        university: $university,
-                        data: $grading,
-                    )
-                );
+                //sending the mail to the qac director
+                $qacDirectors = User::whereJsonContains('roles', 'qac_director')->get();
+
+                foreach ($qacDirectors as $qacDirector) {
+                    Mail::to($qacDirector->official_email)
+                        ->send(new InformEvaluationSubmissionToOfficials(
+                            recipient: $qacDirector,
+                            subject: "The desk evaluation of the {$pgp->title} was concluded.",
+                            content: 'mail.informEvaluationSubmissionToOfficials',
+                            pgp: $pgp,
+                            faculty: $faculty,
+                            university: $university,
+                            data: $grading,
+                        )
+                    );
+                }
 
                 // dean
                 Mail::to(
@@ -332,7 +334,7 @@ class ReviewTeamChairController extends Controller
                     new InformEvaluationSubmissionToOfficials(
                         recipient: $dean,
                         subject: "The desk evaluation of the {$pgp->title} was concluded.",
-                        content: 'mail.informDeskEvaluationToOfficials',
+                        content: 'mail.informEvaluationSubmissionToOfficials',
                         pgp: $pgp,
                         faculty: $faculty,
                         university: $university,
@@ -347,7 +349,7 @@ class ReviewTeamChairController extends Controller
                     new InformEvaluationSubmissionToOfficials(
                         recipient: $programCoordinator,
                         subject: "The desk evaluation of the {$pgp->title} was concluded.",
-                        content: 'mail.informDeskEvaluationToOfficials',
+                        content: 'mail.informEvaluationSubmissionToOfficials',
                         pgp: $pgp,
                         faculty: $faculty,
                         university: $university,
@@ -355,18 +357,18 @@ class ReviewTeamChairController extends Controller
                     )
                 );
                 DB::commit();
-                return response()->json(['message' => 'The desk evaluation was successfully submitted', 'data' => $grading]);
+                return response()->json(['message' => 'The desk evaluation was successfully submitted', 'data' => $grading], 200);
             }
             // the desk evaluation cannot be submitted
             return response()->json([
                 'message' => 'The desk evaluation cannot be submitted yet, there are some inconsistencies with the scores provided by the review team, please check the progress.',
                 'data' => []
-            ]);
+            ], 422);
 
         } catch (AuthorizationException $e) {
             return response()->json(['message' => $e->getMessage()], 403);
         } catch (Exception $exception) {
-            DB::rollBack();
+            throw $exception;
             return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
         }
     }
@@ -376,7 +378,7 @@ class ReviewTeamChairController extends Controller
         $reviewTeam = DB::table('review_teams')->where('pgpr_id', $pgprId)->first();
         $pgpr = PostGraduateProgramReview::find($pgprId);
         $pgp = $pgpr->postGraduateProgram;
-        $deskEvaluation = $pgpr->deskEvaluation;
+        $deskEvaluation = $pgpr->deskEvaluations;
 
         if (!$reviewTeam) {
             return false;
@@ -431,7 +433,6 @@ class ReviewTeamChairController extends Controller
 
                 // send the mails as well
                 // to the dean, program coordinator, qac officer
-                $qacDir = User::find($pgpr->qac_dir_id);
                 $pgp = $pgpr->postGraduateProgram;
                 $programCoordinator = User::find($pgp->programme_coordinator_id);
                 $faculty = $pgp->faculty;
@@ -440,21 +441,22 @@ class ReviewTeamChairController extends Controller
 
                 DB::beginTransaction();
 
-                // qac dir
-                Mail::to(
-                    $qacDir->official_email
-                )->send(
-                    new InformEvaluationSubmissionToOfficials(
-                        recipient: $qacDir,
-                        subject: "The proper evaluation of the {$pgp->title} was concluded.",
-                        content: 'mail.informDeskEvaluationToOfficials',
-                        pgp: $pgp,
-                        faculty: $faculty,
-                        university: $university,
-                        data: $grading,
-                    )
-                );
+                //sending the mail to the qac director
+                $qacDirectors = User::whereJsonContains('roles', 'qac_director')->get();
 
+                foreach ($qacDirectors as $qacDirector) {
+                    Mail::to($qacDirector->official_email)
+                        ->send(new InformEvaluationSubmissionToOfficials(
+                            recipient: $qacDirector,
+                            subject: "The proper evaluation of the {$pgp->title} was concluded.",
+                            content: 'mail.EvaluationSubmissionToOfficial',
+                            pgp: $pgp,
+                            faculty: $faculty,
+                            university: $university,
+                            data: $grading,
+                        )
+                    );
+                }
                 // dean
                 Mail::to(
                     $dean->official_email
@@ -462,7 +464,7 @@ class ReviewTeamChairController extends Controller
                     new InformEvaluationSubmissionToOfficials(
                         recipient: $dean,
                         subject: "The proper evaluation of the {$pgp->title} was concluded.",
-                        content: 'mail.informDeskEvaluationToOfficials',
+                        content: 'mail.EvaluationSubmissionToOfficial',
                         pgp: $pgp,
                         faculty: $faculty,
                         university: $university,
@@ -477,7 +479,7 @@ class ReviewTeamChairController extends Controller
                     new InformEvaluationSubmissionToOfficials(
                         recipient: $programCoordinator,
                         subject: "The proper evaluation of the {$pgp->title} was concluded.",
-                        content: 'mail.informDeskEvaluationToOfficials',
+                        content: 'mail.EvaluationSubmissionToOfficial',
                         pgp: $pgp,
                         faculty: $faculty,
                         university: $university,
@@ -489,7 +491,6 @@ class ReviewTeamChairController extends Controller
                 $pgpr->properEvaluations->save();
 
                 $pgpr->status_of_pgpr = 'FINAL';
-
                 $pgpr->save();
 
                 DB::commit();
@@ -557,7 +558,7 @@ class ReviewTeamChairController extends Controller
         try {
             $validated = $request->validated();
             $postGraduateProgramReview = PostGraduateProgramReview::find($validated['pgpr_id']);
-            $deskEvaluation = $postGraduateProgramReview->deskEvaluation();
+            $deskEvaluation = $postGraduateProgramReview->deskEvaluations;
 
             if ($deskEvaluation) {
                 $data = DB::table('desk_evaluation_score')
@@ -768,7 +769,7 @@ class ReviewTeamChairController extends Controller
 
             $validated = $request->validated();
             $postGraduateReviewProgram = PostGraduateProgramReview::findOrFail($validated['pgpr_id']);
-            $deskEvaluation = $postGraduateReviewProgram->deskEvaluation;
+            $deskEvaluation = $postGraduateReviewProgram->deskEvaluations;
 
             if ($deskEvaluation) {
                 DB::table('desk_evaluation_score')
@@ -830,31 +831,33 @@ class ReviewTeamChairController extends Controller
 
             DB::table('final_reports')->updateOrInsert($attributes, $data);
 
-            $qacDir = User::find($pgpr->qac_dir_id);
             $pgp = $pgpr->postGraduateProgram;
             $programCoordinator = User::find($pgp->programme_coordinator_id);
             $faculty = $pgp->faculty;
             $university = $faculty->university;
             $dean = User::find($faculty->currentDean->id);
 
-            // qac director
-            Mail::to($qacDir->official_email)->send(
-                new InformReportUploadsToOfficials(
-                    recipient: $qacDir,
-                    subject: "Final report of the post-graduate program reivew {$pgp->title}",
+            //sending the mail to the qac director
+            $qacDirectors = User::whereJsonContains('roles', 'qac_director')->get();
+
+            foreach ($qacDirectors as $qacDirector) {
+                Mail::to($qacDirector->official_email)
+                    ->send(new InformReportUploadsToOfficials(
+                    recipient: $qacDirector,
+                    subject: "Final report of the post-graduate program review {$pgp->title}",
                     content: 'mail.informOfficialsAboutOfficialDocumentUploads',
                     pgp: $pgp,
                     university: $university,
                     faculty: $faculty,
                     type: 'PRELIMINARY'
-                )
-            );
+                ));
+            }
 
             // dean
             Mail::to($dean->official_email)->send(
                 new InformReportUploadsToOfficials(
                     recipient: $dean,
-                    subject: "Final report of the post-graduate program reivew {$pgp->title}",
+                    subject: "Final report of the post-graduate program review {$pgp->title}",
                     content: 'mail.informOfficialsAboutOfficialDocumentUploads',
                     pgp: $pgp,
                     university: $university,
@@ -867,7 +870,7 @@ class ReviewTeamChairController extends Controller
             Mail::to($programCoordinator->official_email)->send(
                 new InformReportUploadsToOfficials(
                     recipient: $programCoordinator,
-                    subject: "Final report of the post-graduate program reivew {$pgp->title}",
+                    subject: "Final report of the post-graduate program review {$pgp->title}",
                     content: 'mail.informOfficialsAboutOfficialDocumentUploads',
                     pgp: $pgp,
                     university: $university,
@@ -918,25 +921,28 @@ class ReviewTeamChairController extends Controller
 
             DB::table('final_reports')->updateOrInsert($attributes, $data);
 
-            $qacDir = User::find($pgpr->qac_dir_id);
             $pgp = $pgpr->postGraduateProgram;
             $programCoordinator = User::find($pgp->programme_coordinator_id);
             $faculty = $pgp->faculty;
             $university = $faculty->university;
             $dean = User::find($faculty->currentDean->id);
 
-            // qac director
-            Mail::to($qacDir->official_email)->send(
-                new InformReportUploadsToOfficials(
-                    recipient: $qacDir,
-                    subject: "Final report of the post-graduate program reivew {$pgp->title}",
-                    content: 'mail.informOfficialsAboutOfficialDocumentUploads',
-                    pgp: $pgp,
-                    university: $university,
-                    faculty: $faculty,
-                    type: 'FINAL'
-                )
-            );
+            //sending the mail to the qac director
+            $qacDirectors = User::whereJsonContains('roles', 'qac_director')->get();
+
+            foreach ($qacDirectors as $qacDirector) {
+                Mail::to($qacDirector->official_email)
+                    ->send(new InformReportUploadsToOfficials(
+                        recipient: $qacDirector,
+                        subject: "Final report of the post-graduate program reivew {$pgp->title}",
+                        content: 'mail.informOfficialsAboutOfficialDocumentUploads',
+                        pgp: $pgp,
+                        university: $university,
+                        faculty: $faculty,
+                        type: 'FINAL'
+                    )
+                );
+            }
 
             // dean
             Mail::to($dean->official_email)->send(
@@ -1018,25 +1024,28 @@ class ReviewTeamChairController extends Controller
         $validated = $validator->validated();
         try {
             $pgpr = PostGraduateProgramReview::find($validated['pgpr']);
-            $qacDir = User::find($pgpr->qac_dir_id);
             $pgp = $pgpr->postGraduateProgram;
             $programCoordinator = User::find($pgp->programme_coordinator_id);
             $faculty = $pgp->faculty;
             $university = $faculty->university;
             $dean = User::find($faculty->currentDean->id);
 
-            // qac director
-            Mail::to($qacDir->official_email)->send(
-                new InformReportUploadsToOfficials(
-                    recipient: $qacDir,
-                    subject: "Final report of the post-graduate program reivew {$pgp->title}",
-                    content: 'mail.informOfficialsAboutOfficialDocumentSubmissions',
-                    pgp: $pgp,
-                    university: $university,
-                    faculty: $faculty,
-                    type: 'PRELIMINARY'
-                )
-            );
+            //sending the mail to the qac director
+            $qacDirectors = User::whereJsonContains('roles', 'qac_director')->get();
+
+            foreach ($qacDirectors as $qacDirector) {
+                Mail::to($qacDirector->official_email)->send(
+                     new InformReportUploadsToOfficials(
+                         recipient: $qacDirector,
+                         subject: "Final report of the post-graduate program reivew {$pgp->title}",
+                         content: 'mail.informOfficialsAboutOfficialDocumentSubmissions',
+                         pgp: $pgp,
+                         university: $university,
+                         faculty: $faculty,
+                         type: 'PRELIMINARY'
+                     )
+                );
+            }
 
             // dean
             Mail::to($dean->official_email)->send(
@@ -1121,25 +1130,29 @@ class ReviewTeamChairController extends Controller
         try {
             $pgpr = PostGraduateProgramReview::find($validated['pgpr']);
             $reviewTeam = $pgpr->reviewTeam;
-            $qacDir = User::find($pgpr->qac_dir_id);
             $pgp = $pgpr->postGraduateProgram;
             $programCoordinator = User::find($pgp->programme_coordinator_id);
             $faculty = $pgp->faculty;
             $university = $faculty->university;
             $dean = User::find($faculty->currentDean->id);
 
-            // qac director
-            Mail::to($qacDir->official_email)->send(
-                new InformReportUploadsToOfficials(
-                    recipient: $qacDir,
-                    subject: "Final report of the post-graduate program reivew {$pgp->title}",
-                    content: 'mail.informOfficialsAboutOfficialDocumentSubmissions',
-                    pgp: $pgp,
-                    university: $university,
-                    faculty: $faculty,
-                    type: 'FINAL'
-                )
-            );
+
+            //sending the mail to the qac director
+            $qacDirectors = User::whereJsonContains('roles', 'qac_director')->get();
+
+            foreach ($qacDirectors as $qacDirector) {
+                Mail::to($qacDirector->official_email)->send(
+                    new InformReportUploadsToOfficials(
+                        recipient: $qacDirector,
+                        subject: "Final report of the post-graduate program reivew {$pgp->title}",
+                        content: 'mail.informOfficialsAboutOfficialDocumentSubmissions',
+                        pgp: $pgp,
+                        university: $university,
+                        faculty: $faculty,
+                        type: 'FINAL'
+                    )
+                );
+            }
 
             // dean
             Mail::to($dean->official_email)->send(

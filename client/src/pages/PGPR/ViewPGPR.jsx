@@ -404,7 +404,7 @@ const ViewPGPR = () => {
 
     const secondaryBoxStyle = { display: 'flex', justifyContent: 'flex-start', alignItems: 'center', flexDirection: 'column', width: '50%', mt: 2, minHeight: '60vh' };
     const detailedBox = { display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', width: '95%', padding: "1rem", margin: "1rem", borderRadius: '1rem', backgroundColor: '#D8E6FC' };
-    const itemBox = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row', width: '90%', margin: "0.5rem 0" };
+    const itemBox = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row', width: '100%', margin: "0.5rem 0" };
 
     return (
         <>
@@ -593,14 +593,14 @@ const ViewPGPR = () => {
                                         </Box>
                                     }
 
-                                    <Box align='left'>
-                                        <Typography key={reviewerChair?.userData?.id + 'selectedChair'} variant="h6" sx={{ mb: 1 }} align='left'>
+                                    <Box align='left' sx={{ml:'0.5rem'}}>
+                                        <Typography key={reviewerChair?.userData?.id + 'selectedChair'} sx={{ mb: 1 }} align='left'>
                                             {reviewerChair?.reviewerConfirmation ?? 'Not Confirmed'}
                                         </Typography>
-                                        <Typography key={reviewer1?.userData?.id + 'selectedMember1'} variant="h6" sx={{ mb: 1 }} align='left'>
+                                        <Typography key={reviewer1?.userData?.id + 'selectedMember1'} sx={{ mb: 1 }} align='left'>
                                             {reviewer1?.reviewerConfirmation ?? 'Not Confirmed'}
                                         </Typography>
-                                        <Typography key={reviewer2?.userData?.id + 'selectedMember2'} variant="h6" sx={{ mb: 1 }} align='left'>
+                                        <Typography key={reviewer2?.userData?.id + 'selectedMember2'} sx={{ mb: 1 }} align='left'>
                                             {reviewer2?.reviewerConfirmation ?? 'Not Confirmed'}
                                         </Typography>
                                     </Box>

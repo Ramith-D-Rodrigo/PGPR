@@ -365,7 +365,7 @@ const Login = () => {
                 </ColorButton>
               </form>
               <Typography style={{ marginTop: "15px" }}>
-                <Link href="#">Forgot password ?</Link>
+                <Link href="/forgot-password-email-verification">Forgot password?</Link>
               </Typography>
               <Snackbar
                 open={errorMsg == "" ? false : true}
@@ -383,7 +383,7 @@ const Login = () => {
                 anchorOrigin={{ vertical: "top", horizontal: "center" }}
               >
                 <Alert onClose={() => setSuccess(false)} severity="success">
-                  Login Successfull!
+                  Login Successful!
                 </Alert>
               </Snackbar>
             </Box>

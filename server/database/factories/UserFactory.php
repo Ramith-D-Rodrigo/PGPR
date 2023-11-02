@@ -35,6 +35,7 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => Hash::make('password'), // password
             'remember_token' => Str::random(10),
+            'logins' => 1 //only change this to 0 at production
         ];
     }
 
@@ -76,7 +77,7 @@ class UserFactory extends Factory
     {
         return $this->state(fn(array $attributes) => [
             'roles' => json_encode(['cqa_director']),
-            'official_email' => env('CQA_SAMPLE_EMAIL')
+            'official_email' => env('CQA1_SAMPLE_EMAIL')
         ]);
     }
 
@@ -84,8 +85,17 @@ class UserFactory extends Factory
     {
         return $this->state(fn(array $attributes) => [
             'roles' => json_encode(['qac_officer']),
-            'official_email' => env('QACO_SAMPLE_EMAIL'),
-            'logins' => 1 //so no need to change password
+            'official_email' => env('QACO_PROFESSIONAL_EMAIL'),
+            'personal_email' => env('QACO_PERSONAL_EMAIL'),
+            'full_name' => env('QACO_FULL_NAME'),
+            'initials' => env('QACO_INITIALS'),
+            'surname' => env('QACO_SURNAME'),
+            'contact_no' => json_encode([env('QACO_CONTACT_NUMBER1'), env('QACO_CONTACT_NUMBER2')]),
+            'official_telephone_no' => env('QACO_OFFICIAL_TELEPHONE'),
+            'nic' => env('QACO_NIC'),
+            'gender' => env('QACO_GENDER'),
+            'password' => Hash::make(env('QACO_PASSWORD')),
+            'logins' => 1
         ]);
     }
 
@@ -93,8 +103,24 @@ class UserFactory extends Factory
     {
         return $this->state(fn(array $attributes) => [
             'roles' => json_encode(['qac_director']),
-            'official_email' => env('QACD_SAMPLE_EMAIL'),
-            'logins' => 1 //so no need to change password
+            'official_email' => env('QACD_PROFESSIONAL_EMAIL'),
+            'personal_email' => env('QACD_PERSONAL_EMAIL'),
+            'full_name' => env('QACD_FULL_NAME'),
+            'initials' => env('QACD_INITIALS'),
+            'surname' => env('QACD_SURNAME'),
+            'contact_no' => json_encode([env('QACD_CONTACT_NUMBER1'), env('QACD_CONTACT_NUMBER2')]),
+            'official_telephone_no' => env('QACD_OFFICIAL_TELEPHONE'),
+            'nic' => env('QACD_NIC'),
+            'gender' => env('QACD_GENDER'),
+            'password' => Hash::make(env('QACD_PASSWORD')),
+            'logins' => 1
+        ]);
+    }
+
+    public function production(): static
+    {
+        return $this->state(fn(array $attributes) => [
+            'logins' => 0
         ]);
     }
 
@@ -102,7 +128,7 @@ class UserFactory extends Factory
     {
         return $this->state(fn(array $attributes) => [
             'roles' => json_encode(['vice_chancellor']),
-            'official_email' => env('VC_SAMPLE_EMAIL')
+            'official_email' => env('VC1_SAMPLE_EMAIL')
         ]);
     }
 
@@ -110,7 +136,7 @@ class UserFactory extends Factory
     {
         return $this->state(fn(array $attributes) => [
             'roles' => json_encode(['dean']),
-            'official_email' => env('DEAN_SAMPLE_EMAIL')
+            'official_email' => env('DEAN1_SAMPLE_EMAIL')
         ]);
     }
 
@@ -118,7 +144,7 @@ class UserFactory extends Factory
     {
         return $this->state(fn(array $attributes) => [
             'roles' => json_encode(['iqau_director']),
-            'official_email' => env('IQAU_SAMPLE_EMAIL')
+            'official_email' => env('IQAU1_SAMPLE_EMAIL')
         ]);
     }
 
@@ -126,9 +152,16 @@ class UserFactory extends Factory
     {
         return $this->state(fn(array $attributes) => [
             'roles' => json_encode(['programme_coordinator']),
-            'official_email' => env('COOR_SAMPLE_EMAIL')
+            'official_email' => env('COOR1_SAMPLE_EMAIL')
         ]);
     }
 
+
+    public function set_email(string $email): Factory
+    {
+        return $this->state(fn(array $attributes) => [
+            'official_email' => $email
+        ]);
+    }
 
 }

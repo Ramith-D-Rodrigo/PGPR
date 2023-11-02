@@ -155,6 +155,14 @@ const BrowsePGPR = () => {
       if (response.status === 200) {
         // Recommendation was successful
         setSuccessMsg(response.data.message);
+
+        //disable the button
+        setIsRecommendButtonDisabledArray((prevArray) => {
+          const newArray = [...prevArray];
+          newArray[rowIndex] = true;
+          return newArray;
+        });
+
       } else {
         // Recommendation failed
         setErrorMsg(response.data.message);

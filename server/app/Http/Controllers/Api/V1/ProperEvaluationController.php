@@ -15,6 +15,7 @@ use App\Models\ProperEvaluation2;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
 class ProperEvaluationController extends Controller
@@ -41,7 +42,7 @@ class ProperEvaluationController extends Controller
             $properEvaluation->pgpr_id = $validated['pgpr_id'];
             $properEvaluation->start_date = $validated['start_date'];
             $properEvaluation->end_date = $validated['end_date'];
-            $properEvaluation->status = '1';
+            $properEvaluation->stage = '1';
 
             $properEvaluation1 = new ProperEvaluation1([
                 'start_date' => $validated['start_date'],
@@ -85,12 +86,19 @@ class ProperEvaluationController extends Controller
             $validated = $request->validated();
             $properEvaluation = ProperEvaluation::findOrFail($id);
 
+            DB::beginTransaction();
+
             if (array_key_exists('status', $validated)) {
-                if ($validated['status'] == '2' && ($properEvaluation->status != '1' || $properEvaluation->status != '2')) {
+                if ($validated['status'] == '2' && $properEvaluation->stage != 'COMPLETED') {
                     return response()->json(['message' => 'The proper evaluation is not in an updatable state.'], 422);
                 }
 
-                if ($validated['status'] == '2' && $properEvaluation->status == '1') {
+                // switching from PE1 to PE2
+                if ($validated['status'] == '2' && $properEvaluation->stage == '1') {
+
+                    $properEvaluation -> stage = '2';
+                    $properEvaluation -> save();
+
                     $properEvaluation2 = new ProperEvaluation2([
                         'start_date' => Carbon::today(),
                         'end_date' => NULL,
@@ -100,8 +108,13 @@ class ProperEvaluationController extends Controller
                     ]);
 
                     $properEvaluation->properEvaluation2()->save($properEvaluation2);
+                    $properEvaluation2 -> save();
+                    $pgpr = $properEvaluation -> postGraduateProgramReview;
+                    $pgpr -> status_of_pgpr = 'PE2';
+                    $pgpr -> save();
+
                 }
-            } else if ($properEvaluation->status == 'COMPLETED') {
+            } else if ($properEvaluation->stage == 'COMPLETED') {
                 return response()->json(['message' => 'This proper evaluation is completed, no further updates are allowed'], 422);
             }
 
@@ -175,9 +188,12 @@ class ProperEvaluationController extends Controller
             $properEvaluation->save();
 
             return new ProperEvaluationResource($properEvaluation);
+            DB::commit();
+
         } catch (ModelNotFoundException $exception) {
             return response()->json(['message' => 'The proper evaluation id you mentioned could not be found please try again after making amends'], 422);
         } catch (Exception $exception) {
+            DB::rollBack();
             return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
         }
     }
