@@ -674,7 +674,7 @@ class ReviewTeamChairController extends Controller
     /**
      *
      * review chair can view summary of proper evaluation grades of each member of the team(including himself)
-     * /{pgpr}/{criteria}/{standard}
+     * /{pgpr}/{criteria}
      *
      */
     public function viewPEScoresOfEachStandardOfEachTeamMember(ShowPEScoresOfReviewTeamRequest $request): \Illuminate\Http\JsonResponse
@@ -685,10 +685,13 @@ class ReviewTeamChairController extends Controller
             $properEvaluation = $postGraduateProgramReview->properEvaluations;
 
             if ($properEvaluation) {
+                $standardIds = Criteria::find($validated['criteria_id'])->standards->pluck('id');
                 $data = DB::table('proper_evaluation_score')
-                    ->select('reviewer_id', 'pe_score', 'comment')
+                    ->join('standards', 'proper_evaluation_score.standard_id', '=', 'standards.id')
+                    ->join('criterias', 'standards.criteria_id', '=', 'criterias.id')
                     ->where('proper_evaluation_id', $properEvaluation->id)
-                    ->where('standard_id', $validated['standard_id'])
+                    ->whereIn('proper_evaluation_score.standard_id', $standardIds)
+                    ->select('standards.id as standardId', 'proper_evaluation_score.pe_score as peScore', 'proper_evaluation_score.comment as comment')
                     ->get();
                 return response()->json(['message' => 'Successful', 'data' => $data]);
             } else {
@@ -698,7 +701,8 @@ class ReviewTeamChairController extends Controller
                 );
             }
         } catch (Exception $exception) {
-            return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+            // return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+            throw $exception; 
         }
     }
 

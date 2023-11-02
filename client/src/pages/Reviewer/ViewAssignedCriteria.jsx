@@ -17,14 +17,6 @@ import {
   CircularProgress,
   Snackbar,
   Alert,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  InputLabel,
-  TextField,
-  useTheme,
-  useMediaQuery,
 } from "@mui/material";
 
 import useAuth from "../../hooks/useAuth";
@@ -78,13 +70,6 @@ const ViewAssignedCriteria = () => {
   const [PEProgress, setPEProgress] = useState([]);
   const [ser, setSer] = useState({});
   const [pgpr, setPgpr] = useState({});
-  const [assignedRows, setAssignedRows] = useState([]);
-  const [openDateDialog, setOpenDateDialog] = useState(false);
-  const [visitStartDate, setVisitStartDate] = useState("");
-  const [visitEndDate, setVisitEndDate] = useState("");
-  const [evaluationStartDate, setEvaluationStartDate] = useState("");
-  const [evaluationEndDate, setEvaluationEndDate] = useState("");
-  const [dateRemark, setDateRemark] = useState("");
   const [assignedPg, setAssignedPg] = useState({});
 
   useEffect(() => {
@@ -97,7 +82,7 @@ const ViewAssignedCriteria = () => {
 
         const response = await getAssignedPGPRs(pgprId);
         setAssignedPg(response?.data?.data);
-        console.log("Assigned PGPR : ", response?.data?.data);
+        // console.log("Assigned PGPR : ", response?.data?.data);
         //console.log("PGPR : ", pgprResponse?.data?.data);
         //setPgpr(pgprResponse?.data?.data);
 
