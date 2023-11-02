@@ -89,7 +89,7 @@ class ProperEvaluationController extends Controller
             DB::beginTransaction();
 
             if (array_key_exists('status', $validated)) {
-                if ($validated['status'] == '2' && $properEvaluation->stage != 'COMPLETED') {
+                if ($properEvaluation->stage == 'COMPLETED') {
                     return response()->json(['message' => 'The proper evaluation is not in an updatable state.'], 422);
                 }
 
@@ -118,7 +118,6 @@ class ProperEvaluationController extends Controller
                 return response()->json(['message' => 'This proper evaluation is completed, no further updates are allowed'], 422);
             }
 
-            $properEvaluation->update($validated);
             $postGraduateProgramReview = $properEvaluation->postGraduateProgramReview;
             $postGraduateProgram = $postGraduateProgramReview->postGraduateProgram;
             $faculty = $postGraduateProgram->faculty;
@@ -127,74 +126,21 @@ class ProperEvaluationController extends Controller
             $dean = $faculty->currentDean->user;
             $programmeCoordinator = $postGraduateProgram->currentProgrammeCoordinator->user;
             $reviewers = $postGraduateProgramReview->acceptedReviewTeam->reviewers;
+            $properEvaluation->update($validated);
 
             // TODO: INFORM REVIEWERS, DEAN, PROGRAMME CO., IQAU DIR
             // dean
-            Mail::to($dean->official_mail)->send(
-                new InformProperEvaluationActionToAuthorities(
-                    user: $dean,
-                    action: 'UPDATED',
-                    faculty: $faculty,
-                    university: $university,
-                    postGraduateProgram: $postGraduateProgram,
-                    properEvaluationInfo: $properEvaluation,
-                    subject: 'Details related to a proper evaluation have been updated',
-                    content: 'mail.informProperEvaluationActionToAuthorities',
-                )
-            );
-            // programmeCoordinator
-            Mail::to($programmeCoordinator->official_mail)->send(
-                new InformProperEvaluationActionToAuthorities(
-                    user: $programmeCoordinator,
-                    action: 'UPDATED',
-                    faculty: $faculty,
-                    university: $university,
-                    postGraduateProgram: $postGraduateProgram,
-                    properEvaluationInfo: $properEvaluation,
-                    subject: 'Details related to a proper evaluation have been updated',
-                    content: 'mail.informProperEvaluationActionToAuthorities',
-                )
-            );
-            // iqauDirector
-            Mail::to($iqauDirector->official_mail)->send(
-                new InformProperEvaluationActionToAuthorities(
-                    user: $iqauDirector,
-                    action: 'UPDATED',
-                    faculty: $faculty,
-                    university: $university,
-                    postGraduateProgram: $postGraduateProgram,
-                    properEvaluationInfo: $properEvaluation,
-                    subject: 'Details related to a proper evaluation have been updated',
-                    content: 'mail.informProperEvaluationActionToAuthorities',
-                )
-            );
-
-
-            foreach($reviewers as $reviewer) {
-                Mail::to($reviewer->user->official_mail)->send(
-                    new InformProperEvaluationActionToAuthorities(
-                        user: $reviewer->user,
-                        action: 'UPDATED',
-                        faculty: $faculty,
-                        university: $university,
-                        postGraduateProgram: $postGraduateProgram,
-                        properEvaluationInfo: $properEvaluation,
-                        subject: 'Details related to a proper evaluation have been updated',
-                        content: 'mail.informProperEvaluationActionToAuthorities',
-                    )
-                );
-            }
-
             $properEvaluation->save();
 
-            return new ProperEvaluationResource($properEvaluation);
             DB::commit();
+            return response()->Json(['message' => 'successful', 'data' => new ProperEvaluationResource($properEvaluation)]);
 
         } catch (ModelNotFoundException $exception) {
             return response()->json(['message' => 'The proper evaluation id you mentioned could not be found please try again after making amends'], 422);
         } catch (Exception $exception) {
             DB::rollBack();
-            return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+            //return response()->json(['message' => 'We have encountered an error, try again in a few moments please'], 500);
+            throw $exception;
         }
     }
 

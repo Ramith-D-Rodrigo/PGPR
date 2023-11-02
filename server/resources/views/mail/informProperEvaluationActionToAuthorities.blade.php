@@ -12,8 +12,8 @@ Proper Evaluation details:<br>
     University name: {{$university->name}}<br>
     Faculty address: {{$faculty->address}}<br>
     postGraduateProgram name: {{$postGraduateProgram->title}}<br>
-    Proper evaluation start date: {{$properEvaluation->start_date}}<br>
-    Proper evaluation end date: {{$properEvaluation->end_date}}<br>
+    Proper evaluation start date: {{$properEvaluationInfo->start_date}}<br>
+    Proper evaluation end date: {{$properEvaluationInfo->end_date}}<br>
 
 You can find more details regarding this on our platform. <br>
 Thank you.<br>
