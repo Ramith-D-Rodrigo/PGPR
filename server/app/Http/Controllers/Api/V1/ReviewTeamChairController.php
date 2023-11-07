@@ -301,6 +301,7 @@ class ReviewTeamChairController extends Controller
                 $deskEvaluation->status = 'COMPLETED';
                 $deskEvaluation->save();
                 $pgpr -> status_of_pgpr = 'PE1';
+                $pgpr -> save();
 
                 // send the mails as well
                 // to the dean, program coordinator, qac officer
