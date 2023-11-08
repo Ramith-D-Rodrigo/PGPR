@@ -22,6 +22,7 @@ import {
   Snackbar,
   Alert
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 //import useDrawerState from "../../hooks/useDrawerState";
 import useSetUserNavigations from "../../hooks/useSetUserNavigations";
@@ -35,6 +36,7 @@ import getSpecificPGPR from "../../api/Reviewer/getSpecificPGPR";
 import {CircularProgress} from "@mui/material";
 
 const EvaluatePE = () => {
+  const navigate = useNavigate();
   const { pgprId, criteriaId } = useParams();
   //const open = useDrawerState().drawerState.open;
   const [value, setValue] = useState(0);
@@ -88,123 +90,101 @@ const EvaluatePE = () => {
   
   useEffect(() => {
     document.title = "Evaluate PE";
-    const getSERDetails = async () => {
-      setLoading(true);
-      setErrorMsg("");
-      try {
-        const pgprResponse = await getSpecificPGPR(pgprId);
-        setPGPRDetails(pgprResponse?.data?.data);
-        setSERId(pgprResponse?.data?.data?.postGraduateReviewProgram?.selfEvaluationReport?.id);
-        //console.log("PGPR Details : ", pgprResponse?.data?.data);
-        //console.log("SER ID : ", pgprResponse?.data?.data?.postGraduateReviewProgram?.selfEvaluationReport?.id);
-        // const response = await getAssignedPGPR(pgprId);
-        // console.log("PGPR Details : ", response?.data?.data);
-        //setReviewerRole(response?.data?.data?.role);
-        setDeskEvaluation(pgprResponse?.data?.data?.postGraduateReviewProgram?.deskEvaluation);
-        //console.log("Desk Evaluation : ", pgprResponse?.data?.data?.postGraduateReviewProgram?.deskEvaluation);
-        setProperEvaluation(
-          pgprResponse?.data?.data?.properEvaluation
-        );
-        //console.log("Proper Evaluation : ", pgprResponse?.data?.data?.postGraduateReviewProgram?.properEvaluation);
-
-        const serResponse = await getSelfEvaluationReport(pgprResponse?.data?.data?.postGraduateReviewProgram?.selfEvaluationReport?.id);
-        setSER(
-          serResponse?.data?.data
-        );
-        //console.log("SER : ", serResponse?.data?.data);
-
-        const selectedStandards = serResponse?.data?.data?.criterias?.find((criteria) => {
-          return criteria?.id == criteriaId;
-        });
-        setStandards(selectedStandards?.standards);
-        //console.log("Selected Standards : ", selectedStandards);
-
-        if (!standardIdAssigned) {
-          // Assign the standardId to the first standard
-          setStandardId(selectedStandards?.standards[0]?.id);
-          // Update the flag to indicate assignment has been made
-          setStandardIdAssigned(true);
-        }
-
-        // await getDataForSelectedStandard(
-        //   pgprResponse?.data?.data?.postGraduateReviewProgram?.deskEvaluation?.id,
-        //   selectedStandards[standardId - 1].id,
-        //   pgprResponse?.data?.data?.postGraduateReviewProgram?.properEvaluation?.id,
-        //   pgprResponse?.data?.data?.postGraduateReviewProgram?.selfEvaluationReport?.id
-        // );
-
-        const AssignCriteriaResponse = await axios.get(
-          `${SERVER_URL}${SERVER_API_VERSION}reviewer/proper-evaluation/display-remarks-scores?pgpr=${pgprId}&properEvaluation=${pgprResponse?.data?.data?.postGraduateReviewProgram?.properEvaluation?.id}`
-        );
-        setAssignedCriterias(AssignCriteriaResponse?.data);
-        //console.log("Assigned Criterias : ", AssignCriteriaResponse?.data);
-        setCriteriaName(AssignCriteriaResponse.data?.find((criteria) => {
-          return criteria?.criteriaId == criteriaId;
-        })?.criteriaName);
-
-        if(standardId) {
-          const DEResponse = await axios.get(
-            `${SERVER_URL}${SERVER_API_VERSION}reviewer/desk-evaluation/display-remarks?deskEvaluation=${pgprResponse?.data?.data?.postGraduateReviewProgram?.deskEvaluation?.id}&criteria=${criteriaId}&standard=${standardId}`
-          );
-
-          setDEremarks(DEResponse?.data?.data?.comment ?? "");
-          setDEScore(DEResponse?.data?.data?.score ?? 0);
-          //console.log("Desk Evaluation Remarks : ", DEResponse?.data?.data);
-          //return DEResponse?.data?.data;
-
-          const PEResponse = await axios.get(
-            `${SERVER_URL}${SERVER_API_VERSION}reviewer/proper-evaluation/display-remarks-scores?pgpr=${pgprId}&properEvaluation=${pgprResponse?.data?.data?.postGraduateReviewProgram?.properEvaluation?.id}`
-          );
-
-          setPEData(PEResponse?.data);
-
-          //console.log("Proper Evaluation Response : ", PEResponse?.data);
-
-          const EviResponse = await getStandardEvidencesAndAdherenceForSER(
-            pgprResponse?.data?.data?.postGraduateReviewProgram
-              ?.selfEvaluationReport?.id,
-            standardId
-          );
-          setEvidencesForStandard(EviResponse?.data?.data);
-          //console.log("Standard Evidences and Adherence : ",EviResponse?.data?.data);
-          setAllData(
-            DEResponse?.data?.data,
-            PEResponse?.data,
-            EviResponse?.data?.data
-          );
-        }
-      } catch (err) {
-        setErrorMsg(err?.response?.data?.message);
-      } finally {
-        setLoading(false);
-      }
-    };
     getSERDetails(); 
   }, [standardId]);
+  
+  const getSERDetails = async () => {
+    setLoading(true);
+    // setErrorMsg("");
+    try {
+      const pgprResponse = await getSpecificPGPR(pgprId);
+      setPGPRDetails(pgprResponse?.data?.data);
+      setSERId(pgprResponse?.data?.data?.postGraduateReviewProgram?.selfEvaluationReport?.id);
+      setDeskEvaluation(pgprResponse?.data?.data?.postGraduateReviewProgram?.deskEvaluation);
+      setProperEvaluation(
+        pgprResponse?.data?.data?.properEvaluation
+      );
 
+      const serResponse = await getSelfEvaluationReport(pgprResponse?.data?.data?.postGraduateReviewProgram?.selfEvaluationReport?.id);
+      setSER(
+        serResponse?.data?.data
+      );
+
+      const selectedStandards = serResponse?.data?.data?.criterias?.find((criteria) => {
+        return criteria?.id == criteriaId;
+      });
+      setStandards(selectedStandards?.standards);
+      //console.log("Selected Standards : ", selectedStandards);
+
+      if (!standardIdAssigned) {
+        // Assign the standardId to the first standard
+        setStandardId(selectedStandards?.standards[0]?.id);
+        // Update the flag to indicate assignment has been made
+        setStandardIdAssigned(true);
+      }
+
+      const AssignCriteriaResponse = await axios.get(
+        `${SERVER_URL}${SERVER_API_VERSION}reviewer/proper-evaluation/display-remarks-scores?pgpr=${pgprId}&properEvaluation=${pgprResponse?.data?.data?.postGraduateReviewProgram?.properEvaluation?.id}`
+      );
+      setAssignedCriterias(AssignCriteriaResponse?.data);
+      //console.log("Assigned Criterias : ", AssignCriteriaResponse?.data);
+      setCriteriaName(AssignCriteriaResponse.data?.find((criteria) => {
+        return criteria?.criteriaId == criteriaId;
+      })?.criteriaName);
+
+      if(standardId) {
+        const DEResponse = await axios.get(
+          `${SERVER_URL}${SERVER_API_VERSION}reviewer/desk-evaluation/display-remarks?deskEvaluation=${pgprResponse?.data?.data?.postGraduateReviewProgram?.deskEvaluation?.id}&criteria=${criteriaId}&standard=${standardId}`
+        );
+
+        setDEremarks(DEResponse?.data?.data?.comment ?? "");
+        setDEScore(DEResponse?.data?.data?.score ?? 0);
+        //console.log("Desk Evaluation Remarks : ", DEResponse?.data?.data);
+        //return DEResponse?.data?.data;
+
+        const PEResponse = retrievePEData(pgprResponse?.data?.data?.postGraduateReviewProgram?.properEvaluation?.id);
+
+        //console.log("Proper Evaluation Response : ", PEResponse?.data);
+
+        const EviResponse = await getStandardEvidencesAndAdherenceForSER(
+          pgprResponse?.data?.data?.postGraduateReviewProgram
+            ?.selfEvaluationReport?.id,
+          standardId
+        );
+        setEvidencesForStandard(EviResponse?.data?.data);
+        //console.log("Standard Evidences and Adherence : ",EviResponse?.data?.data);
+        setAllData(
+          DEResponse?.data?.data,
+          PEResponse?.data,
+          EviResponse?.data?.data
+        );
+      }
+    } catch (err) {
+      setErrorMsg(err?.response?.data?.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const retrievePEData = async(peId)=>{
+      const PEResponse = await axios.get(
+        `${SERVER_URL}${SERVER_API_VERSION}reviewer/proper-evaluation/display-remarks-scores?pgpr=${pgprId}&properEvaluation=${peId}`
+      );
+
+      setPEData(PEResponse?.data);
+      return PEResponse;
+  }
   useEffect(() => {
     const criteriaData = PEData?.find(
       (criteria) => {
-        // if(criteria.criteriaId == criteriaId) {
-        //   console.log("Hello");
-        // } else {
-        //   console.log("Bye");
-        // }
-        // console.log("Criteria ID : ", criteriaId);
-        // console.log("Criteria : ", criteria.criteriaId);
         return criteria.criteriaId == criteriaId
       }
     );
-
-    console.log("Criteria Data : ", criteriaData);
-    console.log("Standard ID : ", standardId);
 
     if (criteriaData) {
       const standardData = criteriaData?.evaluatedStandards?.find((standard) => {
         return standard?.standardId == standardId;
       });
-
-      console.log("Standard Data : ", standardData);
 
       if(standardData) {
         setPrevPEremarks(standardData?.comment ?? "");
@@ -238,8 +218,8 @@ const EvaluatePE = () => {
     if (temp.length > max) {
       setObservationsErrMsg(`maximum length is ${max}`);
     } else {
-      event.target.focus();
-      setObservationsErrMsg("");
+      // event.target.focus();
+      // setObservationsErrMsg("");
       setPEremarks(temp);
     }
   };
@@ -248,11 +228,13 @@ const EvaluatePE = () => {
     let temp = event.target.value;
     if (temp < 0) {
       setScoreErrMsg("Score shouldn't be less than zero");
+      setTimeout(()=>setScoreErrMsg(""),1000);
     } else if (temp > 3) {
       setScoreErrMsg("Score shouldn't be greater than 3");
+      setTimeout(()=>setScoreErrMsg(""),1000);
     } else {
       setScoreErrMsg("");
-      setPEScore(temp);
+      setPEScore(parseInt(temp));
     }
   };
 
@@ -288,13 +270,23 @@ const EvaluatePE = () => {
   };
 
   const handleClickSave = () => {
-    if (PEremarks == "" || PEScore < 0 || PEScore > 3) {
-      setErrorMsg("Please fill the form correctly");
+    if ( PEremarks == "")
+    {
+      setErrorMsg("Observation must be filled");
+      return;
+    }
+    else if(PEScore < 0 || PEScore > 3)
+    {
+      setErrorMsg("proper evaluation score should be a number between 1 and 3");
+      return;
+    }
+    else if(PEremarks.length > 255) {
+      setErrorMsg("Observation comment must not exceed 255 characters");
       return;
     }
     const save = async () => {
       setLoading(true);
-      setErrorMsg("");
+      // setErrorMsg("");
       try {
         const formData = new FormData();
         formData.append("pgprId", pgprId);
@@ -308,8 +300,10 @@ const EvaluatePE = () => {
           `${SERVER_URL}${SERVER_API_VERSION}reviewer/conduct/proper-evaluation`,
           formData
         );
+        
         setErrorMsg(response?.data?.message)
         setSuccess(true);
+        retrievePEData(pgprDetails.postGraduateReviewProgram?.properEvaluation?.id);
       } catch (err) {
         setErrorMsg(err?.response?.data?.message);
       } finally {
@@ -319,17 +313,14 @@ const EvaluatePE = () => {
     save();
   };
 
-  console.log("PE Remarks : ", PEremarks);
-  console.log("Prev PE Remarks : ", prevPEremarks);
-  console.log("PE Score : ", PEScore);
-  console.log("Prev PE Score : ", prevPEScore);
-
   const handleClickCancel = () => {
     if (PEScore !== prevPEScore || PEremarks !== prevPEremarks) {
       setErrorMsg("Please save the changes before proceeding");
       return;
     }
-    history.back();
+    // navigate to `/PG_Assignments/Conduct_PE/Assigned_criteria/${pgprId}`
+    navigate(`../Assigned_criteria/${pgprId}`);
+
   };
 
   const handleClickRestore = () => {
@@ -349,8 +340,6 @@ const EvaluatePE = () => {
             evidencesForStandard?.standardAdherence?.adherence,
           evidences: evidencesForStandard?.evidences ?? [],
         };
-
-  //console.log("Rows : ", row);
 
   function TabPanel (props) {
     const {
@@ -378,7 +367,6 @@ const EvaluatePE = () => {
       >
         {value === index && (
           <>
-            {/* {console.log("key : ", keyId)} */}
             <Divider sx={{ marginY: "0.5rem" }} textAlign="center">
               <Typography variant="h5" component="div" sx={{ flexGrow: 1 }}>
                 Proper Evaluation
@@ -487,174 +475,13 @@ const EvaluatePE = () => {
                   </TableBody>
                 </Table>
               </TableContainer>
-              <Box sx={{ flexGrow: 1 }}>
-                <Grid
-                  container
-                  direction="row"
-                  justifyContent="space-between"
-                  alignItems="flex-start"
-                  spacing={3}
-                >
-                  <Grid item xs={5}>
-                    <Box
-                      sx={{
-                        border: "1px solid gray",
-                        borderRadius: "0.2rem",
-                        height: "8rem",
-                        overflowY: "auto",
-                      }}
-                    >
-                      <Box
-                        display="flex"
-                        justify="space-between"
-                        alignItems="center"
-                        backgroundColor="#D8E6FC"
-                        sx={{ flexGrow: 1 }}
-                      >
-                        <Typography
-                          variant="h6"
-                          component="div"
-                          sx={{ margin: "0.25rem" }}
-                        >
-                          Desk Evaluation Remarks
-                        </Typography>
-                        <Typography
-                          variant="h6"
-                          component="div"
-                          sx={{ margin: "0.25rem", marginLeft: "4rem" }}
-                          color="primary"
-                        >
-                          DE Score: {DEScore ?? 0}
-                        </Typography>
-                      </Box>
-                      <Typography
-                        variant="body2"
-                        component="div"
-                        sx={{ flexGrow: 1, margin: "0.5rem" }}
-                      >
-                        {DEComment ?? "No DE Comments"}
-                      </Typography>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={5}>
-                    <FormControl
-                      {...(observationsErrMsg != "" ? { error: true } : {})}
-                      variant="standard"
-                      sx={{ width: "100% " }}
-                    >
-                      <TextField
-                        id="observations"
-                        label="Observations"
-                        value={PEComment}
-                        onChange={(e) => {
-                          handleChangeObservations(e);
-                        }}
-                        multiline
-                        rows={4}
-                        autoFocus
-                      />
-                      <FormHelperText id="component-error-text">
-                        {observationsErrMsg}
-                      </FormHelperText>
-                    </FormControl>
-                  </Grid>
-
-                  <Grid item xs={2}>
-                    <FormControl
-                      {...(scoreErrMsg != "" ? { error: true } : {})}
-                      variant="standard"
-                      sx={{ width: "100%" }}
-                    >
-                      <TextField
-                        id="scores"
-                        label="Score"
-                        value={PEScore}
-                        onChange={(e) => {
-                          handleChangeScore(e);
-                        }}
-                        placeholder="0-3"
-                        type="number"
-                        rows={4}
-                      />
-                      <FormHelperText id="component-error-text">
-                        {scoreErrMsg}
-                      </FormHelperText>
-                    </FormControl>
-                  </Grid>
-                </Grid>
-              </Box>
-              <Box
-                sx={{
-                  justifyContent: "space-between",
-                  marginY: "2rem",
-                  alignItems: "center",
-                  display: "flex",
-                }}
-                width="100%"
-              >
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handlePrevious}
-                  disabled={value === 0}
-                >
-                  Previous
-                </Button>
-                <Box
-                  sx={{
-                    justifyContent: "center",
-                    marginX: "1rem",
-                    alignItems: "center",
-                    display: "flex",
-                  }}
-                >
-                  <Button
-                    variant="contained"
-                    sx={{
-                      marginX: "1rem",
-                    }}
-                    color="success"
-                    onClick={handleClickSave}
-                  >
-                    Save
-                  </Button>
-                  <Button
-                    variant="contained"
-                    color="error"
-                    sx={{
-                      marginX: "1rem",
-                    }}
-                    onClick={handleClickCancel}
-                  >
-                    Cancel
-                  </Button>
-                  {PEComment !== prevPEremarks || PEScore !== prevPEScore ? (
-                    <Button
-                      onClick={handleClickRestore}
-                      variant="outlined"
-                      color="primary"
-                      sx={{ marginX: "1rem" }}
-                    >
-                      Restore
-                    </Button>
-                  ) : (
-                    ""
-                  )}
-                </Box>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleNext}
-                  disabled={value === standardCount - 1}
-                >
-                  Next
-                </Button>
-              </Box>
+              
             </Box>
           </>
         )}
       </Box>
     );
+
   }
 
   TabPanel.propTypes = {
@@ -699,7 +526,7 @@ const EvaluatePE = () => {
                 sx={{
                   borderRight: 1,
                   borderColor: "divider",
-                  maxHeight: "80vh",
+                  maxHeight: "60vh",
                   width: "12rem",
                 }}
                 aria-label="Vertical tabs example"
@@ -742,6 +569,7 @@ const EvaluatePE = () => {
                   <TabPanel
                     criteria={criteriaName}
                     key={index + 1}
+                    keyId={index + 1}
                     row={row}
                     value={value}
                     index={index}
@@ -756,6 +584,172 @@ const EvaluatePE = () => {
           </Box>
         </>
       )}
+
+      {!loading &&
+      <>
+        <Box sx={{ flexGrow: 1 }}>
+        <Grid
+          container
+          direction="row"
+          justifyContent="space-between"
+          alignItems="flex-start"
+          spacing={3}
+        >
+          <Grid item xs={5}>
+            <Box
+              sx={{
+                border: "1px solid gray",
+                borderRadius: "0.2rem",
+                height: "8rem",
+                overflowY: "auto",
+              }}
+            >
+              <Box
+                display="flex"
+                justify="space-between"
+                alignItems="center"
+                backgroundColor="#D8E6FC"
+                sx={{ flexGrow: 1 }}
+              >
+                <Typography
+                  variant="h6"
+                  component="div"
+                  sx={{ margin: "0.25rem" }}
+                >
+                  Desk Evaluation Remarks
+                </Typography>
+                <Typography
+                  variant="h6"
+                  component="div"
+                  sx={{ margin: "0.25rem", marginLeft: "4rem" }}
+                  color="primary"
+                >
+                  DE Score: {DEScore ?? 0}
+                </Typography>
+              </Box>
+              <Typography
+                variant="body2"
+                component="div"
+                sx={{ flexGrow: 1, margin: "0.5rem" }}
+              >
+                {DEremarks ?? "No DE Comments"}
+              </Typography>
+            </Box>
+          </Grid>
+          <Grid item xs={5}>
+            <FormControl
+              {...(observationsErrMsg != "" ? { error: true } : {})}
+              variant="standard"
+              sx={{ width: "100% " }}
+            >
+              <TextField
+                id="observations"
+                label="observations"
+                value={PEremarks?? "no"}
+                onChange={(e)=>setPEremarks(e.target.value)}
+                multiline
+                rows={4}
+              />
+              <FormHelperText id="component-error-text">
+                {observationsErrMsg}
+              </FormHelperText>
+            </FormControl>
+          </Grid>
+
+          <Grid item xs={2}>
+            <FormControl
+              {...(scoreErrMsg != "" ? { error: true } : {})}
+              variant="standard"
+              sx={{ width: "100%" }}
+            >
+              <TextField
+                id="scores"
+                label="Score"
+                value={PEScore}
+                onChange={(e) => {
+                  handleChangeScore(e);
+                }}
+                placeholder="0-3"
+                type="number"
+                rows={4}
+              />
+              <FormHelperText id="component-error-text">
+                {scoreErrMsg}
+              </FormHelperText>
+            </FormControl>
+          </Grid>
+        </Grid>
+      </Box>
+      <Box
+        sx={{
+          justifyContent: "space-between",
+          marginY: "2rem",
+          alignItems: "center",
+          display: "flex",
+        }}
+        width="100%"
+      >
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handlePrevious}
+          disabled={value === 0}
+        >
+          Previous
+        </Button>
+        <Box
+          sx={{
+            justifyContent: "center",
+            marginX: "1rem",
+            alignItems: "center",
+            display: "flex",
+          }}
+        >
+          <Button
+            variant="contained"
+            sx={{
+              marginX: "1rem",
+            }}
+            color="success"
+            onClick={handleClickSave}
+          >
+            Save
+          </Button>
+          <Button
+            variant="contained"
+            color="error"
+            disabled = {PEremarks !== prevPEremarks || PEScore != prevPEScore}
+            sx={{
+              marginX: "1rem",
+            }}
+            onClick={handleClickCancel}
+          >
+            Cancel
+          </Button>
+          {PEremarks !== prevPEremarks || PEScore != prevPEScore ? (
+            <Button
+              onClick={handleClickRestore}
+              variant="outlined"
+              color="primary"
+              sx={{ marginX: "1rem" }}
+            >
+              Restore
+            </Button>
+          ) : (
+            ""
+          )}
+        </Box>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleNext}
+          disabled={value === standardCount - 1}
+        >
+          Next
+        </Button>
+      </Box>
+      </>
+      }
       <Snackbar
         open={errorMsg !== "" && !success}
         anchorOrigin={{ vertical: "top", horizontal: "center" }}

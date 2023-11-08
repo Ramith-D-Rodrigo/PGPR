@@ -65,7 +65,7 @@ function PESummaryDetails() {
             scoreResponse?.data?.data?.["overallPerformanceOfStudyScore"]
           );
         }
-        console.log(scoreResponse?.data?.data);
+        // console.log(scoreResponse?.data?.data);
       } catch (error) {
         setErrorMsg(error.response.data.error);
       } finally {
@@ -124,7 +124,7 @@ function PESummaryDetails() {
               >
                 Criteria Wise Summary Details of Postgraduate programme review
               </Typography>
-              <Typography variant="body2" component="h2" gutterBottom>
+              <Typography variant="subtitle-1" gutterBottom>
                 Proper Evaluation
               </Typography>
             </Box>
@@ -236,7 +236,7 @@ function PESummaryDetails() {
                           align="center"
                           sx={{ mt: 5, mb: 5 }}
                         >
-                          No Data Found
+                          Summary Detailed score will be available after evaluated all the criteria
                         </Typography>
                       </TableCell>
                     </TableRow>
@@ -259,13 +259,19 @@ function PESummaryDetails() {
                 borderRadius="0.5rem"
               >
                 <Typography variant="h6" component="h2" gutterBottom>
-                  Proper Evaluation Score : {grade}
+                  {
+                  criteriaDetails && criteriaDetails.length > 0? 
+                    "Proper Evaluation Score : "+ {grade}
+                    : 
+                    "Proper Evaluation Score : Not Available Yet"
+                  }
                 </Typography>
               </Box>
               <Button
                 variant="contained"
                 color="primary"
                 style={{ margin: "0 10px" }}
+                disabled={criteriaDetails && criteriaDetails.length > 0 ? false : true}
                 onClick={() => {
                   const targetUrl = `../Submit_PE/${pgprId}`;
                   //console.log("Navigating to:", targetUrl);
