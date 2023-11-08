@@ -152,21 +152,19 @@ function PEStandardwiseDetails() {
 
   const scoreData = standards.length !== 0 ? standards?.data?.map((standard) => ({
     standardId: standard?.standardId,
+    standardNo: standard?.standardNo,
     peScore: standard?.peScore,
     comment: standard?.comment,
   })) : [{}];
 
   // console.log("Score Data : ", scoreData);
 
-  function findMatchingValue() {
-    for (const row of rows[selectedCriteriaId-1]?.standardDetails ?? []) {
-      // console.log("Row : ", row);
-      const matchingObj2 = scoreData.find((dataValue) => dataValue.standardId === row?.standardDetails?.standardId);
-      if (matchingObj2) {
-        return matchingObj2;
-      }
-    }
-    return null;
+  function findMatchingValue(standardNo) {
+
+    const consideringStandard = scoreData.find((standard)=>standard?.standardNo == standardNo);
+    // console.log(consideringStandard);
+    
+    return consideringStandard?? null;
   }
 
   // console.log("Rows : ", rows);
@@ -291,25 +289,16 @@ function PEStandardwiseDetails() {
                     >
                       <TableCell align="left">{row?.standardNo}</TableCell>
                       <TableCell align="left">{row?.standardName}</TableCell>
-                      {findMatchingValue() ? (
-                        <>
-                          <TableCell align="center">
-                            {findMatchingValue().peScore}
-                          </TableCell>
-                          <TableCell align="center">
-                            {findMatchingValue().comment}
-                          </TableCell>
-                        </>
-                      ) : (
-                        <>
-                          <TableCell align="center">
-                            <Typography color="error">Not Evaluated</Typography>
-                          </TableCell>
-                          <TableCell align="center">
-                            <Typography color="error">Not Evaluated</Typography>
-                          </TableCell>
-                        </>
-                      )}
+                      <TableCell align="center">
+                        {findMatchingValue(row?.standardNo)?.peScore?? 
+                        <Typography color="error">Not Evaluated</Typography>
+                        }
+                      </TableCell>
+                      <TableCell align="center">
+                        {findMatchingValue(row?.standardNo)?.comment??
+                        <Typography color="error">Not Evaluated</Typography>
+                        }
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
