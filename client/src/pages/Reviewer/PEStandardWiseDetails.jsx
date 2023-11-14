@@ -31,7 +31,7 @@ function PEStandardwiseDetails() {
   const  {auth}  = useAuth();
   const { pgprId } = useParams();
   const [assignedCriterias, setAssignedCriterias] = useState([]);
-  const [selectedCriteriaId, setSelectedCriteriaId] = useState(0);
+  const [selectedCriteriaId, setSelectedCriteriaId] = useState("");
   const [criteriaStandards, setCriteriaStandards] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -120,15 +120,15 @@ function PEStandardwiseDetails() {
     }
   }, [selectedCriteriaId]);
 
-  console.log(" : ", selectedCriteriaId);
-  console.log("standards : ", standards);
+  // console.log(" : ", selectedCriteriaId);
+  // console.log("standards : ", standards);
 
-  console.log("Assign : ",assignedCriterias);
-  //console.log(PEData);
-  console.log("Select : ", selectedCriteriaId);
-  console.log("stan : ", criteriaStandards);
+  // console.log("Assign : ",assignedCriterias);
+  // //console.log(PEData);
+  // console.log("Select : ", selectedCriteriaId);
+  // console.log("stan : ", criteriaStandards);
 
-  console.log("Role : ", pgprData?.role);
+  // console.log("Role : ", pgprData?.role);
 
   let rows = [];
   if(pgprData?.role === "CHAIR"){
@@ -152,24 +152,22 @@ function PEStandardwiseDetails() {
 
   const scoreData = standards.length !== 0 ? standards?.data?.map((standard) => ({
     standardId: standard?.standardId,
+    standardNo: standard?.standardNo,
     peScore: standard?.peScore,
     comment: standard?.comment,
   })) : [{}];
 
-  console.log("Score Data : ", scoreData);
+  // console.log("Score Data : ", scoreData);
 
-  function findMatchingValue() {
-    for (const row of rows[selectedCriteriaId-1]?.standardDetails ?? []) {
-      console.log("Row : ", row);
-      const matchingObj2 = scoreData.find((dataValue) => dataValue.standardId === row?.standardDetails?.standardId);
-      if (matchingObj2) {
-        return matchingObj2;
-      }
-    }
-    return null;
+  function findMatchingValue(standardNo) {
+
+    const consideringStandard = scoreData.find((standard)=>standard?.standardNo == standardNo);
+    // console.log(consideringStandard);
+    
+    return consideringStandard?? null;
   }
 
-  console.log("Rows : ", rows);
+  // console.log("Rows : ", rows);
 
   return (
     <Box>
@@ -225,23 +223,22 @@ function PEStandardwiseDetails() {
                 variant="standard"
                 sx={{ m: 1, minWidth: 120 }}
               >
-                <InputLabel id="select-criteria">Criteria</InputLabel>
+                <InputLabel id="select-criteria">Select a Criteria to view evaluated standards details</InputLabel>
                 <Select
                   labelId="select-criteria"
                   id="criteria-select"
-                  value={rows?.findIndex(
-                    (row) => row.criteriaId === selectedCriteriaId
-                  )}
+                  value={selectedCriteriaId??""}
                   onChange={(e) => {
-                    setSelectedCriteriaId(rows?.[e.target.value]?.criteriaId);
+                    setSelectedCriteriaId(e.target.value);
                     setCriteriaStandards(
-                      rows?.[e.target.value]?.evaluatedStandards
+                      // rows?.[e.target.value]?.evaluatedStandards
+                      rows?.find((criteria) => criteria.criteriaId == e.target.value)?.evaluatedStandards 
                     );
                   }}
                   label="criteria"
                 >
-                  {rows.map((criteria, index) => (
-                    <MenuItem key={index} value={index}>
+                  {assignedCriterias.map((criteria, index) => (
+                    <MenuItem key={index} value={criteria.criteriaId}>
                       {criteria?.criteriaName}
                     </MenuItem>
                   ))}
@@ -292,25 +289,16 @@ function PEStandardwiseDetails() {
                     >
                       <TableCell align="left">{row?.standardNo}</TableCell>
                       <TableCell align="left">{row?.standardName}</TableCell>
-                      {findMatchingValue() ? (
-                        <>
-                          <TableCell align="center">
-                            {findMatchingValue().peScore}
-                          </TableCell>
-                          <TableCell align="center">
-                            {findMatchingValue().comment}
-                          </TableCell>
-                        </>
-                      ) : (
-                        <>
-                          <TableCell align="center">
-                            <Typography color="error">Not Evaluated</Typography>
-                          </TableCell>
-                          <TableCell align="center">
-                            <Typography color="error">Not Evaluated</Typography>
-                          </TableCell>
-                        </>
-                      )}
+                      <TableCell align="center">
+                        {findMatchingValue(row?.standardNo)?.peScore?? 
+                        <Typography color="error">Not Evaluated</Typography>
+                        }
+                      </TableCell>
+                      <TableCell align="center">
+                        {findMatchingValue(row?.standardNo)?.comment??
+                        <Typography color="error">Not Evaluated</Typography>
+                        }
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

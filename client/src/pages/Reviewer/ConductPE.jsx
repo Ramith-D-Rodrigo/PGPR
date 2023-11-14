@@ -64,6 +64,7 @@ const ConductPE = () => {
   const [isDateSet, setIsDateSet] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [successMsg,setSuccessMsg] = useState("");
   const [success, setSuccess] = useState(false);
   //const [pgpr, setPgpr] = useState({});
   const [programData, setProgramData] = useState({
@@ -96,81 +97,84 @@ const ConductPE = () => {
     },
   ]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      setErrorMsg("");
-      try {
-        const pgprResponse = await getPGPR(pgprId);
 
-        const newPgpr = await getSpecificPGPR(pgprId);
+  const fetchData = async () => {
+    setLoading(true);
+    // setErrorMsg("");
+    // setSuccessMsg("");
+    try {
+      const pgprResponse = await getPGPR(pgprId);
 
-        if (pgprResponse?.data?.data) {
-          const team = pgprResponse?.data?.data?.acceptedReviewTeam;
-          setReviewTeam(team);
+      const newPgpr = await getSpecificPGPR(pgprId);
 
-          setProperEvaluation(
-            newPgpr?.data?.data?.postGraduateReviewProgram
-              ?.properEvaluation
-          );
+      if (pgprResponse?.data?.data) {
+        const team = pgprResponse?.data?.data?.acceptedReviewTeam;
+        setReviewTeam(team);
 
-          const reviewerDetails = team?.reviewers;
-          setReviewers(reviewerDetails);
+        setProperEvaluation(
+          newPgpr?.data?.data?.postGraduateReviewProgram
+            ?.properEvaluation
+        );
 
-          const chair = reviewerDetails?.find(
-            (reviewer) => reviewer?.role === "CHAIR"
-          );
-          const chairReviewer = chair?.userData;
-          setChairId(chairReviewer?.id);
-          if (chairId === auth?.id) {
-            setIsChair(true);
-          }
+        const reviewerDetails = team?.reviewers;
+        setReviewers(reviewerDetails);
 
-          const programApplication =
-            pgprResponse?.data?.data?.postGraduateProgramReviewApplication;
-          const applicationDate = programApplication?.applicationDate;
-          const requestDate = programApplication?.requestDate;
-
-          const program = pgprResponse?.data?.data?.postGraduateProgramme;
-          const title = program?.title;
-          const slqfLevel = program?.slqfLevel;
-          const facultyData = program?.faculty;
-          const faculty = facultyData?.name;
-          const universityData = facultyData?.university;
-          const university = universityData?.name;
-
-          const ser = pgprResponse?.data?.data?.selfEvaluationReport;
-          const coordinatorData = ser?.programmeCoordinator;
-          const academic = coordinatorData?.academicStaff;
-          const universitySideDetails = academic?.universitySide;
-          const coordinatorUser = universitySideDetails?.user;
-          const coordinator = coordinatorUser?.initials + " . " + coordinatorUser?.surname;
-          const criteria = ser?.criterias;
-
-          setCriteriaList(criteria);
-
-          setProgramData({
-            title,
-            slqfLevel,
-            coordinator,
-            faculty,
-            university,
-            applicationDate,
-            requestDate,
-          });
-
-          const PEResponse = await axios.get(
-            `${SERVER_URL}${SERVER_API_VERSION}review-team/proper-evaluation/view-details/${pgprId}/${team?.id}`
-          );
-          setPEData(PEResponse?.data?.data);
-          setupCriteria(PEResponse?.data?.data);
+        const chair = reviewerDetails?.find(
+          (reviewer) => reviewer?.role === "CHAIR"
+        );
+        const chairReviewer = chair?.userData;
+        setChairId(chairReviewer?.id);
+        if (chairId === auth?.id) {
+          setIsChair(true);
         }
-      } catch (error) {
-        setErrorMsg(error?.response?.data?.message);
-      } finally {
-        setLoading(false);
+
+        const programApplication =
+          pgprResponse?.data?.data?.postGraduateProgramReviewApplication;
+        const applicationDate = programApplication?.applicationDate;
+        const requestDate = programApplication?.requestDate;
+
+        const program = pgprResponse?.data?.data?.postGraduateProgramme;
+        const title = program?.title;
+        const slqfLevel = program?.slqfLevel;
+        const facultyData = program?.faculty;
+        const faculty = facultyData?.name;
+        const universityData = facultyData?.university;
+        const university = universityData?.name;
+
+        const ser = pgprResponse?.data?.data?.selfEvaluationReport;
+        const coordinatorData = ser?.programmeCoordinator;
+        const academic = coordinatorData?.academicStaff;
+        const universitySideDetails = academic?.universitySide;
+        const coordinatorUser = universitySideDetails?.user;
+        const coordinator = coordinatorUser?.initials + " . " + coordinatorUser?.surname;
+        const criteria = ser?.criterias;
+
+        setCriteriaList(criteria);
+
+        setProgramData({
+          title,
+          slqfLevel,
+          coordinator,
+          faculty,
+          university,
+          applicationDate,
+          requestDate,
+        });
+
+        const PEResponse = await axios.get(
+          `${SERVER_URL}${SERVER_API_VERSION}review-team/proper-evaluation/view-details/${pgprId}/${team?.id}`
+        );
+        setPEData(PEResponse?.data?.data);
+        setupCriteria(PEResponse?.data?.data);
       }
-    };
+    } catch (error) {
+      setErrorMsg(error?.response?.data?.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchData();
   }, [pgprId, auth?.id, chairId, flag]);
 
@@ -198,6 +202,7 @@ const ConductPE = () => {
     } else {
       setLoading(true);
       setErrorMsg("");
+      setSuccessMsg("");
       try {
         const data = {
           pgprId,
@@ -211,7 +216,7 @@ const ConductPE = () => {
           `${SERVER_URL}${SERVER_API_VERSION}review-team-chair/proper-evaluation/set-dates/phase-one`,
           data
         );
-        setErrorMsg("Dates are set successfully");
+        setSuccessMsg("Dates are set successfully");
         setSuccess(true);
         setIsDateSet(true);
       } catch (error) {
@@ -223,6 +228,7 @@ const ConductPE = () => {
     setPEEndDate("");
     setPEMeetingDate("");
     setOpenDateDialog(false);
+    fetchData();
   };
 
   const HandleselectCriteria = (e, id) => {
@@ -275,18 +281,18 @@ const ConductPE = () => {
     if (reviewerCreitriaList.length === 0) {
       setErrorMsg("Please select at least one criteria");
       setAllTemporary(allSelectedCriteriaList);
-      setOpenCriteriaDialog(false);
-      return;
     }
-    assignCriteria();
+    else{
+      assignCriteria();
+      //get PGPR data again
+    }
     setOpenCriteriaDialog(false);
-    //get PGPR data again
   };
 
   async function assignCriteria () {
     try {
       setLoading(true);
-      setErrorMsg("");
+      // setErrorMsg("");
 
       const data = {
         reviewTeamId: reviewTeam?.id,
@@ -298,14 +304,16 @@ const ConductPE = () => {
         ],
       };
 
+      // console.log("sending data : ",data);
+
       await axios.get("/sanctum/csrf-cookie");
       await axios.post(
         `${SERVER_URL}${SERVER_API_VERSION}review-team-chair/proper-evaluation/assign-criteria`,
         data  
       );
       setReviewerCreitriaList([]);
-      setErrorMsg("Criteria are assigned successfully");
       setSuccess(true);
+      setSuccessMsg("Criteria are assigned successfully");
       // console.log(errorMsg);
       triggerFlag();
     } catch (error) {
@@ -765,7 +773,7 @@ const ConductPE = () => {
       </Dialog>
 
       <Snackbar
-        open={errorMsg !== "" && !success}
+        open={errorMsg !== ""}
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
         onClose={() => setErrorMsg("")}
       >
@@ -775,23 +783,22 @@ const ConductPE = () => {
       </Snackbar>
 
       <Snackbar
-        open={success}
-        autoHideDuration={5000}
+        open={successMsg !== ""}
+        autoHideDuration = {2000}
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
         onClose={() => {
           setSuccess(false);
-          setErrorMsg("");
+          setSuccessMsg("");
         }}
       >
         <Alert
-          autoHideDuration={5000}
           onClose={() => {
             setSuccess(false);
-            setErrorMsg("");
+            setSuccessMsg("");
           }}
           severity="success"
         >
-          {errorMsg}
+          {successMsg}
           {/* on success */}
         </Alert>
       </Snackbar>

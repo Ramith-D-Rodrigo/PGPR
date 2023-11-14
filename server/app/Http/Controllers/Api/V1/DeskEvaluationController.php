@@ -93,6 +93,11 @@ class DeskEvaluationController extends Controller
                 if ($deskEvaluation->status == 'COMPLETED') {
                     return response()->json(['message' => 'The desk evaluation is not in an updatable state'], 422);
                 } else {
+                    //?on final day
+                    // $pgpr = $deskEvaluation->postGraduateProgramReview;
+                    // $pgpr->status_of_pgpr = "PE1";
+                    //?
+                    
                     // since the desk evaluation is completed, automatically create the proper evaluation
                     $properEvaluation = new ProperEvaluation();
                     $properEvaluation->pgpr_id = $deskEvaluation->pgpr_id;
@@ -110,6 +115,7 @@ class DeskEvaluationController extends Controller
                     $properEvaluation->properEvaluation1()->save($properEvaluation1);
 
                     $properEvaluation->save();
+                    $pgpr->save();
                 }
             }
 

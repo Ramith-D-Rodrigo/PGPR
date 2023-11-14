@@ -301,6 +301,7 @@ class ReviewTeamChairController extends Controller
                 $deskEvaluation->status = 'COMPLETED';
                 $deskEvaluation->save();
                 $pgpr -> status_of_pgpr = 'PE1';
+                $pgpr -> save();
 
                 // send the mails as well
                 // to the dean, program coordinator, qac officer
@@ -691,7 +692,7 @@ class ReviewTeamChairController extends Controller
                     ->join('criterias', 'standards.criteria_id', '=', 'criterias.id')
                     ->where('proper_evaluation_id', $properEvaluation->id)
                     ->whereIn('proper_evaluation_score.standard_id', $standardIds)
-                    ->select('standards.id as standardId', 'proper_evaluation_score.pe_score as peScore', 'proper_evaluation_score.comment as comment')
+                    ->select('standards.id as standardId','standards.standard_no as standardNo', 'proper_evaluation_score.pe_score as peScore', 'proper_evaluation_score.comment as comment')
                     ->get();
                 return response()->json(['message' => 'Successful', 'data' => $data]);
             } else {
