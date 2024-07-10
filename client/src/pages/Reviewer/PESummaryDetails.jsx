@@ -189,9 +189,9 @@ function PESummaryDetails() {
                 </TableHead>
                 <TableBody>
                   {criteriaDetails && criteriaDetails.length > 0 ? (
-                    criteriaDetails.map((row) => (
+                    criteriaDetails.map((row,index) => (
                       <TableRow
-                        key={row.id}
+                        key={index}
                         sx={{
                           "&:last-child td, &:last-child th": { border: 0 },
                         }}
@@ -261,7 +261,7 @@ function PESummaryDetails() {
                 <Typography variant="h6" component="h2" gutterBottom>
                   {
                   criteriaDetails && criteriaDetails.length > 0? 
-                    "Proper Evaluation Score : "+ {grade}
+                    "Proper Evaluation Score : "+ grade
                     : 
                     "Proper Evaluation Score : Not Available Yet"
                   }
