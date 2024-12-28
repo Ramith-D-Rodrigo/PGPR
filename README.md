@@ -1,5 +1,7 @@
 # PGPR
-Postgraduate Programme Review System for Quality Assurance Council of University Grants Commission
+Postgraduate Programme Review System for Quality Assurance Council of University Grants Commission.
+
+THIS IS INTENDED AS A PROOF-OF-CONCEPT PROTOTYPE FOR UNDERSTANDING THE FEASIBILITY OF STREAMLINING THE REVIEW PROCESS VIA A WEB-BASED APPLICATION.
 
 ## Getting Started
 
